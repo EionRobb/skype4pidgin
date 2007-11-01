@@ -26,7 +26,9 @@ Known Issues
 * Skype doesn't automatically hide again after dealing with notifiations (Windows)
 * Skype doesn't logout when pidgin goes offline
 * Skype sounds still play even when it's hidden
+* The plugin loads in SkypeOut contacts
 * Adium sometimes crashes on startup when the plugin is loaded.  Sometimes. (Adium)
+* Changing status on Linux/OSX doesn't update in Skype. (API Limitation)
 * Send file doesn't use the built in libpurple methods. (API Limitation)
 * Skype on Linux still opens up Skype message windows. (API Limitation)
 * Skype on Linux doesn't show buddy icons. (API Limitation)
