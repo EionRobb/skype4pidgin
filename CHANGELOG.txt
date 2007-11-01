@@ -1,0 +1,30 @@
+Changelog
+=========
+
+31 October 2007
+---------------
+* Adium plugin should no longer need dependencies installed into weird places
+* Adium plugin handles UTF-8 characters properly
+* Adium plugin has a lot of debug error messages removed
+* Adium plugin now shows the usernames without having to turn off "Show User Icons"
+
+30 October 2007
+---------------
+* File transfer progress show in Pidgin
+* Timezone information in "Get Info" windows is relative to UMT/GMT
+* Adium plugin and source are now in .zip files instead of .dmg's
+* Skype doesn't need to be started before starting Pidgin/Adium
+
+24 October 2007
+---------------
+* Changelog has been started
+* Long messages (>254 characters) no longer freeze everything
+* Requests for contact authorisation should appear now
+* Changing the display name of a buddy in libpurple updates it in Skype
+* Multi-user chats can be initiated.  No messages show up in the chat window yet.
+* Incoming event handling re-written to be more responsive
+
+17 October 2007
+---------------
+* Buddies on libpurple/Skype contact lists are kept in sync with the contact list now
+* When Skype syncs messages with another instance of Skype, messages from yourself now appear in the correct IM window
