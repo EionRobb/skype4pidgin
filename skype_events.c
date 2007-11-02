@@ -74,9 +74,14 @@ skype_handle_received_message(char *message)
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
 				purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
-			} else if (strcmp(string_parts[2], "BUDDYSTATUS") == 3 && strcmp(string_parts[3], "3") == 0)
+			} else if (strcmp(string_parts[2], "BUDDYSTATUS") == 0 && strcmp(string_parts[3], "3") == 0)
 			{
 				//buddy just got added.. handle it
+				if (purple_find_buddy(this_account, string_parts[1]) == NULL)
+				{
+					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
+					purple_blist_add_buddy(buddy, NULL, purple_group_new("Skype"), NULL);
+				}
 			}
 		}
 	} else if (strcmp(command, "MESSAGE") == 0)
