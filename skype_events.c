@@ -66,8 +66,9 @@ skype_handle_received_message(char *message)
 				buddy->proto_data = (gpointer)g_strdup(string_parts[3]);
 			} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
 			{
+				purple_debug_info("User %s requested authorisation\n", string_parts[1]);
 				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
-													string_parts[3], purple_find_buddy(this_account, string_parts[1]) != NULL,
+													string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
 													skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
 	
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
@@ -110,20 +111,22 @@ skype_handle_received_message(char *message)
 						temp = skype_send_message("GET CHATMESSAGE %s CHATNAME", msg_num);
 						chatname = g_strdup(&temp[18+strlen(msg_num)]);
 						g_free(temp);
+						//purple_debug_info("skype", "Chatname: '%s'\n", chatname);
 						chatusers = g_strsplit_set(chatname, "/;", 3);
 						if (strcmp(&chatusers[0][1], my_username) == 0)
 							sender = &chatusers[1][1];
 						else
 							sender = &chatusers[0][1];
-						serv_got_im(gc, sender, body, PURPLE_MESSAGE_SEND, mtime);
+						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_SEND, mtime);
 						g_strfreev(chatusers);
 					} else {
 						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 					}
 				} else if (strcmp(type, "AUTHREQUEST") == 0 && strcmp(sender, my_username) != 0)
 				{
+					purple_debug_info("User %s requested alternate authorisation\n", sender);
 					purple_account_request_authorization(this_account, sender, NULL, skype_get_user_info(sender, "FULLNAME"),
-												body, purple_find_buddy(this_account, sender) != NULL,
+												body, (purple_find_buddy(this_account, sender) != NULL),
 												skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(sender));
 				}
 
@@ -191,7 +194,11 @@ skype_handle_received_message(char *message)
 				g_free(temp);
 				temp = skype_send_message("GET CHATMESSAGE %s TIMESTAMP", msg_num);
 				
-				purple_conv_chat_write(PURPLE_CONV_CHAT(conv), sender, body, PURPLE_MESSAGE_RECV, mtime);
+				/* Escape the body to HTML */
+				body_html = skype_strdup_withhtml(body);
+				g_free(body);
+				
+				purple_conv_chat_write(PURPLE_CONV_CHAT(conv), sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 			} else if (strcmp(type, "ADDEDMEMBERS") == 0)
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
