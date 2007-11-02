@@ -135,7 +135,7 @@ char *skype_send_message(char *message_format, ...)
 	if (strncmp(return_msg, "ERROR", 5) == 0)
 	{
 		g_free(return_msg);
-		return "";
+		return g_strdup("");
 	}
 	return return_msg;
 }
