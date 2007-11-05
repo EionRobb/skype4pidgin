@@ -635,32 +635,9 @@ int
 skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message, 
 		PurpleMessageFlags flags)
 {
-	int character_code, len, msg_len, i;
 	char *stripped;
-	GString* buffer;
 	
-	if (PURPLE_VERSION_CHECK(2, 2, 2))
-	{
-		//2.2.2 and lower don't convert eg &#x89; to the utf8 characters
-		msg_len = strlen(message);
-		buffer = g_string_sized_new(msg_len);
-		for (i=0; i<msg_len; i++)
-		{
-			if (message[i] == '&' && message[i+1] == '#' &&
-				message[i+2] == 'x' &&
-				(sscanf(&message[i], "&#x%x%n;", &character_code, &len) > 0) &&
-				character_code != 0)
-			{
-				buffer = g_string_append_unichar(buffer, (gunichar)character_code);
-				i += len;
-			} else {
-				buffer = g_string_append_c(buffer, message[i]);
-			}
-		}
-		stripped = purple_markup_strip_html(buffer->str);
-	} else {
-		stripped = purple_markup_strip_html(message);
-	}
+	stripped = purple_markup_strip_html(message);
 	
 	skype_send_message_nowait("MESSAGE %s %s", who, stripped);
 	
