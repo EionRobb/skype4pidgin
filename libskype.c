@@ -24,6 +24,7 @@
 #include "internal.h"
 
 #include <notify.h>
+#include <core.h>
 #include "plugin.h"
 #include "version.h"
 #include "debug.h"      /* for purple_debug_info */
@@ -649,9 +650,9 @@ void
 skype_get_info(PurpleConnection *gc, const gchar *username)
 {
 	PurpleNotifyUserInfo *user_info;
-	GTimeVal time;
 	double timezoneoffset;
 	char timezone_str[9];
+	int time;
 	
 	user_info = purple_notify_user_info_new();
 #define _SKYPE_USER_INFO(prop, key)  \
@@ -671,12 +672,14 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	_SKYPE_USER_INFO("IS_VIDEO_CAPABLE", "Is Video Capable");
 	_SKYPE_USER_INFO("ISAUTHORIZED", "Authorised");
 	_SKYPE_USER_INFO("ISBLOCKED", "Blocked");
-	_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last Online"); //timestamp
-	//time.tv_sec = atol(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
-	//purple_notify_user_info_add_pair(user_info, _("Last Online"), g_time_val_to_iso8601(&time));
+	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last Online"); //timestamp
+	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
+	purple_debug_info("skype", "time: %d\n", time);
+	purple_notify_user_info_add_pair(user_info, _("Last Online"),
+			g_strdup(purple_date_format_long(localtime(&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
-	g_snprintf(timezone_str, 9, "UMT +%'.1f", timezoneoffset);
+	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
 	purple_notify_user_info_add_pair(user_info, _("Timezone"), g_strdup(timezone_str));
 	
 	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
@@ -735,7 +738,8 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 	message = purple_status_get_attr_string(status, "message");
 	if (message == NULL)
 		message = "";
-	skype_send_message_nowait("SET PROFILE RICH_MOOD_TEXT %s", message);
+	skype_send_message_nowait("SET PROFILE RICH_MOOD_TEXT <!-- libpurple:%s --> %s",
+						purple_core_get_ui(), message);
 }
 
 void
