@@ -93,7 +93,7 @@ static void
 send_message(char* message)
 {
 	int message_num;
-	char *error_return;
+	char error_return[15];
 
 	COPYDATASTRUCT oCopyData;
 	oCopyData.dwData = 0;
