@@ -1,6 +1,21 @@
 Changelog
 =========
 
+10 November 2007
+----------------
+* No crash when removing a buddy off your friends list on Skype
+* You can now add yourself to your own buddylist (won't show on Skype's friend list)
+
+6 November 2007
+---------------
+* 'Last Online' information in 'Get Info' window now in a human readable format
+* Windows plugin doesn't crash on quit now
+
+5 November 2007
+---------------
+* Adium plugin now handles UTF-8 characters properly.  This time for real :)
+* Windows plugin needed a recompile to work with Pidgin 2.2.2 for some reason
+
 31 October 2007
 ---------------
 * Adium plugin should no longer need dependencies installed into weird places
