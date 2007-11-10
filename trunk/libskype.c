@@ -365,11 +365,16 @@ skype_set_buddies(PurpleAccount *acct)
 	//TODO: remove from libpurple buddy list if not in skype friends list
 	g_slist_foreach(existing_friends, (GFunc)skype_slist_friend_check, friends);
 	
+	//grab the list of buddy's again since they could have changed
+	g_free(existing_friends);
+	existing_friends = purple_find_buddies(acct, NULL);
+	
 	for (i=1; friends[i]; i++)
 	{
 		if (strlen(friends[i]) == 0)
 			continue;
 		//TODO: if already in list, dont recreate, reuse
+		purple_debug_info("skype", "Searching for friend %s\n", friends[i]);
 		found_buddy = g_slist_find_custom(existing_friends,
 											friends[i],
 											skype_slist_friend_search);
@@ -402,7 +407,13 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 	int i;
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
 	char **friends = (char **)friends_pointer;
-	
+
+	if (strcmp(buddy->name, skype_get_account_username(NULL)) == 0)
+	{
+		//we must have put ourselves on our own list in pidgin, ignore
+		return;
+	}
+
 	for(i=1; friends[i]; i++)
 	{
 		if (strlen(friends[i]) == 0)
@@ -410,15 +421,23 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 		if (strcmp(buddy->name, friends[i]) == 0)
 			return;
 	}
-	
+	purple_debug_info("skype", "removing buddy %d with name %s\n", buddy, buddy->name);
 	purple_blist_remove_buddy(buddy);
 }
 
 int
 skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_pointer)
 {
+	if (buddy_pointer == NULL)
+		return -1;
+	if (buddyname_pointer == NULL)
+		return 1;
+
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
 	gchar *buddyname = (gchar *)buddyname_pointer;
+
+	if (buddy->name == NULL)
+		return -1;
 	
 	return strcmp(buddy->name, buddyname);
 }
