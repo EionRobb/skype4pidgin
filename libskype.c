@@ -368,7 +368,7 @@ skype_set_buddies(PurpleAccount *acct)
 	//grab the list of buddy's again since they could have changed
 	g_free(existing_friends);
 	existing_friends = purple_find_buddies(acct, NULL);
-	
+
 	for (i=1; friends[i]; i++)
 	{
 		if (strlen(friends[i]) == 0)
@@ -394,7 +394,18 @@ skype_set_buddies(PurpleAccount *acct)
 		purple_prpl_got_user_idle(acct, buddy->name, FALSE, 0);
 
 		skype_update_buddy_icon(buddy);
-	}	
+	}
+	
+	//special case, if we're on our own buddy list
+	if (found_buddy = g_slist_find_custom(existing_friends, skype_get_account_username(acct), skype_slist_friend_search))
+	{
+		buddy = (PurpleBuddy *)found_buddy->data;
+		skype_update_buddy_status(buddy);
+		skype_update_buddy_alias(buddy);
+		purple_prpl_got_user_idle(acct, buddy->name, FALSE, 0);
+		skype_update_buddy_icon(buddy);
+	}
+
 	purple_debug_info("skype", "Friends Count: %d\n", i);
 	g_strfreev(friends);
 	
@@ -518,6 +529,8 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	
 	acct = purple_buddy_get_account(buddy);
 	status = skype_get_user_info(buddy->name, "ONLINESTATUS");
+
+	purple_debug_info("skype", "User %s status is %s\n", buddy->name, status);
 	
 	if (strcmp(status, "OFFLINE") == 0)
 	{
