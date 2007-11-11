@@ -1,6 +1,10 @@
 Changelog
 =========
 
+12 November 2007
+----------------
+* Removed a double free() error on Linux version
+
 11 November 2007
 ----------------
 * Added more error handling on Linux version for dodgy X11 connections
