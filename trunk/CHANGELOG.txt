@@ -1,6 +1,10 @@
 Changelog
 =========
 
+11 November 2007
+----------------
+* Added more error handling on Linux version for dodgy X11 connections
+
 10 November 2007
 ----------------
 * No crash when removing a buddy off your friends list on Skype
