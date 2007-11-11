@@ -168,17 +168,17 @@ static PurplePluginInfo info = {
 	PURPLE_PRIORITY_DEFAULT,
 	"prpl-bigbrownchunx-skype",
 	"Skype",
-	"0.9",
+	"1.2",
 	"Allows using Skype IM functions from within Pidgin",
 	"Allows using Skype IM functions from within Pidgin",
-	"Eion Robb <bigbrownchunx@sourceforge.net>",
-	"http://robbmob.com/eion/",
+	"Eion Robb <eion@robbmob.com>",
+	"http://tinyurl.com/2by8rw",
 	plugin_load,
 	plugin_unload,
 	NULL,
 	NULL,
 	&prpl_info,
-	NULL,
+	NULL, //prefs_info
 	skype_actions,
 	NULL,
 	NULL,
@@ -186,16 +186,21 @@ static PurplePluginInfo info = {
 	NULL
 };
 
+static PurplePlugin *this_plugin;
+
 static void
 plugin_init(PurplePlugin *plugin)
 {
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
+	this_plugin = plugin;
+	/* plugin's path at
+		this_plugin->path */
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
 
-/*static PurplePlugin *this_plugin;	*/
+
 
 static PurpleAccount *
 skype_get_account(PurpleAccount *newaccount)
@@ -397,7 +402,7 @@ skype_set_buddies(PurpleAccount *acct)
 	}
 	
 	//special case, if we're on our own buddy list
-	if (found_buddy = g_slist_find_custom(existing_friends, skype_get_account_username(acct), skype_slist_friend_search))
+	if ((found_buddy = g_slist_find_custom(existing_friends, skype_get_account_username(acct), skype_slist_friend_search)))
 	{
 		buddy = (PurpleBuddy *)found_buddy->data;
 		skype_update_buddy_status(buddy);
@@ -439,13 +444,16 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 int
 skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_pointer)
 {
+	PurpleBuddy *buddy;
+	gchar *buddyname;
+
 	if (buddy_pointer == NULL)
 		return -1;
 	if (buddyname_pointer == NULL)
 		return 1;
 
-	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
-	gchar *buddyname = (gchar *)buddyname_pointer;
+	buddy = (PurpleBuddy *)buddy_pointer;
+	buddyname = (gchar *)buddyname_pointer;
 
 	if (buddy->name == NULL)
 		return -1;
@@ -708,7 +716,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
 	purple_debug_info("skype", "time: %d\n", time);
 	purple_notify_user_info_add_pair(user_info, _("Last Online"),
-			g_strdup(purple_date_format_long(localtime(&time))));
+			g_strdup(purple_date_format_long((const struct tm *)localtime(&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
 	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
