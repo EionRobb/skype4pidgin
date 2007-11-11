@@ -5,7 +5,7 @@
 
 static LRESULT APIENTRY Skype_WindowProc(HWND hWindow, UINT uiMessage,
 					 WPARAM uiParam, LPARAM ulParam);
-static void win32_message_loop();
+static void win32_message_loop(void);
 
 HINSTANCE hInit_ProcessHandle;
 UINT uiGlobal_MsgID_SkypeControlAPIAttach;
@@ -49,7 +49,7 @@ skype_connect()
 }
 
 static void
-win32_message_loop()
+win32_message_loop(void)
 {
 	MSG msg;
 	WNDCLASS oWindowClass;

@@ -198,7 +198,9 @@ skype_handle_received_message(char *message)
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
 				temp = skype_send_message("GET CHATMESSAGE %s TIMESTAMP", msg_num);
-				
+				mtime = atoi(&temp[23+strlen(msg_num)]);
+				g_free(temp);
+
 				/* Escape the body to HTML */
 				body_html = skype_strdup_withhtml(body);
 				g_free(body);

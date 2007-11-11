@@ -716,7 +716,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
 	purple_debug_info("skype", "time: %d\n", time);
 	purple_notify_user_info_add_pair(user_info, _("Last Online"),
-			g_strdup(purple_date_format_long((const struct tm *)localtime(&time))));
+			g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
 	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
