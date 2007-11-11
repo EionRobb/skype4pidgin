@@ -76,6 +76,7 @@ static void skype_chat_invite(PurpleConnection *gc, int id, const char *msg, con
 static void skype_initiate_chat(PurpleBlistNode *node, gpointer data);
 static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
+gboolean skype_offline_msg(const PurpleBuddy *buddy);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -147,7 +148,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* can_receive_file */
 	NULL,                /* send_file */
 	NULL,                /* new_xfer */
-	NULL,                /* offline_message */
+	skype_offline_msg,   /* offline_message */
 	NULL,                /* whiteboard_prpl_ops */
 	NULL,                /* send_raw */
 	NULL,                /* roomlist_room_serialize */
@@ -191,11 +192,24 @@ static PurplePlugin *this_plugin;
 static void
 plugin_init(PurplePlugin *plugin)
 {
+//	PurpleAccountOption *option;
+
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 	this_plugin = plugin;
 	/* plugin's path at
 		this_plugin->path */
+/*
+#ifdef __APPLE__
+	//Adium demands a server and port, but there isn't one
+	option = purple_account_option_string_new(_("Server"), "server", "localhost");
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_int_new(_("Port"), "port", 0);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+#endif
+*/
+	//option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
+	//prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
@@ -984,7 +998,13 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
 }
+
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias)
 {
 	skype_send_message_nowait("SET USER %s DISPLAYNAME %s", who, alias);
+}
+
+gboolean skype_offline_msg(const PurpleBuddy *buddy)
+{
+	return TRUE;
 }
