@@ -24,6 +24,11 @@ static gboolean skype_connect()
 	/*purple_debug_info("skype_x11", "Starting X11 Connection\n");*/
 	
 	disp = XOpenDisplay(getenv("DISPLAY"));
+	if (disp == NULL)
+	{
+		purple_debug_info("skype", "Couldn't open display\n");
+		return FALSE;
+	}
 	message_start = XInternAtom( disp, "SKYPECONTROLAPI_MESSAGE_BEGIN", False );
 	message_continue = XInternAtom( disp, "SKYPECONTROLAPI_MESSAGE", False );
 	root = DefaultRootWindow( disp );
@@ -31,6 +36,11 @@ static gboolean skype_connect()
 		0, BlackPixel( disp, DefaultScreen( disp ) ),
 		BlackPixel( disp, DefaultScreen( disp ) ));
 	XFlush(disp);
+	if (win == -1)
+	{
+		purple_debug_info("skype", "Could not create X11 messaging window\n");
+		return FALSE;
+	}
 	skype_inst = XInternAtom(disp, "_SKYPE_INSTANCE", True);
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret != 1)
@@ -71,9 +81,21 @@ static void send_message(char* message)
 	unsigned int pos = 0;
 	unsigned int len = strlen( message );
 	XEvent e;
+	int message_num;
+	char error_return[15];
 	
-	if (skype_win == -1)
+	if (skype_win == -1 || win == -1 || disp == NULL)
+	{
+		//There was an error
+		if (message[0] == '#')
+		{
+			//And we're expecting a response
+			sscanf(message, "#%d ", &message_num);
+			sprintf(error_return, "#%d ERROR", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+		}
 		return;
+	}
 
 	memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
