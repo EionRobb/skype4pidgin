@@ -4,6 +4,7 @@ Changelog
 12 November 2007
 ----------------
 * Removed a double free() error on Linux version
+* Messages can now be sent to people who appear Offline/Invisible on your contact list
 
 11 November 2007
 ----------------
