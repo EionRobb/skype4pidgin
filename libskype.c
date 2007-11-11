@@ -361,24 +361,22 @@ skype_set_buddies(PurpleAccount *acct)
 	skype_group = purple_group_new("Skype");
 	purple_blist_add_group(skype_group, NULL);
 
-	existing_friends = purple_find_buddies(acct, NULL);
-	//g_slist_foreach(existing_friends, (gpointer)purple_blist_remove_buddy, NULL);
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
 	friends = g_strsplit_set(friends_text, ", ", 0);
 	
-	//TODO: remove from libpurple buddy list if not in skype friends list
+	//Remove from libpurple buddy list if not in skype friends list
+	existing_friends = purple_find_buddies(acct, NULL);
 	g_slist_foreach(existing_friends, (GFunc)skype_slist_friend_check, friends);
 	
 	//grab the list of buddy's again since they could have changed
-	g_free(existing_friends);
 	existing_friends = purple_find_buddies(acct, NULL);
 
 	for (i=1; friends[i]; i++)
 	{
 		if (strlen(friends[i]) == 0)
 			continue;
-		//TODO: if already in list, dont recreate, reuse
+		//If already in list, dont recreate, reuse
 		purple_debug_info("skype", "Searching for friend %s\n", friends[i]);
 		found_buddy = g_slist_find_custom(existing_friends,
 											friends[i],
@@ -391,7 +389,6 @@ skype_set_buddies(PurpleAccount *acct)
 		} else {
 			purple_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
-			//purple_blist_node_set_flags((PurpleBlistNode *)buddy, PURPLE_BLIST_NODE_FLAG_NO_SAVE);
 			purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 		}
 		skype_update_buddy_status(buddy);
