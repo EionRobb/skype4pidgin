@@ -5,6 +5,7 @@ Changelog
 ----------------
 * Removed a double free() error on Linux version
 * Messages can now be sent to people who appear Offline/Invisible on your contact list
+* SkypeOut buddies can now optionaly be Online (set in account options)
 
 11 November 2007
 ----------------
