@@ -21,15 +21,15 @@
 
 #include <glib.h>
 
-#include "internal.h"
+#include <internal.h>
 
 #include <notify.h>
 #include <core.h>
-#include "plugin.h"
-#include "version.h"
-#include "debug.h"      /* for purple_debug_info */
-
-#include "blist.h"
+#include <plugin.h>
+#include <version.h>
+#include <debug.h>      /* for purple_debug_info */
+#include <accountopt.h>
+#include <blist.h>
 
 #include "skype_messaging.c"
 
@@ -192,7 +192,7 @@ static PurplePlugin *this_plugin;
 static void
 plugin_init(PurplePlugin *plugin)
 {
-//	PurpleAccountOption *option;
+	PurpleAccountOption *option;
 
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
@@ -208,8 +208,8 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #endif
 */
-	//option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
-	//prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
@@ -567,13 +567,22 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	} else if (strcmp(status, "DND") == 0)
 	{
 		primitive = PURPLE_STATUS_UNAVAILABLE;
+	} else if (strcmp(status, "SKYPEOUT") == 0)
+	{
+		if (purple_account_get_bool(buddy->account, "skypeout_online", TRUE))
+		{
+			primitive = PURPLE_STATUS_AVAILABLE;
+		} else {
+			primitive = PURPLE_STATUS_OFFLINE;
+		}
+		buddy->proto_data = "SkypeOut";
 	} else
 	{
 		primitive = PURPLE_STATUS_UNSET;
 	}
 	purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 	
-	/* if this function was called from another thread, not loop over it */
+	/* if this function was called from another thread, don't loop over it */
 	return FALSE;
 }
 
