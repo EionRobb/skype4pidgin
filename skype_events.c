@@ -10,6 +10,8 @@ void skype_decline_transfer(PurpleXfer *transfer);
 gint skype_find_chat(PurpleConversation *conv, char *chatid);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
+void skype_update_buddy_alias(PurpleBuddy *buddy);
+void skype_update_buddy_icon(PurpleBuddy *buddy);
 static PurpleAccount *skype_get_account(PurpleAccount *account);
 char *skype_get_account_username(PurpleAccount *acct);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
@@ -64,25 +66,36 @@ skype_handle_received_message(char *message)
 			} else if (strcmp(string_parts[2], "MOOD_TEXT") == 0)
 			{
 				buddy->proto_data = (gpointer)g_strdup(string_parts[3]);
-			} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
-			{
-				purple_debug_info("User %s requested authorisation\n", string_parts[1]);
-				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
-													string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
-													skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
-	
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
 				purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
-			} else if (strcmp(string_parts[2], "BUDDYSTATUS") == 0 && strcmp(string_parts[3], "3") == 0)
+			} else if (strcmp(string_parts[3], "1") == 0)
 			{
+				purple_blist_remove_buddy(buddy);
+			}
+		} else if (strcmp(string_parts[2], "BUDDYSTATUS") == 0)
+		{
+			if (strcmp(string_parts[3], "3") == 0)
+			{
+				purple_debug_info("skype", "Buddy %s just got added\n", string_parts[1]);
 				//buddy just got added.. handle it
 				if (purple_find_buddy(this_account, string_parts[1]) == NULL)
 				{
+					purple_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
 					purple_blist_add_buddy(buddy, NULL, purple_group_new("Skype"), NULL);
+					skype_update_buddy_status(buddy);
+					skype_update_buddy_alias(buddy);
+					purple_prpl_got_user_idle(this_account, buddy->name, FALSE, 0);
+					skype_update_buddy_icon(buddy);
 				}
 			}
+		} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
+		{
+			purple_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
+			purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
+												string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
+												skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
 		}
 	} else if (strcmp(command, "MESSAGE") == 0)
 	{
