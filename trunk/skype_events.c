@@ -55,6 +55,12 @@ skype_handle_received_message(char *message)
 	if (strcmp(command, "USERSTATUS") == 0)
 	{
 		
+	} else if (strcmp(command, "CONNSTATUS") == 0)
+	{
+		if (strcmp(string_parts[1], "LOGGEDOUT") == 0)
+		{
+			purple_connection_error(gc, _("\nSkype program closed"));
+		}
 	} else if ((strcmp(command, "USER") == 0) && (strcmp(string_parts[1], my_username) != 0))
 	{
 		buddy = purple_find_buddy(this_account, string_parts[1]);
