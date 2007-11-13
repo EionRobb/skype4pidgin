@@ -1,6 +1,10 @@
 Changelog
 =========
 
+13 November 2007
+----------------
+* Skype will now go offline when Pidgin/libpurple goes offline/unloads (set in account options)
+
 12 November 2007
 ----------------
 * Removed a double free() error on Linux version
