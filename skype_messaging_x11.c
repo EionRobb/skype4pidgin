@@ -7,10 +7,13 @@ Window skype_win = (Window)-1;
 GThread *receiving_thread;
 Atom message_start, message_continue;
 static gboolean run_loop = TRUE;
+static unsigned char x11_error_code = 0;
 
 static void receive_message_loop(void);
+int x11_error_handler(Display *disp, XErrorEvent *error);
 
-static gboolean skype_connect()
+static gboolean
+skype_connect()
 {
 	Window root;
 	Atom skype_inst;
@@ -60,7 +63,8 @@ static gboolean skype_connect()
 }
 
 
-static void skype_disconnect()
+static void
+skype_disconnect()
 {
 	XEvent e;
 	
@@ -73,16 +77,28 @@ static void skype_disconnect()
 	XSendEvent(disp, win, False, 0, &e);
 	XDestroyWindow(disp, win);
 	XCloseDisplay(disp);
+	
+	win = (Window)-1;
+	disp = NULL;
+}
+
+int
+x11_error_handler(Display *disp, XErrorEvent *error)
+{
+	x11_error_code = error->error_code;
+	return FALSE;
 }
 
 
-static void send_message(char* message)
+static void
+send_message(char* message)
 {
 	unsigned int pos = 0;
 	unsigned int len = strlen( message );
 	XEvent e;
 	int message_num;
 	char error_return[15];
+	unsigned int i;
 	
 	if (skype_win == -1 || win == -1 || disp == NULL)
 	{
@@ -94,6 +110,7 @@ static void send_message(char* message)
 			sprintf(error_return, "#%d ERROR", message_num);
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
 		}
+		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
 		return;
 	}
 
@@ -104,9 +121,9 @@ static void send_message(char* message)
 	e.xclient.window = win;
 	e.xclient.format = 8;
 
+	XSetErrorHandler(x11_error_handler);
 	do
 	{
-		unsigned int i;
 		for( i = 0; i < 20 && i + pos <= len; ++i )
 			e.xclient.data.b[ i ] = message[ i + pos ];
 		XSendEvent( disp, skype_win, False, 0, &e );
@@ -117,9 +134,24 @@ static void send_message(char* message)
 
 	/*purple_debug_info("skype_x11", "Flushing\n");*/
 	XFlush(disp);
+	
+	if (x11_error_code == BadWindow)
+	{
+		//There was an error
+		if (message[0] == '#')
+		{
+			//And we're expecting a response
+			sscanf(message, "#%d ", &message_num);
+			sprintf(error_return, "#%d ERROR", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+		}
+		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL); 
+		return;
+	}
 }
 
-static void receive_message_loop(void)
+static void
+receive_message_loop(void)
 {
 	XEvent e;
 	GString *msg = NULL;
