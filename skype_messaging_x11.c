@@ -24,8 +24,6 @@ skype_connect()
 	unsigned char *prop;
 	int status;
 	
-	/*purple_debug_info("skype_x11", "Starting X11 Connection\n");*/
-	
 	disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
@@ -57,7 +55,6 @@ skype_connect()
 	run_loop = TRUE;
 	
 	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
-	/*purple_debug_info("skype_x11", "Receiving_thread: %d\n", receiving_thread);*/
 	
 	return TRUE;
 }
@@ -119,7 +116,7 @@ send_message(char* message)
 	e.xclient.message_type = message_start; /* first message */
 	e.xclient.display = disp;
 	e.xclient.window = win;
-	e.xclient.format = 8;
+	e.xclient.format = 8; /* 8-bit values */
 
 	XSetErrorHandler(x11_error_handler);
 	do
@@ -132,7 +129,6 @@ send_message(char* message)
 		pos += i;
 	} while( pos <= len );
 
-	/*purple_debug_info("skype_x11", "Flushing\n");*/
 	XFlush(disp);
 	
 	if (x11_error_code == BadWindow)
@@ -157,13 +153,11 @@ receive_message_loop(void)
 	GString *msg = NULL;
 	char msg_temp[21];
 	int last_len, real_len;
-	/* TODO Detect XWindow disconnects */
+	
 	msg_temp[21] = '\0';
 	while(run_loop)
 	{
-		/* purple_debug_info("skype_x11", "Waiting for event on display %d window %d\n", disp, win); */
 		XNextEvent(disp, &e);
-		/*purple_debug_info("skype_x11", "Event received\n");*/
 		if (e.type != ClientMessage)
 		{
 			purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
@@ -171,7 +165,6 @@ receive_message_loop(void)
 			XFlush(disp);
 			continue;
 		}
-		/*purple_debug_info("skype_x11", "Event format %d\n", e.xclient.format);*/
 		strncpy(msg_temp, e.xclient.data.b, 20);
 		real_len = last_len = strlen(msg_temp);
 		if (last_len >= 21)
@@ -179,8 +172,6 @@ receive_message_loop(void)
 			last_len = 21;
 			real_len = 20;
 		}
-		/* purple_debug_info("skype_x11", "Received: %20s Length: %d\n", msg_temp, last_len); */
-		/*purple_debug_info("skype_x11", "Message type: %s\n", XGetAtomName(disp, e.xclient.message_type));*/
 		if (e.xclient.message_type == message_start)
 			msg = g_string_new_len(msg_temp, real_len);
 		else if (e.xclient.message_type == message_continue)
@@ -192,9 +183,8 @@ receive_message_loop(void)
 			continue;
 		}
 
-		if (last_len < 21) /* msg->str[msg->len] == '\0') */
+		if (last_len < 21)
 		{
-			/*purple_debug_info("skype_x11", "Complete message received: %s.  Sending to Skype\n", msg->str);*/
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(msg->str), FALSE, NULL);
 			XFlush(disp);
 			usleep(500);
