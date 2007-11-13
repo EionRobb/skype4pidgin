@@ -87,6 +87,7 @@ skype_disconnect()
 	DestroyWindow(hInit_MainWindowHandle);
 	hInit_ProcessHandle = NULL;
 	hInit_MainWindowHandle = NULL;
+	hGlobal_SkypeAPIWindowHandle = NULL;
 }
 
 static void
