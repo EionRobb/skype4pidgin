@@ -77,6 +77,7 @@ static void skype_initiate_chat(PurpleBlistNode *node, gpointer data);
 static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
+void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -556,6 +557,13 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	if (strcmp(status, "OFFLINE") == 0)
 	{
 		primitive = PURPLE_STATUS_OFFLINE;
+		if (strcmp(skype_get_user_info(buddy->name, "IS_VOICEMAIL_CAPABLE"), "TRUE") == 0)
+		{
+			buddy->proto_data = "Offline with Voicemail";
+		} else if (strcmp(skype_get_user_info(buddy->name, "IS_CF_ACTIVE"), "TRUE") == 0)
+		{
+			buddy->proto_data = "Offline with Call Forwarding";
+		}
 	} else if (strcmp(status, "ONLINE") == 0 ||
 			strcmp(status, "SKYPEME") == 0)
 	{
@@ -688,6 +696,14 @@ skype_get_account_alias(PurpleAccount *acct)
 	purple_account_set_alias(acct, alias);
 }
 
+void
+skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
+{
+	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
+	if (buddy && buddy->proto_data)
+		g_free(buddy->proto_data);
+}
+
 void 
 skype_close(PurpleConnection *gc)
 {
@@ -696,6 +712,7 @@ skype_close(PurpleConnection *gc)
 		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
+	g_slist_foreach(purple_find_buddies(gc->account, NULL), skype_slist_remove_messages, NULL);
 }
 
 int 
