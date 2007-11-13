@@ -210,6 +210,8 @@ plugin_init(PurplePlugin *plugin)
 */
 	option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Make Skype online/offline when going online/offline"), "skype_sync", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
@@ -648,6 +650,8 @@ skype_login(PurpleAccount *acct)
 	skype_get_account(acct);
 	skype_get_account_alias(acct);
 	skype_get_account_username(acct);
+	if (purple_account_get_bool(acct, "skype_sync", TRUE))
+		skype_set_status(acct, purple_account_get_active_status(acct));
 	//sync buddies after everything else has finished loading
 	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);		
 }
@@ -688,6 +692,8 @@ void
 skype_close(PurpleConnection *gc)
 {
 	purple_debug_info("skype", "logging out\n");
+	if (purple_account_get_bool(gc->account, "skype_sync", TRUE))
+		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
 }
