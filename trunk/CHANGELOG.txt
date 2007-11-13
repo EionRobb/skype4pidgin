@@ -1,6 +1,11 @@
 Changelog
 =========
 
+14 November 2007
+----------------
+* Reconnecting to the Skype process after restarting Skype doesn't cause a crash in Windows
+* The plugin can better detect if Skype closed in the background and disconnects (not perfect yet)
+
 13 November 2007
 ----------------
 * Skype will now go offline when Pidgin/libpurple goes offline/unloads (set in account options)
