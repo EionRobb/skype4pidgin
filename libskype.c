@@ -78,6 +78,9 @@ static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
 void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
+static void skype_program_update_check();
+static void skype_plugin_update_check();
+void skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -213,6 +216,8 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Make Skype online/offline when going online/offline"), "skype_sync", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
@@ -322,6 +327,44 @@ skype_silence(PurplePlugin *plugin, gpointer data)
 	skype_send_message_nowait("MINIMIZE");
 }
 
+static void
+skype_plugin_update_check()
+{
+	gchar *filename, *basename;
+	time_t mtime;
+	struct stat filestat;
+
+	//this_plugin is the PidginPlugin
+	if (this_plugin == NULL)
+		return;
+
+	filename = this_plugin->path;
+	if (g_stat(filename, &filestat) == -1)
+		return;
+	mtime = filestat.st_mtime;
+	
+	basename = g_path_get_basename(filename);
+	purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin", "?version=", basename, NULL),
+		TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)&mtime);
+	
+}
+
+void
+skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	time_t mtime = *((time_t*) user_data);
+	time_t servertime = atoi(url_text);
+	if (servertime > mtime)
+	{
+		purple_notify_info(this_plugin, "Update available", "There is a newer version of the plugin available for download.  Please visit the following url:", this_plugin->info->homepage);
+	}
+}
+
+static void
+skype_program_update_check()
+{
+	
+}
 
 GList *
 skype_status_types(PurpleAccount *acct)
