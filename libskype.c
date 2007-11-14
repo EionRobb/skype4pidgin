@@ -602,10 +602,10 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 		primitive = PURPLE_STATUS_OFFLINE;
 		if (strcmp(skype_get_user_info(buddy->name, "IS_VOICEMAIL_CAPABLE"), "TRUE") == 0)
 		{
-			buddy->proto_data = "Offline with Voicemail";
+			buddy->proto_data = g_strdup(_("Offline with Voicemail"));
 		} else if (strcmp(skype_get_user_info(buddy->name, "IS_CF_ACTIVE"), "TRUE") == 0)
 		{
-			buddy->proto_data = "Offline with Call Forwarding";
+			buddy->proto_data = g_strdup(_("Offline with Call Forwarding"));
 		}
 	} else if (strcmp(status, "ONLINE") == 0 ||
 			strcmp(status, "SKYPEME") == 0)
@@ -628,7 +628,7 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 		} else {
 			primitive = PURPLE_STATUS_OFFLINE;
 		}
-		buddy->proto_data = "SkypeOut";
+		buddy->proto_data = g_strdup(_("SkypeOut"));
 	} else
 	{
 		primitive = PURPLE_STATUS_UNSET;
@@ -744,7 +744,9 @@ skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
 {
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
 	if (buddy && buddy->proto_data)
-		g_free(buddy->proto_data);
+	{
+		buddy->proto_data = NULL;
+	}
 }
 
 void 
