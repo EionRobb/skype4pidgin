@@ -107,7 +107,6 @@ send_message(char* message)
 			sprintf(error_return, "#%d ERROR", message_num);
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
 		}
-		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
 		return;
 	}
 
@@ -157,11 +156,12 @@ receive_message_loop(void)
 	msg_temp[21] = '\0';
 	while(run_loop)
 	{
-		XNextEvent(disp, &e);
+		XPeekEvent(disp, &e);
+		//XNextEvent(disp, &e);
 		if (e.type != ClientMessage)
 		{
 			purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
-			XPutBackEvent(disp, &e);
+			//XPutBackEvent(disp, &e);
 			XFlush(disp);
 			continue;
 		}
@@ -178,10 +178,12 @@ receive_message_loop(void)
 			msg = g_string_append_len(msg, msg_temp, real_len);
 		else
 		{	
-			XPutBackEvent(disp, &e);
+			//XPutBackEvent(disp, &e);
 			XFlush(disp);
 			continue;
 		}
+		
+		XNextEvent(disp, &e);
 
 		if (last_len < 21)
 		{
