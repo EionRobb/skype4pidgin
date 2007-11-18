@@ -151,7 +151,7 @@ receive_message_loop(void)
 	XEvent e;
 	GString *msg = NULL;
 	char msg_temp[21];
-	int last_len, real_len;
+	size_t last_len, real_len;
 	
 	msg_temp[21] = '\0';
 	while(run_loop)
@@ -182,7 +182,7 @@ receive_message_loop(void)
 
 		if (last_len < 21)
 		{
-			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(msg->str), FALSE, NULL);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			XFlush(disp);
 		}
 	}
