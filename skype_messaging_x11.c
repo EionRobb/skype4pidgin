@@ -156,12 +156,10 @@ receive_message_loop(void)
 	msg_temp[21] = '\0';
 	while(run_loop)
 	{
-		XPeekEvent(disp, &e);
-		//XNextEvent(disp, &e);
+		XNextEvent(disp, &e);
 		if (e.type != ClientMessage)
 		{
 			purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
-			//XPutBackEvent(disp, &e);
 			XFlush(disp);
 			continue;
 		}
@@ -178,18 +176,14 @@ receive_message_loop(void)
 			msg = g_string_append_len(msg, msg_temp, real_len);
 		else
 		{	
-			//XPutBackEvent(disp, &e);
 			XFlush(disp);
 			continue;
 		}
-		
-		XNextEvent(disp, &e);
 
 		if (last_len < 21)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(msg->str), FALSE, NULL);
 			XFlush(disp);
-			usleep(500);
 		}
 	}
 }
