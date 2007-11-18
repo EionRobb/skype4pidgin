@@ -81,6 +81,9 @@ void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
 static void skype_program_update_check();
 static void skype_plugin_update_check();
 void skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
+void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
+gchar *timestamp_to_datetime(time_t timestamp);
+
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -317,6 +320,16 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_silence),
 									NULL, NULL);
 	m = g_list_append(m, act);
+
+	act = purple_menu_action_new(_("Check for Skype updates"),
+									PURPLE_CALLBACK(skype_program_update_check),
+									NULL, NULL);
+	m = g_list_append(m, act);
+
+	act = purple_menu_action_new(_("Check for plugin updates"),
+									PURPLE_CALLBACK(skype_plugin_update_check),
+									NULL, NULL);
+	m = g_list_append(m, act);
 	return m;
 }
 
@@ -331,39 +344,102 @@ static void
 skype_plugin_update_check()
 {
 	gchar *filename, *basename;
-	time_t mtime;
-	struct stat filestat;
+	struct stat *filestat = g_new(struct stat, 1);
 
 	//this_plugin is the PidginPlugin
 	if (this_plugin == NULL)
 		return;
 
 	filename = this_plugin->path;
-	if (g_stat(filename, &filestat) == -1)
+	if (g_stat(filename, filestat) == -1)
 		return;
-	mtime = filestat.st_mtime;
 	
 	basename = g_path_get_basename(filename);
-	purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin", "?version=", basename, NULL),
-		TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)&mtime);
+	purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin/", "?version=", basename, NULL),
+		TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)filestat);
 	
 }
 
 void
 skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
-	time_t mtime = *((time_t*) user_data);
+	time_t mtime = ((struct stat *) user_data)->st_mtime;
 	time_t servertime = atoi(url_text);
+	purple_debug_info("skype", "Server filemtime: %d, Local filemtime: %d\n", servertime, mtime);
 	if (servertime > mtime)
 	{
-		purple_notify_info(this_plugin, "Update available", "There is a newer version of the plugin available for download.  Please visit the following url:", this_plugin->info->homepage);
+		purple_notify_info(this_plugin, "Update available", "There is a newer version of the Skype plugin available for download.", 
+				g_strconcat("Your version: ",timestamp_to_datetime(mtime),"\nLatest version: ",timestamp_to_datetime(servertime),"\nLatest version available from: ", this_plugin->info->homepage, NULL));
+	} else {
+		purple_notify_info(this_plugin, "No Updates", "No updates found", "You have the latest version of the Skype plugin");
 	}
 }
 
 static void
 skype_program_update_check()
 {
+	/*
+		Windows:
+		http://ui.skype.com/ui/0/3.5.0.239/en/getnewestversion
+
+		Linux:
+		http://ui.skype.com/ui/2/2.0.0.13/en/getnewestversion
+
+		Mac:
+		http://ui.skype.com/ui/3/2.6.0.151/en/getnewestversion
+
+		User-Agent: Skype
+	*/
+
+	gchar *version;
+	gchar *temp;
+	gchar version_url[60];
+	int platform_number;
+
+#ifdef _WIN32
+	platform_number = 0;
+#else
+#	ifdef __APPLE__
+	platform_number = 3;
+#	else
+	platform_number = 2;
+#	endif
+#endif
+
+	temp = skype_send_message("GET SKYPEVERSION");
+	version = g_strdup(&temp[13]);
+	g_free(temp);
+
+	sprintf(version_url, "http://ui.skype.com/ui/%d/%s/en/getnewestversion", platform_number, version);
+	purple_util_fetch_url(version_url, TRUE, "Skype", TRUE, skype_program_update_callback, (gpointer)version);
+}
+
+void
+skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	gchar *version = (gchar *)user_data;
+	int v1, v2, v3, v4;
+	int s1, s2, s3, s4;
+	gboolean newer_version = FALSE;
 	
+	sscanf(version, "%d.%d.%d.%d", &v1, &v2, &v3, &v4);
+	sscanf(url_text, "%d.%d.%d.%d", &s1, &s2, &s3, &s4);
+
+	if (s1 > v1)
+		newer_version = TRUE;
+	else if (s1 == v1 && s2 > v2)
+		newer_version = TRUE;
+	else if (s1 == v1 && s2 == v2 && s3 > v3)
+		newer_version = TRUE;
+	else if (s1 == v1 && s2 == v2 && s3 == v3 && s4 > v4)
+		newer_version = TRUE;
+
+	if (newer_version)
+	{
+		purple_notify_info(this_plugin, "Update available", "There is a newer version of Skype available for download.", g_strconcat("Your version: ", version, "\nLatest version: ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
+	} else {
+		purple_notify_info(this_plugin, "No Updates", "No updates found", "You have the latest version of Skype");
+	}
 }
 
 GList *
@@ -773,6 +849,11 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 	return 1;
 }
 
+gchar *
+timestamp_to_datetime(time_t timestamp)
+{
+	return g_strdup(purple_date_format_long(localtime(&timestamp)));
+}
 
 void 
 skype_get_info(PurpleConnection *gc, const gchar *username)
@@ -804,7 +885,8 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
 	purple_debug_info("skype", "time: %d\n", time);
 	purple_notify_user_info_add_pair(user_info, _("Last Online"),
-			g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
+			timestamp_to_datetime((time_t) time));
+	//		g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
 	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
