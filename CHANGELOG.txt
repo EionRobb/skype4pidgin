@@ -1,6 +1,10 @@
 Changelog
 =========
 
+19 November 2007
+----------------
+* X11 fixes for Linux version.  The main one stops the 100% CPU crash.
+
 18 November 2007
 ----------------
 * The plugin can now check for updates to itself and Skype, through the Account menu.
