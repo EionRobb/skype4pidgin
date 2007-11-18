@@ -989,6 +989,8 @@ skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	{
 		/* TODO: Deal with groups */
 	}
+	skype_add_permit(gc, buddy->name);
+	skype_rem_deny(gc, buddy->name);
 }
 
 void 
