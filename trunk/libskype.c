@@ -79,8 +79,8 @@ static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
 void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
-static void skype_program_update_check();
-static void skype_plugin_update_check();
+static void skype_program_update_check(void);
+static void skype_plugin_update_check(void);
 void skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 gchar *timestamp_to_datetime(time_t timestamp);
@@ -1200,9 +1200,8 @@ skype_search_users(PurpleConnection *gc, const gchar *searchterm)
 	PurpleNotifySearchResults *results;
 	PurpleNotifySearchColumn *column;
 	gchar *userlist;
-	gchar *temp;
 	gchar **list_of_users;
-	int i;
+	int i = 0;
 	
 	results = purple_notify_searchresults_new();
 	if (results == NULL)
@@ -1221,13 +1220,15 @@ skype_search_users(PurpleConnection *gc, const gchar *searchterm)
 										skype_searchresults_add_buddy);
 
 	userlist = skype_send_message("SEARCH USERS %s", searchterm);
-	list_of_users = g_strsplit(&userlist[7], ", ", -1);
+	list_of_users = g_strsplit(&userlist[6], ", ", -1);
 	while(list_of_users[i])
 	{
 		GList *row = NULL;
 		row = g_list_append(row, skype_get_user_info(list_of_users[i], "FULLNAME"));
 		row = g_list_append(row, g_strdup(list_of_users[i]));
 		row = g_list_append(row, g_strconcat(skype_get_user_info(list_of_users[i], "CITY"), ", ", skype_get_user_info(list_of_users[i], "COUNTRY"), NULL));
+		purple_notify_searchresults_row_add(results, row);
+		i++;
 	}
 	g_strfreev(list_of_users);
 	g_free(userlist);
