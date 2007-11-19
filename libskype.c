@@ -844,7 +844,6 @@ skype_close(PurpleConnection *gc)
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
 	buddies = purple_find_buddies(gc->account, NULL);
-	purple_debug_info("skype", "Number of buddies to fix %d\n", g_slist_length(buddies));
 	if (buddies != NULL && g_slist_length(buddies) > 0)
 		g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
 }
