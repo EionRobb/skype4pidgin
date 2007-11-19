@@ -765,7 +765,7 @@ skype_login(PurpleAccount *acct)
 
 #ifndef __APPLE__
 	reply = skype_send_message("NAME Pidgin");
-	if (reply == NULL)
+	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, "\nSkype client not ready");
 		return;
@@ -836,12 +836,17 @@ skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
 void 
 skype_close(PurpleConnection *gc)
 {
+	GSList *buddies;
+
 	purple_debug_info("skype", "logging out\n");
 	if (purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
-	g_slist_foreach(purple_find_buddies(gc->account, NULL), skype_slist_remove_messages, NULL);
+	buddies = purple_find_buddies(gc->account, NULL);
+	purple_debug_info("skype", "Number of buddies to fix %d\n", g_slist_length(buddies));
+	if (buddies != NULL && g_slist_length(buddies) > 0)
+		g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
 }
 
 int 
