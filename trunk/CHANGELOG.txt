@@ -5,6 +5,7 @@ Changelog
 ----------------
 * X11 fixes for Linux version.  The main one stops the 100% CPU crash.
 * You can now search for new Skype users from the Account menu.
+* More X11 fixes for Linux version.  This one should make the plugin more stable and not crash on computers with memory protection.
 
 18 November 2007
 ----------------
