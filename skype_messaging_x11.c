@@ -151,9 +151,9 @@ receive_message_loop(void)
 	XEvent e;
 	GString *msg = NULL;
 	char msg_temp[21];
-	size_t last_len, real_len;
+	size_t len;
 	
-	msg_temp[21] = '\0';
+	msg_temp[20] = '\0';
 	while(run_loop)
 	{
 		XNextEvent(disp, &e);
@@ -164,23 +164,18 @@ receive_message_loop(void)
 			continue;
 		}
 		strncpy(msg_temp, e.xclient.data.b, 20);
-		real_len = last_len = strlen(msg_temp);
-		if (last_len >= 21)
-		{
-			last_len = 21;
-			real_len = 20;
-		}
+		len = strlen(msg_temp);
 		if (e.xclient.message_type == message_start)
-			msg = g_string_new_len(msg_temp, real_len);
+			msg = g_string_new_len(msg_temp, len);
 		else if (e.xclient.message_type == message_continue)
-			msg = g_string_append_len(msg, msg_temp, real_len);
+			msg = g_string_append_len(msg, msg_temp, len);
 		else
 		{	
 			XFlush(disp);
 			continue;
 		}
 
-		if (last_len < 21)
+		if (len < 20)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			XFlush(disp);
