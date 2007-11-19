@@ -63,15 +63,14 @@ skype_connect()
 static void
 skype_disconnect()
 {
-	XEvent e;
+	XEvent *e;
 	
 	run_loop = FALSE;
 	skype_win = (Window)-1;
 	
-	//clear the XEvent buffer
-	memset(&e, 0, sizeof(e));
-	e.xclient.type = DestroyNotify;
-	XSendEvent(disp, win, False, 0, &e);
+	e = g_new0(XEvent, 1);
+	e->xclient.type = DestroyNotify;
+	XSendEvent(disp, win, False, 0, e);
 	XDestroyWindow(disp, win);
 	XCloseDisplay(disp);
 	
