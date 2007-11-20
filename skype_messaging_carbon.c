@@ -1,12 +1,14 @@
 #include <Carbon/Carbon.h>
-#include <Skype/Skype.h>
+//#include <Skype/Skype.h>
 #include <glib.h>
 #include <CoreFoundation/CoreFoundation.h>
 
 #include "AutoreleasePoolInit.h"
 
 //change this to 0 if using an old version of the Skype.framework
-#define SENDSKYPERETURNS 1
+#define SENDSKYPERETURNS 0
+
+#include "skype_messaging_carbon2.c"
 
 static gboolean connected_to_skype = FALSE;
 
