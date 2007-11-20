@@ -196,7 +196,8 @@ RemoveSkypeDelegate(void)
 	delegate = NULL;
 }
 
-int IsSkypeAvailable(void)
+int
+IsSkypeAvailable(void)
 {
 	//is skype available?
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
@@ -222,8 +223,28 @@ int IsSkypeAvailable(void)
 	return avail;
 }
 
-int IsSkypeRunning(void)
+int
+IsSkypeRunning(void)
 {
+	OSStatus status = noErr;
+	ProcessSerialNumber psn = {kNoProcess, kNoProcess};
+	char procName[64];
+	ProcessInfoRec info;
+	info.processInfoLength = sizeof(ProcessInfoRec);
+	info.processName = procName;
+	info.processAppSpec = NULL;
+	
+	while(status == noErr)
+	{
+		status = GetNextProcess(&psn);
+		if (status == noErr)
+		{
+			if (GetProcessInformation(&psn, &info) == noErr)
+			{
+				printf("Program name %s\n", info.processName);
+			}
+		}
+	}
 	return 1;
 }
 
