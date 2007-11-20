@@ -137,3 +137,34 @@ send_message(char* message)
 #endif
 	destroyAutoreleasePool(pool);
 }
+
+static void
+hide_skype()
+{
+	OSStatus status = noErr;
+	ProcessSerialNumber psn = {kNoProcess, kNoProcess};
+	unsigned int procNameLength = 32;
+	unsigned char procName[procNameLength];
+	unsigned int i = 0;
+	ProcessInfoRec info;
+	info.processInfoLength = sizeof(ProcessInfoRec);
+	info.processName = procName;
+	info.processAppSpec = NULL;
+	
+	while(status == noErr)
+	{
+		for(i = 0; i < procNameLength; i++)
+			procName[i] = '\0';
+		
+		status = GetNextProcess(&psn);
+		if (status == noErr)
+			if (GetProcessInformation(&psn, &info) == noErr)
+				//for some reason first character is poisioned
+				if (strcmp((char *)&procName[1], "Skype") == 0)
+				{
+					ShowHideProcess(&psn, FALSE);
+					return;
+				}
+	}
+}
+

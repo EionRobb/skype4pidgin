@@ -181,3 +181,10 @@ receive_message_loop(void)
 		}
 	}
 }
+
+static void
+hide_skype()
+{
+	return;
+}
+
