@@ -35,7 +35,7 @@ int
 CFNumberToCInt(CFNumberRef input)
 {
 	if (input == NULL)
-		return NULL;
+		return 0;
 	int output;
 	CFNumberGetValue(input, kCFNumberIntType, &output);
 	return output;
@@ -60,6 +60,8 @@ debugCallback(
 	const void *object,
 	CFDictionaryRef userInfo)
 {
+	int i = 0;
+	
 	printf("Debug callback: %s\n", CFStringToCString(name));
 	if (!userInfo)
 		return;
@@ -68,7 +70,7 @@ debugCallback(
 	const void *keys[count];
 	const void *values[count];
 	CFDictionaryGetKeysAndValues(userInfo, keys, values);
-	for(int i=0; i<count; i++)
+	for(i = 0; i < count; i++)
 	{
 		printf("For i=%d, key: %s\n", i,
 					CFStringToCString((CFStringRef)keys[i]));
@@ -262,9 +264,9 @@ void SendSkypeCommand(CFStringRef command)
 {
 	CFNumberRef id_number = CFNumberCreate(NULL, kCFNumberIntType, &client_id);
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-	const void **keys = {CFSTR("SKYPE_API_NOTIFICATION_STRING"), CFSTR("SKYPE_API_CLIENT_ID")};
-	const void **values = {command, id_number};
-	CFDictionaryRef userInfo = CFDictionaryCreate(NULL, keys, values, 2, kCFTypeDictionaryKeyCallBacks, kCFTypeDictionaryValueCallBacks);	
+	const void *keys[] = {(void *)CFSTR("SKYPE_API_NOTIFICATION_STRING"), (void *)CFSTR("SKYPE_API_CLIENT_ID")};
+	const void *values[] = {command, id_number};
+	CFDictionaryRef userInfo = CFDictionaryCreate(NULL, keys, values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);	
 	
 	//send message
 	CFNotificationCenterPostNotification(
