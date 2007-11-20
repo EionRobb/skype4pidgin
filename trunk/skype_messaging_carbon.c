@@ -130,6 +130,8 @@ send_message(char* message)
 	{
 		if (message[0] == '#')
 		{
+			int message_num;
+			char error_return[40];
 			//And we're expecting a response
 			sscanf(message, "#%d ", &message_num);
 			sprintf(error_return, "#%d ERROR", message_num);
