@@ -510,6 +510,10 @@ skype_set_buddies(PurpleAccount *acct)
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
 	friends = g_strsplit_set(friends_text, ", ", 0);
+	if (friends == NULL || friends[0] == NULL)
+	{
+		return FALSE;
+	}
 	
 	//Remove from libpurple buddy list if not in skype friends list
 	existing_friends = purple_find_buddies(acct, NULL);
