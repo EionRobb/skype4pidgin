@@ -59,6 +59,7 @@ SkypeBecameUnavailable(CFPropertyListRef aNotification)
 {
 	printf("Skype became unavailable\n");
 	connected_to_skype = FALSE;
+	g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
 }
 
 static struct SkypeDelegate skypeDelegate = {
@@ -125,6 +126,18 @@ skype_disconnect()
 static void
 send_message(char* message)
 {
+	if (!connected_to_skype)
+	{
+		if (message[0] == '#')
+		{
+			//And we're expecting a response
+			sscanf(message, "#%d ", &message_num);
+			sprintf(error_return, "#%d ERROR", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+		}
+		return;
+	}
+
 	gpointer pool = initAutoreleasePool();
 	printf("Skype send message\n");
 #if SENDSKYPERETURNS
