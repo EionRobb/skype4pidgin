@@ -131,3 +131,10 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 	}
 	return DefWindowProc(hWindow, uiMessage, uiParam, ulParam);
 }
+
+static void
+hide_skype
+{
+	return;
+}
+
