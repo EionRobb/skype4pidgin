@@ -1,6 +1,13 @@
 Changelog
 =========
 
+21 November 2007
+----------------
+* Adium plugin is now legally GPL - Skype.framework is no longer needed and I've created an open-source replacement.
+* Adium plugin has changes from Linux/Windows versions ported over.
+* Adium plugin crashes less at startup.
+* Adium plugin will Hide Skype instead of just minimising it.
+
 19 November 2007
 ----------------
 * X11 fixes for Linux version.  The main one stops the 100% CPU crash.
