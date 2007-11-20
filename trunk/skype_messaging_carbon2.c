@@ -228,24 +228,37 @@ IsSkypeRunning(void)
 {
 	OSStatus status = noErr;
 	ProcessSerialNumber psn = {kNoProcess, kNoProcess};
-	char procName[64];
+	unsigned int procNameLength = 32;
+	unsigned char procName[procNameLength];
+	unsigned int i = 0;
 	ProcessInfoRec info;
 	info.processInfoLength = sizeof(ProcessInfoRec);
 	info.processName = procName;
 	info.processAppSpec = NULL;
+	pid_t pid = 0;
 	
 	while(status == noErr)
 	{
+		for(i = 0; i < procNameLength; i++)
+			procName[i] = '\0';
+		
 		status = GetNextProcess(&psn);
 		if (status == noErr)
 		{
 			if (GetProcessInformation(&psn, &info) == noErr)
 			{
-				printf("Program name %s\n", info.processName);
+				//for some reason first character is poisioned
+				if (strcmp((char *)&procName[1], "Skype") == 0)
+				{
+					if (GetProcessPID(&psn, &pid) == noErr)
+					{
+						return (int)pid;
+					}
+				}
 			}
 		}
 	}
-	return 1;
+	return 0;
 }
 
 void
@@ -285,7 +298,7 @@ void SendSkypeCommand(CFStringRef command)
 {
 	CFNumberRef id_number = CFNumberCreate(NULL, kCFNumberIntType, &client_id);
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-	const void *keys[] = {(void *)CFSTR("SKYPE_API_NOTIFICATION_STRING"), (void *)CFSTR("SKYPE_API_CLIENT_ID")};
+	const void *keys[] = {(void *)CFSTR("SKYPE_API_COMMAND"), (void *)CFSTR("SKYPE_API_CLIENT_ID")};
 	const void *values[] = {command, id_number};
 	CFDictionaryRef userInfo = CFDictionaryCreate(NULL, keys, values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);	
 	
