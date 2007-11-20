@@ -141,7 +141,7 @@ send_message(char* message)
 	}
 
 	gpointer pool = initAutoreleasePool();
-	printf("Skype send message\n");
+	printf("Skype send message ");
 #if SENDSKYPERETURNS
 	CFStringRef returnString = NULL;
 	returnString = SendSkypeCommand(CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8));
@@ -151,6 +151,7 @@ send_message(char* message)
 	SendSkypeCommand(CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8));
 #endif
 	destroyAutoreleasePool(pool);
+	printf("%s\n", message);
 }
 
 static void
