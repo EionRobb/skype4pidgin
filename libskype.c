@@ -41,7 +41,7 @@ GList *skype_status_types(PurpleAccount *acct);
 void skype_login(PurpleAccount *acct);
 void skype_close(PurpleConnection *gc);
 int skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags);
-static void skype_hide();
+static void hide_skype();
 void skype_get_info(PurpleConnection *gc, const gchar *username);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
 void skype_set_status(PurpleAccount *account, PurpleStatus *status);
@@ -351,7 +351,7 @@ skype_silence(PurplePlugin *plugin, gpointer data)
 }
 
 static void
-skype_plugin_update_check()
+skype_plugin_update_check(void)
 {
 	gchar *filename, *basename;
 	struct stat *filestat = g_new(struct stat, 1);
@@ -386,7 +386,7 @@ skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 }
 
 static void
-skype_program_update_check()
+skype_program_update_check(void)
 {
 	/*
 		Windows:
