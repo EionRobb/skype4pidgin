@@ -18,6 +18,7 @@ static gboolean
 skype_connect()
 {
 	int i = 0;
+	PDWORD_PTR sendMessageResult = NULL;
 
 	uiGlobal_MsgID_SkypeControlAPIAttach = RegisterWindowMessage("SkypeControlAPIAttach");
 	uiGlobal_MsgID_SkypeControlAPIDiscover = RegisterWindowMessage("SkypeControlAPIDiscover");
@@ -33,7 +34,7 @@ skype_connect()
 	}
 
 	purple_debug_info("skype_win32", "Sending broadcast message\n");
-	SendMessage( HWND_BROADCAST, uiGlobal_MsgID_SkypeControlAPIDiscover, (WPARAM)hInit_MainWindowHandle, 0);
+	SendMessageTimeout( HWND_BROADCAST, uiGlobal_MsgID_SkypeControlAPIDiscover, (WPARAM)hInit_MainWindowHandle, 0, SMTO_NORMAL, 1000, sendMessageResult);
 	purple_debug_info("skype_win32", "Broadcast message sent\n");
 
 	while(hGlobal_SkypeAPIWindowHandle == NULL && i < 100)
@@ -133,7 +134,7 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 }
 
 static void
-hide_skype
+hide_skype()
 {
 	return;
 }
