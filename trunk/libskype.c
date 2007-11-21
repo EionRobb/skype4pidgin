@@ -845,13 +845,16 @@ skype_close(PurpleConnection *gc)
 	GSList *buddies;
 
 	purple_debug_info("skype", "logging out\n");
-	if (purple_account_get_bool(gc->account, "skype_sync", TRUE))
+	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
-	buddies = purple_find_buddies(gc->account, NULL);
-	if (buddies != NULL && g_slist_length(buddies) > 0)
-		g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
+	if (gc)
+	{
+		buddies = purple_find_buddies(gc->account, NULL);
+		if (buddies != NULL && g_slist_length(buddies) > 0)
+			g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
+	}
 }
 
 int 
