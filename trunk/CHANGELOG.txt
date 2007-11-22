@@ -1,17 +1,30 @@
 Changelog
 =========
 
-21 November 2007
+
+22 November 2007
 ----------------
+* Windows dll file now compiled from 2.1.1 Pidgin source, so it now works with PortablePidgin
+
+21 November 2007
+
+----------------
+
 * Adium plugin is now legally GPL - Skype.framework is no longer needed and I've created an open-source replacement.
+
 * Adium plugin has changes from Linux/Windows versions ported over.
+
 * Adium plugin crashes less at startup.
+
 * Adium plugin will Hide Skype instead of just minimising it.
+
 
 19 November 2007
 ----------------
 * X11 fixes for Linux version.  The main one stops the 100% CPU crash.
+
 * You can now search for new Skype users from the Account menu.
+
 * More X11 fixes for Linux version.  This one should make the plugin more stable and not crash on computers with memory protection.
 
 18 November 2007
