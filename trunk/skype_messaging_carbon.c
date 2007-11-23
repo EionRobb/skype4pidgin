@@ -70,20 +70,30 @@ static struct SkypeDelegate skypeDelegate = {
 	SkypeBecameUnavailable
 };
 
-static gboolean
+/*static gboolean
 skype_connect_thread(gpointer data)
 {
+	static gboolean started = FALSE;
+	if (started)
+		return FALSE;
+	started = TRUE;
+	
 	void *pool = initAutoreleasePool();
 
 	printf("Start inner event loop\n");
-	RunApplicationEventLoop();
+	while(true)
+	{
+		//RunApplicationEventLoop();
+		RunCurrentEventLoop(1);
+	}
 	printf("End of event loop\n");
+	started = FALSE;
 	
 	destroyAutoreleasePool(pool);
 	
 	//don't loop this thread
 	return FALSE;
-}
+}*/
 
 static gpointer static_pool;
 
@@ -103,7 +113,7 @@ skype_connect()
 	SetSkypeDelegate(&skypeDelegate);
 	ConnectToSkype();
 	
-	g_thread_create((GThreadFunc)skype_connect_thread, NULL, FALSE, NULL);
+	//g_thread_create((GThreadFunc)skype_connect_thread, NULL, FALSE, NULL);
 	while(connected_to_skype == FALSE)
 	{
 		RunCurrentEventLoop(1);
@@ -115,6 +125,8 @@ skype_connect()
 static void
 skype_disconnect()
 {
+	//TODO: Use MPTerminateTask to kill the runloop
+	
 	connected_to_skype = FALSE;
 	DisconnectFromSkype();
 	RemoveSkypeDelegate();
@@ -126,6 +138,7 @@ skype_disconnect()
 static void
 send_message(char* message)
 {
+	CFStringRef messageString = CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8);
 	if (!connected_to_skype)
 	{
 		if (message[0] == '#')
@@ -137,6 +150,7 @@ send_message(char* message)
 			sprintf(error_return, "#%d ERROR", message_num);
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
 		}
+		CFRelease(messageString);
 		return;
 	}
 
@@ -144,14 +158,15 @@ send_message(char* message)
 	printf("Skype send message ");
 #if SENDSKYPERETURNS
 	CFStringRef returnString = NULL;
-	returnString = SendSkypeCommand(CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8));
+	returnString = SendSkypeCommand(messageString);
 	if (returnString)
 		SkypeNotificationReceived(returnString);
 #else
-	SendSkypeCommand(CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8));
+	SendSkypeCommand(messageString);
 #endif
 	destroyAutoreleasePool(pool);
 	printf("%s\n", message);
+	CFRelease(messageString);
 }
 
 static void
