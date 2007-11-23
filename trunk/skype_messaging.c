@@ -9,6 +9,7 @@ static gboolean skype_connect();
 static void skype_disconnect();
 static void send_message(char* message);
 static void hide_skype();
+static void exec_skype();
 
 void skype_send_message_nowait(char *message, ...);
 char *skype_send_message(char *message, ...);
