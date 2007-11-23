@@ -54,7 +54,7 @@ skype_handle_received_message(char *message)
 	
 	if (strcmp(command, "USERSTATUS") == 0)
 	{
-		
+		//purple_prpl_got_account_status(this_account, status, NULL);
 	} else if (strcmp(command, "CONNSTATUS") == 0)
 	{
 		if (strcmp(string_parts[1], "LOGGEDOUT") == 0)
