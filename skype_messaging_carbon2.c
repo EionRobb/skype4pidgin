@@ -49,7 +49,8 @@ availabilityUpdateCallback(
 	const void *object,
 	CFDictionaryRef userInfo)
 {
-	isavailable = CFNumberToCInt((CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_AVAILABILITY")));
+	CFNumberRef number = (CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_AVAILABILITY")); 
+	isavailable = CFNumberToCInt(number);
 }
 
 void
@@ -86,7 +87,8 @@ apiNotificationCallback(
 	const void *object,
 	CFDictionaryRef userInfo)
 {
-	int client_number = CFNumberToCInt((CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_CLIENT_ID")));
+	CFNumberRef number = (CFNumberRef) CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_CLIENT_ID"));
+	int client_number = CFNumberToCInt(number);
 	if (client_number != 999 && (!client_id || client_id != client_number))
 	{
 		return;
@@ -107,7 +109,8 @@ attachResponseCallback(
 	const void *object,
 	CFDictionaryRef userInfo)
 {
-	int response = CFNumberToCInt((CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_ATTACH_RESPONSE")));
+	CFNumberRef responseNumber = (CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_ATTACH_RESPONSE"));
+	int response = CFNumberToCInt(responseNumber);
 	if (response)
 	{
 		client_id = response;
@@ -217,6 +220,7 @@ IsSkypeAvailable(void)
 		NULL,
 		TRUE);
 	
+	//Should only take 1 second or less to reply
 	RunCurrentEventLoop(1);
 	int avail = isavailable;
 	isavailable = 0;
@@ -296,6 +300,8 @@ ConnectToSkype(void)
 
 void SendSkypeCommand(CFStringRef command)
 {
+	CFRetain(command);
+
 	CFNumberRef id_number = CFNumberCreate(NULL, kCFNumberIntType, &client_id);
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
 	const void *keys[] = {(void *)CFSTR("SKYPE_API_COMMAND"), (void *)CFSTR("SKYPE_API_CLIENT_ID")};
@@ -309,11 +315,21 @@ void SendSkypeCommand(CFStringRef command)
 		NULL,
 		userInfo,
 		TRUE);
+	
+	CFRelease(command);
+	CFRelease(id_number);
+	CFRelease(userInfo);
 }
 
 void DisconnectFromSkype(void)
 {
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
+		
+	CFNotificationCenterRemoveObserver(
+		center,
+		delegate->clientApplicationName,
+		CFSTR("SKSkypeAPINotification"),
+		NULL);
 	
 	//disconnect
 	CFNotificationCenterPostNotification(
