@@ -1045,7 +1045,14 @@ skype_keepalive(PurpleConnection *gc)
 void
 skype_set_buddy_icon(PurpleConnection *gc, PurpleStoredImage *img)
 {
-	skype_send_message_nowait("SET AVATAR 1 %s:1", purple_imgstore_get_filename(img));
+	gchar *path;
+	if (img != NULL)
+	{
+		path = g_build_filename(purple_buddy_icons_get_cache_dir(), purple_imgstore_get_filename(img), NULL);
+		skype_send_message_nowait("SET AVATAR 1 %s:1", path);
+	}
+	else
+		skype_send_message_nowait("SET AVATAR 1");
 }
 
 char *
