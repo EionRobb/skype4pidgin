@@ -359,6 +359,12 @@ skype_handle_received_message(char *message)
 					string_parts[3]);
 			}
 		}
+	} else if (strcmp(command, "WINDOWSTATE") == 0)
+	{
+		if (strcmp(string_parts[1], "HIDDEN") == 0)
+		{
+			skype_send_message("SET SILENT_MODE ON");
+		}
 	}
 	if (string_parts)
 	{
