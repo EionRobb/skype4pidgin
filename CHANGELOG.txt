@@ -1,6 +1,11 @@
 Changelog
 =========
 
+25 November 2007
+----------------
+* Skype doesn't annoy with messages when minimising to try
+* Setting your avatar icon works properly, and doesn't crash if you set an invalid filename
+
 22 November 2007
 ----------------
 * Windows dll file now compiled from 2.1.1 Pidgin source, so it now works with PortablePidgin
