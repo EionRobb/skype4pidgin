@@ -188,3 +188,8 @@ hide_skype()
 	return;
 }
 
+static void
+exec_skype()
+{
+	return;
+}
