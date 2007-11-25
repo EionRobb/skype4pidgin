@@ -89,7 +89,7 @@ skype_send_message_nowait(char *message_format, ...)
 
 char *skype_send_message(char *message_format, ...)
 {
-	static int next_message_num = 0;
+	static guint next_message_num = 0;
 	guint cur_message_num;
 	char *message;
 	char *return_msg;
