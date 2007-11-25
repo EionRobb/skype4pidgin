@@ -109,6 +109,7 @@ char *skype_send_message(char *message_format, ...)
 	
 	//Send message asynchronously
 	skype_send_message_nowait("#%u %s", cur_message_num, message);
+	g_free(message);
 
 	g_static_mutex_lock(&mutex);
 	//Wait for a response
