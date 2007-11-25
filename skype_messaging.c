@@ -44,7 +44,7 @@ static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static void
 skype_message_received(char *orig_message)
 {
-	int request_number;
+	gint request_number;
 	int string_pos;
 	char *message;
 	
@@ -60,7 +60,7 @@ skype_message_received(char *orig_message)
 		//It's a reply from a call we've made - update the hash table
 		sscanf(message, "#%d %n", &request_number, &string_pos);
 		g_static_mutex_lock(&mutex);
-		g_hash_table_insert(message_queue, (gpointer)request_number, g_strdup(&message[string_pos]));
+		g_hash_table_insert(message_queue, GINT_TO_POINTER(request_number), g_strdup(&message[string_pos]));
 		g_static_mutex_unlock(&mutex);
 	} else {
 		purple_timeout_add(0, (GSourceFunc)skype_handle_received_message, (gpointer)message);
@@ -85,7 +85,7 @@ skype_send_message_nowait(char *message_format, ...)
 char *skype_send_message(char *message_format, ...)
 {
 	static int next_message_num = 0;
-	int cur_message_num;
+	gint cur_message_num;
 	char *message;
 	char *return_msg;
 	va_list args;
@@ -102,7 +102,7 @@ char *skype_send_message(char *message_format, ...)
 	g_static_mutex_lock(&mutex);
 	cur_message_num = next_message_num++;
 	
-	g_hash_table_insert(message_queue, (gpointer)cur_message_num, NULL);
+	g_hash_table_insert(message_queue, GINT_TO_POINTER(cur_message_num), NULL);
 	g_static_mutex_unlock(&mutex);
 	
 	//Send message asynchronously
@@ -110,7 +110,7 @@ char *skype_send_message(char *message_format, ...)
 
 	g_static_mutex_lock(&mutex);
 	//Wait for a response
-	while(g_hash_table_lookup(message_queue, (gpointer)cur_message_num) == NULL)
+	while(g_hash_table_lookup(message_queue, GINT_TO_POINTER(cur_message_num)) == NULL)
 	{
 		g_static_mutex_unlock(&mutex);
 		g_thread_yield();
@@ -126,12 +126,12 @@ char *skype_send_message(char *message_format, ...)
 		
 		if(timeout++ == 10000)
 		{
-			g_hash_table_remove(message_queue, (gpointer)cur_message_num);
+			g_hash_table_remove(message_queue, GINT_TO_POINTER(cur_message_num));
 			return "";	
 		}
 	}
-	return_msg = (char *)g_hash_table_lookup(message_queue, (gpointer)cur_message_num);
-	g_hash_table_remove(message_queue, (gpointer)cur_message_num);
+	return_msg = (char *)g_hash_table_lookup(message_queue, GINT_TO_POINTER(cur_message_num));
+	g_hash_table_remove(message_queue, GINT_TO_POINTER(cur_message_num));
 	g_static_mutex_unlock(&mutex);
 	
 	if (strncmp(return_msg, "ERROR", 5) == 0)
