@@ -44,7 +44,8 @@ static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 static void
 skype_message_received(char *orig_message)
 {
-	gint request_number;
+	guint request_number;
+	guint *key;
 	int string_pos;
 	char *message;
 	
@@ -58,10 +59,14 @@ skype_message_received(char *orig_message)
 	if(message[0] == '#')
 	{
 		//It's a reply from a call we've made - update the hash table
-		sscanf(message, "#%d %n", &request_number, &string_pos);
+		sscanf(message, "#%u %n", &request_number, &string_pos);
+		key = g_new(guint, 1);
+		*key = request_number;
 		g_static_mutex_lock(&mutex);
-		g_hash_table_insert(message_queue, GINT_TO_POINTER(request_number), g_strdup(&message[string_pos]));
+		//purple_debug_info("skype", "Request Number %d Hash: %d\n", &request_number, g_int_hash(&request_number));
+		g_hash_table_insert(message_queue, key, g_strdup(&message[string_pos]));
 		g_static_mutex_unlock(&mutex);
+		g_free(message);
 	} else {
 		purple_timeout_add(0, (GSourceFunc)skype_handle_received_message, (gpointer)message);
 	}
@@ -85,7 +90,7 @@ skype_send_message_nowait(char *message_format, ...)
 char *skype_send_message(char *message_format, ...)
 {
 	static int next_message_num = 0;
-	gint cur_message_num;
+	guint cur_message_num;
 	char *message;
 	char *return_msg;
 	va_list args;
@@ -96,21 +101,18 @@ char *skype_send_message(char *message_format, ...)
 	va_end(args);
 
 	if (!message_queue)
-		message_queue = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
-
+		message_queue = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	
-	g_static_mutex_lock(&mutex);
 	cur_message_num = next_message_num++;
-	
-	g_hash_table_insert(message_queue, GINT_TO_POINTER(cur_message_num), NULL);
-	g_static_mutex_unlock(&mutex);
+	if (next_message_num == G_MAXUINT)
+		next_message_num = 0;
 	
 	//Send message asynchronously
-	skype_send_message_nowait("#%d %s", cur_message_num, message);
+	skype_send_message_nowait("#%u %s", cur_message_num, message);
 
 	g_static_mutex_lock(&mutex);
 	//Wait for a response
-	while(g_hash_table_lookup(message_queue, GINT_TO_POINTER(cur_message_num)) == NULL)
+	while(g_hash_table_lookup(message_queue, &cur_message_num) == NULL)
 	{
 		g_static_mutex_unlock(&mutex);
 		g_thread_yield();
@@ -126,12 +128,12 @@ char *skype_send_message(char *message_format, ...)
 		
 		if(timeout++ == 10000)
 		{
-			g_hash_table_remove(message_queue, GINT_TO_POINTER(cur_message_num));
+			g_hash_table_remove(message_queue, &cur_message_num);
 			return "";	
 		}
 	}
-	return_msg = (char *)g_hash_table_lookup(message_queue, GINT_TO_POINTER(cur_message_num));
-	g_hash_table_remove(message_queue, GINT_TO_POINTER(cur_message_num));
+	return_msg = (char *)g_hash_table_lookup(message_queue, &cur_message_num);
+	g_hash_table_remove(message_queue, &cur_message_num);
 	g_static_mutex_unlock(&mutex);
 	
 	if (strncmp(return_msg, "ERROR", 5) == 0)
