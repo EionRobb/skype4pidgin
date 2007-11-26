@@ -1039,7 +1039,13 @@ skype_rem_permit(PurpleConnection *gc, const char *who)
 void
 skype_keepalive(PurpleConnection *gc)
 {
-	skype_send_message_nowait("PING");
+	gchar *connected;
+	connected = skype_send_message("PING");
+	if (strlen(connected) == 0)
+	{
+		purple_connection_error(gc, _("\nSkype not responding"));
+	}
+	g_free(connected);
 }
 
 void
