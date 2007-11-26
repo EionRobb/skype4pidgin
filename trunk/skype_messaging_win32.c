@@ -139,3 +139,9 @@ hide_skype()
 	return;
 }
 
+static gboolean
+exec_skype()
+{
+	return g_spawn_command_line_async("%PROGRAMFILES%\Skype\Phone\Skype.exe", NULL);
+}
+

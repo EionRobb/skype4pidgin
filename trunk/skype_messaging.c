@@ -9,7 +9,7 @@ static gboolean skype_connect();
 static void skype_disconnect();
 static void send_message(char* message);
 static void hide_skype();
-static void exec_skype();
+static gboolean exec_skype();
 
 void skype_send_message_nowait(char *message, ...);
 char *skype_send_message(char *message, ...);
@@ -62,10 +62,11 @@ skype_message_received(char *orig_message)
 		sscanf(message, "#%u %n", &request_number, &string_pos);
 		key = g_new(guint, 1);
 		*key = request_number;
+		
 		g_static_mutex_lock(&mutex);
-		//purple_debug_info("skype", "Request Number %d Hash: %d\n", &request_number, g_int_hash(&request_number));
 		g_hash_table_insert(message_queue, key, g_strdup(&message[string_pos]));
 		g_static_mutex_unlock(&mutex);
+		
 		g_free(message);
 	} else {
 		purple_timeout_add(0, (GSourceFunc)skype_handle_received_message, (gpointer)message);

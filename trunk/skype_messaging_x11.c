@@ -185,11 +185,11 @@ receive_message_loop(void)
 static void
 hide_skype()
 {
-	return;
+	
 }
 
-static void
+static gboolean
 exec_skype()
 {
-	return;
+	return g_spawn_command_line_async("skype", NULL);
 }
