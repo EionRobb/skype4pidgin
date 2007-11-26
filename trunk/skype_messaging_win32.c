@@ -136,12 +136,35 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 static void
 hide_skype()
 {
+	//don't need to since SILENT_MODE ON works
 	return;
 }
 
 static gboolean
 exec_skype()
 {
-	return g_spawn_command_line_async("%PROGRAMFILES%\Skype\Phone\Skype.exe", NULL);
+	gchar *path;
+	int size;
+	
+	//HKCU\Software\Skype\Phone\SkypePath or HKLM\Software\Skype\Phone\SkypePath
+	//regopenkey, reg queryvalueex, regclosekey
+	
+	RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
+	if (size != 0)
+	{
+		path = g_new(gchar, size);
+		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, path, &size);
+	} else {
+		RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
+		if (size != 0)
+		{
+			path = g_new(gchar, size);
+			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, path, &size);
+		} else {
+			path = g_strdup("%PROGRAMFILES%\\Skype\\Phone\\Skype.exe");
+		}
+	}
+	
+	return g_spawn_command_line_async(path, NULL);
 }
 
