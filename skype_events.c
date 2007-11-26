@@ -447,13 +447,13 @@ skype_find_filetransfer(PurpleXfer *transfer, char *skypeid)
 void
 skype_accept_transfer(PurpleXfer *transfer)
 {
-	
+	//can't accept transfers
 }
 
 void
 skype_decline_transfer(PurpleXfer *transfer)
 {
-	
+	//can't reject transfers
 }
 
 gint
