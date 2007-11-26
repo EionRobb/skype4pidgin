@@ -203,6 +203,7 @@ int
 IsSkypeAvailable(void)
 {
 	//is skype available?
+	isavailable = 0;
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
 
 	CFNotificationCenterAddObserver(
@@ -300,6 +301,19 @@ ConnectToSkype(void)
 
 void SendSkypeCommand(CFStringRef command)
 {
+	if (delegate == NULL)
+	{
+		printf("Can't send message, no delegate set\n");
+		return;
+	}
+	if (command == NULL)
+		return;
+	if (!client_id)
+	{
+		printf("Can't send message, not connected\n");
+		return;
+	}
+
 	CFRetain(command);
 
 	CFNumberRef id_number = CFNumberCreate(NULL, kCFNumberIntType, &client_id);
@@ -324,20 +338,23 @@ void SendSkypeCommand(CFStringRef command)
 void DisconnectFromSkype(void)
 {
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-		
-	CFNotificationCenterRemoveObserver(
-		center,
-		delegate->clientApplicationName,
-		CFSTR("SKSkypeAPINotification"),
-		NULL);
 	
-	//disconnect
-	CFNotificationCenterPostNotification(
-		center,
-		CFSTR("SKSkypeAPIDetachRequest"),
-		NULL,
-		NULL,
-		TRUE);
+	if (client_id)
+	{
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKSkypeAPINotification"),
+			NULL);
 		
-	client_id = 0;
+		//disconnect
+		CFNotificationCenterPostNotification(
+			center,
+			CFSTR("SKSkypeAPIDetachRequest"),
+			NULL,
+			NULL,
+			TRUE);
+			
+		client_id = 0;
+	}
 }
