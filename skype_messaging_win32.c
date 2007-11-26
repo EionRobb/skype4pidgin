@@ -147,19 +147,18 @@ exec_skype()
 	int size;
 	
 	//HKCU\Software\Skype\Phone\SkypePath or HKLM\Software\Skype\Phone\SkypePath
-	//regopenkey, reg queryvalueex, regclosekey
 	
 	RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
 	if (size != 0)
 	{
 		path = g_new(gchar, size);
-		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, path, &size);
+		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, &path, &size);
 	} else {
 		RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
 		if (size != 0)
 		{
 			path = g_new(gchar, size);
-			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, path, &size);
+			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, &path, &size);
 		} else {
 			path = g_strdup("%PROGRAMFILES%\\Skype\\Phone\\Skype.exe");
 		}
