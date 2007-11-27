@@ -55,25 +55,7 @@ skype_handle_received_message(char *message)
 	
 	if (strcmp(command, "USERSTATUS") == 0)
 	{
-		//The status changed in Skype
-		if (strcmp(string_parts[1], "ONLINE"))
-			status_primitive = PURPLE_STATUS_AVAILABLE;
-		else if (strcmp(string_parts[1], "SKYPEME"))
-			status_primitive = PURPLE_STATUS_AVAILABLE;
-		else if (strcmp(string_parts[1], "AWAY"))
-			status_primitive = PURPLE_STATUS_AWAY;
-		else if (strcmp(string_parts[1], "NA"))
-			status_primitive = PURPLE_STATUS_EXTENDED_AWAY;
-		else if (strcmp(string_parts[1], "DND"))
-			status_primitive = PURPLE_STATUS_UNAVAILABLE;
-		else if (strcmp(string_parts[1], "OFFLINE"))
-			status_primitive = PURPLE_STATUS_OFFLINE;
-		else if (strcmp(string_parts[1], "INVISIBLE"))
-			status_primitive = PURPLE_STATUS_INVISIBLE;
-		else
-			status_primitive = PURPLE_STATUS_UNSET;
-		if (!purple_account_is_status_active(this_account, purple_primitive_get_id_from_type(status_primitive)))
-			purple_prpl_got_account_status(this_account, purple_primitive_get_id_from_type(status_primitive), NULL);
+
 	} else if (strcmp(command, "CONNSTATUS") == 0)
 	{
 		if (strcmp(string_parts[1], "LOGGEDOUT") == 0)
