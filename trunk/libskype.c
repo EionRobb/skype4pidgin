@@ -733,7 +733,7 @@ void
 skype_login(PurpleAccount *acct)
 {
 	PurpleConnection *gc;
-	const gchar *reply;
+	gchar *reply;
 	gboolean connect_successful;
 	
 	if(acct == NULL)
