@@ -765,6 +765,8 @@ skype_login(PurpleAccount *acct)
 	if (!connect_successful)
 	{
 		purple_connection_error(gc, "\nCould not connect to Skype process\nSkype not running?");
+		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
+			exec_skype();
 		return;
 	}
 	
@@ -777,8 +779,6 @@ skype_login(PurpleAccount *acct)
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, "\nSkype client not ready");
-		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
-			exec_skype();
 		return;
 	}
 	g_free(reply);
@@ -788,14 +788,13 @@ skype_login(PurpleAccount *acct)
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, "\nSkype client not ready");
-		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
-			exec_skype();
 		return;
 	}
 	g_free(reply);
 	
 	purple_connection_update_progress(gc, _("Silencing Skype"), 2, 4);
 	skype_silence(NULL, NULL);
+	purple_connection_update_progress(gc, _("Connected"), 3, 4);
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
 
 	skype_get_account(acct);
@@ -805,8 +804,6 @@ skype_login(PurpleAccount *acct)
 		skype_set_status(acct, purple_account_get_active_status(acct));
 	//sync buddies after everything else has finished loading
 	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);
-	
-	purple_connection_update_progress(gc, _("Connected"), 3, 4);
 }
 
 char *
