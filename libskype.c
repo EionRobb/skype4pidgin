@@ -771,7 +771,7 @@ skype_login(PurpleAccount *acct)
 	}
 	
 	purple_connection_update_progress(gc, _("Authorizing"),
-								  1,   /* which connection step this is */
+								  0,   /* which connection step this is */
 								  4);  /* total number of steps */
 
 #ifndef __APPLE__
