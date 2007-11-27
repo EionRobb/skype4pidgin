@@ -639,7 +639,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		ret = skype_send_message("GET USER %s AVATAR 1 %s", buddy->name, new_filename);
 		if (strlen(ret) == 0)
 		{
-			purple_debug_info("skype", "Error: Protocol doesn't suppot AVATAR\n");
+			purple_debug_warning("skype", "Error: Protocol doesn't suppot AVATAR\n");
 			api_supports_avatar = FALSE;
 		} else {
 			g_file_get_contents(new_filename, &image_data, &image_data_len, NULL);
@@ -648,7 +648,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		g_free(filename);
 		g_free(new_filename);
 	} else {
-		purple_debug_info("skype", "Error making temp file %s\n", error->message);
+		purple_debug_warning("skype", "Error making temp file %s\n", error->message);
 		g_error_free(error);
 	}
 
@@ -767,24 +767,31 @@ skype_login(PurpleAccount *acct)
 	
 	purple_connection_update_progress(gc, _("Authorizing"),
 								  1,   /* which connection step this is */
-								  5);  /* total number of steps */
+								  4);  /* total number of steps */
 
 #ifndef __APPLE__
 	reply = skype_send_message("NAME Pidgin");
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, "\nSkype client not ready");
+		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
+			exec_skype();
 		return;
 	}
+	g_free(reply);
 #endif
-	purple_connection_update_progress(gc, _("Initializing"), 1, 5);
+	purple_connection_update_progress(gc, _("Initializing"), 1, 4);
 	reply = skype_send_message("PROTOCOL 2");
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, "\nSkype client not ready");
+		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
+			exec_skype();
+		return;
 	}
+	g_free(reply);
 	
-	purple_connection_update_progress(gc, _("Silencing Skype"), 2, 5);
+	purple_connection_update_progress(gc, _("Silencing Skype"), 2, 4);
 	skype_silence(NULL, NULL);
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
 
@@ -794,7 +801,9 @@ skype_login(PurpleAccount *acct)
 	if (purple_account_get_bool(acct, "skype_sync", TRUE))
 		skype_set_status(acct, purple_account_get_active_status(acct));
 	//sync buddies after everything else has finished loading
-	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);		
+	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);
+	
+	purple_connection_update_progress(gc, _("Connected"), 3, 4);
 }
 
 char *
@@ -882,6 +891,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	PurpleNotifyUserInfo *user_info;
 	double timezoneoffset;
 	char timezone_str[9];
+	struct tm *birthday_time = g_new(struct tm, 1);
 	int time;
 	
 	user_info = purple_notify_user_info_new();
@@ -894,7 +904,9 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	_SKYPE_USER_INFO("FULLNAME", "Full Name");
 	purple_notify_user_info_add_section_break(user_info);
 	purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
-	_SKYPE_USER_INFO("BIRTHDAY", "Birthday");
+	//_SKYPE_USER_INFO("BIRTHDAY", "Birthday");
+	purple_str_to_time(skype_get_user_info(username, "BIRTHDAY"), FALSE, birthday_time, NULL, NULL);
+	purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
 	_SKYPE_USER_INFO("SEX", "Gender");
 	_SKYPE_USER_INFO("LANGUAGE", "Language");
 	_SKYPE_USER_INFO("COUNTRY", "Country");
@@ -910,6 +922,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	//		g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
+	timezoneoffset -= 24; //timezones are offset by 24 hours to keep them valid and unsigned
 	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
 	purple_notify_user_info_add_pair(user_info, _("Timezone"), g_strdup(timezone_str));
 	
@@ -920,6 +933,8 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	
 	purple_notify_userinfo(gc, username, user_info, NULL, NULL);
 	purple_notify_user_info_destroy(user_info);
+	
+	g_free(birthday_time);
 }
 
 gchar *
