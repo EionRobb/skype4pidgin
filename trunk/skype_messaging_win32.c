@@ -143,22 +143,22 @@ hide_skype()
 static gboolean
 exec_skype()
 {
+	DWORD size = 255;
 	gchar *path;
-	int size;
-	
+
 	//HKCU\Software\Skype\Phone\SkypePath or HKLM\Software\Skype\Phone\SkypePath
 	
-	RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
+	RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, NULL, &size);
 	if (size != 0)
 	{
 		path = g_new(gchar, size);
-		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, &path, &size);
+		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
 	} else {
-		RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, NULL, &size);
+		RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, NULL, &size);
 		if (size != 0)
 		{
 			path = g_new(gchar, size);
-			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, REG_SZ, &path, &size);
+			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
 		} else {
 			path = g_strdup("%PROGRAMFILES%\\Skype\\Phone\\Skype.exe");
 		}
