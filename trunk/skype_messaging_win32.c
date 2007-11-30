@@ -164,6 +164,6 @@ exec_skype()
 		}
 	}
 	
-	return g_spawn_command_line_async(path, NULL);
+	return g_spawn_command_line_async(g_strconcat(path, "/nosplash /minimized", NULL), NULL);
 }
 
