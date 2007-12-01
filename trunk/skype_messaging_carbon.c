@@ -16,6 +16,7 @@ void
 SkypeNotificationReceived(CFStringRef input)
 {
 	char *output = NULL;
+	GError *error = NULL;
 	void *pool = initAutoreleasePool();
 	int strlen = CFStringGetMaximumSizeForEncoding(CFStringGetLength(input), kCFStringEncodingUTF8);
 	
@@ -27,7 +28,12 @@ SkypeNotificationReceived(CFStringRef input)
 		CFStringGetCString(input, output, strlen+1, kCFStringEncodingUTF8);
 	}
 	printf(" %s\n", output);
-	g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, NULL);
+	g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, &error);
+	if (error)
+	{
+		printf("Could not create new thread!!! %s\n", error->message);
+		g_error_free(error);
+	}
 	
 	destroyAutoreleasePool(pool);
 }
