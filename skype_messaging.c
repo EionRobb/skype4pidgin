@@ -69,7 +69,7 @@ skype_message_received(char *orig_message)
 		
 		g_free(message);
 	} else {
-		purple_timeout_add(0, (GSourceFunc)skype_handle_received_message, (gpointer)message);
+		purple_timeout_add(1, (GSourceFunc)skype_handle_received_message, (gpointer)message);
 	}
 }
 
