@@ -332,11 +332,14 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_program_update_check),
 									NULL, NULL);
 	m = g_list_append(m, act);
-
-	act = purple_menu_action_new(_("Check for plugin updates"),
-									PURPLE_CALLBACK(skype_plugin_update_check),
-									NULL, NULL);
-	m = g_list_append(m, act);
+	
+	if (this_plugin != NULL && this_plugin->path != NULL)
+	{
+		act = purple_menu_action_new(_("Check for plugin updates"),
+										PURPLE_CALLBACK(skype_plugin_update_check),
+										NULL, NULL);
+		m = g_list_append(m, act);
+	}
 
 	act = purple_menu_action_new(_("Search for buddies"),
 									PURPLE_CALLBACK(skype_show_search_users),
@@ -356,21 +359,18 @@ skype_silence(PurplePlugin *plugin, gpointer data)
 static void
 skype_plugin_update_check(void)
 {
-	gchar *filename, *basename;
+	gchar *basename;
 	struct stat *filestat = g_new(struct stat, 1);
 
 	//this_plugin is the PidginPlugin
-	if (this_plugin == NULL)
-		return;
-
-	filename = this_plugin->path;
-	if (g_stat(filename, filestat) == -1)
-		return;
-	
-	basename = g_path_get_basename(filename);
-	purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin/", "?version=", basename, NULL),
-		TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)filestat);
-	
+	if (this_plugin == NULL || this_plugin->path == NULL || filestat == NULL || g_stat(this_plugin->path, filestat) == -1)
+	{
+		purple_notify_warning(this_plugin, "Warning", "Could not check for updates", NULL);
+	} else {
+		basename = g_path_get_basename(this_plugin->path);
+		purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin/", "?version=", basename, NULL),
+			TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)filestat);
+	}
 }
 
 void
