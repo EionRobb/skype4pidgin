@@ -43,7 +43,6 @@ skype_handle_received_message(char *message)
 	PurpleXfer *transfer = NULL;
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
-	PurpleStatusPrimitive status_primitive;
 	
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
