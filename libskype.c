@@ -728,6 +728,11 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	}
 	purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 	
+	if (primitive != PURPLE_STATUS_OFFLINE &&
+		strcmp(status, "SKYPEOUT") != 0 &&
+		primitive != PURPLE_STATUS_UNSET)
+			skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+	
 	/* if this function was called from another thread, don't loop over it */
 	return FALSE;
 }
