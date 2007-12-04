@@ -111,13 +111,10 @@ attachResponseCallback(
 {
 	CFNumberRef responseNumber = (CFNumberRef)CFDictionaryGetValue(userInfo, CFSTR("SKYPE_API_ATTACH_RESPONSE"));
 	int response = CFNumberToCInt(responseNumber);
-	if (response)
+	client_id = response;
+	if (delegate && delegate->SkypeAttachResponse)
 	{
-		client_id = response;
-		if (delegate && delegate->SkypeAttachResponse)
-		{
-			delegate->SkypeAttachResponse(response);
-		}
+		delegate->SkypeAttachResponse(response?1:0);
 	}
 }
 
