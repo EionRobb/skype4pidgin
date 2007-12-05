@@ -115,7 +115,10 @@ skype_connect()
 	printf("Is Skype running? '%s'\n", (is_skype_running?"Yes":"No"));
 	if (!is_skype_running)
 		return FALSE;
-		
+	
+	if (connected_to_skype)
+		skype_disconnect();
+	
 	SetSkypeDelegate(&skypeDelegate);
 	ConnectToSkype();
 	
@@ -138,7 +141,8 @@ skype_disconnect()
 	RemoveSkypeDelegate();
 	RunCurrentEventLoop(1);
 	
-	destroyAutoreleasePool(static_pool);
+	if (static_pool)
+		destroyAutoreleasePool(static_pool);
 }
 
 static void

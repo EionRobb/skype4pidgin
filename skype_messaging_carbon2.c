@@ -146,41 +146,66 @@ skypeAvailableCallback(
 
 
 // STANDARD SKYPE.H BITS:
-
+void RemoveSkypeDelegate(void);
 
 void
 SetSkypeDelegate(SkypeDelegate *aDelegate)
 {
+	if (!aDelegate->clientApplicationName)
+	{
+		printf("Deletegate requires application name\n");
+		delegate = NULL;
+		return;
+	}
+	
+	if (delegate)
+	{
+		RemoveSkypeDelegate();
+	}
+	
+	delegate = aDelegate;
+	
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
 	
-	if (delegate == NULL)
-	{
-		delegate = aDelegate;
+	CFNotificationCenterAddObserver(
+		center,
+		delegate->clientApplicationName,
+		apiNotificationCallback,
+		CFSTR("SKSkypeAPINotification"),
+		NULL,
+		CFNotificationSuspensionBehaviorDeliverImmediately);
 
-		CFNotificationCenterAddObserver(
-			center,
-			delegate->clientApplicationName,
-			apiNotificationCallback,
-			CFSTR("SKSkypeAPINotification"),
-			NULL,
-			CFNotificationSuspensionBehaviorDeliverImmediately);
+	CFNotificationCenterAddObserver(
+		center,
+		delegate->clientApplicationName,
+		skypeQuitCallback,
+		CFSTR("SKSkypeWillQuit"),
+		NULL,
+		CFNotificationSuspensionBehaviorDeliverImmediately);
 
-		CFNotificationCenterAddObserver(
-			center,
-			delegate->clientApplicationName,
-			skypeQuitCallback,
-			CFSTR("SKSkypeWillQuit"),
-			NULL,
-			CFNotificationSuspensionBehaviorDeliverImmediately);
+	CFNotificationCenterAddObserver(
+		center,
+		delegate->clientApplicationName,
+		skypeAvailableCallback,
+		CFSTR("SKSkypeBecameAvailable"),
+		NULL,
+		CFNotificationSuspensionBehaviorDeliverImmediately);
 
-		CFNotificationCenterAddObserver(
-			center,
-			delegate->clientApplicationName,
-			skypeAvailableCallback,
-			CFSTR("SKSkypeBecameAvailable"),
-			NULL,
-			CFNotificationSuspensionBehaviorDeliverImmediately);
-	}
+	CFNotificationCenterAddObserver(
+		center,
+		delegate->clientApplicationName,
+		availabilityUpdateCallback,
+		CFSTR("SKAvailabilityUpdate"),
+		NULL,
+		CFNotificationSuspensionBehaviorDeliverImmediately);
+
+	CFNotificationCenterAddObserver(
+		center,
+		delegate->clientApplicationName,
+		attachResponseCallback,
+		CFSTR("SKSkypeAttachResponse"),
+		NULL,
+		CFNotificationSuspensionBehaviorDeliverImmediately);
 }
 
 SkypeDelegate *
@@ -189,10 +214,43 @@ GetSkypeDelegate(void)
 	return delegate;
 }
 
-
 void
 RemoveSkypeDelegate(void)
 {
+	if (delegate && delegate->clientApplicationName)
+	{
+		CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
+			
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKSkypeAPINotification"),
+			NULL);
+
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKSkypeWillQuit"),
+			NULL);
+
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKSkypeBecameAvailable"),
+			NULL);
+
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKAvailabilityUpdate"),
+			NULL);
+
+		CFNotificationCenterRemoveObserver(
+			center,
+			delegate->clientApplicationName,
+			CFSTR("SKSkypeAttachResponse"),
+			NULL);
+	}
 	delegate = NULL;
 }
 
@@ -202,14 +260,6 @@ IsSkypeAvailable(void)
 	//is skype available?
 	isavailable = 0;
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-
-	CFNotificationCenterAddObserver(
-		center,
-		delegate->clientApplicationName,
-		availabilityUpdateCallback,
-		CFSTR("SKAvailabilityUpdate"),
-		NULL,
-		CFNotificationSuspensionBehaviorDeliverImmediately);
 
 	CFNotificationCenterPostNotification(
 		center,
@@ -278,14 +328,6 @@ ConnectToSkype(void)
 	}
 
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-
-	CFNotificationCenterAddObserver(
-		center,
-		delegate->clientApplicationName,
-		attachResponseCallback,
-		CFSTR("SKSkypeAttachResponse"),
-		NULL,
-		CFNotificationSuspensionBehaviorDeliverImmediately);
 			
 	//do the connect
 	CFNotificationCenterPostNotification(
@@ -325,7 +367,7 @@ void SendSkypeCommand(CFStringRef command)
 		CFSTR("SKSkypeAPICommand"),
 		NULL,
 		userInfo,
-		TRUE);
+		FALSE);
 	
 	CFRelease(command);
 	CFRelease(id_number);
@@ -335,22 +377,21 @@ void SendSkypeCommand(CFStringRef command)
 void DisconnectFromSkype(void)
 {
 	CFNotificationCenterRef center = CFNotificationCenterGetDistributedCenter();
-	
+		
 	if (client_id)
 	{
-		CFNotificationCenterRemoveObserver(
-			center,
-			delegate->clientApplicationName,
-			CFSTR("SKSkypeAPINotification"),
-			NULL);
-		
+		CFNumberRef id_number = CFNumberCreate(NULL, kCFNumberIntType, &client_id);
+		const void *keys[] = {(void *)CFSTR("SKYPE_API_CLIENT_ID")};
+		const void *values[] = {id_number};
+		CFDictionaryRef userInfo = CFDictionaryCreate(NULL, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);	
+	
 		//disconnect
 		CFNotificationCenterPostNotification(
 			center,
 			CFSTR("SKSkypeAPIDetachRequest"),
 			NULL,
-			NULL,
-			TRUE);
+			userInfo,
+			FALSE);
 			
 		client_id = 0;
 	}
