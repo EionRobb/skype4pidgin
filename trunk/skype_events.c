@@ -10,6 +10,7 @@ void skype_decline_transfer(PurpleXfer *transfer);
 gint skype_find_chat(PurpleConversation *conv, char *chatid);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
+void skype_update_buddy_icon(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
 void skype_update_buddy_icon(PurpleBuddy *buddy);
 static PurpleAccount *skype_get_account(PurpleAccount *account);
@@ -69,6 +70,7 @@ skype_handle_received_message(char *message)
 			if (strcmp(string_parts[2], "ONLINESTATUS") == 0)
 			{
 				skype_update_buddy_status(buddy);
+				skype_update_buddy_icon(buddy);
 			} else if (strcmp(string_parts[2], "MOOD_TEXT") == 0)
 			{
 				buddy->proto_data = (gpointer)g_strdup(string_parts[3]);
