@@ -1,10 +1,11 @@
 Changelog
 =========
 
-6 December 2007
+9 December 2007
 ---------------
 * Buddy icons now refresh when people come online
 * Updated the Skype protocol icons (thanks Cube!)
+* Fixed buddies from being deleted if they had a particular status message
 
 4 December 2007
 ---------------
