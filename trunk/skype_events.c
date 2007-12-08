@@ -10,7 +10,6 @@ void skype_decline_transfer(PurpleXfer *transfer);
 gint skype_find_chat(PurpleConversation *conv, char *chatid);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
-void skype_update_buddy_icon(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
 void skype_update_buddy_icon(PurpleBuddy *buddy);
 static PurpleAccount *skype_get_account(PurpleAccount *account);
@@ -77,7 +76,8 @@ skype_handle_received_message(char *message)
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
 				purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
-			} else if (strcmp(string_parts[3], "1") == 0)
+			} else if ((strcmp(string_parts[2], "BUDDYSTATUS") == 0) &&
+					(strcmp(string_parts[3], "1") == 0))
 			{
 				purple_blist_remove_buddy(buddy);
 			}
