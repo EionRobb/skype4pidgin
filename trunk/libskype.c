@@ -995,8 +995,7 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 	message = purple_status_get_attr_string(status, "message");
 	if (message == NULL)
 		message = "";
-	skype_send_message_nowait("SET PROFILE RICH_MOOD_TEXT <!-- libpurple:%s --> %s",
-						purple_core_get_ui(), message);
+	skype_send_message_nowait("SET PROFILE MOOD_TEXT %s", message);
 }
 
 void
