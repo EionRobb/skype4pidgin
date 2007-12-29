@@ -876,10 +876,16 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 		PurpleMessageFlags flags)
 {
 	char *stripped;
+	char *temp;
+	char chat_id[200];
 	
 	stripped = purple_markup_strip_html(message);
 	
-	skype_send_message_nowait("MESSAGE %s %s", who, stripped);
+	temp = skype_send_message("CHAT CREATE %s", who);
+	sscanf(temp, "CHAT %s ", chat_id);
+	g_free(temp);
+
+	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 	
 	return 1;
 }
@@ -1190,13 +1196,17 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 	
 	PurpleConversation *conv;
 	gchar* chat_id;
-
+	char *stripped;
+	
+	stripped = purple_markup_strip_html(message);
 	conv = purple_find_chat(gc, id);
+	purple_debug_info("skype", "chat_send; conv: %d, conv->data: %d, ", conv, conv->data);
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
+	purple_debug_info("skype", "chat_id: %s\n", chat_id);
 
-	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, message);
+	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 
-	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), 0,
+	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SEND,
 					message, time(NULL));
 
 	return 1;
