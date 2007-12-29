@@ -43,6 +43,7 @@ skype_handle_received_message(char *message)
 	PurpleXfer *transfer = NULL;
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
+	int i;
 	
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
@@ -179,7 +180,7 @@ skype_handle_received_message(char *message)
 			g_free(temp);
 			
 			glist_temp = g_list_find_custom(purple_get_conversations(), chatname, (GCompareFunc)skype_find_chat);
-			if (glist_temp == NULL)
+			if (glist_temp == NULL || glist_temp->data == NULL)
 			{
 				temp = skype_send_message("GET CHAT %s STATUS", chatname);
 				chat_type = g_strdup(&temp[13+strlen(chatname)]);
@@ -189,7 +190,20 @@ skype_handle_received_message(char *message)
 				//	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, chatname);	
 				//} else {
 					conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, this_account, chatname);
+					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
+					body = g_strdup(&temp[14+strlen(chatname)]);
+					g_free(temp);
+					chatusers = g_strsplit(body, " ", 0);
+					for (i=0; chatusers[i]; i++)
+						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
+					g_strfreev(chatusers);
+					g_free(body);
+					temp = skype_send_message("GET CHAT %s TOPIC", chatname);
+					body = g_strdup(&temp[12+strlen(chatname)]);
+					g_free(temp);
+					purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, body);					
 				//}
+				g_hash_table_insert(conv->data, "chatid", chatname);
 				//conv = purple_conversation_new(PURPLE_CONV_TYPE_ANY, this_account, chatname);
 			} else {
 				conv = glist_temp->data;
@@ -225,7 +239,7 @@ skype_handle_received_message(char *message)
 				/* Escape the body to HTML */
 				body_html = skype_strdup_withhtml(body);
 				g_free(body);
-				
+				purple_debug_info("sender: %s, body_html: %s, mtime: %d\n", sender, body_html, mtime);
 				purple_conv_chat_write(PURPLE_CONV_CHAT(conv), sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 			} else if (strcmp(type, "ADDEDMEMBERS") == 0)
 			{
@@ -233,6 +247,11 @@ skype_handle_received_message(char *message)
 				body = g_strdup(&temp[19+strlen(msg_num)]);
 				g_free(temp);
 				purple_debug_info("skype", "Friends added: %s\n", body);
+				chatusers = g_strsplit(body, " ", 0);
+				for (i=0; chatusers[i]; i++)
+					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
+				g_strfreev(chatusers);
+				g_free(body);
 			} else if (strcmp(type, "LEFT") == 0)
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
@@ -442,5 +461,8 @@ skype_decline_transfer(PurpleXfer *transfer)
 gint
 skype_find_chat(PurpleConversation *conv, char *chatid)
 {
-	return strcmp(g_hash_table_lookup(conv->data, "chatid"), chatid);
+	char *lookup;
+	purple_debug_info("skype", "skype_find_chat: conv->data: %d chatid: %s\n", conv->data, chatid);
+	lookup = g_hash_table_lookup(conv->data, "chatid");
+	return strcmp(lookup, chatid);
 }
