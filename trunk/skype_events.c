@@ -198,10 +198,11 @@ skype_handle_received_message(char *message)
 						sender = chatusers[0];
 					g_strfreev(chatusers);
 					g_free(body);
-					//if they have an IM window open it, assign it the chatname
-					
-					//if they dont have an IM window open, open one, then look again
-					serv_got_im(gc, sender, " ", PURPLE_MESSAGE_SYSTEM & PURPLE_MESSAGE_INVISIBLE & PURPLE_MESSAGE_NO_LOG, 1);
+					////if they have an IM window open, assign it the chatname
+					//
+					////if they dont have an IM window open, open one, then look again
+					//serv_got_im(gc, sender, " ", PURPLE_MESSAGE_SYSTEM & PURPLE_MESSAGE_NO_LOG & PURPLE_MESSAGE_NOTIFY, 1);
+					conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, sender, this_account);
 				} else {
 					conv = serv_got_joined_chat(gc, chat_count++, chatname);
 					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
@@ -482,7 +483,8 @@ skype_find_chat(PurpleConversation *conv, char *chat_id)
 	char *lookup;
 	if (chat_id == NULL || conv == NULL || conv->data == NULL)
 		return -1;
-	lookup = g_hash_table_lookup(conv->data, "chat_id");
+	//lookup = g_hash_table_lookup(conv->data, "chat_id");
+	lookup = purple_conversation_get_data(conv, "chat_id");
 	if (lookup == NULL)
 		return -1;
 	return strcmp(lookup, chat_id);

@@ -877,13 +877,25 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 {
 	char *stripped;
 	char *temp;
-	char chat_id[200];
+	char *chat_id;
+	PurpleConversation *conv;
 	
 	stripped = purple_markup_strip_html(message);
 	
-	temp = skype_send_message("CHAT CREATE %s", who);
-	sscanf(temp, "CHAT %s ", chat_id);
-	g_free(temp);
+	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, who, purple_connection_get_account(gc));
+	if (conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
+	{
+		chat_id = g_new(char, 200);
+		temp = skype_send_message("CHAT CREATE %s", who);
+		sscanf(temp, "CHAT %s ", chat_id);
+		g_free(temp);
+		if (conv != NULL)
+		{
+			purple_conversation_set_data(conv, "chat_id", chat_id);
+		}
+	} else {
+		chat_id = purple_conversation_get_data(conv, "chat_id");
+	}
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 	
@@ -1145,6 +1157,7 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 	PurpleConversation *conv;
 	gchar *msg;
 	gchar chat_id[200];
+	static int chat_number = 10000;
 
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
@@ -1157,11 +1170,13 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 		conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
 		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
 		purple_debug_info("skype", "chat_id: %s\n", chat_id);
-		g_hash_table_insert(conv->data, "chat_id", g_strdup(chat_id));
+		//g_hash_table_insert(conv->data, "chat_id", g_strdup(chat_id));
+		purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, FALSE);
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									buddy->name, NULL, PURPLE_CBFLAGS_NONE, FALSE);
+		purple_conv_chat_set_id(PURPLE_CONV_CHAT(conv), chat_number++);
 	}
 }
 
