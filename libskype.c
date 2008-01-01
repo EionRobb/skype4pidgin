@@ -120,7 +120,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* send_typing */
 	skype_get_info,      /* get_info */
 	skype_set_status,    /* set_status */
-	NULL/*skype_set_idle*/,      /* set_idle */
+	skype_set_idle,      /* set_idle */
 	NULL,                /* change_passwd */
 	skype_add_buddy,     /* add_buddy */
 	NULL,                /* add_buddies */
@@ -1013,10 +1013,12 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 void
 skype_set_idle(PurpleConnection *gc, int time)
 {
-	if (time == 0) {
+	if (time <= 0) {
 		skype_send_message_nowait("SET USERSTATUS ONLINE");
-	} else {
+	} else if ((time >= 300) && (time < 1200)) {
 		skype_send_message_nowait("SET USERSTATUS AWAY");
+	} else if (time >= 1200) {
+		skype_send_message_nowait("SET USERSTATUS NA");
 	}
 }
 
