@@ -93,7 +93,10 @@ skype_handle_received_message(char *message)
 				{
 					purple_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
-					purple_blist_add_buddy(buddy, NULL, purple_group_new("Skype"), NULL);
+					if (string_parts[1][0] == '+')
+						purple_blist_add_buddy(buddy, NULL, purple_group_new("SkypeOut"), NULL);
+					else
+						purple_blist_add_buddy(buddy, NULL, purple_group_new("Skype"), NULL);
 					skype_update_buddy_status(buddy);
 					skype_update_buddy_alias(buddy);
 					purple_prpl_got_user_idle(this_account, buddy->name, FALSE, 0);
@@ -150,13 +153,13 @@ skype_handle_received_message(char *message)
 					} else {
 						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 					}
-				} else if (strcmp(type, "AUTHREQUEST") == 0 && strcmp(sender, my_username) != 0)
+				}/* else if (strcmp(type, "AUTHREQUEST") == 0 && strcmp(sender, my_username) != 0)
 				{
 					purple_debug_info("User %s requested alternate authorisation\n", sender);
 					purple_account_request_authorization(this_account, sender, NULL, skype_get_user_info(sender, "FULLNAME"),
 												body, (purple_find_buddy(this_account, sender) != NULL),
 												skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(sender));
-				}
+				}*/
 
 				skype_send_message("SET MESSAGE %s SEEN", msg_num);
 			}
