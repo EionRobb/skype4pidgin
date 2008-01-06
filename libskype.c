@@ -381,10 +381,10 @@ skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	purple_debug_info("skype", "Server filemtime: %d, Local filemtime: %d\n", servertime, mtime);
 	if (servertime > mtime)
 	{
-		purple_notify_info(this_plugin, "Update available", "There is a newer version of the Skype plugin available for download.", 
-				g_strconcat("Your version: ",timestamp_to_datetime(mtime),"\nLatest version: ",timestamp_to_datetime(servertime),"\nLatest version available from: ", this_plugin->info->homepage, NULL));
+		purple_notify_info(this_plugin, _("Update available"), _("There is a newer version of the Skype plugin available for download."), 
+				g_strconcat(_("Your version"),": ",timestamp_to_datetime(mtime),"\n",_("Latest version"),": ",timestamp_to_datetime(servertime),"\nLatest version available from: ", this_plugin->info->homepage, NULL));
 	} else {
-		purple_notify_info(this_plugin, "No Updates", "No updates found", "You have the latest version of the Skype plugin");
+		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of the Skype plugin"));
 	}
 }
 
@@ -449,9 +449,9 @@ skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_da
 
 	if (newer_version)
 	{
-		purple_notify_info(this_plugin, "Update available", "There is a newer version of Skype available for download.", g_strconcat("Your version: ", version, "\nLatest version: ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
+		purple_notify_info(this_plugin, _("Update available"), _("There is a newer version of Skype available for download"), g_strconcat(_("Your version"),": ", version, "\n",_("Latest version"),": ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
 	} else {
-		purple_notify_info(this_plugin, "No Updates", "No updates found", "You have the latest version of Skype");
+		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of Skype"));
 	}
 }
 
@@ -505,10 +505,13 @@ skype_set_buddies(PurpleAccount *acct)
 	GSList *found_buddy;
 	PurpleBuddy *buddy;
 	PurpleGroup *skype_group;
+	PurpleGroup *skypeout_group;
 	int i;
 
 	skype_group = purple_group_new("Skype");
+	skypeout_group = purple_group_new("SkypeOut");
 	purple_blist_add_group(skype_group, NULL);
+	purple_blist_add_group(skypeout_group, NULL);
 
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
@@ -542,7 +545,10 @@ skype_set_buddies(PurpleAccount *acct)
 		} else {
 			purple_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
-			purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
+			if (friends[i][0] == '+')
+				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
+			else
+				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 		}
 		skype_update_buddy_status(buddy);
 		skype_update_buddy_alias(buddy);
@@ -759,7 +765,7 @@ skype_login(PurpleAccount *acct)
 	/* TODO: Work out if a skype connection is already running */
 	if(FALSE)
 	{
-		purple_connection_error(gc, "\nOnly one Skype account allowed");
+		purple_connection_error(gc, g_strconcat("\n",_("Only one Skype account allowed"), NULL));
 		return;
 	}
 	
@@ -769,7 +775,7 @@ skype_login(PurpleAccount *acct)
 	connect_successful = skype_connect();
 	if (!connect_successful)
 	{
-		purple_connection_error(gc, "\nCould not connect to Skype process\nSkype not running?");
+		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
 			exec_skype();
 		return;
@@ -783,7 +789,7 @@ skype_login(PurpleAccount *acct)
 	reply = skype_send_message("NAME Pidgin");
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		purple_connection_error(gc, "\nSkype client not ready");
+		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
 		return;
 	}
 	g_free(reply);
@@ -792,7 +798,7 @@ skype_login(PurpleAccount *acct)
 	reply = skype_send_message("PROTOCOL 5");
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		purple_connection_error(gc, "\nSkype client not ready");
+		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
 		return;
 	}
 	g_free(reply);
@@ -1122,9 +1128,13 @@ skype_status_text(PurpleBuddy *buddy)
 	//If we're at this point, they don't have a mood.
 	//Use away status instead
 	presence = purple_buddy_get_presence(buddy);
+	if (presence == NULL)
+		return NULL;
 	status = purple_presence_get_active_status(presence);
+	if (status == NULL)
+		return NULL;
 	type = purple_status_get_type(status);
-	if (purple_status_type_get_primitive(type) == PURPLE_STATUS_AVAILABLE)
+	if (type == NULL || purple_status_type_get_primitive(type) == PURPLE_STATUS_AVAILABLE)
 		return NULL;
 	mood_text = (char *)purple_status_type_get_name(type);
 	if (mood_text != NULL && strlen(mood_text))
