@@ -105,10 +105,16 @@ skype_handle_received_message(char *message)
 			}
 		} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
 		{
-			purple_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
-			purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
-												string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
-												skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
+			//this event can be fired directly after authorising someone
+			temp = skype_get_user_info(string_parts[1], "ISAUTHORIZED");
+			if (strcmp(temp, "TRUE") != 0)
+			{
+				purple_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
+				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
+													string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
+													skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
+			}
+			g_free(temp);
 		}
 	} else if (strcmp(command, "MESSAGE") == 0)
 	{
@@ -206,6 +212,9 @@ skype_handle_received_message(char *message)
 					////if they dont have an IM window open, open one, then look again
 					//serv_got_im(gc, sender, " ", PURPLE_MESSAGE_SYSTEM & PURPLE_MESSAGE_NO_LOG & PURPLE_MESSAGE_NOTIFY, 1);
 					conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, sender, this_account);
+					//TODO need to be able to fix for adium which doesn't create conversations
+					//if (conv == NULL)
+					//	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, sender);
 				} else {
 					conv = serv_got_joined_chat(gc, chat_count++, chatname);
 					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
