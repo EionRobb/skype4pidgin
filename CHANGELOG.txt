@@ -1,6 +1,13 @@
 Changelog
 =========
 
+7 January 2008
+--------------
+* Plugin works with Adium 1.2 (but not Adium 1.1 anymore)
+* Adium plugin doesn't crash on disconnect
+* Using newer Skype protocol version as a stepping-stone to multi-user chats (PROTOCOL 5)
+* SkypeOut contacts are added to a SkypeOut group instead of Skype
+
 9 December 2007
 ---------------
 * Buddy icons now refresh when people come online
