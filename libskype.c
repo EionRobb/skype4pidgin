@@ -972,6 +972,8 @@ skype_get_user_info(const gchar *username, const gchar *property)
 	gchar *outstr;
 	gchar *return_str;
 	outstr = skype_send_message("GET USER %s %s", username, property);
+	if (strlen(outstr) == 0)
+		return outstr;
 	return_str = g_strdup(&outstr[7+strlen(username)+strlen(property)]);
 	g_free(outstr);
 	/* purple_debug_info("skype", "User %s's %s is %s", username, property, return_str); */
