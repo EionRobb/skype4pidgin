@@ -108,7 +108,8 @@ skype_connect()
 {
 	gboolean is_skype_running = FALSE;
 	
-	static_pool = initAutoreleasePool();
+	if (!static_pool)
+		static_pool = initAutoreleasePool();
 	
 	is_skype_running = IsSkypeRunning();
 	
@@ -133,16 +134,11 @@ skype_connect()
 
 static void
 skype_disconnect()
-{
-	//TODO: Use MPTerminateTask to kill the runloop
-	
+{	
 	connected_to_skype = FALSE;
 	DisconnectFromSkype();
 	RemoveSkypeDelegate();
 	RunCurrentEventLoop(1);
-	
-	if (static_pool)
-		destroyAutoreleasePool(static_pool);
 }
 
 static void
