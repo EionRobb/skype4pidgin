@@ -277,7 +277,6 @@ skype_handle_received_message(char *message)
 					{
 						g_free(sender);
 						temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
-						
 						chatusers = g_strsplit(&temp[14+strlen(chatname)], " ", 0);
 						if (strcmp(chatusers[0], my_username) == 0)
 							sender = g_strdup(chatusers[1]);
