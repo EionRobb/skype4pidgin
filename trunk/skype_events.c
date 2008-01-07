@@ -202,9 +202,9 @@ skype_handle_received_message(char *message)
 					g_free(temp);
 					chatusers = g_strsplit(body, " ", 0);
 					if (strcmp(chatusers[0], my_username) == 0)
-						sender = chatusers[1];
+						sender = g_strdup(chatusers[1]);
 					else
-						sender = chatusers[0];
+						sender = g_strdup(chatusers[0]);
 					g_strfreev(chatusers);
 					g_free(body);
 					////if they have an IM window open, assign it the chatname
@@ -277,15 +277,18 @@ skype_handle_received_message(char *message)
 					{
 						g_free(sender);
 						temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
+						
 						chatusers = g_strsplit(&temp[14+strlen(chatname)], " ", 0);
 						if (strcmp(chatusers[0], my_username) == 0)
-							sender = chatusers[1];
+							sender = g_strdup(chatusers[1]);
 						else
-							sender = chatusers[0];
+							sender = g_strdup(chatusers[0]);
 						g_strfreev(chatusers);
 						g_free(temp);
+						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_SEND, mtime);
+					} else {
+						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 					}
-					serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 				}
 			} else if (strcmp(type, "ADDEDMEMBERS") == 0 && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
