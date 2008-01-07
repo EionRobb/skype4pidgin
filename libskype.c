@@ -827,6 +827,11 @@ skype_get_account_username(PurpleAccount *acct)
 		return username;
 	
 	ret = skype_send_message("GET CURRENTUSERHANDLE");
+	if (!ret || !strlen(ret))
+	{
+		g_free(ret);
+		return NULL;
+	}
 	username = g_strdup(&ret[18]);
 	g_free(ret);
 
