@@ -272,7 +272,21 @@ skype_handle_received_message(char *message)
 				if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 					serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_RECV, body_html, mtime);
 				else
+				{
+					if (strcmp(sender, my_username) == 0)
+					{
+						g_free(sender);
+						temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
+						chatusers = g_strsplit(&temp[14+strlen(chatname)], " ", 0);
+						if (strcmp(chatusers[0], my_username) == 0)
+							sender = chatusers[1];
+						else
+							sender = chatusers[0];
+						g_strfreev(chatusers);
+						g_free(temp);
+					}
 					serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
+				}
 			} else if (strcmp(type, "ADDEDMEMBERS") == 0 && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
