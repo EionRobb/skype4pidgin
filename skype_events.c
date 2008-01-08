@@ -413,7 +413,7 @@ skype_handle_received_message(char *message)
 		{
 			skype_send_message("SET SILENT_MODE ON");
 		}
-#ifdef USE_FARSCAPE
+#ifdef USE_FARSIGHT
 	} else if (strcmp(command, "CALL") == 0)
 	{
 		if (strcmp(string_parts[2], "STATUS") == 0)
