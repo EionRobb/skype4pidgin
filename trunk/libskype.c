@@ -32,6 +32,11 @@
 #include <blist.h>
 #include <request.h>
 
+#ifdef USE_FARSIGHT
+#include <mediamanager.h>
+PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
+#endif
+
 #include "skype_messaging.c"
 
 static void plugin_init(PurplePlugin *plugin);
@@ -163,36 +168,39 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* whiteboard_prpl_ops */
 	NULL,                /* send_raw */
 	NULL,                /* roomlist_room_serialize */
-	NULL,                /* _purple_reserved1 */
-	NULL,                /* _purple_reserved2 */
-	NULL,                /* _purple_reserved3 */
-	NULL                 /* _purple_reserved4 */
+	NULL,                /* unregister_user */
+	NULL,                /* send_attention */
+	NULL,                /* attention_types */
+	sizeof(PurplePluginProtocolInfo) /* struct_size */
+#ifdef USE_FARSIGHT
+	, skype_media_initiate /* initiate_media */
+#endif
 };
 
 static PurplePluginInfo info = {
 	PURPLE_PLUGIN_MAGIC,
 	PURPLE_MAJOR_VERSION,
 	PURPLE_MINOR_VERSION,
-	PURPLE_PLUGIN_PROTOCOL,
-	NULL,
-	0,
-	NULL,
-	PURPLE_PRIORITY_DEFAULT,
-	"prpl-bigbrownchunx-skype",
-	"Skype",
-	"1.2",
-	"Allows using Skype IM functions from within Pidgin",
-	"Allows using Skype IM functions from within Pidgin",
-	"Eion Robb <eion@robbmob.com>",
-	"http://tinyurl.com/2by8rw",
-	plugin_load,
-	plugin_unload,
-	NULL,
-	NULL,
-	&prpl_info,
-	NULL, //prefs_info
-	skype_actions,
-	NULL,
+	PURPLE_PLUGIN_PROTOCOL, /* type */
+	NULL, /* ui_requirement */
+	0, /* flags */
+	NULL, /* dependencies */
+	PURPLE_PRIORITY_DEFAULT, /* priority */
+	"prpl-bigbrownchunx-skype", /* id */
+	"Skype", /* name */
+	"1.2", /* version */
+	"Allows using Skype IM functions from within Pidgin", /* summary */
+	"Allows using Skype IM functions from within Pidgin", /* description */
+	"Eion Robb <eion@robbmob.com>", /* author */
+	"http://tinyurl.com/2by8rw", /* homepage */
+	plugin_load, /* load */
+	plugin_unload, /* unload */
+	NULL, /* destroy */
+	NULL, /* ui_info */
+	&prpl_info, /* extra_info */
+	NULL, /* prefs_info */
+	skype_actions, /* actions */
+	NULL, /* padding */
 	NULL,
 	NULL,
 	NULL
@@ -1333,3 +1341,167 @@ skype_searchresults_add_buddy(PurpleConnection *gc, GList *row, void *user_data)
 	purple_blist_request_add_buddy(purple_connection_get_account(gc),
 								 g_list_nth_data(row, 1), NULL, NULL);
 }
+#ifdef USE_FARSIGHT
+/*
+Skype info from developer.skype.com and forum.skype.com:
+Audio:
+Audio format 
+
+File: WAV PCM
+Sockets: raw PCM samples
+16 KHz mono, 16 bit
+The 16-bit samples are stored as 2's-complement signed integers, ranging from -32768 to 32767.
+there must be a call in progress when these API Audio calls are made to Skype to define the ports.
+big-endian and it uses NO headers when using the Port form of the Audio API.
+
+ALTER CALL <id> SET_INPUT SOUNDCARD="default" | PORT="port_no" | FILE="FILE_LOCATION" 
+
+This enables you to set a port or a wav file as a source of your voice, instead of a microphone. 
+
+ALTER CALL <id> SET_OUTPUT SOUNDCARD="default" | PORT="port_no" | FILE="FILE_LOCATION" 
+
+Redirects incoming transmission to a port or a wav file.
+
+With SET INPUT Skype acts like a Server, meaning, it waits to receive Audio Data from your application, so it does NOT act like a client. It will Open a Port and wait for your application to send Audio Data on the port defined, this is what a server does, a web server waits for a request on Port 80 for example.
+
+With SET OUTPUT Skype acts like a Client, meaning, it sends data to your application, your application is waiting for Skype to send Audio data, which means your application acts as a listener ("Server").
+
+
+Video:
+SET VIDE0_IN [<device_name>]
+
+Have to sniff for video window/object, very platform dependant
+
+*/
+
+//called by the UI to say, please start a media call
+PurpleMedia *
+skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type)
+{
+	gchar *temp;
+	gchar *callnumber_string;
+
+	//FarsightSession *fs = farsight_session_factory_make("rtp");
+	//if (!fs) {
+	//	purple_debug_error("jabber", "Farsight's rtp plugin not installed");
+	//	return NULL;
+	//}
+	//FarsightStream *audio_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_AUDIO, FARSIGHT_STREAM_DIRECTION_BOTH);
+	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
+	
+	//Use skype's own audio/video stuff for now
+	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, who, NULL, NULL);
+	
+	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
+	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
+	farsight_stream_set_source(video_stream, purple_media_get_video_src(media));
+	farsight_stream_set_sink(video_stream, purple_media_get_video_sink(media));
+	
+	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(google_send_call_accept), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(google_send_call_reject), callnumber_string);*/
+	
+	temp = skype_send_message("CALL %s", who);
+	if (!temp || !strlen(temp))
+	{
+		g_free(temp);
+		return NULL;
+	}
+	callnumber_string = g_new(gchar, 10+1);
+	sscanf(temp, "CALL %s ", &callnumber_string);
+	
+	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(google_send_call_end), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(google_send_call_end), callnumber_string);	
+	
+	return media;
+}
+
+//called when the user accepts an incomming call from the ui
+static void 
+skype_send_call_accept(char *callnumber_string)
+{
+	char *temp;
+	
+	if (!callnumber_string || !strlen(callnumber_string))
+		return;
+	temp = skype_send_message("ALTER CALL %s ANSWER", callnumber_string);
+	if (!temp || strlen(temp) == 0)
+	{
+		//there was an error, hang up the the call
+		return skype_handle_call_got_ended(callnumber_string);
+	}
+}
+
+//called when the user rejects an incomming call from the ui
+static void 
+skype_send_call_reject(char *callnumber_string)
+{
+	if (!callnumber_string || !strlen(callnumber_string))
+		return;
+	skype_send_message_nowait("ALTER CALL %s END HANGUP", callnumber_string);
+}
+
+//called when the user ends a call from the ui
+static void 
+skype_send_call_end(char *callnumber_string)
+{
+	if (!callnumber_string || !strlen(callnumber_string))
+		return;
+	skype_send_message_nowait("ALTER CALL %s HANGUP", callnumber_string);
+}
+
+int
+skype_find_media(PurpleMedia *media, const char *who)
+{
+	const char *screenname = purple_media_get_screenname(media);
+	return strcmp(screenname, who);
+}
+
+//our call to someone else got ended
+static void
+skype_handle_call_got_ended(char *callnumber_string)
+{
+	char *temp;
+	char *who;
+	PurpleMediaManager *manager;
+	PurpleMedia *media;
+	GList glist_temp;
+	
+	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
+	if (!temp || !strlen(temp))
+		return;
+	
+	who = g_strdup(&temp[21+strlen(callnumber_string)]);
+	g_free(temp);
+	
+	manager = purple_media_manager_get();
+	
+	glist_temp = g_list_find_custom(manager->priv->medias, who, skype_find_media);
+	if (!glist_temp || !glist_temp->data)
+		return;
+	
+	media = glist_temp->data;
+	purple_media_got_hangup(media);
+}
+
+//there's an incomming call... deal with it
+static void
+skype_handle_incomming_call(PurpleConnection *gc, char *callnumber_string)
+{
+	PurpleMedia *media;
+	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
+	if (!temp || !strlen(temp))
+		return;
+	
+	who = g_strdup(&temp[21+strlen(callnumber_string)]);
+	g_free(temp);
+	
+	media = purple_media_manager_create_media(purple_media_manager_get(), gc, who, NULL, NULL);
+	
+	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+	
+	purple_media_ready(media);
+}
+#endif
+
