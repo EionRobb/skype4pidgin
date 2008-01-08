@@ -1483,9 +1483,9 @@ skype_handle_call_got_ended(char *callnumber_string)
 	purple_media_got_hangup(media);
 }
 
-//there's an incomming call... deal with it
+//there's an incoming call... deal with it
 static void
-skype_handle_incomming_call(PurpleConnection *gc, char *callnumber_string)
+skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 {
 	PurpleMedia *media;
 	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
