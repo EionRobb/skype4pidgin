@@ -93,6 +93,7 @@ gchar *timestamp_to_datetime(time_t timestamp);
 void skype_show_search_users(PurplePluginAction *action);
 static void skype_search_users(PurpleConnection *gc, const gchar *searchterm);
 void skype_searchresults_add_buddy(PurpleConnection *gc, GList *row, void *user_data);
+gchar *skype_strdup_withhtml(const gchar *src);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -1028,6 +1029,8 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 	message = purple_status_get_attr_string(status, "message");
 	if (message == NULL)
 		message = "";
+	else
+		message = purple_markup_strip_html(message);
 	skype_send_message_nowait("SET PROFILE MOOD_TEXT %s", message);
 }
 
@@ -1136,9 +1139,11 @@ skype_status_text(PurpleBuddy *buddy)
 	if (buddy->proto_data == NULL)
 	{
 		mood_text = skype_get_user_info(buddy->name, "MOOD_TEXT");
-		buddy->proto_data = mood_text;
 		if (mood_text != NULL && strlen(mood_text))
+		{
+			buddy->proto_data = skype_strdup_withhtml(mood_text);
 			return g_strdup(mood_text);
+		}
 	}
 
 	//If we're at this point, they don't have a mood.
@@ -1154,7 +1159,7 @@ skype_status_text(PurpleBuddy *buddy)
 		return NULL;
 	mood_text = (char *)purple_status_type_get_name(type);
 	if (mood_text != NULL && strlen(mood_text))
-		return g_strdup(mood_text);
+		return skype_strdup_withhtml(mood_text);
 
 	return NULL;
 }
@@ -1342,6 +1347,58 @@ skype_searchresults_add_buddy(PurpleConnection *gc, GList *row, void *user_data)
 	purple_blist_request_add_buddy(purple_connection_get_account(gc),
 								 g_list_nth_data(row, 1), NULL, NULL);
 }
+
+/* Like purple_strdup_withhtml, but escapes htmlentities too */
+gchar *
+skype_strdup_withhtml(const gchar *src)
+{
+	gulong destsize, i, j;
+	gchar *dest;
+
+	g_return_val_if_fail(src != NULL, NULL);
+
+	/* New length is (length of src) + (number of \n's * 3) + (number of &'s * 5) + (number of <'s * 4) + (number of >'s *4) + (number of "'s * 6) - (number of \r's) + 1 */
+	destsize = 1;
+	for (i = 0; src[i] != '\0'; i++)
+	{
+		if (src[i] == '\n' || src[i] == '<' || src[i] == '>')
+			destsize += 4;
+		else if (src[i] == '&')
+			destsize += 5;
+		else if (src[i] == '"')
+			destsize += 6;
+		else if (src[i] != '\r')
+			destsize++;
+	}
+
+	dest = g_malloc(destsize);
+
+	/* Copy stuff, ignoring \r's, because they are dumb */
+	for (i = 0, j = 0; src[i] != '\0'; i++) {
+		if (src[i] == '\n') {
+			strcpy(&dest[j], "<BR>");
+			j += 4;
+		} else if (src[i] == '<') {
+			strcpy(&dest[j], "&lt;");
+			j += 4;
+		} else if (src[i] == '>') {
+			strcpy(&dest[j], "&gt;");
+			j += 4;
+		} else if (src[i] == '&') {
+			strcpy(&dest[j], "&amp;");
+			j += 5;
+		} else if (src[i] == '"') {
+			strcpy(&dest[j], "&quot;");
+			j += 6;
+		} else if (src[i] != '\r')
+			dest[j++] = src[i];
+	}
+
+	dest[destsize-1] = '\0';
+
+	return dest;
+}
+
 #ifdef USE_FARSIGHT
 /*
 Skype info from developer.skype.com and forum.skype.com:

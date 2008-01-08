@@ -2,7 +2,6 @@
 
 void skype_auth_allow(gpointer sender);
 void skype_auth_deny(gpointer sender);
-gchar *skype_strdup_withhtml(const gchar *src);
 static gboolean skype_handle_received_message(char *message);
 gint skype_find_filetransfer(PurpleXfer *transfer, char *skypeid);
 void skype_accept_transfer(PurpleXfer *transfer);
@@ -15,6 +14,7 @@ void skype_update_buddy_icon(PurpleBuddy *buddy);
 static PurpleAccount *skype_get_account(PurpleAccount *account);
 char *skype_get_account_username(PurpleAccount *acct);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
+gchar *skype_strdup_withhtml(const gchar *src);
 
 char *skype_send_message(char *message, ...);
 
@@ -74,7 +74,7 @@ skype_handle_received_message(char *message)
 				skype_update_buddy_icon(buddy);
 			} else if (strcmp(string_parts[2], "MOOD_TEXT") == 0)
 			{
-				buddy->proto_data = (gpointer)g_strdup(string_parts[3]);
+				buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
 				purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
@@ -447,57 +447,6 @@ void
 skype_auth_deny(gpointer sender)
 {
 	skype_send_message("SET USER %s ISAUTHORIZED FALSE", sender);
-}
-
-/* Like purple_strdup_withhtml, but escapes htmlentities too */
-gchar *
-skype_strdup_withhtml(const gchar *src)
-{
-	gulong destsize, i, j;
-	gchar *dest;
-
-	g_return_val_if_fail(src != NULL, NULL);
-
-	/* New length is (length of src) + (number of \n's * 3) + (number of &'s * 5) + (number of <'s * 4) + (number of >'s *4) + (number of "'s * 6) - (number of \r's) + 1 */
-	destsize = 1;
-	for (i = 0; src[i] != '\0'; i++)
-	{
-		if (src[i] == '\n' || src[i] == '<' || src[i] == '>')
-			destsize += 4;
-		else if (src[i] == '&')
-			destsize += 5;
-		else if (src[i] == '"')
-			destsize += 6;
-		else if (src[i] != '\r')
-			destsize++;
-	}
-
-	dest = g_malloc(destsize);
-
-	/* Copy stuff, ignoring \r's, because they are dumb */
-	for (i = 0, j = 0; src[i] != '\0'; i++) {
-		if (src[i] == '\n') {
-			strcpy(&dest[j], "<BR>");
-			j += 4;
-		} else if (src[i] == '<') {
-			strcpy(&dest[j], "&lt;");
-			j += 4;
-		} else if (src[i] == '>') {
-			strcpy(&dest[j], "&gt;");
-			j += 4;
-		} else if (src[i] == '&') {
-			strcpy(&dest[j], "&amp;");
-			j += 5;
-		} else if (src[i] == '"') {
-			strcpy(&dest[j], "&quot;");
-			j += 6;
-		} else if (src[i] != '\r')
-			dest[j++] = src[i];
-	}
-
-	dest[destsize-1] = '\0';
-
-	return dest;
 }
 
 gint
