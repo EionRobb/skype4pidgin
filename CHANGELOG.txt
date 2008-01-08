@@ -1,6 +1,15 @@
 Changelog
 =========
 
+9 January 2008
+--------------
+* Fixed a DoS if status message contains HTML tags
+
+8 January 2008
+--------------
+* Adium plugin doesn't hang on startup
+* Adium plugin sets the right user name in the account options
+
 7 January 2008
 --------------
 * Plugin works with Adium 1.2 (but not Adium 1.1 anymore)
