@@ -171,7 +171,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* unregister_user */
 	NULL,                /* send_attention */
 	NULL,                /* attention_types */
-	sizeof(PurplePluginProtocolInfo) /* struct_size */
+	(gpointer)sizeof(PurplePluginProtocolInfo) /* struct_size */
 #ifdef USE_FARSIGHT
 	, skype_media_initiate /* initiate_media */
 #endif
@@ -1034,6 +1034,7 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 void
 skype_set_idle(PurpleConnection *gc, int time)
 {
+	skype_send_message("SET AUTOAWAY OFF");
 	if (time <= 0) {
 		skype_send_message_nowait("SET USERSTATUS ONLINE");
 	} else if ((time >= 300) && (time < 1200)) {
