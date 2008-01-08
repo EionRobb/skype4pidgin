@@ -178,7 +178,6 @@ skype_handle_received_message(char *message)
 		}
 	} else if (strcmp(command, "CHATMESSAGE") == 0)
 	{
-		string_parts = g_strsplit(message, " ", 4);
 		if (strcmp(string_parts[3], "RECEIVED") == 0)
 		{
 			msg_num = string_parts[1];
@@ -414,6 +413,22 @@ skype_handle_received_message(char *message)
 		{
 			skype_send_message("SET SILENT_MODE ON");
 		}
+#ifdef USE_FARSCAPE
+	} else if (strcmp(command, "CALL") == 0)
+	{
+		if (strcmp(string_parts[2], "STATUS") == 0)
+		{ 
+			if (strcmp(string_parts[3], "RINGING") == 0)
+			{
+				skype_handle_incoming_call(gc, string_parts[1]);
+			} else if (strcmp(string_parts[3], "FINISHED") == 0 ||
+						strcmp(string_parts[3], "CANCELLED") == 0 ||
+						strcmp(string_parts[3], "FAILED") == 0)
+			{
+				skype_handle_call_got_ended(string_parts[1]);
+			}
+		}
+#endif	
 	}
 	if (string_parts)
 	{
