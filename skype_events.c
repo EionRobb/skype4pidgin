@@ -366,7 +366,11 @@ skype_handle_received_message(char *message)
 				{
 					//Skype API doesn't let us accept transfers
 					//purple_xfer_request(transfer);
+#ifndef __APPLE__
 					skype_send_message("OPEN FILETRANSFER");
+#else
+					purple_notify_info(this_account, "Incoming File", g_strconcat("User ",sender," wishes to send you a file.  Please open Skype to accept this file.", NULL), NULL);
+#endif
 					purple_xfer_set_completed(transfer, FALSE);
 					transfer->status = PURPLE_XFER_STATUS_NOT_STARTED;
 				} else if (strcmp(string_parts[3], "COMPLETED") == 0)
