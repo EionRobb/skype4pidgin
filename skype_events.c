@@ -44,7 +44,7 @@ skype_handle_received_message(char *message)
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
 	int i;
-	static int chat_count = 0;
+
 	
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
@@ -74,6 +74,8 @@ skype_handle_received_message(char *message)
 				skype_update_buddy_icon(buddy);
 			} else if (strcmp(string_parts[2], "MOOD_TEXT") == 0)
 			{
+				if (buddy->proto_data != NULL)
+					g_free(buddy->proto_data);
 				buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
@@ -215,7 +217,8 @@ skype_handle_received_message(char *message)
 					//if (conv == NULL)
 					//	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, sender);
 				} else {
-					conv = serv_got_joined_chat(gc, chat_count++, chatname);
+					//conv = serv_got_joined_chat(gc, chat_count++, chatname);
+					conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, this_account, chatname);
 					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
 					body = g_strdup(&temp[14+strlen(chatname)]);
 					g_free(temp);
