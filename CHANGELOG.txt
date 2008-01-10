@@ -1,6 +1,11 @@
 Changelog
 =========
 
+10 January 2008
+---------------
+* Adium plugin doesn't hang when sending/receiving files
+* Fixed a potential infinite loop when a buddy updated their status message/mood text
+
 9 January 2008
 --------------
 * Fixed a DoS if status message contains HTML tags
