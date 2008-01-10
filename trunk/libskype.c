@@ -741,7 +741,10 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	{
 		primitive = PURPLE_STATUS_UNSET;
 	}
-	purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
+	
+	//Dont say we got their status unless its changed
+	if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
+		purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 	
 	if (primitive != PURPLE_STATUS_OFFLINE &&
 		strcmp(status, "SKYPEOUT") != 0 &&
@@ -1155,8 +1158,10 @@ skype_status_text(PurpleBuddy *buddy)
 	if (status == NULL)
 		return NULL;
 	type = purple_status_get_type(status);
-	if (type == NULL || purple_status_type_get_primitive(type) == PURPLE_STATUS_AVAILABLE)
-		return NULL;
+	if (type == NULL || 
+		purple_status_type_get_primitive(type) == PURPLE_STATUS_AVAILABLE ||
+		purple_status_type_get_primitive(type) == PURPLE_STATUS_OFFLINE)
+			return NULL;
 	mood_text = (char *)purple_status_type_get_name(type);
 	if (mood_text != NULL && strlen(mood_text))
 		return skype_strdup_withhtml(mood_text);
@@ -1195,18 +1200,15 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *) node;
-		if (PURPLE_BUDDY_IS_ONLINE(buddy))
-		{
-			msg = skype_send_message("CHAT CREATE %s", buddy->name);
-			sscanf(msg, "CHAT %s ", chat_id);
-		}
+		msg = skype_send_message("CHAT CREATE %s", buddy->name);
+		sscanf(msg, "CHAT %s ", chat_id);
 		conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
 		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
 		purple_debug_info("skype", "chat_id: %s\n", chat_id);
 		//g_hash_table_insert(conv->data, "chat_id", g_strdup(chat_id));
 		purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
-									purple_account_get_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, FALSE);
+									skype_get_account_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, FALSE);
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									buddy->name, NULL, PURPLE_CBFLAGS_NONE, FALSE);
 		purple_conv_chat_set_id(PURPLE_CONV_CHAT(conv), chat_number++);
