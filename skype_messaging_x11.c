@@ -71,6 +71,10 @@ skype_disconnect()
 	e = g_new0(XEvent, 1);
 	e->xclient.type = DestroyNotify;
 	XSendEvent(disp, win, False, 0, e);
+	
+	//wait here for the event to be handled
+	
+	
 	XDestroyWindow(disp, win);
 	XCloseDisplay(disp);
 	
@@ -151,17 +155,26 @@ receive_message_loop(void)
 	GString *msg = NULL;
 	char msg_temp[21];
 	size_t len;
+	Bool event_bool;
 	
 	msg_temp[20] = '\0';
 	while(run_loop)
 	{
-		XNextEvent(disp, &e);
-		if (e.type != ClientMessage)
+		//XNextEvent(disp, &e);
+		//if (e.type != ClientMessage)
+		//{
+		//	purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
+		//	XFlush(disp);
+		//	continue;
+		//}
+		
+		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
+		if (event_bool == False)
 		{
-			purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
-			XFlush(disp);
+			usleep(1000);
 			continue;
 		}
+		
 		strncpy(msg_temp, e.xclient.data.b, 20);
 		len = strlen(msg_temp);
 		if (e.xclient.message_type == message_start)
