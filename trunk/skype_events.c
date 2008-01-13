@@ -337,6 +337,8 @@ skype_handle_received_message(char *message)
 			temp = skype_send_message("GET FILETRANSFER %s FILENAME", string_parts[1]);
 			purple_debug_info("skype", "Filename: '%s'\n", &temp[23+strlen(string_parts[1])]);
 			purple_xfer_set_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
+			g_free(temp);
+			temp = skype_send_message("GET FILETRANSFER %s FILEPATH", string_parts[1]);
 			purple_xfer_set_local_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
 			g_free(temp);
 			temp = skype_send_message("GET FILETRANSFER %s FILESIZE", string_parts[1]);
@@ -362,6 +364,9 @@ skype_handle_received_message(char *message)
 			} else*/ if (strcmp(string_parts[2], "FILENAME") == 0)
 			{
 				purple_xfer_set_filename(transfer, string_parts[3]);
+			} else if (strcmp(string_parts[2], "FILEPATH") == 0)
+			{
+				purple_xfer_set_local_filename(transfer, string_parts[3]);
 			} else if (strcmp(string_parts[2], "STATUS") == 0)
 			{
 				if (strcmp(string_parts[3], "NEW") == 0 ||
@@ -374,8 +379,9 @@ skype_handle_received_message(char *message)
 #						ifndef __APPLE__
 							skype_send_message("OPEN FILETRANSFER");
 #						else
-							purple_notify_info(this_account, "Incoming File", g_strconcat("User ",sender," wishes to send you a file.  Please open Skype to accept this file.", NULL), NULL);
+							purple_notify_info(this_account, "Incoming File", g_strconcat("User ", purple_xfer_get_remote_user(transfer), " wishes to send you a file.  Please open Skype to accept this file.", NULL), NULL);
 #						endif
+						purple_xfer_conversation_write(transfer, g_strconcat(purple_xfer_get_remote_user(transfer), " is sending a file to users of this chat.", NULL), FALSE);
 					}
 					purple_xfer_set_completed(transfer, FALSE);
 					transfer->status = PURPLE_XFER_STATUS_NOT_STARTED;
@@ -396,13 +402,13 @@ skype_handle_received_message(char *message)
 					transfer->status = PURPLE_XFER_STATUS_CANCEL_REMOTE;
 				}
 				purple_xfer_update_progress(transfer);
-			} else if (strcmp(string_parts[2], "STARTTIME") == 0)
+			/*} else if (strcmp(string_parts[2], "STARTTIME") == 0)
 			{
 				transfer->start_time = atol(string_parts[3]);
 			} else if (strcmp(string_parts[2], "FINISHTIME") == 0)
 			{
 				if (strcmp(string_parts[3], "0") != 0)
-					transfer->end_time = atol(string_parts[3]);
+					transfer->end_time = atol(string_parts[3]);*/
 			} else if (strcmp(string_parts[2], "BYTESTRANSFERRED") == 0)
 			{
 				purple_xfer_set_bytes_sent(transfer, atol(string_parts[3]));
