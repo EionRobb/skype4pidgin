@@ -339,7 +339,8 @@ skype_handle_received_message(char *message)
 			purple_xfer_set_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
 			g_free(temp);
 			temp = skype_send_message("GET FILETRANSFER %s FILEPATH", string_parts[1]);
-			purple_xfer_set_local_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
+			if (strlen(&temp[23+strlen(string_parts[1])]))
+				purple_xfer_set_local_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
 			g_free(temp);
 			temp = skype_send_message("GET FILETRANSFER %s FILESIZE", string_parts[1]);
 			purple_xfer_set_size(transfer, atol(&temp[23+strlen(string_parts[1])]));
@@ -366,7 +367,8 @@ skype_handle_received_message(char *message)
 				purple_xfer_set_filename(transfer, string_parts[3]);
 			} else if (strcmp(string_parts[2], "FILEPATH") == 0)
 			{
-				purple_xfer_set_local_filename(transfer, string_parts[3]);
+				if (strlen(string_parts[3]))
+					purple_xfer_set_local_filename(transfer, string_parts[3]);
 			} else if (strcmp(string_parts[2], "STATUS") == 0)
 			{
 				if (strcmp(string_parts[3], "NEW") == 0 ||
@@ -393,12 +395,15 @@ skype_handle_received_message(char *message)
 							strcmp(string_parts[3], "TRANSFERRING") == 0 ||
 							strcmp(string_parts[3], "TRANSFERRING_OVER_RELAY") == 0)
 				{
+					purple_xfer_set_completed(transfer, FALSE);
 					transfer->status = PURPLE_XFER_STATUS_STARTED;
 				} else if (strcmp(string_parts[3], "CANCELLED") == 0)
 				{
+					purple_xfer_set_completed(transfer, TRUE);
 					transfer->status = PURPLE_XFER_STATUS_CANCEL_LOCAL;
 				} else if (strcmp(string_parts[3], "FAILED") == 0)
 				{
+					purple_xfer_set_completed(transfer, TRUE);
 					transfer->status = PURPLE_XFER_STATUS_CANCEL_REMOTE;
 				}
 				purple_xfer_update_progress(transfer);
