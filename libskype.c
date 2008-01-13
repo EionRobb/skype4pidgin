@@ -701,8 +701,17 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	PurpleAccount *acct;
 	
 	acct = purple_buddy_get_account(buddy);
+	if (purple_account_is_connected(acct) == FALSE)
+	{
+		return FALSE;
+	}
 	status = skype_get_user_info(buddy->name, "ONLINESTATUS");
-
+	if (strlen(status) == 0)
+	{
+		primitive = PURPLE_STATUS_OFFLINE;
+		purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
+		return FALSE;
+	}
 	purple_debug_info("skype", "User %s status is %s\n", buddy->name, status);
 	
 	if (strcmp(status, "OFFLINE") == 0)
