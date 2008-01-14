@@ -7,6 +7,7 @@ gint skype_find_filetransfer(PurpleXfer *transfer, char *skypeid);
 void skype_accept_transfer(PurpleXfer *transfer);
 void skype_decline_transfer(PurpleXfer *transfer);
 gint skype_find_chat(PurpleConversation *conv, char *chat_id);
+static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
@@ -341,6 +342,8 @@ skype_handle_received_message(char *message)
 			temp = skype_send_message("GET FILETRANSFER %s FILEPATH", string_parts[1]);
 			if (strlen(&temp[23+strlen(string_parts[1])]))
 				purple_xfer_set_local_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
+			else
+				purple_xfer_set_local_filename(transfer, purple_xfer_get_filename(transfer));
 			g_free(temp);
 			temp = skype_send_message("GET FILETRANSFER %s FILESIZE", string_parts[1]);
 			purple_xfer_set_size(transfer, atol(&temp[23+strlen(string_parts[1])]));
@@ -385,35 +388,35 @@ skype_handle_received_message(char *message)
 #						endif
 						purple_xfer_conversation_write(transfer, g_strconcat(purple_xfer_get_remote_user(transfer), " is sending a file to users of this chat.", NULL), FALSE);
 					}
-					purple_xfer_set_completed(transfer, FALSE);
-					transfer->status = PURPLE_XFER_STATUS_NOT_STARTED;
+					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_NOT_STARTED);
 				} else if (strcmp(string_parts[3], "COMPLETED") == 0)
 				{
 					purple_xfer_set_completed(transfer, TRUE);
-					transfer->status = PURPLE_XFER_STATUS_DONE;
 				} else if (strcmp(string_parts[3], "CONNECTING") == 0 ||
 							strcmp(string_parts[3], "TRANSFERRING") == 0 ||
 							strcmp(string_parts[3], "TRANSFERRING_OVER_RELAY") == 0)
 				{
-					purple_xfer_set_completed(transfer, FALSE);
-					transfer->status = PURPLE_XFER_STATUS_STARTED;
+					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_STARTED);
+					transfer->start_time = time(NULL);
 				} else if (strcmp(string_parts[3], "CANCELLED") == 0)
 				{
-					purple_xfer_set_completed(transfer, TRUE);
-					transfer->status = PURPLE_XFER_STATUS_CANCEL_LOCAL;
+					transfer->end_time = time(NULL);
+					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_LOCAL);
 				} else if (strcmp(string_parts[3], "FAILED") == 0)
 				{
-					purple_xfer_set_completed(transfer, TRUE);
-					transfer->status = PURPLE_XFER_STATUS_CANCEL_REMOTE;
+					transfer->end_time = time(NULL);
+					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_REMOTE);
 				}
 				purple_xfer_update_progress(transfer);
-			/*} else if (strcmp(string_parts[2], "STARTTIME") == 0)
+			} else if (strcmp(string_parts[2], "STARTTIME") == 0)
 			{
 				transfer->start_time = atol(string_parts[3]);
-			} else if (strcmp(string_parts[2], "FINISHTIME") == 0)
+				purple_xfer_update_progress(transfer);
+			/*} else if (strcmp(string_parts[2], "FINISHTIME") == 0)
 			{
 				if (strcmp(string_parts[3], "0") != 0)
-					transfer->end_time = atol(string_parts[3]);*/
+					transfer->end_time = atol(string_parts[3]);
+				purple_xfer_update_progress(transfer);*/
 			} else if (strcmp(string_parts[2], "BYTESTRANSFERRED") == 0)
 			{
 				purple_xfer_set_bytes_sent(transfer, atol(string_parts[3]));
@@ -501,4 +504,51 @@ skype_find_chat(PurpleConversation *conv, char *chat_id)
 	if (lookup == NULL)
 		return -1;
 	return strcmp(lookup, chat_id);
+}
+
+/* Since this function isn't public, and we need it to be, redefine it here */
+static void
+purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
+{
+	g_return_if_fail(xfer != NULL);
+
+	if(xfer->type == PURPLE_XFER_SEND) {
+		switch(status) {
+			case PURPLE_XFER_STATUS_ACCEPTED:
+				purple_signal_emit(purple_xfers_get_handle(), "file-send-accept", xfer);
+				break;
+			case PURPLE_XFER_STATUS_STARTED:
+				purple_signal_emit(purple_xfers_get_handle(), "file-send-start", xfer);
+				break;
+			case PURPLE_XFER_STATUS_DONE:
+				purple_signal_emit(purple_xfers_get_handle(), "file-send-complete", xfer);
+				break;
+			case PURPLE_XFER_STATUS_CANCEL_LOCAL:
+			case PURPLE_XFER_STATUS_CANCEL_REMOTE:
+				purple_signal_emit(purple_xfers_get_handle(), "file-send-cancel", xfer);
+				break;
+			default:
+				break;
+		}
+	} else if(xfer->type == PURPLE_XFER_RECEIVE) {
+		switch(status) {
+			case PURPLE_XFER_STATUS_ACCEPTED:
+				purple_signal_emit(purple_xfers_get_handle(), "file-recv-accept", xfer);
+				break;
+			case PURPLE_XFER_STATUS_STARTED:
+				purple_signal_emit(purple_xfers_get_handle(), "file-recv-start", xfer);
+				break;
+			case PURPLE_XFER_STATUS_DONE:
+				purple_signal_emit(purple_xfers_get_handle(), "file-recv-complete", xfer);
+				break;
+			case PURPLE_XFER_STATUS_CANCEL_LOCAL:
+			case PURPLE_XFER_STATUS_CANCEL_REMOTE:
+				purple_signal_emit(purple_xfers_get_handle(), "file-recv-cancel", xfer);
+				break;
+			default:
+				break;
+		}
+	}
+
+	xfer->status = status;
 }
