@@ -167,9 +167,13 @@ receive_message_loop(void)
 		//	XFlush(disp);
 		//	continue;
 		//}
-		
+		if (!disp)
+		{
+			purple_debug_error("skype_x11", "display has disappeared\n");
+			break;
+		}
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
-		if (event_bool == False)
+		if (!event_bool)
 		{
 			usleep(1000);
 			continue;
