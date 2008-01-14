@@ -1,6 +1,13 @@
 Changelog
 =========
 
+14 January 2008
+---------------
+* Linux plugin shouldn't crash on disconnect/close now
+* Linux plugin should be a little faster
+* File transfers should be better handled
+* Skype mood text shouldn't have <!-- --> messages in it any more
+
 10 January 2008
 ---------------
 * Adium plugin doesn't hang when sending/receiving files
