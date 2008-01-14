@@ -272,11 +272,12 @@ skype_node_menu(PurpleBlistNode *node)
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
+#ifndef __APPLE__
 		act = purple_menu_action_new(_("Send File..."),
 										PURPLE_CALLBACK(skype_send_file_from_blist),
 										NULL, NULL);
 		m = g_list_append(m, act);
-		
+#endif		
 		act = purple_menu_action_new(_("Call..."),
 										PURPLE_CALLBACK(skype_call_user_from_blist),
 										NULL, NULL);
