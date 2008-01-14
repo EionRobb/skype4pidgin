@@ -271,7 +271,6 @@ skype_handle_received_message(char *message)
 				/* Escape the body to HTML */
 				body_html = skype_strdup_withhtml(body);
 				g_free(body);
-				purple_debug_info("skype", "sender: %s, body_html: %s, mtime: %d, id: %d\n", sender, body_html, mtime, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)));
 				if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 					serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_RECV, body_html, mtime);
 				else
