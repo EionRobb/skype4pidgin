@@ -399,13 +399,16 @@ skype_handle_received_message(char *message)
 					transfer->start_time = time(NULL);
 				} else if (strcmp(string_parts[3], "CANCELLED") == 0)
 				{
-					transfer->end_time = time(NULL);
-					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_LOCAL);
-				} else if (strcmp(string_parts[3], "FAILED") == 0)
+					//transfer->end_time = time(NULL);
+					//transfer->bytes_remaining = 0;
+					//purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_LOCAL);
+					purple_xfer_cancel_local(transfer);
+				}/* else if (strcmp(string_parts[3], "FAILED") == 0)
 				{
-					transfer->end_time = time(NULL);
-					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_REMOTE);
-				}
+					//transfer->end_time = time(NULL);
+					//purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_REMOTE);
+					purple_xfer_cancel_remote(transfer);
+				}*/
 				purple_xfer_update_progress(transfer);
 			} else if (strcmp(string_parts[2], "STARTTIME") == 0)
 			{
@@ -426,8 +429,38 @@ skype_handle_received_message(char *message)
 			} else if (strcmp(string_parts[2], "FAILUREREASON") == 0 &&
 						strcmp(string_parts[3], "UNKNOWN") != 0)
 			{
-				purple_xfer_error(transfer->type, this_account, transfer->who, 
-					string_parts[3]);
+				temp = NULL;
+				if (strcmp(string_parts[3], "SENDER_NOT_AUTHORIZED") == 0)
+				{
+					temp = g_strdup(_("Not authorized"));
+				} else if (strcmp(string_parts[3], "REMOTELY_CANCELLED") == 0)
+				{
+					purple_xfer_cancel_remote(transfer);
+					purple_xfer_update_progress(transfer);
+				} else if (strcmp(string_parts[3], "FAILED_READ") == 0)
+				{
+					temp = g_strdup(_("Read error on local machine"));
+				} else if (strcmp(string_parts[3], "FAILED_REMOTE_READ") == 0)
+				{
+					temp = g_strdup(_("Read error on remote machine"));
+				} else if (strcmp(string_parts[3], "FAILED_WRITE") == 0)
+				{
+					temp = g_strdup(_("Write error on local machine"));
+				} else if (strcmp(string_parts[3], "FAILED_REMOTE_WRITE") == 0)
+				{
+					temp = g_strdup(_("Write error on remote machine"));
+				} else if (strcmp(string_parts[3], "REMOTE_DOES_NOT_SUPPORT_FT") == 0)
+				{
+					temp = g_strdup(_("Receiver does not support file transfers"));
+				} else if (strcmp(string_parts[3], "REMOTE_OFFLINE_FOR_TOO_LONG") == 0)
+				{
+					temp = g_strdup(_("Recipient not available"));
+				}
+				if (temp && strlen(temp))
+				{
+					purple_xfer_error(transfer->type, this_account, transfer->who, temp);
+					g_free(temp);
+				}
 			}
 		}
 	} else if (strcmp(command, "WINDOWSTATE") == 0)
