@@ -13,7 +13,7 @@ It seems people have wanted a Skype plugin for Gaim/Pidgin/Adium for a long time
 Installation
 ============
 
-For the binary version of the plugin, copy libskype to the appropriate plugins directory.  On Windows its normally C:\Program Files\Pidgin\plugins, on Linux it's normally /usr/lib/purple-2/ or ~/.purple/plugins
+For the binary version of the plugin, either install the appropriate package for your distro or copy libskype to the appropriate plugins directory.  On Windows its normally C:\Program Files\Pidgin\plugins, on Linux it's normally /usr/lib/purple-2/ or ~/.purple/plugins
 On OSX, double click on SkypePlugin.AdiumPlugin to install (may need a restart of Adium).  You may need to delete the old version which is at ~/Library/Application Support/Adium 2.0/Plugins.  If upgrading to Adium 1.2, you will need to delete the account and re-add it.
 
 To install swanky looking icons, extract skype_icons.zip to the pixmaps/pidgin/protocols directory (on Windows, C:\Program Files\Pidgin\pixmaps\pidgin\protocols)
@@ -30,7 +30,8 @@ Known Issues
 * No multi-user/public/group chats yet, although I'm working on it.
 * No notification popup on file being received/notificaitons (Windows)
 * Skype sounds still play even when it's hidden
-* Account needs to be deleted and re-added when upgrading to Adium 1.2
+* Adium doesn't show file transfer progress (OS X)
+* Unable to send file from within Adium (API Limitation)
 * Send file doesn't use the built in libpurple methods. (API Limitation)
 * Linux version still opens up Skype message windows. (API Limitation)
 * Linux/OSX version doesn't show buddy icons. (API Limitation)
@@ -59,7 +60,7 @@ Q: How can I hide Skype in OSX?
 A: Focus (click on) the Skype window, press ⌘+H to hide the application.  Alternativly, focus the Skype window and choose 'Hide Skype' from the 'Skype' menu.
 
 Q: How can I hide Skype in Linux?
-A: A bit more tricky.  What works well for me, is leaving the message window open, but moving it to another workspace so that it doesn't bother you any more.  Otherwise, you can turn off message windows in the Notifications settings in Skype.
+A: A bit more tricky.  What works well for me, is leaving the message window open, but moving it to another workspace so that it doesn't bother you any more.  Otherwise, you can turn off message windows in the Notifications settings in Skype (Options->Chat->Display an event notification).
 
 Q: The Windows version has feature "X", but the Linux/OSX version doesn't
 A: The API on Linux/OSX is more restrictive than the Windows API.  Try keeping up to date with the latest versions of Skype to take advantage of these features as they are implemented by the Skype developers.
