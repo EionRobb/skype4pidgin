@@ -41,6 +41,7 @@ typedef struct {
 static GHashTable *message_queue = NULL;
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
+#ifdef _WIN32
 //these two #defines override g_static_mutex_lock and
 // g_static_mutex_unlock so as to remove "strict-aliasing"
 // compiler warnings
@@ -48,6 +49,10 @@ static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
     g_mutex_lock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
 #define g_static_mutex_unlock2(mutex) \
     g_mutex_unlock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
+#else
+#define g_static_mutex_lock2 g_static_mutex_lock
+#define g_static_mutex_unlock2 g_static_mutex_unlock
+#endif
 
 static void
 skype_message_received(char *orig_message)
