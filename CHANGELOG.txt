@@ -4,6 +4,7 @@ Changelog
 16 January 2008
 ---------------
 * Cross-compile environment set up so there should be regular 64-bit linux builds
+* .deb package now for both i686 and amd64 architectures
 
 15 January 2008
 ---------------
