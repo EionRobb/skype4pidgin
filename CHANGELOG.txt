@@ -1,6 +1,11 @@
 Changelog
 =========
 
+15 January 2008
+---------------
+* File transfers even better handled
+* New Debian/Ubuntu package available
+
 14 January 2008
 ---------------
 * Linux plugin shouldn't crash on disconnect/close now
