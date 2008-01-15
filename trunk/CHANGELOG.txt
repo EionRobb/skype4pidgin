@@ -5,6 +5,7 @@ Changelog
 ---------------
 * File transfers even better handled
 * New Debian/Ubuntu package available
+* Adium plugin hacks Adium a little to make file transfers appear
 
 14 January 2008
 ---------------
