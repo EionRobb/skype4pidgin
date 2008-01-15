@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16 January 2008
+---------------
+* Cross-compile environment set up so there should be regular 64-bit linux builds
+
 15 January 2008
 ---------------
 * File transfers even better handled
