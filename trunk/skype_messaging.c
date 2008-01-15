@@ -41,6 +41,14 @@ typedef struct {
 static GHashTable *message_queue = NULL;
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
+//these two #defines override g_static_mutex_lock and
+// g_static_mutex_unlock so as to remove "strict-aliasing"
+// compiler warnings
+#define g_static_mutex_lock2(mutex) \
+    g_mutex_lock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
+#define g_static_mutex_unlock2(mutex) \
+    g_mutex_unlock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
+
 static void
 skype_message_received(char *orig_message)
 {
@@ -63,9 +71,9 @@ skype_message_received(char *orig_message)
 		key = g_new(guint, 1);
 		*key = request_number;
 		
-		g_static_mutex_lock(&mutex);
+		g_static_mutex_lock2(&mutex);
 		g_hash_table_insert(message_queue, key, g_strdup(&message[string_pos]));
-		g_static_mutex_unlock(&mutex);
+		g_static_mutex_unlock2(&mutex);
 		
 		g_free(message);
 	} else {
@@ -112,11 +120,11 @@ char *skype_send_message(char *message_format, ...)
 	skype_send_message_nowait("#%u %s", cur_message_num, message);
 	g_free(message);
 
-	g_static_mutex_lock(&mutex);
+	g_static_mutex_lock2(&mutex);
 	//Wait for a response
 	while(g_hash_table_lookup(message_queue, &cur_message_num) == NULL)
 	{
-		g_static_mutex_unlock(&mutex);
+		g_static_mutex_unlock2(&mutex);
 		g_thread_yield();
 #ifdef __APPLE__
 		RunCurrentEventLoop(0);
@@ -126,7 +134,7 @@ char *skype_send_message(char *message_format, ...)
 #else
 		Sleep(1);
 #endif
-		g_static_mutex_lock(&mutex);
+		g_static_mutex_lock2(&mutex);
 		
 		if(timeout++ == 10000)
 		{
@@ -136,7 +144,7 @@ char *skype_send_message(char *message_format, ...)
 	}
 	return_msg = (char *)g_hash_table_lookup(message_queue, &cur_message_num);
 	g_hash_table_remove(message_queue, &cur_message_num);
-	g_static_mutex_unlock(&mutex);
+	g_static_mutex_unlock2(&mutex);
 	
 	if (strncmp(return_msg, "ERROR", 5) == 0)
 	{
