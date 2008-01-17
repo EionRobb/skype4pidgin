@@ -144,7 +144,8 @@ char *skype_send_message(char *message_format, ...)
 		if(timeout++ == 10000)
 		{
 			g_hash_table_remove(message_queue, &cur_message_num);
-			return "";	
+			g_static_mutex_unlock2(&mutex);
+			return g_strdup("");	
 		}
 	}
 	return_msg = (char *)g_hash_table_lookup(message_queue, &cur_message_num);
