@@ -260,7 +260,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s BODY", msg_num);
 				body = g_strdup(&temp[18+strlen(msg_num)]);
 				g_free(temp);
-				purple_debug_info("skype", "Message received: %s\n", body);
+				//purple_debug_info("skype", "Message received: %s\n", body);
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
