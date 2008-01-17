@@ -1,6 +1,10 @@
 Changelog
 =========
 
+17 January 2008
+---------------
+* Fixed bug where Pidgin/Adium might lock up if Skype is taking too long to respond
+
 16 January 2008
 ---------------
 * Cross-compile environment set up so there should be regular 64-bit linux builds
