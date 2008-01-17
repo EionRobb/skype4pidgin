@@ -6,7 +6,7 @@ static Window win = (Window)-1;
 Window skype_win = (Window)-1;
 GThread *receiving_thread;
 Atom message_start, message_continue;
-static gboolean run_loop = TRUE;
+static gboolean run_loop = FALSE;
 static unsigned char x11_error_code = 0;
 
 static void receive_message_loop(void);
@@ -43,6 +43,12 @@ skype_connect()
 		return FALSE;
 	}
 	skype_inst = XInternAtom(disp, "_SKYPE_INSTANCE", True);
+	if (skype_inst == None)
+	{
+		skype_win = (Window)-1;
+		purple_debug_info("skype_x11", "Could not create skype Atom\n");
+		return FALSE;
+	}
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret != 1)
 	{
