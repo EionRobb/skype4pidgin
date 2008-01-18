@@ -192,7 +192,8 @@ receive_message_loop(void)
 		else if (e.xclient.message_type == message_continue)
 			msg = g_string_append_len(msg, msg_temp, len);
 		else
-		{	
+		{
+			purple_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
 			XFlush(disp);
 			continue;
 		}
