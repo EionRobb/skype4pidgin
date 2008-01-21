@@ -1145,6 +1145,7 @@ skype_status_text(PurpleBuddy *buddy)
 	PurplePresence *presence;
 	PurpleStatus *status;
 	PurpleStatusType *type;
+	int i;
 
 	if (buddy->proto_data != NULL && strlen(buddy->proto_data))
 		return g_strdup((char *)buddy->proto_data);
@@ -1154,6 +1155,9 @@ skype_status_text(PurpleBuddy *buddy)
 		mood_text = skype_get_user_info(buddy->name, "MOOD_TEXT");
 		if (mood_text != NULL && strlen(mood_text))
 		{
+			for (i=0; i<strlen(mood_text); i++)
+				if (mood_text[i] == '\n')
+					mood_text[i] = ' ';
 			buddy->proto_data = skype_strdup_withhtml(mood_text);
 			return g_strdup(mood_text);
 		}
