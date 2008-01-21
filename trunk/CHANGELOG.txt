@@ -1,6 +1,10 @@
 Changelog
 =========
 
+22 January 2008
+---------------
+* Fixed bug where buddy display name can get mangled if their mood/status message contains a newline character
+
 18 January 2008
 ---------------
 * Fixed an X11 error which caused pidgin to crash if skype hadn't been started during the current X session
