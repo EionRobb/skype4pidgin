@@ -210,3 +210,9 @@ exec_skype()
 {
 	return g_spawn_command_line_async("/Applications/Skype.app/Contents/MacOS/Skype", NULL);
 }
+
+static gboolean
+is_skype_running()
+{
+	return IsSkypeRunning();
+}
