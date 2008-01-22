@@ -215,5 +215,52 @@ hide_skype()
 static gboolean
 exec_skype()
 {
-	return g_spawn_command_line_async("skype", NULL);
+	GError *error;
+	if (g_spawn_command_line_async("skype", &error))
+	{
+		return TRUE;
+	} else {
+		purple_debug_error("skype", "Could not start skype: %s\n", error->message);
+		return FALSE;
+	}
+}
+static gboolean
+is_skype_running()
+{
+	gchar *temp;
+	int pid;
+	gchar* stat_path;
+	FILE *fh;
+	gchar exec_name[15];
+	struct stat *stat;
+	//open /proc
+	GDir *procdir = g_dir_open("/proc", 0, NULL);
+	//go through directories that are numbers
+	while(temp = g_dir_read_name(procdir))
+	{
+		pid = atoi(temp);
+		if (!pid)
+			continue;
+		// /proc/{pid}/stat contains lots of juicy info
+		stat_path = g_strdup_printf("/proc/%d/stat", pid);
+		fh = fopen(stat_path, "r");
+		// fscanf (file, "%*d (%15[^)]"
+		fscanf(fh, "%*d (%15[^)]", &exec_name);
+		fclose(fh);
+		if (strcmp(exec_name, "skype") != 0)
+		{
+			g_free(stat_path);
+			continue;
+		}
+		//get uid/owner of stat file by using fstat()
+		g_stat(stat_path, stat);
+		g_free(stat_path);
+		//compare uid/owner of stat file (in g_stat->st_uid) to getuid();
+		if (stat->st_uid == getuid())
+		{
+			//this copy of skype was started by us
+			return TRUE;
+		}
+	}
+	g_dir_close(procdir);
 }
