@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <Tlhelp32.h>
 #include <glib.h>
 
 #define SKYPE_WIN32_CLASS_NAME "Skype-libpurple-Joiner"
@@ -167,3 +168,20 @@ exec_skype()
 	return g_spawn_command_line_async(g_strconcat(path, "/nosplash /minimized", NULL), NULL);
 }
 
+static gboolean
+is_skype_running()
+{
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	PROCESSENTRY32 entry;
+	entry.dwSize = sizeof(PROCESSENTRY32);
+	Process32First(snapshot, &entry);
+	do {
+		if (strcmp("Skype.exe", entry.szExeFile) == 0)
+		{
+			CloseHandle(snapshot);
+			return TRUE;
+		}
+	} while (Process32Next(snapshot, &entry));
+	CloseHandle(snapshot);
+	return FALSE;
+}
