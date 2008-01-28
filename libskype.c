@@ -799,7 +799,10 @@ skype_login(PurpleAccount *acct)
 	{
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
-			exec_skype();
+		{
+			if (!is_skype_running())
+				exec_skype();
+		}
 		return;
 	}
 	
