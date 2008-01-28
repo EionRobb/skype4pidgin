@@ -94,6 +94,8 @@ void skype_show_search_users(PurplePluginAction *action);
 static void skype_search_users(PurpleConnection *gc, const gchar *searchterm);
 void skype_searchresults_add_buddy(PurpleConnection *gc, GList *row, void *user_data);
 gchar *skype_strdup_withhtml(const gchar *src);
+void skype_join_chat(PurpleConnection *, GHashTable *components);
+gchar *skype_get_chat_name(GHashTable *components);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -137,9 +139,9 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_rem_permit,    /* rem_permit */
 	skype_rem_deny,      /* rem_deny */
 	NULL,                /* set_permit_deny */
-	NULL,                /* join_chat */
+	skype_join_chat,     /* join_chat */
 	NULL,                /* reject chat invite */
-	NULL,                /* get_chat_name */
+	skype_get_chat_name, /* get_chat_name */
 	skype_chat_invite,   /* chat_invite */
 	skype_chat_leave,    /* chat_leave */
 	NULL,                /* chat_whisper */
@@ -1217,12 +1219,12 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *) node;
-		msg = skype_send_message("CHAT CREATE %s", buddy->name);
+		msg = skype_send_message("CHAT CREATE");
 		sscanf(msg, "CHAT %s ", chat_id);
 		conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
+		skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, buddy->name);
 		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
 		purple_debug_info("skype", "chat_id: %s\n", chat_id);
-		//g_hash_table_insert(conv->data, "chat_id", g_strdup(chat_id));
 		purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									skype_get_account_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, FALSE);
@@ -1288,6 +1290,23 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
 
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
+}
+
+void
+skype_join_chat(PurpleConnection *gc, GHashTable *data)
+{
+	gchar *chat_id = (gchar *)g_hash_table_lookup(data, "chat_id");
+	if (chat_id == NULL)
+	{
+		return;
+	}
+	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
+}
+
+gchar *
+skype_get_chat_name(GHashTable *data)
+{
+	return g_strdup(g_hash_table_lookup(data, "chat_id"));
 }
 
 void
