@@ -172,12 +172,14 @@ static gboolean
 is_skype_running()
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	HANDLE temp = NULL;
 	PROCESSENTRY32 entry;
 	entry.dwSize = sizeof(PROCESSENTRY32);
 	Process32First(snapshot, &entry);
 	do {
 		if (strcmp("Skype.exe", entry.szExeFile) == 0)
 		{
+			temp = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 			CloseHandle(snapshot);
 			return TRUE;
 		}
