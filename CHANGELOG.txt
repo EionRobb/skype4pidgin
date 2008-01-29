@@ -1,6 +1,11 @@
 Changelog
 =========
 
+
+30 January 2008
+---------------
+* Windows version will start up Skype.exe now if it's not running
+
 29 January 2008
 ---------------
 * Skype only automatically started if no other running copy of Skype is running
