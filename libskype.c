@@ -96,6 +96,7 @@ void skype_searchresults_add_buddy(PurpleConnection *gc, GList *row, void *user_
 gchar *skype_strdup_withhtml(const gchar *src);
 void skype_join_chat(PurpleConnection *, GHashTable *components);
 gchar *skype_get_chat_name(GHashTable *components);
+static void skype_display_skype_credit(PurplePluginAction *action);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -357,6 +358,12 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_show_search_users),
 									NULL, NULL);
 	m = g_list_append(m, act);
+
+	act = purple_menu_action_new(_("Check Skype balance"),
+									PURPLE_CALLBACK(skype_display_skype_credit),
+									NULL, NULL);
+	m = g_list_append(m, act);
+	
 	return m;
 }
 
@@ -1439,6 +1446,29 @@ skype_strdup_withhtml(const gchar *src)
 	dest[destsize-1] = '\0';
 
 	return dest;
+}
+
+static void
+skype_display_skype_credit(PurplePluginAction *action)
+{
+	gchar *temp, *currency;
+	double balance;
+	
+	temp = skype_send_message("GET PROFILE PSTN_BALANCE");
+	balance = atol(&temp[21]);
+	g_free(temp);
+	balance = balance / 100;
+	
+	temp = skype_send_message("GET PROFILE PSTN_BALANCE_CURRENCY");
+	currency = g_strdup(&temp[30]);
+	g_free(temp);
+
+	temp = g_strdup_printf("%s %.2f", currency, balance);
+
+	purple_debug_info("skype", "Balance: '%s'\n", temp);
+	purple_notify_info(this_plugin, _("Skype Balance"), _("Your current Skype credit balance is:"), temp);
+	g_free(temp);
+	g_free(currency);
 }
 
 #ifdef USE_FARSIGHT
