@@ -802,8 +802,12 @@ skype_login(PurpleAccount *acct)
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
 		{
+			purple_debug_info("skype", "Should I start Skype?\n");
 			if (!is_skype_running())
+			{
+				purple_debug_info("skype", "Yes, start Skype\n");
 				exec_skype();
+			}
 		}
 		return;
 	}
