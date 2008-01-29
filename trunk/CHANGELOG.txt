@@ -5,6 +5,8 @@ Changelog
 30 January 2008
 ---------------
 * Windows version will start up Skype.exe now if it's not running
+* Debian/Ubuntu package no longer depends on skype package as this was causing problems
+* You can now check your Skype credit balance through the Accounts menu
 
 29 January 2008
 ---------------
