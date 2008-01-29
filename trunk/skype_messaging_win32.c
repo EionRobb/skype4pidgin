@@ -144,28 +144,38 @@ hide_skype()
 static gboolean
 exec_skype()
 {
-	DWORD size = 255;
-	gchar *path;
+	DWORD size = 0;
+	gchar *path, *pathtemp;
+	HKEY regkey;
+	gboolean success = FALSE;
 
 	//HKCU\Software\Skype\Phone\SkypePath or HKLM\Software\Skype\Phone\SkypePath
 	
-	RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, NULL, &size);
+	RegOpenKey(HKEY_CURRENT_USER, "Software\\Skype\\Phone", &regkey);
+	RegQueryValueEx(regkey, "SkypePath", NULL, NULL, NULL, &size);
 	if (size != 0)
 	{
 		path = g_new(gchar, size);
-		RegQueryValueEx(HKEY_CURRENT_USER, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
+		RegQueryValueEx(regkey, "SkypePath", NULL, NULL, (LPBYTE)path, &size);
 	} else {
-		RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, NULL, &size);
+		RegOpenKey(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone", &regkey);
+		RegQueryValueEx(regkey, "SkypePath", NULL, NULL, NULL, &size);
 		if (size != 0)
 		{
 			path = g_new(gchar, size);
-			RegQueryValueEx(HKEY_LOCAL_MACHINE, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
+			RegQueryValueEx(regkey, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
 		} else {
-			path = g_strdup("%PROGRAMFILES%\\Skype\\Phone\\Skype.exe");
+			path = g_strdup("C:\\Program Files\\Skype\\Phone\\Skype.exe");
 		}
 	}
-	
-	return g_spawn_command_line_async(g_strconcat(path, "/nosplash /minimized", NULL), NULL);
+
+	pathtemp = g_strconcat("\"", path, "\" /nosplash /minimized", NULL);
+	purple_debug_info("skype_win32", "Path to Skype: %s\n", pathtemp);
+	g_free(path);
+
+	success = g_spawn_command_line_async(pathtemp, NULL);
+	g_free(pathtemp);
+	return success;
 }
 
 static gboolean
