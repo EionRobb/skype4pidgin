@@ -1,6 +1,10 @@
 Changelog
 =========
 
+29 January 2008
+---------------
+* Skype only automatically started if no other running copy of Skype is running
+
 22 January 2008
 ---------------
 * Fixed bug where buddy display name can get mangled if their mood/status message contains a newline character
