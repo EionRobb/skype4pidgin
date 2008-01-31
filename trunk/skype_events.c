@@ -200,7 +200,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHAT %s STATUS", chatname);
 				chat_type = g_strdup(&temp[13+strlen(chatname)]);
 				g_free(temp);
-				if (strcmp(chat_type, "DIALOG") == 0 || strcmp(chat_type, "LEGACY_DIALOG"))
+				if (strcmp(chat_type, "DIALOG") == 0 || strcmp(chat_type, "LEGACY_DIALOG") == 0)
 				{
 					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
 					body = g_strdup(&temp[14+strlen(chatname)]);
