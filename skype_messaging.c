@@ -117,9 +117,11 @@ char *skype_send_message(char *message_format, ...)
 	if (!message_queue)
 		message_queue = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	
+	g_static_mutex_lock2(&mutex);
 	cur_message_num = next_message_num++;
 	if (next_message_num == G_MAXUINT)
 		next_message_num = 0;
+	g_static_mutex_unlock2(&mutex);
 	
 	//Send message asynchronously
 	skype_send_message_nowait("#%u %s", cur_message_num, message);
