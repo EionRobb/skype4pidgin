@@ -144,7 +144,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* reject chat invite */
 	skype_get_chat_name, /* get_chat_name */
 	skype_chat_invite,   /* chat_invite */
-	skype_chat_leave,    /* chat_leave */
+	/*skype_chat_leave*/NULL,    /* chat_leave */
 	NULL,                /* chat_whisper */
 	skype_chat_send,     /* chat_send */
 	skype_keepalive,     /* keepalive */
@@ -237,7 +237,7 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", FALSE);
+	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	
 }
@@ -807,7 +807,7 @@ skype_login(PurpleAccount *acct)
 	if (!connect_successful)
 	{
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
-		if (purple_account_get_bool(acct, "skype_autostart", FALSE))
+		if (purple_account_get_bool(acct, "skype_autostart", TRUE))
 		{
 			purple_debug_info("skype", "Should I start Skype?\n");
 			if (!is_skype_running())
@@ -1279,7 +1279,7 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 	
 	stripped = purple_markup_strip_html(message);
 	conv = purple_find_chat(gc, id);
-	purple_debug_info("skype", "chat_send; conv: %d, conv->data: %d, ", conv, conv->data);
+	purple_debug_info("skype", "chat_send; conv: %d, conv->data: %d, id: %d\n", conv, conv->data, id);
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
 	purple_debug_info("skype", "chat_id: %s\n", chat_id);
 
