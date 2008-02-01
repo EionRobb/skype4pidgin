@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1 February 2008
+---------------
+* Calls can now be made to offline contacts, allowing u to call peoples voicemail or call forwarding
+* Adium plugin has the correct extension again
+
+31 January 2008
+---------------
+* Adium plugin will start Skype.app if it's not running
 
 30 January 2008
 ---------------
