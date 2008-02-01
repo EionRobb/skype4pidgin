@@ -317,10 +317,7 @@ skype_call_user_from_blist(PurpleBlistNode *node, gpointer data)
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *) node;
-		if (PURPLE_BUDDY_IS_ONLINE(buddy))
-		{
-			skype_send_message_nowait("CALL %s", buddy->name);
-		}
+		skype_send_message_nowait("CALL %s", buddy->name);
 	}
 }
 
