@@ -28,7 +28,8 @@ SkypeNotificationReceived(CFStringRef input)
 		CFStringGetCString(input, output, strlen+1, kCFStringEncodingUTF8);
 	}
 	printf(" %s\n", output);
-	g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, &error);
+	//g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, &error);
+	skype_message_received(output);
 	if (error)
 	{
 		printf("Could not create new thread!!! %s\n", error->message);
