@@ -200,7 +200,10 @@ receive_message_loop(void)
 
 		if (len < 20)
 		{
-			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
+			if (msg->str[0] == '#')
+				g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
+			else
+				purple_timeout_add(1, (GSourceFunc)skype_handle_received_message, (gpointer)g_string_free(msg, FALSE));
 			XFlush(disp);
 		}
 	}
