@@ -221,7 +221,7 @@ skype_handle_received_message(char *message)
 					//if (conv == NULL)
 					//	conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, sender);
 				} else {
-					conv = serv_got_joined_chat(gc, chat_count++, "Skype Chat");
+					conv = serv_got_joined_chat(gc, chat_count++, chatname);
 					//conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, this_account, chatname);
 					temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
 					body = g_strdup(&temp[14+strlen(chatname)]);
@@ -260,7 +260,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
-				serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strconcat(sender, " changed the topic to ", body, NULL)), time(NULL));
+				serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strconcat(sender, _(" changed the topic to "), body, NULL)), time(NULL));
 			} else if (strcmp(type, "SAID") == 0 ||
 						strcmp(type, "TEXT") == 0)
 			{
