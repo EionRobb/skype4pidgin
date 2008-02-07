@@ -1232,7 +1232,7 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 		sscanf(msg, "CHAT %s ", chat_id);
 		g_free(msg);
 		//conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
-		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, "Skype Chat");
+		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, chat_id);
 		skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, buddy->name);
 		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
 		purple_debug_info("skype", "chat_id: %s\n", chat_id);
@@ -1301,6 +1301,10 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
 
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
+
+	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SYSTEM,
+					skype_strdup_withhtml(g_strconcat(_("You changed the topic to "), topic, NULL)), time(NULL));
+	purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
 void
