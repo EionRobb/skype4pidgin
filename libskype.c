@@ -82,6 +82,8 @@ static void skype_chat_leave(PurpleConnection *gc, int id);
 static void skype_chat_invite(PurpleConnection *gc, int id, const char *msg, const char *who);
 static void skype_initiate_chat(PurpleBlistNode *node, gpointer data);
 static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic);
+gchar *skype_cb_real_name(PurpleConnection *gc, int id, const char *who);
+GList *skype_join_chat_info(PurpleConnection *gc);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
 void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
@@ -108,19 +110,18 @@ static void skype_display_skype_credit(PurplePluginAction *action);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
-	  OPT_PROTO_NO_PASSWORD|OPT_PROTO_REGISTER_NOSCREENNAME|
-	  OPT_PROTO_UNIQUE_CHATNAME|OPT_PROTO_CHAT_TOPIC,
+	  OPT_PROTO_NO_PASSWORD|OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC,
 
 	NULL,                /* user_splits */
 	NULL,                /* protocol_options */
-	{"png,gif,jpeg", 0, 0, 96, 96, 65535, PURPLE_ICON_SCALE_DISPLAY}, /* icon_spec */
+	{"png,gif,jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_SEND}, /* icon_spec */
 	skype_list_icon,     /* list_icon */
 	NULL,                /* list_emblems */
 	skype_status_text,   /* status_text */
 	skype_tooltip_text,  /* tooltip_text */
 	skype_status_types,  /* status_types */
 	skype_node_menu,     /* blist_node_menu */
-	NULL,                /* chat_info */
+	skype_join_chat_info,/* chat_info */
 	NULL,                /* chat_info_defaults */
 	skype_login,         /* login */
 	skype_close,         /* close */
@@ -159,7 +160,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
 	NULL,                /* remove_group */
-	NULL,                /* get_cb_real_name */
+	skype_cb_real_name,  /* get_cb_real_name */
 	skype_set_chat_topic,/* set_chat_topic */
 	NULL,                /* find_blist_chat */
 	NULL,                /* roomlist_get_list */
@@ -1222,14 +1223,16 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 	PurpleConversation *conv;
 	gchar *msg;
 	gchar chat_id[200];
-	static int chat_number = 10000;
+	static int chat_number = 1000;
 
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *) node;
 		msg = skype_send_message("CHAT CREATE");
 		sscanf(msg, "CHAT %s ", chat_id);
-		conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
+		g_free(msg);
+		//conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
+		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, "Skype Chat");
 		skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, buddy->name);
 		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
 		purple_debug_info("skype", "chat_id: %s\n", chat_id);
@@ -1315,6 +1318,27 @@ gchar *
 skype_get_chat_name(GHashTable *data)
 {
 	return g_strdup(g_hash_table_lookup(data, "chat_id"));
+}
+
+gchar *
+skype_cb_real_name(PurpleConnection *gc, int id, const char *who)
+{
+	return skype_get_user_info(who, "FULLNAME");
+}
+
+GList *
+skype_join_chat_info(PurpleConnection *gc)
+{
+	GList *m = NULL;
+	struct proto_chat_entry *pce;
+
+	pce = g_new0(struct proto_chat_entry, 1);
+	pce->label = _("_Name:");
+	pce->identifier = "chat_id";
+	pce->required = TRUE;
+	m = g_list_append(m, pce);
+	
+	return m;
 }
 
 void
