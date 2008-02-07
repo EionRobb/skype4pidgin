@@ -1,6 +1,10 @@
 Changelog
 =========
 
+7 February 2008
+---------------
+* Multi-user chats, at last!
+
 1 February 2008
 ---------------
 * Calls can now be made to offline contacts, allowing u to call peoples voicemail or call forwarding
