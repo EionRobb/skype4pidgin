@@ -99,6 +99,8 @@ gchar *skype_strdup_withhtml(const gchar *src);
 void skype_join_chat(PurpleConnection *, GHashTable *components);
 gchar *skype_get_chat_name(GHashTable *components);
 static void skype_display_skype_credit(PurplePluginAction *action);
+void skype_call_number(gpointer ignore, gchar *number);
+void skype_call_number_request(PurplePlugin *plugin, gpointer data);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -339,29 +341,34 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									NULL, NULL);
 	m = g_list_append(m, act);
 
-	act = purple_menu_action_new(_("Check for Skype updates"),
+	act = purple_menu_action_new(_("Check for Skype updates..."),
 									PURPLE_CALLBACK(skype_program_update_check),
 									NULL, NULL);
 	m = g_list_append(m, act);
 	
 	if (this_plugin != NULL && this_plugin->path != NULL)
 	{
-		act = purple_menu_action_new(_("Check for plugin updates"),
+		act = purple_menu_action_new(_("Check for plugin updates..."),
 										PURPLE_CALLBACK(skype_plugin_update_check),
 										NULL, NULL);
 		m = g_list_append(m, act);
 	}
 
-	act = purple_menu_action_new(_("Search for buddies"),
+	act = purple_menu_action_new(_("Search for buddies..."),
 									PURPLE_CALLBACK(skype_show_search_users),
 									NULL, NULL);
 	m = g_list_append(m, act);
 
-	act = purple_menu_action_new(_("Check Skype balance"),
+	act = purple_menu_action_new(_("Check Skype balance..."),
 									PURPLE_CALLBACK(skype_display_skype_credit),
 									NULL, NULL);
 	m = g_list_append(m, act);
 	
+	act = purple_menu_action_new(_("Call..."),
+									PURPLE_CALLBACK(skype_call_number_request),
+									NULL, NULL);
+	m = g_list_append(m, act);
+
 	return m;
 }
 
@@ -470,6 +477,21 @@ skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_da
 	} else {
 		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of Skype"));
 	}
+}
+
+void
+skype_call_number_request(PurplePlugin *plugin, gpointer data)
+{
+	//http://developer.pidgin.im/doxygen/dev/html/request_8h.html#80ea2f9ad3a45471e05f09a2b5abcd75
+	purple_request_input(plugin, _("Call..."), _("Enter the phone number or Skype buddy name to call"), NULL,
+					NULL, FALSE, FALSE, NULL, _("Call"), G_CALLBACK(skype_call_number), _("Cancel"),
+					NULL, NULL, NULL, NULL, NULL);
+}
+
+void
+skype_call_number(gpointer ignore, gchar *number)
+{
+	skype_send_message_nowait("CALL %s", number);
 }
 
 GList *
