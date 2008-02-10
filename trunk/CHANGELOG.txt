@@ -1,6 +1,10 @@
 Changelog
 =========
 
+11 February 2008
+----------------
+* Linux plugin stability and speed increases
+
 10 February 2008
 ----------------
 * Incomming calls calls can be accepted from a pop-up box
