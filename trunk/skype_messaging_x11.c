@@ -24,6 +24,7 @@ skype_connect()
 	unsigned char *prop;
 	int status;
 	
+	XSetErrorHandler(x11_error_handler);
 	disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
@@ -118,7 +119,7 @@ send_message(char* message)
 		}
 		return;
 	}
-
+	
 	memset(&e, 0, sizeof(e));
 	e.xclient.type = ClientMessage;
 	e.xclient.message_type = message_start; /* first message */
@@ -126,7 +127,6 @@ send_message(char* message)
 	e.xclient.window = win;
 	e.xclient.format = 8; /* 8-bit values */
 
-	XSetErrorHandler(x11_error_handler);
 	do
 	{
 		for( i = 0; i < 20 && i + pos <= len; ++i )
@@ -136,8 +136,8 @@ send_message(char* message)
 		e.xclient.message_type = message_continue; /* 2nd or greater message */
 		pos += i;
 	} while( pos <= len );
-
-	XFlush(disp);
+	
+	//XFlush(disp);
 	
 	if (x11_error_code == BadWindow)
 	{
@@ -200,10 +200,10 @@ receive_message_loop(void)
 
 		if (len < 20)
 		{
-			if (msg->str[0] == '#')
+			//if (msg->str[0] == '#')
 				g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
-			else
-				purple_timeout_add(1, (GSourceFunc)skype_handle_received_message, (gpointer)g_string_free(msg, FALSE));
+			//else
+			//	purple_timeout_add(1, (GSourceFunc)skype_handle_received_message, (gpointer)g_string_free(msg, FALSE));
 			XFlush(disp);
 		}
 	}
