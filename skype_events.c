@@ -8,6 +8,8 @@ void skype_accept_transfer(PurpleXfer *transfer);
 void skype_decline_transfer(PurpleXfer *transfer);
 gint skype_find_chat(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
+void skype_call_accept_cb(gchar *call);
+void skype_call_reject_cb(gchar *call);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
@@ -491,6 +493,28 @@ skype_handle_received_message(char *message)
 				skype_handle_call_got_ended(string_parts[1]);
 			}
 		}
+#else
+	} else if (strcmp(command, "CALL") == 0)
+	{
+		if (strcmp(string_parts[2], "STATUS") == 0 &&
+			strcmp(string_parts[3], "RINGING") == 0)
+		{
+			temp = skype_send_message("GET CALL %s TYPE", string_parts[1]);
+			type = g_new0(gchar, 9);
+			sscanf(temp, "CALL %*s TYPE %[^_]", type);
+			g_free(temp);
+			temp = skype_send_message("GET CALL %s PARTNER_HANDLE", string_parts[1]);
+			sender = g_strdup(&temp[21+strlen(string_parts[1])]);
+			g_free(temp);
+			if (strcmp(type, "INCOMING") == 0)
+			{
+				purple_request_action(gc, _("Incoming Call"), g_strconcat(sender, " is calling you", NULL), "Do you want to accept their call?",
+								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("Accept"), 
+								G_CALLBACK(skype_call_accept_cb), _("Reject"), G_CALLBACK(skype_call_reject_cb));
+			}
+			g_free(sender);
+			g_free(type);
+		}
 #endif	
 	}
 	if (string_parts)
@@ -498,6 +522,20 @@ skype_handle_received_message(char *message)
 		g_strfreev(string_parts);
 	}
 	return FALSE;
+}
+
+void
+skype_call_accept_cb(gchar *call)
+{
+	skype_send_message("ALTER CALL %s ANSWER", call);
+	g_free(call);
+}
+
+void
+skype_call_reject_cb(gchar *call)
+{
+	skype_send_message("ALTER CALL %s HANGUP", call);
+	g_free(call);
 }
 
 void
