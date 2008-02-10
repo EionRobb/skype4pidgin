@@ -1,6 +1,11 @@
 Changelog
 =========
 
+10 February 2008
+----------------
+* Incomming calls calls can be accepted from a pop-up box
+* Outgoing calls can be made to people not on your list through the accounts menu
+
 7 February 2008
 ---------------
 * Multi-user chats, at last!
