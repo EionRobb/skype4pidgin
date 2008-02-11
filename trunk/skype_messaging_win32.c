@@ -8,9 +8,9 @@ static LRESULT APIENTRY Skype_WindowProc(HWND hWindow, UINT uiMessage,
 					 WPARAM uiParam, LPARAM ulParam);
 static void win32_message_loop(void);
 
-HINSTANCE hInit_ProcessHandle;
-UINT uiGlobal_MsgID_SkypeControlAPIAttach;
-UINT uiGlobal_MsgID_SkypeControlAPIDiscover;
+HINSTANCE hInit_ProcessHandle = NULL;
+static UINT uiGlobal_MsgID_SkypeControlAPIAttach = 0;
+static UINT uiGlobal_MsgID_SkypeControlAPIDiscover = 0;
 static HWND hInit_MainWindowHandle = NULL;
 static HWND hGlobal_SkypeAPIWindowHandle = NULL;
 HANDLE hEvent = NULL;
@@ -21,10 +21,13 @@ skype_connect()
 	int i = 0;
 	PDWORD_PTR sendMessageResult = NULL;
 
-	uiGlobal_MsgID_SkypeControlAPIAttach = RegisterWindowMessage("SkypeControlAPIAttach");
-	uiGlobal_MsgID_SkypeControlAPIDiscover = RegisterWindowMessage("SkypeControlAPIDiscover");
+	if (!uiGlobal_MsgID_SkypeControlAPIAttach)
+		uiGlobal_MsgID_SkypeControlAPIAttach = RegisterWindowMessage("SkypeControlAPIAttach");
+	if (!uiGlobal_MsgID_SkypeControlAPIDiscover)
+		uiGlobal_MsgID_SkypeControlAPIDiscover = RegisterWindowMessage("SkypeControlAPIDiscover");
 
-	hInit_ProcessHandle = (HINSTANCE)OpenProcess( PROCESS_DUP_HANDLE, FALSE, GetCurrentProcessId());
+	if (!hInit_ProcessHandle)
+		hInit_ProcessHandle = (HINSTANCE)OpenProcess( PROCESS_DUP_HANDLE, FALSE, GetCurrentProcessId());
 	purple_debug_info("skype_win32", "ProcessId %d\n", GetCurrentProcessId());
 	purple_debug_info("skype_win32", "hInit_ProcessHandle %d\n", hInit_ProcessHandle);
 
@@ -34,6 +37,7 @@ skype_connect()
 		Sleep(10);
 	}
 
+	purple_debug_info("skype_win32", "hInit_MainWindowHandle %d\n", hInit_MainWindowHandle);
 	purple_debug_info("skype_win32", "Sending broadcast message\n");
 	SendMessageTimeout( HWND_BROADCAST, uiGlobal_MsgID_SkypeControlAPIDiscover, (WPARAM)hInit_MainWindowHandle, 0, SMTO_NORMAL, 1000, sendMessageResult);
 	purple_debug_info("skype_win32", "Broadcast message sent\n");
@@ -56,6 +60,11 @@ win32_message_loop(void)
 	MSG msg;
 	WNDCLASS oWindowClass;
 	int classRegistration;
+	static gboolean message_loop_started = FALSE;
+
+	if (message_loop_started)
+		return;
+	message_loop_started = TRUE;
 
 	oWindowClass.style = CS_HREDRAW|CS_VREDRAW;
 	oWindowClass.lpfnWndProc = (WNDPROC)&Skype_WindowProc;
@@ -79,6 +88,10 @@ win32_message_loop(void)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+	purple_debug_info("skype_win32", "Finished message loop\n");
+	DestroyWindow(hInit_MainWindowHandle);
+	hInit_MainWindowHandle = NULL;
+	message_loop_started = FALSE;
 }
 
 static void
@@ -86,10 +99,13 @@ skype_disconnect()
 {
 	UnregisterClass(SKYPE_WIN32_CLASS_NAME, hInit_ProcessHandle);
 	CloseHandle(hInit_ProcessHandle);
-	DestroyWindow(hInit_MainWindowHandle);
 	hInit_ProcessHandle = NULL;
-	hInit_MainWindowHandle = NULL;
-	hGlobal_SkypeAPIWindowHandle = NULL;
+
+	if (hInit_MainWindowHandle != NULL)
+	{
+		//tell win32_message_loop() thread to die gracefully
+		PostMessage(hInit_MainWindowHandle, WM_QUIT, 0, 0);
+	}
 }
 
 static void
@@ -106,12 +122,13 @@ send_message(char* message)
 	if (SendMessage( hGlobal_SkypeAPIWindowHandle, WM_COPYDATA, 
 						(WPARAM)hInit_MainWindowHandle, (LPARAM)&oCopyData) == FALSE)
 	{
+		hGlobal_SkypeAPIWindowHandle = NULL;
 		//There was an error
 		if (message[0] == '#')
 		{
 			//And we're expecting a response
 			sscanf(message, "#%d ", &message_num);
-			sprintf(error_return, "#%d ERROR", message_num);
+			sprintf(error_return, "#%d ERROR WIN32", message_num);
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
 		}
 	}
@@ -129,6 +146,16 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 	} else if (uiMessage == uiGlobal_MsgID_SkypeControlAPIAttach) {
 		hGlobal_SkypeAPIWindowHandle = (HWND)uiParam;
 		purple_debug_info("skype_win32", "Attached process %d %d\n", uiParam, ulParam);
+		if (ulParam == 0)
+			purple_debug_info("skype_win32", "Attach success\n");
+		else if (ulParam == 1)
+			purple_debug_info("skype_win32", "Pending auth\n");
+		else if (ulParam == 2)
+			purple_debug_info("skype_win32", "Refused\n");
+		else if (ulParam == 3)
+			purple_debug_info("skype_win32", "Not ready\n");
+		else if (ulParam == 0x8001)
+			purple_debug_info("skype_win32", "Skype became ready\n");
 		return 1;
 	}
 	return DefWindowProc(hWindow, uiMessage, uiParam, ulParam);
