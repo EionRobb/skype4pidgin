@@ -1,9 +1,14 @@
 Changelog
 =========
 
+12 February 2008
+----------------
+* Windows plugin has far better connection/disconnection system now
+
 11 February 2008
 ----------------
 * Linux plugin stability and speed increases
+* Adium plugin should no longer interfer with MSN file transfers
 
 10 February 2008
 ----------------
