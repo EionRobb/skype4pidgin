@@ -1,6 +1,10 @@
 Changelog
 =========
 
+13 February 2008
+----------------
+* RSS Feed for changelog up and running?
+
 12 February 2008
 ----------------
 * Windows plugin has far better connection/disconnection system now
