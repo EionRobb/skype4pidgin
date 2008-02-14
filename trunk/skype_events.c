@@ -334,7 +334,7 @@ skype_handle_received_message(char *message)
 			temp = skype_send_message("GET FILETRANSFER %s PARTNER_HANDLE", string_parts[1]);
 			sender = g_strdup(&temp[29+strlen(string_parts[1])]);
 			g_free(temp);
-			if (strcmp(string_parts[2], "INCOMING") == 0)
+			if (strcmp(string_parts[3], "INCOMING") == 0)
 			{
 				transfer = purple_xfer_new(this_account, PURPLE_XFER_RECEIVE, sender);
 			} else {
