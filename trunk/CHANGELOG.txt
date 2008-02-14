@@ -1,6 +1,11 @@
 Changelog
 =========
 
+14 February 2008
+----------------
+* Debian/Ubuntu package has the skype emote theme in it now
+* File transfers now correctly show the direction of transfer
+
 13 February 2008
 ----------------
 * RSS Feed for changelog up and running?
@@ -12,7 +17,6 @@ Changelog
 11 February 2008
 ----------------
 * Linux plugin stability and speed increases
-* Adium plugin should no longer interfer with MSN file transfers
 
 10 February 2008
 ----------------
