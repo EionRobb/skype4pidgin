@@ -1,464 +1,467 @@
-Name=Enhanced
+#put this theme in its own emotes directory
+#eg /usr/share/pixmaps/pidgin/emotes/skype
+
+Name=Default-with-Skype
 Description=Pidgin smileys including Skype
-Icon=wink.png
-Author=Hylke Bons
+Icon=../default/wink.png
+Author=Eion Robb and Hylke Bons
 
 
 # Default smileys
 [default]
-smile.png           :)      :-)
-smile-big.png       :-D     :-d     :D      :d
-sad.png             :-(     :(
-wink.png            ;-)     ;)
-tongue.png          :P      :-P     :-p     :p
-shock.png           =-O     =-o
-kiss.png            :-*
-glasses-cool.png    8-)
-embarrassed.png     :-[
-crying.png          :'(
-thinking.png        :-/     :-\\
-angel.png           O:-)    o:-)
-shut-mouth.png      :-X
-moneymouth.png      :-$
-foot-in-mouth.png   :-!
-shout.png           >:o     >:O
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)     8-|)
-! cyclops.png       O-) o-)
+../default/smile.png           :)      :-)
+../default/smile-big.png       :-D     :-d     :D      :d
+../default/sad.png             :-(     :(
+../default/wink.png            ;-)     ;)
+../default/tongue.png          :P      :-P     :-p     :p
+../default/shock.png           =-O     =-o
+../default/kiss.png            :-*
+../default/glasses-cool.png    8-)
+../default/embarrassed.png     :-[
+../default/crying.png          :'(
+../default/thinking.png        :-/     :-\\
+../default/angel.png           O:-)    o:-)
+../default/shut-mouth.png      :-X
+../default/moneymouth.png      :-$
+../default/foot-in-mouth.png   :-!
+../default/shout.png           >:o     >:O
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)     8-|)
+! ../default/cyclops.png       O-) o-)
 
 # Following AIM 6.1
 [AIM]
-smile.png           :-)     :)
-wink.png            ;-)     ;)
-sad.png             :-(     :(
-tongue.png          :-P     :P      :-p    :p
-shock.png           =-O
-kiss.png            :-*
-shout.png           >:o
-smile-big.png       :-D     :D
-moneymouth.png      :-$
-foot-in-mouth.png   :-!
-embarrassed.png     :-[
-angel.png           O:-)
-thinking.png        :-\\    :-/
-crying.png          :'(
-shut-mouth.png      :-X
-glasses-cool.png    8-)
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)
+../default/smile.png           :-)     :)
+../default/wink.png            ;-)     ;)
+../default/sad.png             :-(     :(
+../default/tongue.png          :-P     :P      :-p    :p
+../default/shock.png           =-O
+../default/kiss.png            :-*
+../default/shout.png           >:o
+../default/smile-big.png       :-D     :D
+../default/moneymouth.png      :-$
+../default/foot-in-mouth.png   :-!
+../default/embarrassed.png     :-[
+../default/angel.png           O:-)
+../default/thinking.png        :-\\    :-/
+../default/crying.png          :'(
+../default/shut-mouth.png      :-X
+../default/glasses-cool.png    8-)
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)
 
 
 # Following Windows Live Messenger 8.1
 [MSN]
-smile.png           :)      :-)
-smile-big.png       :D      :d :-D :-d
-wink.png            ;)      ;-)
-shock.png           :-O     :-o :O :o
-tongue.png          :P      :p :-P :-p
-glasses-cool.png    (H)     (h)
-angry.png           :@      :-@
-embarrassed.png     :$      :-$
-confused.png        :S      :s :-S :-s
-sad.png             :(      :-(
-crying.png          :'(
-neutral.png         :|      :-|
-devil.png           (6)
-angel.png           (A)     (a)
-love.png            (L)     (l)
-love-over.png       (U)     (u)
-msn.png             (M)     (m)
-cat.png             (@)
-dog.png             (&)
-moon.png            (S)
-star.png            (*)
-film.png            (~)
-musical-note.png    (8)
-mail.png            (E)     (e)
-rose.png            (F)     (f)
-rose-dead.png       (W)     (w)
-clock.png           (O)     (o)
-kiss.png            (K)     (k)
-present.png         (G)     (g)
-cake.png            (^)
-camera.png          (P)     (p)
-lamp.png            (I)     (i)
-coffee.png          (C)     (c)
-phone.png           (T)     (t)
-hug-left.png        ({)
-hug-right.png       (})
-beer.png            (B)     (b)
-drink.png           (D)     (d)
-boy.png             (Z)     (z)
-girl.png            (X)     (x)
-good.png            (Y)     (y)
-bad.png             (N)     (n)
-vampire.png         :[      :-[
-goat.png            (nah)
-sun.png             (#)
-rainbow.png         (R)     (r)
-quiet.png           :-#
-teeth.png           8o|
-glasses-nerdy.png   8-|
-sarcastic.png       ^o)
-secret.png          :-*
-sick.png            +o(
-snail.png           (sn)
-turtle.png          (tu)
-plate.png           (pl)
-bowl.png            (||)
-pizza.png           (pi)
-soccerball.png      (so)
-car.png             (au)
-airplane.png        (ap)
-umbrella.png        (um)
-island.png          (ip)
-computer.png        (co)
-mobile.png          (mp)
-brb.png             (brb)
-rain.png            (st)
-highfive.png        (h5)
-coins.png           (mo)
-sheep.png           (bah)
-dont-know.png       :^)
-thinking.png        *-)
-thunder.png         (li)
-party.png           <:o)
-eyeroll.png         8-)
-yawn.png            |-) 
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)
+../default/smile.png           :)      :-)
+../default/smile-big.png       :D      :d :-D :-d
+../default/wink.png            ;)      ;-)
+../default/shock.png           :-O     :-o :O :o
+../default/tongue.png          :P      :p :-P :-p
+../default/glasses-cool.png    (H)     (h)
+../default/angry.png           :@      :-@
+../default/embarrassed.png     :$      :-$
+../default/confused.png        :S      :s :-S :-s
+../default/sad.png             :(      :-(
+../default/crying.png          :'(
+../default/neutral.png         :|      :-|
+../default/devil.png           (6)
+../default/angel.png           (A)     (a)
+../default/love.png            (L)     (l)
+../default/love-over.png       (U)     (u)
+../default/msn.png             (M)     (m)
+../default/cat.png             (@)
+../default/dog.png             (&)
+../default/moon.png            (S)
+../default/star.png            (*)
+../default/film.png            (~)
+../default/musical-note.png    (8)
+../default/mail.png            (E)     (e)
+../default/rose.png            (F)     (f)
+../default/rose-dead.png       (W)     (w)
+../default/clock.png           (O)     (o)
+../default/kiss.png            (K)     (k)
+../default/present.png         (G)     (g)
+../default/cake.png            (^)
+../default/camera.png          (P)     (p)
+../default/lamp.png            (I)     (i)
+../default/coffee.png          (C)     (c)
+../default/phone.png           (T)     (t)
+../default/hug-left.png        ({)
+../default/hug-right.png       (})
+../default/beer.png            (B)     (b)
+../default/drink.png           (D)     (d)
+../default/boy.png             (Z)     (z)
+../default/girl.png            (X)     (x)
+../default/good.png            (Y)     (y)
+../default/bad.png             (N)     (n)
+../default/vampire.png         :[      :-[
+../default/goat.png            (nah)
+../default/sun.png             (#)
+../default/rainbow.png         (R)     (r)
+../default/quiet.png           :-#
+../default/teeth.png           8o|
+../default/glasses-nerdy.png   8-|
+../default/sarcastic.png       ^o)
+../default/secret.png          :-*
+../default/sick.png            +o(
+../default/snail.png           (sn)
+../default/turtle.png          (tu)
+../default/plate.png           (pl)
+../default/bowl.png            (||)
+../default/pizza.png           (pi)
+../default/soccerball.png      (so)
+../default/car.png             (au)
+../default/airplane.png        (ap)
+../default/umbrella.png        (um)
+../default/island.png          (ip)
+../default/computer.png        (co)
+../default/mobile.png          (mp)
+../default/brb.png             (brb)
+../default/rain.png            (st)
+../default/highfive.png        (h5)
+../default/coins.png           (mo)
+../default/sheep.png           (bah)
+../default/dont-know.png       :^)
+../default/thinking.png        *-)
+../default/thunder.png         (li)
+../default/party.png           <:o)
+../default/eyeroll.png         8-)
+../default/yawn.png            |-) 
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)
 
 # Hidden MSN emotes
-sigarette.png      	(ci)    (CI)
-handcuffs.png       (%)
-console.png			(xx)    (XX)
-fingers-crossed.png	(yn)    (YN)
+../default/sigarette.png      	(ci)    (CI)
+../default/handcuffs.png       (%)
+../default/console.png			(xx)    (XX)
+../default/fingers-crossed.png	(yn)    (YN)
 
 
 # Following QQ 2006
 [QQ]
-shock.png           /:O      /jy       /surprised
-curl-lip.png        /:~      /pz       /curl_lip
-desire.png          /:*      /se       /desire
-dazed.png           /:|      /dazed
-party.png           /8-)     /dy       /revel
-crying.png          /:<      /ll       /cry
-bashful.png         /:$      /hx       /bashful
-shut-mouth.png      /:X      /bz       /shut_mouth
-sleepy.png          /:Z      /shui     /sleep
-weep.png            /:'(     /dk       /weep
-embarrassed.png     /:-|     /gg       /embarassed
-pissed-off.png      /:@      /fn       /pissed_off
-act-up.png          /:P      /tp       /act_up
-smile-big.png       /:D      /cy       /toothy_smile
-smile.png           /:)      /wx       /small_smile
-sad.png             /:(      /ng       /sad
-glasses-cool.png    /:+      /kuk      /cool
-doctor.png          /:#      /feid     /SARS
-silly.png           /:Q      /zk       /crazy
-sick.png            /:T      /tu       /vomit
-snicker.png         /;p      /tx       /titter
-cute.png            /;-D     /ka       /cute
-disdain.png         /;d      /by       /disdain
-arrogant.png        /;o      /am       /arrogant
-starving.png        /:g      /jie      /starving
-yawn.png            /|-)     /kun      /sleepy
-terror.png          /:!      /jk       /terror
-sweat.png           /:L      /sweat
-smirk.png           /:>      /hanx     /smirk
-soldier.png         /:;      /db       /soldier
-struggle.png        /;f      /fendou   /struggle
-curse.png           /:-S     /zhm      /curse
-question.png        /?       /yiw      /question
-quiet.png           /;x      /xu       /shh
-hypnotized.png      /;@      /yun      /dizzy
-excruciating.png    /:8      /zhem     /excrutiating
-freaked-out.png     /;!      /shuai    /freaked_out
-skeleton.png        /!!!     /kl       /skeleton
-hammer.png          /xx      /qiao     /hammer
-bye.png             /bye     /zj       /bye
-go-away.png         /go      /shan     /go
-tremble.png         /shake   /fad      /shake
-in-love.png         /love    /aiq      /love
-jump.png            /jump    /tiao     /jump
-search.png          /find    /zhao     /search
-lashes.png          /&       /mm       /beautiful_eyebrows
-pig.png             /pig     /zt       /pig
-cat.png             /cat     /mm       /cat
-dog.png             /dog     /xg       /dog
-hug-left.png        /hug     /yb       /hug
-coins.png           /$       /qianc    /money
-lamp.png            /!       /dp       /lightbulb
-bowl.png            /cup     /bei      /cup
-cake.png            /cake    /dg       /cake
-thunder.png         /li      /shd      /lightning
-bomb.png            /bome    /zhd      /bomb
-knife.png           /kn      /dao      /knife
-soccerball.png      /footb   /zq       /soccer
-musical-note.png    /music   /yy       /music
-poop.png            /shit    /bb       /shit
-coffee.png          /coffee  /kf       /coffee
-eat.png             /eat     /fan      /eat
-pill.png            /pill    /yw       /pill
-rose.png            /rose    /mg       /rose
-wilt.png            /fade    /dx       /wilt
-kiss.png            /kiss    /wen      /kiss
-love.png            /heart   /xin      /heart
-love-over.png       /break   /xs       /broken_heart
-meeting.png         /meeting /hy       /meeting
-present.png         /gift    /lw       /gift
-phone.png           /phone   /dh       /phone
-clock.png           /time    /sj       /time
-mail.png            /email   /yj       /email
-tv.png              /TV      /ds       /TV
-sun.png             /sun     /ty       /sun
-moon.png            /moon    /yl       /moon
-good.png            /strong  /qiang    /thumbs_up
-bad.png             /weak    /ruo      /thumbs_down
-handshake.png       /share   /ws       /handshake
-victory.png         /v       /shl      /victory
-beauty.png          /<J>     /mn       /beauty
-qq.png              /<QQ>    /qz       /qq
-blowkiss.png        /<L>     /fw       /blow_kiss
-angry.png           /<O>     /oh       /angry
-liquor.png          /<B>     /bj       /baijiu
-can.png             /<U>     /qsh      /soda
-watermelon.png      /<W>     /xigua    /watermelon
-rain.png            /<!!>    /xy       /rain
-cloudy.png          /<~>     /duoy     /cloudy
-snowman.png         /<Z>     /xr       /snowman
-star.png            /<*>     /xixing   /star
-girl.png            /<00>    /nv       /woman
-boy.png             /<11>    /nan      /man
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)
+../default/shock.png           /:O      /jy       /surprised
+../default/curl-lip.png        /:~      /pz       /curl_lip
+../default/desire.png          /:*      /se       /desire
+../default/dazed.png           /:|      /dazed
+../default/party.png           /8-)     /dy       /revel
+../default/crying.png          /:<      /ll       /cry
+../default/bashful.png         /:$      /hx       /bashful
+../default/shut-mouth.png      /:X      /bz       /shut_mouth
+../default/sleepy.png          /:Z      /shui     /sleep
+../default/weep.png            /:'(     /dk       /weep
+../default/embarrassed.png     /:-|     /gg       /embarassed
+../default/pissed-off.png      /:@      /fn       /pissed_off
+../default/act-up.png          /:P      /tp       /act_up
+../default/smile-big.png       /:D      /cy       /toothy_smile
+../default/smile.png           /:)      /wx       /small_smile
+../default/sad.png             /:(      /ng       /sad
+../default/glasses-cool.png    /:+      /kuk      /cool
+../default/doctor.png          /:#      /feid     /SARS
+../default/silly.png           /:Q      /zk       /crazy
+../default/sick.png            /:T      /tu       /vomit
+../default/snicker.png         /;p      /tx       /titter
+../default/cute.png            /;-D     /ka       /cute
+../default/disdain.png         /;d      /by       /disdain
+../default/arrogant.png        /;o      /am       /arrogant
+../default/starving.png        /:g      /jie      /starving
+../default/yawn.png            /|-)     /kun      /sleepy
+../default/terror.png          /:!      /jk       /terror
+../default/sweat.png           /:L      /sweat
+../default/smirk.png           /:>      /hanx     /smirk
+../default/soldier.png         /:;      /db       /soldier
+../default/struggle.png        /;f      /fendou   /struggle
+../default/curse.png           /:-S     /zhm      /curse
+../default/question.png        /?       /yiw      /question
+../default/quiet.png           /;x      /xu       /shh
+../default/hypnotized.png      /;@      /yun      /dizzy
+../default/excruciating.png    /:8      /zhem     /excrutiating
+../default/freaked-out.png     /;!      /shuai    /freaked_out
+../default/skeleton.png        /!!!     /kl       /skeleton
+../default/hammer.png          /xx      /qiao     /hammer
+../default/bye.png             /bye     /zj       /bye
+../default/go-away.png         /go      /shan     /go
+../default/tremble.png         /shake   /fad      /shake
+../default/in-love.png         /love    /aiq      /love
+../default/jump.png            /jump    /tiao     /jump
+../default/search.png          /find    /zhao     /search
+../default/lashes.png          /&       /mm       /beautiful_eyebrows
+../default/pig.png             /pig     /zt       /pig
+../default/cat.png             /cat     /mm       /cat
+../default/dog.png             /dog     /xg       /dog
+../default/hug-left.png        /hug     /yb       /hug
+../default/coins.png           /$       /qianc    /money
+../default/lamp.png            /!       /dp       /lightbulb
+../default/bowl.png            /cup     /bei      /cup
+../default/cake.png            /cake    /dg       /cake
+../default/thunder.png         /li      /shd      /lightning
+../default/bomb.png            /bome    /zhd      /bomb
+../default/knife.png           /kn      /dao      /knife
+../default/soccerball.png      /footb   /zq       /soccer
+../default/musical-note.png    /music   /yy       /music
+../default/poop.png            /shit    /bb       /shit
+../default/coffee.png          /coffee  /kf       /coffee
+../default/eat.png             /eat     /fan      /eat
+../default/pill.png            /pill    /yw       /pill
+../default/rose.png            /rose    /mg       /rose
+../default/wilt.png            /fade    /dx       /wilt
+../default/kiss.png            /kiss    /wen      /kiss
+../default/love.png            /heart   /xin      /heart
+../default/love-over.png       /break   /xs       /broken_heart
+../default/meeting.png         /meeting /hy       /meeting
+../default/present.png         /gift    /lw       /gift
+../default/phone.png           /phone   /dh       /phone
+../default/clock.png           /time    /sj       /time
+../default/mail.png            /email   /yj       /email
+../default/tv.png              /TV      /ds       /TV
+../default/sun.png             /sun     /ty       /sun
+../default/moon.png            /moon    /yl       /moon
+../default/good.png            /strong  /qiang    /thumbs_up
+../default/bad.png             /weak    /ruo      /thumbs_down
+../default/handshake.png       /share   /ws       /handshake
+../default/victory.png         /v       /shl      /victory
+../default/beauty.png          /<J>     /mn       /beauty
+../default/qq.png              /<QQ>    /qz       /qq
+../default/blowkiss.png        /<L>     /fw       /blow_kiss
+../default/angry.png           /<O>     /oh       /angry
+../default/liquor.png          /<B>     /bj       /baijiu
+../default/can.png             /<U>     /qsh      /soda
+../default/watermelon.png      /<W>     /xigua    /watermelon
+../default/rain.png            /<!!>    /xy       /rain
+../default/cloudy.png          /<~>     /duoy     /cloudy
+../default/snowman.png         /<Z>     /xr       /snowman
+../default/star.png            /<*>     /xixing   /star
+../default/girl.png            /<00>    /nv       /woman
+../default/boy.png             /<11>    /nan      /man
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)
 
 
 # Following ICQ 6.0
 [ICQ]
-smile.png           :-)     :)
-neutral.png         :-$
-sad.png             :-(     :(
-shock.png           =-O
-wink.png            ;-)     ;)
-tongue.png          :-P     :P      :-p     :p
-music.png           [:-}
-laugh.png           *JOKINGLY*
-sleepy.png          *TIRED*
-crying.png          :'(    :'-(
-sick.png            :-!
-kissed.png          *KISSED*
-stop.png            *STOP*
-kiss.png            :-{} :-*
-kissing.png         *KISSING* 
-embarrassed.png     :-[
-devil.png           ]:->
-angel.png           O:-)
-rose.png            @}->--
-shut-mouth.png      :-X     :X      :-x     :x
-bomb.png            @=
-thinking.png        :-\\    :-/
-good.png            *THUMBS\ UP*
-shout.png           >:o     >:O     :-@
-beer.png            *DRINK*
-smile-big.png       :-D     :D
-glasses-cool.png    8-)
-in-love.png         *IN\ LOVE*
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)
+../default/smile.png           :-)     :)
+../default/neutral.png         :-$
+../default/sad.png             :-(     :(
+../default/shock.png           =-O
+../default/wink.png            ;-)     ;)
+../default/tongue.png          :-P     :P      :-p     :p
+../default/music.png           [:-}
+../default/laugh.png           *JOKINGLY*
+../default/sleepy.png          *TIRED*
+../default/crying.png          :'(    :'-(
+../default/sick.png            :-!
+../default/kissed.png          *KISSED*
+../default/stop.png            *STOP*
+../default/kiss.png            :-{} :-*
+../default/kissing.png         *KISSING* 
+../default/embarrassed.png     :-[
+../default/devil.png           ]:->
+../default/angel.png           O:-)
+../default/rose.png            @}->--
+../default/shut-mouth.png      :-X     :X      :-x     :x
+../default/bomb.png            @=
+../default/thinking.png        :-\\    :-/
+../default/good.png            *THUMBS\ UP*
+../default/shout.png           >:o     >:O     :-@
+../default/beer.png            *DRINK*
+../default/smile-big.png       :-D     :D
+../default/glasses-cool.png    8-)
+../default/in-love.png         *IN\ LOVE*
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)
 
 
 # Following Yahoo! Messenger 8.1
 [Yahoo]
-smile.png           :)      :-)
-question.png        :-/     :-\\
-shock.png           :-O     :O      :-o     :o 
-devil.png           >:)
-angel.png           O:-)    o:-)    0:-)
-sick.png            :-&
-yawn.png            (:|
-hypnotized.png      @-)
-on-the-phone.png    :)]
-sad.png             :(      :-(
-in-love.png         :x      :-x     :X      :-X
-angry.png           X-(     x-(     X(      x(
-crying.png          :((
-glasses-nerdy.png   :-B     :-b
-quiet.png           :-$
-drool.png           =P~     =p~
-lying.png           :^O     :^o
-call-me.png         :-c
-wink.png            ;)      ;-)
-embarrassed.png     :">
-mean.png            :->     :>
-laugh.png           :))     :-))
-bye.png             =;
-arrogant.png        [-(
-thinking.png        :-?
-waiting.png         :-w     :-W
-at-wits-end.png     ~x(     ~X(
-smile-big.png       :D      :-D     :d      :-d
-tongue.png          :-P     :P      :-p     :p
-glasses-cool.png    B-)     b-)
-neutral.png         :|      :-|
-sleepy.png          I-)     i-)     |-)
-clown.png           :o)     :O)
-doh.png             #-o     #-O
-weep.png            :-<
-go-away.png         :-h
-lashes.png          ;;)
-kiss.png            :-*     :*
-confused.png        :-S     :-s
-sarcastic.png       /:)
-eyeroll.png         8-|
-silly.png           8-}
-clap.png            =D>     =d>
-mad-tongue.png      >:P     >:p
-time-out.png        :-t     :-T
-hug-left.png        >:D<    >:d<
-love-over.png       =((
-sweat.png           #:-S    #:-s
-rotfl.png           =)) :-j :-J 
-loser.png           L-)     l-)
-party.png           <:-P    <:-p
-nailbiting.png      :-SS	:-Ss	:-sS	:-ss
-cowboy.png          <):)
-desire.png          8->
-! skywalker.png     C:-)    c:-)    C:)     c:)
-! monkey.png        :-(|)  :(|)
+../default/smile.png           :)      :-)
+../default/question.png        :-/     :-\\
+../default/shock.png           :-O     :O      :-o     :o 
+../default/devil.png           >:)
+../default/angel.png           O:-)    o:-)    0:-)
+../default/sick.png            :-&
+../default/yawn.png            (:|
+../default/hypnotized.png      @-)
+../default/on-the-phone.png    :)]
+../default/sad.png             :(      :-(
+../default/in-love.png         :x      :-x     :X      :-X
+../default/angry.png           X-(     x-(     X(      x(
+../default/crying.png          :((
+../default/glasses-nerdy.png   :-B     :-b
+../default/quiet.png           :-$
+../default/drool.png           =P~     =p~
+../default/lying.png           :^O     :^o
+../default/call-me.png         :-c
+../default/wink.png            ;)      ;-)
+../default/embarrassed.png     :">
+../default/mean.png            :->     :>
+../default/laugh.png           :))     :-))
+../default/bye.png             =;
+../default/arrogant.png        [-(
+../default/thinking.png        :-?
+../default/waiting.png         :-w     :-W
+../default/at-wits-end.png     ~x(     ~X(
+../default/smile-big.png       :D      :-D     :d      :-d
+../default/tongue.png          :-P     :P      :-p     :p
+../default/glasses-cool.png    B-)     b-)
+../default/neutral.png         :|      :-|
+../default/sleepy.png          I-)     i-)     |-)
+../default/clown.png           :o)     :O)
+../default/doh.png             #-o     #-O
+../default/weep.png            :-<
+../default/go-away.png         :-h
+../default/lashes.png          ;;)
+../default/kiss.png            :-*     :*
+../default/confused.png        :-S     :-s
+../default/sarcastic.png       /:)
+../default/eyeroll.png         8-|
+../default/silly.png           8-}
+../default/clap.png            =D>     =d>
+../default/mad-tongue.png      >:P     >:p
+../default/time-out.png        :-t     :-T
+../default/hug-left.png        >:D<    >:d<
+../default/love-over.png       =((
+../default/sweat.png           #:-S    #:-s
+../default/rotfl.png           =)) :-j :-J 
+../default/loser.png           L-)     l-)
+../default/party.png           <:-P    <:-p
+../default/nailbiting.png      :-SS	:-Ss	:-sS	:-ss
+../default/cowboy.png          <):)
+../default/desire.png          8->
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)
 
 # Hidden Yahoo emotes
-alien.png           =:)     >-)
-beat-up.png         b-(     B-(
-chicken.png         ~:>
-coffee.png          ~o)     ~O)
-cow.png             3:-O    3:-o
-dance.png           \\:D/   \\:d/
-rose.png            @};-
-dont-know.png       :-L     :-l
-skeleton.png        8-X     8-x
-lamp.png            *-:)
-monkey.png          :(|)
-coins.png           $-)
-peace.png           :)>-
-pig.png             :@)
-pray.png            [-o<    [-O<
-pumpkin.png         (~~)
-shame.png           [-X     [-x
-flag.png            **==
-clover.png          %%-
-musical-note.png    :-"
-giggle.png          ;))
-worship.png         ^:)^
-star.png            (*)
-waving.png          >:/
-talktohand.png      :-@
+../default/alien.png           =:)     >-)
+../default/beat-up.png         b-(     B-(
+../default/chicken.png         ~:>
+../default/coffee.png          ~o)     ~O)
+../default/cow.png             3:-O    3:-o
+../default/dance.png           \\:D/   \\:d/
+../default/rose.png            @};-
+../default/dont-know.png       :-L     :-l
+../default/skeleton.png        8-X     8-x
+../default/lamp.png            *-:)
+../default/monkey.png          :(|)
+../default/coins.png           $-)
+../default/peace.png           :)>-
+../default/pig.png             :@)
+../default/pray.png            [-o<    [-O<
+../default/pumpkin.png         (~~)
+../default/shame.png           [-X     [-x
+../default/flag.png            **==
+../default/clover.png          %%-
+../default/musical-note.png    :-"
+../default/giggle.png          ;))
+../default/worship.png         ^:)^
+../default/star.png            (*)
+../default/waving.png          >:/
+../default/talktohand.png      :-@
 
 # Only available after activating the Yahoo! Fighter IMVironment
-male-fighter1.png   o->     O->
-male-fighter2.png   o=>     O=>
-female-fighter.png  o-+     O-+
-yin-yang.png        (%)
+../default/male-fighter1.png   o->     O->
+../default/male-fighter2.png   o=>     O=>
+../default/female-fighter.png  o-+     O-+
+../default/yin-yang.png        (%)
 
 
 # Following MySpaceIM Beta 1.0.697.0
 [MySpaceIM]
-smile-big.png		    :D      :-D
-devil.png		        }:)
-confused.png		    :Z
-glasses-nerdy.png	  B)
-bulgy-eyes.png		  %)
-freaked-out.png		  :E
-smile.png		        :)      :-)
-in-love.png		      :X
-laugh.png		        :))
-mohawk.png		      -:
-mad-tongue.png		  X(
-messed.png		      X)
-glasses-nerdy.png	  Q)
-doh.png			        :G
-pirate.png		      P)
-shock.png		        :O
-sidefrown.png		    :{
-sinister.png		    :B
-smirk.png		        :,
-neutral.png		      :|
-tongue.png		      :P      :p
-pissed-off.png		  B|
-wink.png		        ;-)     ;)
-sad.png			        :[
-kiss.png            :x
+../default/smile-big.png		    :D      :-D
+../default/devil.png		        }:)
+../default/confused.png		    :Z
+../default/glasses-nerdy.png	  B)
+../default/bulgy-eyes.png		  %)
+../default/freaked-out.png		  :E
+../default/smile.png		        :)      :-)
+../default/in-love.png		      :X
+../default/laugh.png		        :))
+../default/mohawk.png		      -:
+../default/mad-tongue.png		  X(
+../default/messed.png		      X)
+../default/glasses-nerdy.png	  Q)
+../default/doh.png			        :G
+../default/pirate.png		      P)
+../default/shock.png		        :O
+../default/sidefrown.png		    :{
+../default/sinister.png		    :B
+../default/smirk.png		        :,
+../default/neutral.png		      :|
+../default/tongue.png		      :P      :p
+../default/pissed-off.png		  B|
+../default/wink.png		        ;-)     ;)
+../default/sad.png			        :[
+../default/kiss.png            :x
 
 [Skype]
-smile.png			:) :-) :=) (smile)
-sad.png				:( :-( :=( (sad)
-smile-big.png			:D :-D :=D :d :-d :=d (laugh)
-glasses-cool.png	8-) 8=) B) B-) B=) (cool)
-shock.png			:O :-O :=O :o :-o :=o (surprised)
-wink.png			;) ;-) ;=) (wink)
-crying.png			;( ;-( ;=( (cry)
-sweat.png			(sweat) (:|
-neutral.png		:| :-| :=| (speechless)
-kiss.png			:* :-* :=* (kiss)
-tongue.png			:P :-P :=P :p :-p :=p (tongueout)
-embarrassed.png		(blush) :$ :-$ :=$ :">
-dont-know.png		:^) (wonder)
-sleepy.png			|-) I-) I=) (snooze)
-neutral.png			|-( |( |=( (dull)
-in-love.png			(inlove)
-mean.png			]:) >:) (grin)
-act-up.png			(talk)
-yawn.png			(yawn) |-()
-sick.png			(puke) :& :-& :=&
-doh.png				(doh)
-angry.png			:@ :-@ :=@ x( x-( X( X-( x=( X=( (angry)
-go-away.png			(wasntme)
-party.png			(party)
-confused.png		:S :s :-s :-S :=s :=S
-nailbiting.png		(worry)
-snicker.png			(mm) (mmm) (mmmm)
-glasses-nerdy.png	8-| B-| 8| B| 8=| B=| (nerd)
-quiet.png			:x :-x :X :-X :# :-# :=x :=X :=#
-waving.png			(hi)
-on-the-phone.png	(call)
-devil.png			(devil)
-angel.png			(angel)
-desire.png			(envy)
-stop.png			(wait)
-hug-left.png		(hug) (bear)
-beauty.png			(makeup) (kate)
-giggle.png			(chuckle) (giggle)
-clap.png			(clap)
-thinking.png		(think) :-? :? :=?
-worship.png			(bow)
-rotfl.png			(rofl)
-smile-big.png		(whew)
-curl-lip.png		(happy)
-smirk.png			(smirk)
-good.png			(y) (Y) (ok) (yes)
-bad.png				(n) (N) (no)
-handshake.png		(handshake)
-love.png			(h) (H) (l) (L) (heart) (love)
-love-over.png		(u) (U) (brokenheart)
-mail.png			(e) (m) (mail)
-rain.png			(rain) (st) (london)
-sun.png				(sun)
-clock.png			(o) (O) (time) (clock)
-musical-note.png	(music)
-film.png			(~) (film) (movie)
-mobile.png			(mp) (ph) (phone)
-coffee.png			(coffee)
-pizza.png			(pi) (pizza)
-cake.png			(^) (cake)
-beer.png			(beer)
-terror.png			(bandit)
-at-wits-end.png		(headbang) (banghead)
-curse.png			(swear)
-rose.png			(F) (f) (flower)
-drink.png			(d) (D) (drink)
-dance.png			(dance) \o/ \:D/ \:d/
-star.png			(*) (star)
-bulgy-eyes.png		(drunk)
-sigarette.png		(smoking) (smoke) (ci)
-male-fighter1.png	(ninja)
-dazed.png			(tmi)
+../default/smile.png			:) :-) :=) (smile)
+../default/sad.png				:( :-( :=( (sad)
+../default/smile-big.png			:D :-D :=D :d :-d :=d (laugh)
+../default/glasses-cool.png	8-) 8=) B) B-) B=) (cool)
+../default/shock.png			:O :-O :=O :o :-o :=o (surprised)
+../default/wink.png			;) ;-) ;=) (wink)
+../default/crying.png			;( ;-( ;=( (cry)
+../default/sweat.png			(sweat) (:|
+../default/neutral.png		:| :-| :=| (speechless)
+../default/kiss.png			:* :-* :=* (kiss)
+../default/tongue.png			:P :-P :=P :p :-p :=p (tongueout)
+../default/embarrassed.png		(blush) :$ :-$ :=$ :">
+../default/dont-know.png		:^) (wonder)
+../default/sleepy.png			|-) I-) I=) (snooze)
+../default/neutral.png			|-( |( |=( (dull)
+../default/in-love.png			(inlove)
+../default/mean.png			]:) >:) (grin)
+../default/act-up.png			(talk)
+../default/yawn.png			(yawn) |-()
+../default/sick.png			(puke) :& :-& :=&
+../default/doh.png				(doh)
+../default/angry.png			:@ :-@ :=@ x( x-( X( X-( x=( X=( (angry)
+../default/go-away.png			(wasntme)
+../default/party.png			(party)
+../default/confused.png		:S :s :-s :-S :=s :=S
+../default/nailbiting.png		(worry)
+../default/snicker.png			(mm) (mmm) (mmmm)
+../default/glasses-nerdy.png	8-| B-| 8| B| 8=| B=| (nerd)
+../default/quiet.png			:x :-x :X :-X :# :-# :=x :=X :=#
+../default/waving.png			(hi)
+../default/on-the-phone.png	(call)
+../default/devil.png			(devil)
+../default/angel.png			(angel)
+../default/desire.png			(envy)
+../default/stop.png			(wait)
+../default/hug-left.png		(hug) (bear)
+../default/beauty.png			(makeup) (kate)
+../default/giggle.png			(chuckle) (giggle)
+../default/clap.png			(clap)
+../default/thinking.png		(think) :-? :? :=?
+../default/worship.png			(bow)
+../default/rotfl.png			(rofl)
+../default/smile-big.png		(whew)
+../default/curl-lip.png		(happy)
+../default/smirk.png			(smirk)
+../default/good.png			(y) (Y) (ok) (yes)
+../default/bad.png				(n) (N) (no)
+../default/handshake.png		(handshake)
+../default/love.png			(h) (H) (l) (L) (heart) (love)
+../default/love-over.png		(u) (U) (brokenheart)
+../default/mail.png			(e) (m) (mail)
+../default/rain.png			(rain) (st) (london)
+../default/sun.png				(sun)
+../default/clock.png			(o) (O) (time) (clock)
+../default/musical-note.png	(music)
+../default/film.png			(~) (film) (movie)
+../default/mobile.png			(mp) (ph) (phone)
+../default/coffee.png			(coffee)
+../default/pizza.png			(pi) (pizza)
+../default/cake.png			(^) (cake)
+../default/beer.png			(beer)
+../default/terror.png			(bandit)
+../default/at-wits-end.png		(headbang) (banghead)
+../default/curse.png			(swear)
+../default/rose.png			(F) (f) (flower)
+../default/drink.png			(d) (D) (drink)
+../default/dance.png			(dance) \o/ \:D/ \:d/
+../default/star.png			(*) (star)
+../default/bulgy-eyes.png		(drunk)
+../default/sigarette.png		(smoking) (smoke) (ci)
+../default/male-fighter1.png	(ninja)
+../default/dazed.png			(tmi)
