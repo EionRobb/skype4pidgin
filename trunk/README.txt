@@ -26,10 +26,10 @@ To compile from source, the easiest way is extract libskype.zip into the ${PIDGI
 Known Issues
 ============
 
-* The status/mood text doesn't update until you open a chat window or click on the buddy.
-* No multi-user/public/group chats yet, although I'm working on it.
 * No notification popup on file being received/notificaitons (Windows)
+
 * Skype sounds still play even when it's hidden
+
 * Adium doesn't show file transfer progress (OS X)
 * Unable to send file from within Adium (API Limitation)
 * Send file doesn't use the built in libpurple methods. (API Limitation)
@@ -65,6 +65,11 @@ A: A bit more tricky.  What works well for me, is leaving the message window ope
 Q: The Windows version has feature "X", but the Linux/OSX version doesn't
 A: The API on Linux/OSX is more restrictive than the Windows API.  Try keeping up to date with the latest versions of Skype to take advantage of these features as they are implemented by the Skype developers.
 
+Q: Why is "Send file..." not in the conversation menu, but in the "More..." menu instead?
+A: The short answer is that Skype doesn't allow file sending in the way that libpurple wants, so it has to do it through a Skype popup instead of a Pidgin popup
+
+Q: I set my status to "Away" but Skype still shows me as "Online".
+A: For some reason the Skype tray icon isn't always what is being seen at the other end.  Just ignore it :)
 
 Contact
 =======
