@@ -1,5 +1,5 @@
 #include <windows.h>
-#include <Tlhelp32.h>
+#include <tlhelp32.h>
 #include <glib.h>
 
 #define SKYPE_WIN32_CLASS_NAME "Skype-libpurple-Joiner"
@@ -208,6 +208,7 @@ exec_skype()
 static gboolean
 is_skype_running()
 {
+#ifdef _TLHELP32_H
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	HANDLE temp = NULL;
 	PROCESSENTRY32 entry;
@@ -222,5 +223,6 @@ is_skype_running()
 		}
 	} while (Process32Next(snapshot, &entry));
 	CloseHandle(snapshot);
+#endif
 	return FALSE;
 }
