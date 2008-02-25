@@ -968,7 +968,7 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 	
-	return 1;
+	return 0;
 }
 
 gchar *
@@ -1307,8 +1307,8 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 
-	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SEND,
-					message, time(NULL));
+	//serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SEND,
+	//				message, time(NULL));
 
 	return 1;
 }

@@ -186,7 +186,8 @@ skype_handle_received_message(char *message)
 		}
 	} else if (strcmp(command, "CHATMESSAGE") == 0)
 	{
-		if (strcmp(string_parts[3], "RECEIVED") == 0)
+		if ((strcmp(string_parts[3], "RECEIVED") == 0) ||
+			(strcmp(string_parts[3], "SENT") == 0))
 		{
 			msg_num = string_parts[1];
 			temp = skype_send_message("GET CHATMESSAGE %s TYPE", msg_num);
@@ -281,7 +282,12 @@ skype_handle_received_message(char *message)
 				body_html = skype_strdup_withhtml(body);
 				g_free(body);
 				if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
-					serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_RECV, body_html, mtime);
+				{
+					if (strcmp(string_parts[3], "RECEIVED") == 0)
+						serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_RECV, body_html, mtime);
+					else
+						serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SEND, body_html, mtime);
+				}
 				else
 				{
 					if (strcmp(sender, my_username) == 0)
