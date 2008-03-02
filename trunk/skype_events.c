@@ -186,8 +186,11 @@ skype_handle_received_message(char *message)
 		}
 	} else if (strcmp(command, "CHATMESSAGE") == 0)
 	{
-		if ((strcmp(string_parts[3], "RECEIVED") == 0) ||
-			(strcmp(string_parts[3], "SENT") == 0))
+		if ((strcmp(string_parts[3], "RECEIVED") == 0)
+#ifdef USE_SKYPE_SENT
+			|| (strcmp(string_parts[3], "SENT") == 0)
+#endif
+			)
 		{
 			msg_num = string_parts[1];
 			temp = skype_send_message("GET CHATMESSAGE %s TYPE", msg_num);
