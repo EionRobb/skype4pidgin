@@ -6,10 +6,13 @@ typedef struct
 	PurpleDebugLevel level;
 	char *category;
 	char *message;
-} SkypeDebugWrapper
+} SkypeDebugWrapper;
 
-void skype_debug(PurpleDebugLevel level, const char *category,
-				const char *format, ...);
+void
+skype_debug_vargs(PurpleDebugLevel level, const char *category,
+				 const char *format, va_list args);
+void skype_debug(PurpleDebugLevel level, const gchar *category,
+				const gchar *format, ...);
 
 void skype_debug_info(const gchar *category, const gchar *format, ...);
 void skype_debug_warning(const gchar *category, const gchar *format, ...);

@@ -95,11 +95,11 @@ skype_handle_received_message(char *message)
 		{
 			if (strcmp(string_parts[3], "3") == 0)
 			{
-				purple_debug_info("skype", "Buddy %s just got added\n", string_parts[1]);
+				skype_debug_info("skype", "Buddy %s just got added\n", string_parts[1]);
 				//buddy just got added.. handle it
 				if (purple_find_buddy(this_account, string_parts[1]) == NULL)
 				{
-					purple_debug_info("skype", "Buddy not in list\n");
+					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
 					if (string_parts[1][0] == '+')
 						purple_blist_add_buddy(buddy, NULL, purple_group_new("SkypeOut"), NULL);
@@ -117,7 +117,7 @@ skype_handle_received_message(char *message)
 			temp = skype_get_user_info(string_parts[1], "ISAUTHORIZED");
 			if (strcmp(temp, "TRUE") != 0)
 			{
-				purple_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
+				skype_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
 				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
 													string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
 													skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
@@ -156,7 +156,7 @@ skype_handle_received_message(char *message)
 						temp = skype_send_message("GET CHATMESSAGE %s CHATNAME", msg_num);
 						chatname = g_strdup(&temp[18+strlen(msg_num)]);
 						g_free(temp);
-						//purple_debug_info("skype", "Chatname: '%s'\n", chatname);
+						//skype_debug_info("skype", "Chatname: '%s'\n", chatname);
 						chatusers = g_strsplit_set(chatname, "/;", 3);
 						if (strcmp(&chatusers[0][1], my_username) == 0)
 							sender = &chatusers[1][1];
@@ -169,7 +169,7 @@ skype_handle_received_message(char *message)
 					}
 				}/* else if (strcmp(type, "AUTHREQUEST") == 0 && strcmp(sender, my_username) != 0)
 				{
-					purple_debug_info("User %s requested alternate authorisation\n", sender);
+					skype_debug_info("User %s requested alternate authorisation\n", sender);
 					purple_account_request_authorization(this_account, sender, NULL, skype_get_user_info(sender, "FULLNAME"),
 												body, (purple_find_buddy(this_account, sender) != NULL),
 												skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(sender));
@@ -238,7 +238,7 @@ skype_handle_received_message(char *message)
 					body = g_strdup(&temp[12+strlen(chatname)]);
 					g_free(temp);
 					purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), this_account->username, body);
-					purple_debug_info("skype", "set topic to: %s\n", body);
+					skype_debug_info("skype", "set topic to: %s\n", body);
 				}
 				purple_conversation_set_data(conv, "chat_id", chatname);
 				//g_hash_table_insert(conv->data, "chat_id", chatname);
@@ -258,7 +258,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s BODY", msg_num);
 				body = g_strdup(&temp[18+strlen(msg_num)]);
 				g_free(temp);
-				purple_debug_info("skype", "Topic changed: %s\n", body);
+				skype_debug_info("skype", "Topic changed: %s\n", body);
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, body);
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
@@ -270,7 +270,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s BODY", msg_num);
 				body = g_strdup(&temp[18+strlen(msg_num)]);
 				g_free(temp);
-				//purple_debug_info("skype", "Message received: %s\n", body);
+				//skype_debug_info("skype", "Message received: %s\n", body);
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
@@ -311,7 +311,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
 				body = g_strdup(&temp[19+strlen(msg_num)]);
 				g_free(temp);
-				purple_debug_info("skype", "Friends added: %s\n", body);
+				skype_debug_info("skype", "Friends added: %s\n", body);
 				chatusers = g_strsplit(body, " ", 0);
 				for (i=0; chatusers[i]; i++)
 					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
@@ -322,7 +322,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
 				body = g_strdup(&temp[19+strlen(msg_num)]);
 				g_free(temp);
-				purple_debug_info("skype", "Friends left: %s\n", body);
+				skype_debug_info("skype", "Friends left: %s\n", body);
 				temp = skype_send_message("GET CHATMESSAGE %s LEAVEREASON", msg_num);
 				purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), body, g_strdup(&temp[25+strlen(msg_num)]));
 			}
@@ -350,7 +350,7 @@ skype_handle_received_message(char *message)
 			purple_xfer_set_init_fnc(transfer, skype_accept_transfer);
 			purple_xfer_set_request_denied_fnc(transfer, skype_decline_transfer);
 			temp = skype_send_message("GET FILETRANSFER %s FILENAME", string_parts[1]);
-			purple_debug_info("skype", "Filename: '%s'\n", &temp[23+strlen(string_parts[1])]);
+			skype_debug_info("skype", "Filename: '%s'\n", &temp[23+strlen(string_parts[1])]);
 			purple_xfer_set_filename(transfer, g_strdup(&temp[23+strlen(string_parts[1])]));
 			g_free(temp);
 			temp = skype_send_message("GET FILETRANSFER %s FILEPATH", string_parts[1]);

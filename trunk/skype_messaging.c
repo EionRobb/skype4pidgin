@@ -67,7 +67,7 @@ skype_message_received(char *orig_message)
 	
 	message = g_strdup(orig_message);
 
-	purple_debug_info("skype", "Received: %s\n", message);
+	skype_debug_info("skype", "Received: %s\n", message);
 
 	if(message[0] == '#')
 	{
@@ -96,7 +96,7 @@ skype_send_message_nowait(char *message_format, ...)
 	message = g_strdup_vprintf(message_format, args);
 	va_end(args);
 	
-	purple_debug_info("skype", "Sending: '%s'\n", message);
+	skype_debug_info("skype", "Sending: '%s'\n", message);
 	g_thread_create((GThreadFunc)send_message, message, FALSE, NULL);
 
 }

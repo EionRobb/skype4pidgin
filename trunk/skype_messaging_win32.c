@@ -28,8 +28,8 @@ skype_connect()
 
 	if (!hInit_ProcessHandle)
 		hInit_ProcessHandle = (HINSTANCE)OpenProcess( PROCESS_DUP_HANDLE, FALSE, GetCurrentProcessId());
-	purple_debug_info("skype_win32", "ProcessId %d\n", GetCurrentProcessId());
-	purple_debug_info("skype_win32", "hInit_ProcessHandle %d\n", hInit_ProcessHandle);
+	skype_debug_info("skype_win32", "ProcessId %d\n", GetCurrentProcessId());
+	skype_debug_info("skype_win32", "hInit_ProcessHandle %d\n", hInit_ProcessHandle);
 
 	g_thread_create((GThreadFunc)win32_message_loop, NULL, FALSE, NULL);
 	while(hInit_MainWindowHandle == NULL)
@@ -37,10 +37,10 @@ skype_connect()
 		Sleep(10);
 	}
 
-	purple_debug_info("skype_win32", "hInit_MainWindowHandle %d\n", hInit_MainWindowHandle);
-	purple_debug_info("skype_win32", "Sending broadcast message\n");
+	skype_debug_info("skype_win32", "hInit_MainWindowHandle %d\n", hInit_MainWindowHandle);
+	skype_debug_info("skype_win32", "Sending broadcast message\n");
 	SendMessageTimeout( HWND_BROADCAST, uiGlobal_MsgID_SkypeControlAPIDiscover, (WPARAM)hInit_MainWindowHandle, 0, SMTO_NORMAL, 1000, sendMessageResult);
-	purple_debug_info("skype_win32", "Broadcast message sent\n");
+	skype_debug_info("skype_win32", "Broadcast message sent\n");
 
 	while(hGlobal_SkypeAPIWindowHandle == NULL && i < 100)
 	{
@@ -88,7 +88,7 @@ win32_message_loop(void)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	purple_debug_info("skype_win32", "Finished message loop\n");
+	skype_debug_info("skype_win32", "Finished message loop\n");
 	DestroyWindow(hInit_MainWindowHandle);
 	hInit_MainWindowHandle = NULL;
 	message_loop_started = FALSE;
@@ -145,17 +145,17 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 		return 1;
 	} else if (uiMessage == uiGlobal_MsgID_SkypeControlAPIAttach) {
 		hGlobal_SkypeAPIWindowHandle = (HWND)uiParam;
-		purple_debug_info("skype_win32", "Attached process %d %d\n", uiParam, ulParam);
+		skype_debug_info("skype_win32", "Attached process %d %d\n", uiParam, ulParam);
 		if (ulParam == 0)
-			purple_debug_info("skype_win32", "Attach success\n");
+			skype_debug_info("skype_win32", "Attach success\n");
 		else if (ulParam == 1)
-			purple_debug_info("skype_win32", "Pending auth\n");
+			skype_debug_info("skype_win32", "Pending auth\n");
 		else if (ulParam == 2)
-			purple_debug_info("skype_win32", "Refused\n");
+			skype_debug_info("skype_win32", "Refused\n");
 		else if (ulParam == 3)
-			purple_debug_info("skype_win32", "Not ready\n");
+			skype_debug_info("skype_win32", "Not ready\n");
 		else if (ulParam == 0x8001)
-			purple_debug_info("skype_win32", "Skype became ready\n");
+			skype_debug_info("skype_win32", "Skype became ready\n");
 		return 1;
 	}
 	return DefWindowProc(hWindow, uiMessage, uiParam, ulParam);
@@ -197,7 +197,7 @@ exec_skype()
 	}
 
 	pathtemp = g_strconcat("\"", path, "\" /nosplash /minimized", NULL);
-	purple_debug_info("skype_win32", "Path to Skype: %s\n", pathtemp);
+	skype_debug_info("skype_win32", "Path to Skype: %s\n", pathtemp);
 	g_free(path);
 
 	success = g_spawn_command_line_async(pathtemp, NULL);
