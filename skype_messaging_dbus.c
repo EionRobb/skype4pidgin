@@ -11,7 +11,7 @@ static DBusGProxy *proxy_receive = NULL;
 static void
 notify_handler(DBusGProxy *object, const char *message, gpointer user_data)
 {
-	purple_debug_info("skype_dbus", "notify_handler called: %s\n", message);
+	skype_debug_info("skype_dbus", "notify_handler called: %s\n", message);
 }
 
 static gboolean
@@ -21,7 +21,7 @@ skype_connect()
 	connection = dbus_g_bus_get (SKYPE_DBUS_BUS, &error);
 	if (connection == NULL && error != NULL)
 	{
-		purple_debug_info("skype_dbus", "Error: %s\n", error->message);
+		skype_debug_info("skype_dbus", "Error: %s\n", error->message);
 		g_error_free(error);
 		return FALSE;
 	}
@@ -60,13 +60,13 @@ send_message(char* message)
 	int message_num;
 	gchar error_return[30];
 	
-	purple_debug_info("skype_dbus", "con %d, proxy %d, rec %d\n", connection, proxy, proxy_receive);
+	skype_debug_info("skype_dbus", "con %d, proxy %d, rec %d\n", connection, proxy, proxy_receive);
 	if (!dbus_g_proxy_call (proxy, "Invoke", &error, G_TYPE_STRING, message, G_TYPE_INVALID,
                           G_TYPE_STRING, &str, G_TYPE_INVALID))
 	{
     	if (error && error->message)
     	{
-	    	purple_debug_info("skype_dbus", "Error: %s\n", error->message);
+	    	skype_debug_info("skype_dbus", "Error: %s\n", error->message);
 	    	if (message[0] == '#')
 	    	{
 	    		//We're expecting a response
@@ -76,7 +76,7 @@ send_message(char* message)
 	    	}
 	    }
 	    else
-	    	purple_debug_info("skype_dbus", "no response\n");
+	    	skype_debug_info("skype_dbus", "no response\n");
 	}
 	if (str != NULL)
 		g_thread_create((GThreadFunc)skype_message_received, (void *)str, FALSE, NULL);

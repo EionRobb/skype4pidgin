@@ -27,7 +27,6 @@
 #include <core.h>
 #include <plugin.h>
 #include <version.h>
-#include <debug.h>      /* for purple_debug_info */
 #include <accountopt.h>
 #include <blist.h>
 #include <request.h>
@@ -37,6 +36,7 @@
 PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
 #endif
 
+#include "debug.c"
 #include "skype_messaging.c"
 
 static void plugin_init(PurplePlugin *plugin);
@@ -402,7 +402,7 @@ skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 {
 	time_t mtime = ((struct stat *) user_data)->st_mtime;
 	time_t servertime = atoi(url_text);
-	purple_debug_info("skype", "Server filemtime: %d, Local filemtime: %d\n", servertime, mtime);
+	skype_debug_info("skype", "Server filemtime: %d, Local filemtime: %d\n", servertime, mtime);
 	if (servertime > mtime)
 	{
 		purple_notify_info(this_plugin, _("Update available"), _("There is a newer version of the Skype plugin available for download."), 
@@ -500,7 +500,7 @@ skype_status_types(PurpleAccount *acct)
 	GList *types;
 	PurpleStatusType *status;
 
-	purple_debug_info("skype", "returning status types\n");
+	skype_debug_info("skype", "returning status types\n");
 
 	types = NULL;
 
@@ -572,7 +572,7 @@ skype_set_buddies(PurpleAccount *acct)
 		if (strlen(friends[i]) == 0)
 			continue;
 		//If already in list, dont recreate, reuse
-		purple_debug_info("skype", "Searching for friend %s\n", friends[i]);
+		skype_debug_info("skype", "Searching for friend %s\n", friends[i]);
 		found_buddy = g_slist_find_custom(existing_friends,
 											friends[i],
 											skype_slist_friend_search);
@@ -580,9 +580,9 @@ skype_set_buddies(PurpleAccount *acct)
 		{
 			//the buddy was already in the list
 			buddy = (PurpleBuddy *)found_buddy->data;
-			purple_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
+			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
-			purple_debug_info("skype","Buddy not in list %s\n", friends[i]);
+			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
 			if (friends[i][0] == '+')
 				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
@@ -606,7 +606,7 @@ skype_set_buddies(PurpleAccount *acct)
 		skype_update_buddy_icon(buddy);
 	}
 
-	purple_debug_info("skype", "Friends Count: %d\n", i);
+	skype_debug_info("skype", "Friends Count: %d\n", i);
 	g_strfreev(friends);
 	
 	return FALSE;
@@ -632,7 +632,7 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 		if (strcmp(buddy->name, friends[i]) == 0)
 			return;
 	}
-	purple_debug_info("skype", "removing buddy %d with name %s\n", buddy, buddy->name);
+	skype_debug_info("skype", "removing buddy %d with name %s\n", buddy, buddy->name);
 	purple_blist_remove_buddy(buddy);
 }
 
@@ -674,7 +674,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		return;
 	}
 	
-	purple_debug_info("skype", "Updating buddy icon for %s\n", buddy->name);
+	skype_debug_info("skype", "Updating buddy icon for %s\n", buddy->name);
 
 	acct = purple_buddy_get_account(buddy);
 	fh = g_file_open_tmp("skypeXXXXXX", &filename, &error);
@@ -687,7 +687,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		ret = skype_send_message("GET USER %s AVATAR 1 %s", buddy->name, new_filename);
 		if (strlen(ret) == 0)
 		{
-			purple_debug_warning("skype", "Error: Protocol doesn't suppot AVATAR\n");
+			skype_debug_warning("skype", "Error: Protocol doesn't suppot AVATAR\n");
 			api_supports_avatar = FALSE;
 		} else {
 			g_file_get_contents(new_filename, &image_data, &image_data_len, NULL);
@@ -696,7 +696,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		g_free(filename);
 		g_free(new_filename);
 	} else {
-		purple_debug_warning("skype", "Error making temp file %s\n", error->message);
+		skype_debug_warning("skype", "Error making temp file %s\n", error->message);
 		g_error_free(error);
 	}
 
@@ -742,7 +742,7 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 		purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 		return FALSE;
 	}
-	purple_debug_info("skype", "User %s status is %s\n", buddy->name, status);
+	skype_debug_info("skype", "User %s status is %s\n", buddy->name, status);
 	
 	if (strcmp(status, "OFFLINE") == 0)
 	{
@@ -829,10 +829,10 @@ skype_login(PurpleAccount *acct)
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", TRUE))
 		{
-			purple_debug_info("skype", "Should I start Skype?\n");
+			skype_debug_info("skype", "Should I start Skype?\n");
 			if (!is_skype_running())
 			{
-				purple_debug_info("skype", "Yes, start Skype\n");
+				skype_debug_info("skype", "Yes, start Skype\n");
 				exec_skype();
 			}
 		}
@@ -895,7 +895,7 @@ skype_get_account_username(PurpleAccount *acct)
 
 	if (acct && strcmp(acct->username, username) != 0)
 	{
-		purple_debug_info("skype", "Setting username to %s\n", username);
+		skype_debug_info("skype", "Setting username to %s\n", username);
 		purple_account_set_username(acct, username);
 	}
 	return username;
@@ -927,7 +927,7 @@ skype_close(PurpleConnection *gc)
 {
 	GSList *buddies;
 
-	purple_debug_info("skype", "logging out\n");
+	skype_debug_info("skype", "logging out\n");
 	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
@@ -1008,7 +1008,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	_SKYPE_USER_INFO("ISBLOCKED", "Blocked");
 	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last Online"); //timestamp
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
-	purple_debug_info("skype", "time: %d\n", time);
+	skype_debug_info("skype", "time: %d\n", time);
 	purple_notify_user_info_add_pair(user_info, _("Last Online"),
 			timestamp_to_datetime((time_t) time));
 	//		g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
@@ -1039,7 +1039,7 @@ skype_get_user_info(const gchar *username, const gchar *property)
 		return outstr;
 	return_str = g_strdup(&outstr[7+strlen(username)+strlen(property)]);
 	g_free(outstr);
-	/* purple_debug_info("skype", "User %s's %s is %s", username, property, return_str); */
+	/* skype_debug_info("skype", "User %s's %s is %s", username, property, return_str); */
 	if (return_str == NULL)
 		return NULL;
 	return return_str;
@@ -1256,8 +1256,8 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 		//conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
 		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, chat_id);
 		skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, buddy->name);
-		purple_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
-		purple_debug_info("skype", "chat_id: %s\n", chat_id);
+		skype_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
+		skype_debug_info("skype", "chat_id: %s\n", chat_id);
 		purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									skype_get_account_username(buddy->account), NULL, PURPLE_CBFLAGS_NONE, FALSE);
@@ -1301,9 +1301,9 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 	
 	stripped = purple_markup_strip_html(message);
 	conv = purple_find_chat(gc, id);
-	purple_debug_info("skype", "chat_send; conv: %d, conv->data: %d, id: %d\n", conv, conv->data, id);
+	skype_debug_info("skype", "chat_send; conv: %d, conv->data: %d, id: %d\n", conv, conv->data, id);
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
-	purple_debug_info("skype", "chat_id: %s\n", chat_id);
+	skype_debug_info("skype", "chat_id: %s\n", chat_id);
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 
@@ -1512,7 +1512,7 @@ skype_display_skype_credit(PurplePluginAction *action)
 
 	temp = g_strdup_printf("%s %.2f", currency, balance);
 
-	purple_debug_info("skype", "Balance: '%s'\n", temp);
+	skype_debug_info("skype", "Balance: '%s'\n", temp);
 	purple_notify_info(this_plugin, _("Skype Balance"), _("Your current Skype credit balance is:"), temp);
 	g_free(temp);
 	g_free(currency);
@@ -1560,7 +1560,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamTyp
 
 	//FarsightSession *fs = farsight_session_factory_make("rtp");
 	//if (!fs) {
-	//	purple_debug_error("jabber", "Farsight's rtp plugin not installed");
+	//	skype_debug_error("jabber", "Farsight's rtp plugin not installed");
 	//	return NULL;
 	//}
 	//FarsightStream *audio_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_AUDIO, FARSIGHT_STREAM_DIRECTION_BOTH);

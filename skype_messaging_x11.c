@@ -28,7 +28,7 @@ skype_connect()
 	disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
-		purple_debug_info("skype", "Couldn't open display\n");
+		skype_debug_info("skype", "Couldn't open display\n");
 		return FALSE;
 	}
 	message_start = XInternAtom( disp, "SKYPECONTROLAPI_MESSAGE_BEGIN", False );
@@ -40,21 +40,21 @@ skype_connect()
 	XFlush(disp);
 	if (win == -1)
 	{
-		purple_debug_info("skype", "Could not create X11 messaging window\n");
+		skype_debug_info("skype", "Could not create X11 messaging window\n");
 		return FALSE;
 	}
 	skype_inst = XInternAtom(disp, "_SKYPE_INSTANCE", True);
 	if (skype_inst == None)
 	{
 		skype_win = (Window)-1;
-		purple_debug_info("skype_x11", "Could not create skype Atom\n");
+		skype_debug_info("skype_x11", "Could not create skype Atom\n");
 		return FALSE;
 	}
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret != 1)
 	{
 		skype_win = (Window)-1;
-		purple_debug_info("skype", "Skype instance not found\n");
+		skype_debug_info("skype", "Skype instance not found\n");
 		return FALSE;
 	}
 	skype_win = * (const unsigned long *) prop & 0xffffffff;
@@ -169,13 +169,13 @@ receive_message_loop(void)
 		//XNextEvent(disp, &e);
 		//if (e.type != ClientMessage)
 		//{
-		//	purple_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
+		//	skype_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
 		//	XFlush(disp);
 		//	continue;
 		//}
 		if (!disp)
 		{
-			purple_debug_error("skype_x11", "display has disappeared\n");
+			skype_debug_error("skype_x11", "display has disappeared\n");
 			break;
 		}
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
@@ -193,7 +193,7 @@ receive_message_loop(void)
 			msg = g_string_append_len(msg, msg_temp, len);
 		else
 		{
-			purple_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
+			skype_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
 			XFlush(disp);
 			continue;
 		}
@@ -223,7 +223,7 @@ exec_skype()
 	{
 		return TRUE;
 	} else {
-		purple_debug_error("skype", "Could not start skype: %s\n", error->message);
+		skype_debug_error("skype", "Could not start skype: %s\n", error->message);
 		return FALSE;
 	}
 }
