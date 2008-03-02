@@ -101,6 +101,7 @@ gchar *skype_get_chat_name(GHashTable *components);
 static void skype_display_skype_credit(PurplePluginAction *action);
 void skype_call_number(gpointer ignore, gchar *number);
 void skype_call_number_request(PurplePlugin *plugin, gpointer data);
+static void skype_open_skype_options(void);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -369,7 +370,18 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									NULL, NULL);
 	m = g_list_append(m, act);
 
+	act = purple_menu_action_new(_("Open Skype Options..."),
+									PURPLE_CALLBACK(skype_open_skype_options),
+									NULL, NULL);
+	m = g_list_append(m, act);
+
 	return m;
+}
+
+static void
+skype_open_skype_options(void)
+{
+	skype_send_message_nowait("OPEN OPTIONS");
 }
 
 static void
