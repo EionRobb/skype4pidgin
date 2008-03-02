@@ -4,6 +4,7 @@ Changelog
 2 March 2008
 ------------
 * Fixed Pidgin crash when opening Pidgin's Debug Window
+* Skype options screen can be brought up by choosing the "Show Skype Options" menu in the accounts menu
 
 14 February 2008
 ----------------
