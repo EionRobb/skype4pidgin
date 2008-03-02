@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2 March 2008
+------------
+* Fixed Pidgin crash when opening Pidgin's Debug Window
+
 14 February 2008
 ----------------
 * Debian/Ubuntu package has the skype emote theme in it now
@@ -8,7 +12,7 @@ Changelog
 
 13 February 2008
 ----------------
-* RSS Feed for changelog up and running?
+* RSS Feed for changelog up and running? http://myjobspace.co.nz/images/pidgin/rss.php
 
 12 February 2008
 ----------------
