@@ -856,7 +856,11 @@ skype_login(PurpleAccount *acct)
 								  4);  /* total number of steps */
 
 #ifndef __APPLE__
+#ifdef SKYPE_DBUS
+	reply = skype_send_message("NAME Finch");
+#else
 	reply = skype_send_message("NAME Pidgin");
+#endif
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
@@ -1293,6 +1297,7 @@ skype_chat_invite(PurpleConnection *gc, int id, const char *msg, const char *who
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
 
 	skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, who);
+	purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), who, NULL, PURPLE_CBFLAGS_NONE, TRUE);
 }
 
 static void
