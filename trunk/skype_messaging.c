@@ -22,7 +22,7 @@ char *skype_send_message(char *message, ...);
 #	ifdef __APPLE__
 #		include "skype_messaging_carbon.c"
 #	else /*if !apple */
-#		if 1
+#		ifndef SKYPE_DBUS
 #			include "skype_messaging_x11.c"
 #		else 
 #			include "skype_messaging_dbus.c"
