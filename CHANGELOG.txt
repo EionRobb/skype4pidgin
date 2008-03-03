@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3 March 2008
+------------
+* Finch plugin since the dbus interface is now working
+* Different version numbering system on Debian/Ubuntu package
+* Fix for adding extra users to a multi-user chat
+
 2 March 2008
 ------------
 * Fixed Pidgin crash when opening Pidgin's Debug Window
