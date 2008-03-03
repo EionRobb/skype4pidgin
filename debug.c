@@ -18,7 +18,7 @@ void skype_debug_info(const gchar *category, const gchar *format, ...);
 void skype_debug_warning(const gchar *category, const gchar *format, ...);
 void skype_debug_error(const gchar *category, const gchar *format, ...);
 
-gboolean skype_debug_cb(SkypeDebugWrapper *wrapper);
+static gboolean skype_debug_cb(SkypeDebugWrapper *wrapper);
 
 void
 skype_debug_info(const gchar *category, const gchar *format, ...)
@@ -26,8 +26,10 @@ skype_debug_info(const gchar *category, const gchar *format, ...)
 	va_list args;
 
 	va_start(args, format);
+	vprintf(format, args);
 	skype_debug_vargs(PURPLE_DEBUG_INFO, category, format, args);
 	va_end(args);
+	
 }
 
 void
@@ -67,6 +69,11 @@ skype_debug_vargs(PurpleDebugLevel level, const char *category,
 {
 	SkypeDebugWrapper *wrapper;
 	
+	if (purple_eventloop_get_ui_ops() == NULL)
+	{
+		return;
+	}
+	
 	wrapper = g_new(SkypeDebugWrapper, 1);
 	wrapper->level = level;
 	wrapper->category = g_strdup(category);
@@ -75,10 +82,13 @@ skype_debug_vargs(PurpleDebugLevel level, const char *category,
 	purple_timeout_add(1, (GSourceFunc) skype_debug_cb, (gpointer)wrapper);
 }
 
-gboolean
+static gboolean
 skype_debug_cb(SkypeDebugWrapper *wrapper)
 {
 	if (wrapper != NULL)
+	{
 		purple_debug(wrapper->level, wrapper->category, wrapper->message);
+		g_free(wrapper);
+	}
 	return FALSE;
 }
