@@ -369,11 +369,13 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_call_number_request),
 									NULL, NULL);
 	m = g_list_append(m, act);
-
+	
+#ifndef __APPLE__
 	act = purple_menu_action_new(_("Open Skype Options..."),
 									PURPLE_CALLBACK(skype_open_skype_options),
 									NULL, NULL);
 	m = g_list_append(m, act);
+#endif
 
 	return m;
 }
