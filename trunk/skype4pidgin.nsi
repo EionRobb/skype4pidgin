@@ -20,7 +20,7 @@
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE 
+!insertmacro MUI_PAGE_LICENSE "COPYING.txt"
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -58,15 +58,15 @@ Section "MainSection" SEC01
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "SOFTWARE\skype4pidgin" "pidgindir" "$PidginDir"
 	SetOutPath "$PidginDir\pixmaps\pidgin\protocols\16"
 	SetOverwrite on
-	File "16\skype.png"
+	File "icons\16\skype.png"
 	
 	SetOutPath "$PidginDir\pixmaps\pidgin\protocols\22"
 	SetOverwrite on
-	File "22\skype.png"
+	File "icons\22\skype.png"
 	
 	SetOutPath "$PidginDir\pixmaps\pidgin\protocols\48"
 	SetOverwrite on
-	File "48\skype.png"
+	File "icons\48\skype.png"
 	
 	CreateDirectory "$PidginDir\pixmaps\pidgin\emotes\skype"
 	SetOutPath "$PidginDir\pixmaps\pidgin\emotes\skype"
@@ -76,7 +76,8 @@ Section "MainSection" SEC01
 
     SetOutPath "$INSTDIR"
     SetOverwrite on
-    File "libskype.dll"
+    ;File "libskype.dll"
+    File "\\5.5.242.9\tmp\skype\libskype.dll"
     ; move to pidgin plugin directory, check if not busy (pidgin is running)
     call CopyDLL
     ; hard part is done, do the rest now.
