@@ -38,7 +38,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "${PRODUCT_NAME}-${PRODUCT_VERSION}.exe"
+OutFile "${PRODUCT_NAME}-installer.exe"
 InstallDir "$PROGRAMFILES\skype4pidgin"
 InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\skype4pidgin "Install_Dir"
 ;WriteRegStr HKLM "SOFTWARE\skype4pidgin" "pidgindir" ""
