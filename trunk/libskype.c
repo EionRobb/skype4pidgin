@@ -102,6 +102,7 @@ static void skype_display_skype_credit(PurplePluginAction *action);
 void skype_call_number(gpointer ignore, gchar *number);
 void skype_call_number_request(PurplePlugin *plugin, gpointer data);
 static void skype_open_skype_options(void);
+unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -130,7 +131,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_close,         /* close */
 	skype_send_im,       /* send_im */
 	NULL,                /* set_info */
-	NULL,                /* send_typing */
+	skype_send_typing,   /* send_typing */
 	skype_get_info,      /* get_info */
 	skype_set_status,    /* set_status */
 	skype_set_idle,      /* set_idle */
@@ -991,6 +992,36 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 #else
 	return 1;
 #endif
+}
+
+
+unsigned int
+skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState state)
+{
+	gchar *string_state = NULL;
+	
+	switch(state)
+	{
+		case PURPLE_NOT_TYPING:
+			string_state = "PURPLE_NOT_TYPING";
+			break;
+		case PURPLE_TYPING:
+			string_state = "PURPLE_TYPING";
+			break;
+		case PURPLE_TYPED:
+			string_state = "PURPLE_TYPED";
+			break;
+		default:
+			string_state = "";
+			break;
+	}
+	
+	//lets be dumb:
+	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
+	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing CONNECT %s", name);
+	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:1 %s", name, string_state);
+	
+	return 1;
 }
 
 gchar *
