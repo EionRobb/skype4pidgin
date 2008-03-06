@@ -1,6 +1,10 @@
 Changelog
 =========
 
+6 March 2008
+------------
+* Fixed the version numbering on the Debian/Ubuntu package
+
 5 March 2008
 ------------
 * Windows installer .exe available, installs protocol icons and emote theme too
