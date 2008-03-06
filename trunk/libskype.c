@@ -1000,7 +1000,9 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 unsigned int
 skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState state)
 {
-	gchar *string_state = NULL;
+	gchar *string_state = NULL, *temp = NULL;
+	PurpleAccount *account;
+	account = purple_connection_get_account(gc);
 	
 	switch(state)
 	{
@@ -1018,10 +1020,15 @@ skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState sta
 			break;
 	}
 	
+	temp = g_strconcat("stream-", name, NULL);
+	
 	//lets be dumb and try to connect without getting a stream
 	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
 	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing CONNECT %s", name);
-	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:1 %s", name, string_state);
+	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:%s %s", name, 
+					purple_account_get_string(account, temp, "1"), string_state);
+	
+	g_free(temp);
 	
 	return 4;
 }
