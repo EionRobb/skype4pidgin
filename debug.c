@@ -26,7 +26,6 @@ skype_debug_info(const gchar *category, const gchar *format, ...)
 	va_list args;
 
 	va_start(args, format);
-	vprintf(format, args);
 	skype_debug_vargs(PURPLE_DEBUG_INFO, category, format, args);
 	va_end(args);
 	
