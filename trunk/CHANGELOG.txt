@@ -4,6 +4,7 @@ Changelog
 6 March 2008
 ------------
 * Fixed the version numbering on the Debian/Ubuntu package
+* Typing notifications (to other plugin users)
 
 5 March 2008
 ------------
