@@ -488,22 +488,34 @@ skype_handle_received_message(char *message)
 			skype_send_message("SET SILENT_MODE ON");
 		}
 	} else if (strcmp(command, "APPLICATION") == 0 && 
-				strcmp(string_parts[1], "libpurple_typing") == 0 &&
-				strcmp(string_parts[2], "DATAGRAM") == 0)
+				strcmp(string_parts[1], "libpurple_typing") == 0)
 	{
-		chatusers = g_strsplit_set(string_parts[3], ": ", 3);
-		sender = chatusers[0];
-		temp = chatusers[2];
-		if (sender != NULL && temp != NULL)
+		if (strcmp(string_parts[2], "DATAGRAM") == 0)
 		{
-			if (strcmp(temp, "PURPLE_NOT_TYPING") == 0)
-				serv_got_typing(gc, sender, 10, PURPLE_NOT_TYPING);
-			else if (strcmp(temp, "PURPLE_TYPING") == 0)
-				serv_got_typing(gc, sender, 10, PURPLE_TYPING);
-			else if (strcmp(temp, "PURPLE_TYPED") == 0)
-				serv_got_typing(gc, sender, 10, PURPLE_TYPED);
+			chatusers = g_strsplit_set(string_parts[3], ": ", 3);
+			sender = chatusers[0];
+			temp = chatusers[2];
+			if (sender != NULL && temp != NULL)
+			{
+				if (strcmp(temp, "PURPLE_NOT_TYPING") == 0)
+					serv_got_typing(gc, sender, 10, PURPLE_NOT_TYPING);
+				else if (strcmp(temp, "PURPLE_TYPING") == 0)
+					serv_got_typing(gc, sender, 10, PURPLE_TYPING);
+				else if (strcmp(temp, "PURPLE_TYPED") == 0)
+					serv_got_typing(gc, sender, 10, PURPLE_TYPED);
+			}
+			g_strfreev(chatusers);
+		} else if (g_str_equal(string_parts[2], "STREAMS"))
+		{
+			chatusers = g_strsplit_set(string_parts[3], ": ", -1);
+			for(i=0; chatusers[i] && chatusers[i+1]; i+=2)
+			{
+				temp = g_strconcat("stream-", chatusers[i], NULL);
+				purple_account_set_string(this_account, temp, chatusers[i+1]);
+				g_free(temp);
+			}
+			g_strfreev(chatusers);
 		}
-		g_strfreev(chatusers);
 #ifdef USE_FARSIGHT
 	} else if (strcmp(command, "CALL") == 0)
 	{
