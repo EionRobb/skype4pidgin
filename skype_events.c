@@ -491,14 +491,18 @@ skype_handle_received_message(char *message)
 				strcmp(string_parts[1], "libpurple_typing") == 0 &&
 				strcmp(string_parts[2], "DATAGRAM") == 0)
 	{
-		chatusers = g_strsplit(string_parts[3], ":", 2);
+		chatusers = g_strsplit_set(string_parts[3], ": ", 3);
 		sender = chatusers[0];
-		if (strcmp(string_parts[4], "PURPLE_NOT_TYPING") == 0)
-			serv_got_typing(gc, sender, 2, PURPLE_NOT_TYPING);
-		else if (strcmp(string_parts[4], "PURPLE_TYPING") == 0)
-			serv_got_typing(gc, sender, 2, PURPLE_TYPING);
-		else if (strcmp(string_parts[4], "PURPLE_TYPED") == 0)
-			serv_got_typing(gc, sender, 2, PURPLE_TYPED);
+		temp = chatusers[2];
+		if (sender != NULL && temp != NULL)
+		{
+			if (strcmp(temp, "PURPLE_NOT_TYPING") == 0)
+				serv_got_typing(gc, sender, 10, PURPLE_NOT_TYPING);
+			else if (strcmp(temp, "PURPLE_TYPING") == 0)
+				serv_got_typing(gc, sender, 10, PURPLE_TYPING);
+			else if (strcmp(temp, "PURPLE_TYPED") == 0)
+				serv_got_typing(gc, sender, 10, PURPLE_TYPED);
+		}
 		g_strfreev(chatusers);
 #ifdef USE_FARSIGHT
 	} else if (strcmp(command, "CALL") == 0)

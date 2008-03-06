@@ -18,6 +18,7 @@
 
 #define PURPLE_PLUGIN
 #define DBUS_API_SUBJECT_TO_CHANGE
+#define _GNU_SOURCE
 
 #include <glib.h>
 
@@ -892,6 +893,7 @@ skype_login(PurpleAccount *acct)
 		skype_set_status(acct, purple_account_get_active_status(acct));
 	//sync buddies after everything else has finished loading
 	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);
+	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
 }
 
 char *
@@ -1016,12 +1018,12 @@ skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState sta
 			break;
 	}
 	
-	//lets be dumb:
+	//lets be dumb and try to connect without getting a stream
 	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
 	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing CONNECT %s", name);
 	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:1 %s", name, string_state);
 	
-	return 1;
+	return 4;
 }
 
 gchar *
