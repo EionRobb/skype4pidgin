@@ -1,11 +1,11 @@
 #put this theme in its own emotes directory
 #eg /usr/share/pixmaps/pidgin/emotes/skype
+#or C:\Program Files\Pidgin\pixmaps\pidgin\emotes\skype
 
 Name=Default-with-Skype
 Description=Pidgin smileys including Skype
 Icon=../default/wink.png
 Author=Eion Robb and Hylke Bons
-
 
 # Default smileys
 [default]
@@ -392,6 +392,7 @@ Author=Eion Robb and Hylke Bons
 ../default/sad.png			        :[
 ../default/kiss.png            :x
 
+# Following Skype 2.0 for Linux
 [Skype]
 ../default/smile.png			:) :-) :=) (smile)
 ../default/sad.png				:( :-( :=( (sad)
