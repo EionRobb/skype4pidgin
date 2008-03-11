@@ -1,6 +1,10 @@
 Changelog
 =========
 
+11 March 2008
+-------------
+* Adium plugin should work with the new 1.2.4b1 Adium Beta
+
 6 March 2008
 ------------
 * Fixed the version numbering on the Debian/Ubuntu package
