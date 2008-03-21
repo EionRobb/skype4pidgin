@@ -266,7 +266,7 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
-				serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strconcat(sender, _(" changed the topic to "), body, NULL)), time(NULL));
+				serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), sender, body)), time(NULL));
 			} else if (strcmp(type, "SAID") == 0 ||
 						strcmp(type, "TEXT") == 0)
 			{
@@ -401,9 +401,9 @@ skype_handle_received_message(char *message)
 #						ifndef __APPLE__
 							skype_send_message("OPEN FILETRANSFER");
 #						else
-							purple_notify_info(this_account, "Incoming File", g_strconcat("User ", purple_xfer_get_remote_user(transfer), " wishes to send you a file.  Please open Skype to accept this file.", NULL), NULL);
+							purple_notify_info(this_account, "Incoming File", g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), NULL);
 #						endif
-						purple_xfer_conversation_write(transfer, g_strconcat(purple_xfer_get_remote_user(transfer), " is sending a file to users of this chat.", NULL), FALSE);
+						purple_xfer_conversation_write(transfer, g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), FALSE);
 					}
 					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_NOT_STARTED);
 				} else if (strcmp(string_parts[3], "COMPLETED") == 0)
@@ -450,29 +450,29 @@ skype_handle_received_message(char *message)
 				temp = NULL;
 				if (strcmp(string_parts[3], "SENDER_NOT_AUTHORIZED") == 0)
 				{
-					temp = g_strdup(_("Not authorized"));
+					temp = g_strdup(_("Not Authorized"));
 				} else if (strcmp(string_parts[3], "REMOTELY_CANCELLED") == 0)
 				{
 					purple_xfer_cancel_remote(transfer);
 					purple_xfer_update_progress(transfer);
 				} else if (strcmp(string_parts[3], "FAILED_READ") == 0)
 				{
-					temp = g_strdup(_("Read error on local machine"));
+					temp = g_strdup(_("Read error"));
 				} else if (strcmp(string_parts[3], "FAILED_REMOTE_READ") == 0)
 				{
-					temp = g_strdup(_("Read error on remote machine"));
+					temp = g_strdup(_("Read error"));
 				} else if (strcmp(string_parts[3], "FAILED_WRITE") == 0)
 				{
-					temp = g_strdup(_("Write error on local machine"));
+					temp = g_strdup(_("Write error"));
 				} else if (strcmp(string_parts[3], "FAILED_REMOTE_WRITE") == 0)
 				{
-					temp = g_strdup(_("Write error on remote machine"));
+					temp = g_strdup(_("Write error"));
 				} else if (strcmp(string_parts[3], "REMOTE_DOES_NOT_SUPPORT_FT") == 0)
 				{
-					temp = g_strdup(_("Receiver does not support file transfers"));
+					temp = g_strdup_printf(_("Unable to send file to %s, user does not support file transfers"), transfer->who);
 				} else if (strcmp(string_parts[3], "REMOTE_OFFLINE_FOR_TOO_LONG") == 0)
 				{
-					temp = g_strdup(_("Recipient not available"));
+					temp = g_strdup(_("Recipient Unavailable"));
 				}
 				if (temp && strlen(temp))
 				{
@@ -546,9 +546,9 @@ skype_handle_received_message(char *message)
 			g_free(temp);
 			if (strcmp(type, "INCOMING") == 0)
 			{
-				purple_request_action(gc, _("Incoming Call"), g_strconcat(sender, " is calling you", NULL), "Do you want to accept their call?",
+				purple_request_action(gc, _("Incoming Call"), g_strdup_printf(_("%s is calling you"), sender), "Do you want to accept their call?",
 								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("Accept"), 
-								G_CALLBACK(skype_call_accept_cb), _("Reject"), G_CALLBACK(skype_call_reject_cb));
+								G_CALLBACK(skype_call_accept_cb), _("Decline"), G_CALLBACK(skype_call_reject_cb));
 			}
 			g_free(sender);
 			g_free(type);
