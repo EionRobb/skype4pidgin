@@ -1580,6 +1580,12 @@ skype_display_skype_credit(PurplePluginAction *action)
 	g_free(currency);
 }
 
+void
+skype_open_sms_im(PurplePlugin *plugin, gpointer data)
+{
+	
+}
+
 #ifdef USE_FARSIGHT
 /*
 Skype info from developer.skype.com and forum.skype.com:
