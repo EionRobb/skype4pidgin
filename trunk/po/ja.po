@@ -1,0 +1,116 @@
+﻿# Japanese translation of skype4pidgin plugin
+# Translated by Tim Fields
+
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Skypeプラグインの更新版がダウンロードできます。"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Skypeの更新版がダウンロードできます。"
+
+msgid "No updates found"
+msgstr "只今さらのアップデートがありません。"
+
+msgid "You have the latest version of Skype"
+msgstr "Skypeの最新版をご利用です。"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Skypeプラグインの最新版をご利用です。"
+
+msgid "Your version:"
+msgstr "現在ご利用版："
+
+msgid "Latest version:"
+msgstr "最新版："
+
+msgid "Download from:"
+msgstr "ダウンロードはこちら："
+
+msgid "Your current Skype credit balance is:"
+msgstr "現在Skypeクレジット残高："
+
+msgid "Skype Balance"
+msgstr "Skypeクレジット残高"
+
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "電話番号またはSkype名を入力"
+
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "SkypeOutコンタクトを「オンライン」として表示"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Pidginにログイン・ログアウトする時、Skypeに自動的にログイン・ログアウト"
+
+msgid "Automatically check for updates"
+msgstr "アップデートを自動的に確認"
+
+msgid "Auto-start Skype if not running"
+msgstr "Skypeが起動されていない場合、自動的に起動"
+
+msgid "The user does not exist in Skype"
+msgstr "Skypeユーザが存在していません。"
+
+msgid "Offline with Voicemail"
+msgstr "オフライン（ボイスメール）"
+
+msgid "Offline with Call Forwarding"
+msgstr "オフライン（通話転送）"
+
+msgid "Only one Skype account allowed"
+msgstr "一つのSkypeアカウントしか登録できません。"
+
+msgid "Skype not responding"
+msgstr "Skypeが接続できません"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Skypeが接続できません。Skypeが起動されていますか？"
+
+msgid "Skype client not ready"
+msgstr "Skypeプログラムが起動中です。"
+
+msgid "Connected to Skype"
+msgstr "Skypeに接続しました。"
+
+msgid "Skype program closed"
+msgstr "Skypeが終了されました。"
+
+msgid "%s is calling you.  Do you want to accept their call?"
+msgstr "%sから着信中です。応答しますか？"
+
+msgid "Last online"
+msgstr "最終ログイン："
+
+msgid "Number of buddies"
+msgstr "仲間数量："
+
+msgid "Is Video Capable"
+msgstr "ビデオ可能："
+
+msgid "Hide Skype"
+msgstr "Skypeを隠す"
+
+msgid "Check for Skype updates..."
+msgstr "Skypeアップデートを確認..."
+
+msgid "Check for plugin updates..."
+msgstr "(Skype)プラグインのアップデートを確認..."
+
+msgid "Search for buddies..."
+msgstr "仲間を検索..."
+
+msgid "Check Skype balance..."
+msgstr "Skypeクレジット残高を確認..."
+
+msgid "Call..."
+msgstr "発信..."
+
+msgid "Open Skype Options..."
+msgstr "Skypeの設定..."
+
+msgid "Search for Skype Users"
+msgstr "Skypeユーザを検索"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for"
+msgstr "検索したい仲間のSkype名、氏名またはメールアドレスを入力。"
+
+msgid "Skype Name"
+msgstr "Skype名"
