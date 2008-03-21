@@ -282,7 +282,7 @@ skype_node_menu(PurpleBlistNode *node)
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 #ifndef __APPLE__
-		act = purple_menu_action_new(_("Send File..."),
+		act = purple_menu_action_new(_("_Send File"),
 										PURPLE_CALLBACK(skype_send_file_from_blist),
 										NULL, NULL);
 		m = g_list_append(m, act);
@@ -292,7 +292,7 @@ skype_node_menu(PurpleBlistNode *node)
 										NULL, NULL);
 		m = g_list_append(m, act);
 
-		act = purple_menu_action_new(_("Initiate Chat"),
+		act = purple_menu_action_new(_("Initiate _Chat"),
 							PURPLE_CALLBACK(skype_initiate_chat),
 							NULL, NULL);
 		m = g_list_append(m, act);
@@ -421,10 +421,10 @@ skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	skype_debug_info("skype", "Server filemtime: %d, Local filemtime: %d\n", servertime, mtime);
 	if (servertime > mtime)
 	{
-		purple_notify_info(this_plugin, _("Update available"), _("There is a newer version of the Skype plugin available for download."), 
+		purple_notify_info(this_plugin, _("New Version Available"), _("There is a newer version of the Skype plugin available for download."), 
 				g_strconcat(_("Your version"),": ",timestamp_to_datetime(mtime),"\n",_("Latest version"),": ",timestamp_to_datetime(servertime),"\nLatest version available from: ", this_plugin->info->homepage, NULL));
 	} else {
-		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of the Skype plugin"));
+		purple_notify_info(this_plugin, _("No updates found"), _("No updates found"), _("You have the latest version of the Skype plugin"));
 	}
 }
 
@@ -489,7 +489,7 @@ skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_da
 
 	if (newer_version)
 	{
-		purple_notify_info(this_plugin, _("Update available"), _("There is a newer version of Skype available for download"), g_strconcat(_("Your version"),": ", version, "\n",_("Latest version"),": ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
+		purple_notify_info(this_plugin, _("New Version Available"), _("There is a newer version of Skype available for download"), g_strconcat(_("Your version"),": ", version, "\n",_("Latest version"),": ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
 	} else {
 		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of Skype"));
 	}
@@ -500,7 +500,7 @@ skype_call_number_request(PurplePlugin *plugin, gpointer data)
 {
 	//http://developer.pidgin.im/doxygen/dev/html/request_8h.html#80ea2f9ad3a45471e05f09a2b5abcd75
 	purple_request_input(plugin, _("Call..."), _("Enter the phone number or Skype buddy name to call"), NULL,
-					NULL, FALSE, FALSE, NULL, _("Call"), G_CALLBACK(skype_call_number), _("Cancel"),
+					NULL, FALSE, FALSE, NULL, _("Call"), G_CALLBACK(skype_call_number), _("_Cancel"),
 					NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -881,7 +881,7 @@ skype_login(PurpleAccount *acct)
 	}
 	g_free(reply);
 	
-	purple_connection_update_progress(gc, _("Silencing Skype"), 2, 4);
+	purple_connection_update_progress(gc, _("Hide Skype"), 2, 4);
 	skype_silence(NULL, NULL);
 	purple_connection_update_progress(gc, _("Connected"), 3, 4);
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
@@ -1062,11 +1062,10 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	purple_str_to_time(skype_get_user_info(username, "BIRTHDAY"), FALSE, birthday_time, NULL, NULL);
 	purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
 	_SKYPE_USER_INFO("SEX", "Gender");
-	_SKYPE_USER_INFO("LANGUAGE", "Language");
+	_SKYPE_USER_INFO("LANGUAGE", "Preferred Language");
 	_SKYPE_USER_INFO("COUNTRY", "Country");
-	_SKYPE_USER_INFO("ABOUT", "About");
 	_SKYPE_USER_INFO("IS_VIDEO_CAPABLE", "Is Video Capable");
-	_SKYPE_USER_INFO("ISAUTHORIZED", "Authorised");
+	_SKYPE_USER_INFO("ISAUTHORIZED", "Authorization Granted");
 	_SKYPE_USER_INFO("ISBLOCKED", "Blocked");
 	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last Online"); //timestamp
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
@@ -1082,7 +1081,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	
 	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
 	purple_notify_user_info_add_section_break(user_info);
-	_SKYPE_USER_INFO("MOOD_TEXT", "Mood");
+	_SKYPE_USER_INFO("ABOUT", "");
 
 	
 	purple_notify_userinfo(gc, username, user_info, NULL, NULL);
@@ -1388,7 +1387,7 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
 
 	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SYSTEM,
-					skype_strdup_withhtml(g_strconcat(_("You changed the topic to "), topic, NULL)), time(NULL));
+					skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), purple_account_get_username(purple_connection_get_account(gc)), topic), time(NULL));
 	purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
