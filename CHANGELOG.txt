@@ -1,6 +1,10 @@
 Changelog
 =========
 
+24 March 2008
+-------------
+* Adium plugin should automatically allow API access (if access for assistive devices is enabled -- see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg)
+
 11 March 2008
 -------------
 * Adium plugin should work with the new 1.2.4b1 Adium Beta
