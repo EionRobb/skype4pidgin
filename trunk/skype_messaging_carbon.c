@@ -12,6 +12,9 @@
 
 static gboolean connected_to_skype = FALSE;
 
+
+static void allow_app_in_skype_api(void);
+
 void
 SkypeNotificationReceived(CFStringRef input)
 {
@@ -58,7 +61,8 @@ void
 SkypeBecameAvailable(CFPropertyListRef aNotification)
 {
 	printf("Skype became available\n");
-	connected_to_skype = TRUE;
+	//connected_to_skype = TRUE;
+	allow_app_in_skype_api();
 }
 
 void
@@ -128,7 +132,6 @@ skype_connect()
 	while(connected_to_skype == FALSE)
 	{
 		RunCurrentEventLoop(1);
-		allow_app_in_skype_api();
 	}
 	printf("Connected to skype\n");
 	return TRUE;
@@ -222,47 +225,23 @@ is_skype_running()
 static void
 allow_app_in_skype_api()
 {
-	WindowRef window = GetWindowList();
-	CFStringRef window_title, control_title;
-	EventTargetRef window_event_target;
-	ControlRef control, root_control;
-	UInt16 control_count, i;
-	Point point = {1,1};
-	//loop through all the windows
-	while(window)
+	static const char *script_string = "tell application \"System Events\" to tell process \"Skype\"\n"
+										"if window \"Skype API Security\" exists then\n"
+										"click radio button \"Allow this application to use Skype\" of radio group 1 of window \"Skype API Security\"\n"
+										"delay 1\n"
+										"click button \"OK\" of window \"Skype API Security\"\n"
+										"end if\n"
+										"end tell";
+	AEDesc script_data;
+	OSAID script_id;
+	OSAError err;
+	ComponentInstance script = OpenDefaultComponent(kOSAComponentType, typeAppleScript);
+	AECreateDesc(typeChar, script_string, strlen(script_string), &script_data);
+	OSACompile(script, &script_data, kOSAModeNull, &script_id);
+	err = OSAExecute(script, script_id, kOSANullScript, kOSAModeNull, &script_id);
+	if (err == -1753)
 	{
-		CopyWindowTitleAsCFString(window, &window_title);
-		printf("Window title: %s\n", CFStringToCString(window_title));
-		//check that it has the title we're looking for
-		if (CFStringCompare(window_title, CFSTR("Skype API Security"), 0) == kCFCompareEqualTo)
-		{
-			window_event_target = GetWindowEventTarget(window);
-			SetWindowAlpha(window, 0.5);
-			GetRootControl(window, &root_control);
-			CountSubControls(root_control, &control_count);
-			//loop through controls
-			for (i=1; i<=control_count; i++)
-			{
-				GetIndexedSubControl(root_control, i, &control);
-				//click the right ones
-				CopyControlTitleAsCFString(control, &control_title);
-				if (CFStringCompare(control_title, CFSTR("Allow this application to use Skype"), 0) == kCFCompareEqualTo)
-				{
-					//click the radio button
-					printf("Clicking the radio\n");
-					HandleControlClick(control, point, 0, ControlActionUPP(-1));
-				}
-				CFRelease(control_title);
-			}
-			//click the ok button
-			GetWindowDefaultButton(window, &control);
-			if (control)
-			{
-				printf("Clicking OK");
-				HandleControlClick(control, point, 0, ControlActionUPP(-1));
-			}
-		}
-		CFRelease(window_title);
-		GetNextWindow(window);
+		//theres an error that the access assistive devices isn't enabled
+		//see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg for details
 	}
-}
+}	
