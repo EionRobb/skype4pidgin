@@ -1387,7 +1387,7 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
 
 	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SYSTEM,
-					skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), purple_account_get_username(purple_connection_get_account(gc)), topic), time(NULL));
+					skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), purple_account_get_username(purple_connection_get_account(gc)), topic)), time(NULL));
 	purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
