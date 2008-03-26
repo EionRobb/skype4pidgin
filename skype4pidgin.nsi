@@ -3,7 +3,7 @@
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "5-May-2008"
+!define PRODUCT_VERSION "$date"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -72,12 +72,15 @@ Section "MainSection" SEC01
 	SetOutPath "$PidginDir\pixmaps\pidgin\emotes\skype"
 	SetOverwrite on
 	File "theme"
-	
+
+	SetOutPath "$PidginDir\locale\ja\LC_MESSAGES"
+	SetOverwrite on
+	File /nonfatal "/oname=skype4pidgin.mo" "po\ja.mo"
 
     SetOutPath "$INSTDIR"
     SetOverwrite on
-    ;File "libskype.dll"
-    File "\\5.5.242.9\tmp\skype\libskype.dll"
+    File "libskype.dll"
+    ;File "\\5.5.242.9\tmp\skype\libskype.dll"
     ; move to pidgin plugin directory, check if not busy (pidgin is running)
     call CopyDLL
     ; hard part is done, do the rest now.
@@ -137,6 +140,9 @@ dodelete:
 	Delete "$PidginDir\pixmaps\pidgin\protocols\22\skype.png"
 	Delete "$PidginDir\pixmaps\pidgin\protocols\48\skype.png"
 	Delete "$PidginDir\pixmaps\pidgin\emotes\skype\theme"
+	
+	Delete "$PidginDir\locale\ja\LC_MESSAGES\skype4pidgin.mo
+	
     RMDir "$PidginDir\pixmaps\pidgin\emotes\skype"
 	
 	IfFileExists "$PidginDir\plugins\libskype.dll" 0 +2
