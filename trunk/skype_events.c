@@ -102,9 +102,9 @@ skype_handle_received_message(char *message)
 					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
 					if (string_parts[1][0] == '+')
-						purple_blist_add_buddy(buddy, NULL, purple_group_new("SkypeOut"), NULL);
+						purple_blist_add_buddy(buddy, NULL, purple_group_new(_("SkypeOut")), NULL);
 					else
-						purple_blist_add_buddy(buddy, NULL, purple_group_new("Skype"), NULL);
+						purple_blist_add_buddy(buddy, NULL, purple_group_new(_("Skype")), NULL);
 					skype_update_buddy_status(buddy);
 					skype_update_buddy_alias(buddy);
 					purple_prpl_got_user_idle(this_account, buddy->name, FALSE, 0);
@@ -401,7 +401,7 @@ skype_handle_received_message(char *message)
 #						ifndef __APPLE__
 							skype_send_message("OPEN FILETRANSFER");
 #						else
-							purple_notify_info(this_account, "Incoming File", g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), NULL);
+							purple_notify_info(this_account, _("File Transfers"), g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), NULL);
 #						endif
 						purple_xfer_conversation_write(transfer, g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), FALSE);
 					}
@@ -546,9 +546,9 @@ skype_handle_received_message(char *message)
 			g_free(temp);
 			if (strcmp(type, "INCOMING") == 0)
 			{
-				purple_request_action(gc, _("Incoming Call"), g_strdup_printf(_("%s is calling you"), sender), "Do you want to accept their call?",
-								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("Accept"), 
-								G_CALLBACK(skype_call_accept_cb), _("Decline"), G_CALLBACK(skype_call_reject_cb));
+				purple_request_action(gc, _("Incoming Call"), g_strdup_printf(_("%s is calling you."), sender), _("Do you want to accept their call?"),
+								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("_Accept"), 
+								G_CALLBACK(skype_call_accept_cb), _("_Reject"), G_CALLBACK(skype_call_reject_cb));
 			}
 			g_free(sender);
 			g_free(type);

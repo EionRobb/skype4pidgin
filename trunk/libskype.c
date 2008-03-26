@@ -22,7 +22,11 @@
 
 #include <glib.h>
 
+#define GETTEXT_PACKAGE "skype4pidgin"
 #include <internal.h>
+
+#define GETTEXT_PACKAGE "skype4pidgin"
+#include <glib/gi18n-lib.h>
 
 #include <notify.h>
 #include <core.h>
@@ -491,7 +495,7 @@ skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_da
 	{
 		purple_notify_info(this_plugin, _("New Version Available"), _("There is a newer version of Skype available for download"), g_strconcat(_("Your version"),": ", version, "\n",_("Latest version"),": ", url_text, "\n\nhttp://www.skype.com/go/download", NULL));
 	} else {
-		purple_notify_info(this_plugin, _("No Updates"), _("No updates found"), _("You have the latest version of Skype"));
+		purple_notify_info(this_plugin, _("No updates found"), _("No updates found"), _("You have the latest version of Skype"));
 	}
 }
 
@@ -500,7 +504,7 @@ skype_call_number_request(PurplePlugin *plugin, gpointer data)
 {
 	//http://developer.pidgin.im/doxygen/dev/html/request_8h.html#80ea2f9ad3a45471e05f09a2b5abcd75
 	purple_request_input(plugin, _("Call..."), _("Enter the phone number or Skype buddy name to call"), NULL,
-					NULL, FALSE, FALSE, NULL, _("Call"), G_CALLBACK(skype_call_number), _("_Cancel"),
+					NULL, FALSE, FALSE, NULL, _("Call..."), G_CALLBACK(skype_call_number), _("_Cancel"),
 					NULL, NULL, NULL, NULL, NULL);
 }
 
@@ -1051,10 +1055,10 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	user_info = purple_notify_user_info_new();
 #define _SKYPE_USER_INFO(prop, key)  \
 	purple_notify_user_info_add_pair(user_info, _(key),\
-		g_strdup(skype_get_user_info(username, prop)));
+		(skype_get_user_info(username, prop)));
 
-	purple_notify_user_info_add_section_header(user_info, _("Contact Information"));
-	_SKYPE_USER_INFO("HANDLE", "Handle");
+	purple_notify_user_info_add_section_header(user_info, _("Contact Info"));
+	_SKYPE_USER_INFO("HANDLE", "Skype Name");
 	_SKYPE_USER_INFO("FULLNAME", "Full Name");
 	purple_notify_user_info_add_section_break(user_info);
 	purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
@@ -1067,10 +1071,10 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	_SKYPE_USER_INFO("IS_VIDEO_CAPABLE", "Is Video Capable");
 	_SKYPE_USER_INFO("ISAUTHORIZED", "Authorization Granted");
 	_SKYPE_USER_INFO("ISBLOCKED", "Blocked");
-	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last Online"); //timestamp
+	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last online"); //timestamp
 	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
 	skype_debug_info("skype", "time: %d\n", time);
-	purple_notify_user_info_add_pair(user_info, _("Last Online"),
+	purple_notify_user_info_add_pair(user_info, _("Last online"),
 			timestamp_to_datetime((time_t) time));
 	//		g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
@@ -1081,8 +1085,8 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	
 	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
 	purple_notify_user_info_add_section_break(user_info);
-	_SKYPE_USER_INFO("ABOUT", "");
-
+	//_SKYPE_USER_INFO("ABOUT", "");
+	purple_notify_user_info_add_pair(user_info, "", (skype_get_user_info(username, "ABOUT")));
 	
 	purple_notify_userinfo(gc, username, user_info, NULL, NULL);
 	purple_notify_user_info_destroy(user_info);
@@ -1421,7 +1425,7 @@ skype_join_chat_info(PurpleConnection *gc)
 	struct proto_chat_entry *pce;
 
 	pce = g_new0(struct proto_chat_entry, 1);
-	pce->label = _("_Name:");
+	pce->label = _("Skype Name");
 	pce->identifier = "chat_id";
 	pce->required = TRUE;
 	m = g_list_append(m, pce);
