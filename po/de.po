@@ -1,0 +1,219 @@
+# German translation of skype4pidgin plugin
+# Copyright © 2007-2008 Eion Robb
+# Translated by Florian Dorn
+# Florian Dorn <(null)>, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-04-02\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: (null)\n"
+"PO-Revision-Date: 2008-04-02 20:44+0200\n"
+"Last-Translator: Florian Dorn <(null)>\n"
+"Language-Team: German <gnome-de@gnome.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Es ist eine neuere Version von des Skype Plugins zum Download verfügbar"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Es gibt eine neuere Version von Skype zum Download"
+
+msgid "No updates found"
+msgstr "Es wurden keine Aktualisierungen gefunden"
+
+msgid "You have the latest version of Skype"
+msgstr "Sie haben die neueste Version von Skype"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Sie haben die neueste Version des Skype Plugins"
+
+msgid "Your version:"
+msgstr "Ihre Version:"
+
+msgid "Latest version:"
+msgstr "Neueste Version:"
+
+msgid "Download from:"
+msgstr "Herunterladen von:"
+
+msgid "Your current Skype credit balance is:"
+msgstr "Ihre aktuelles Skype-Guthaben ist:"
+
+msgid "Skype Balance"
+msgstr "Skype-Guthaben"
+
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Geben Sie die Telefonnummer oder den Skype-Namen ein"
+
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "SkypeOut Kontakte als 'Verfügbar' anzeigen"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Status von Skype ändern, wenn Sie online/offline gehen"
+
+msgid "Automatically check for updates"
+msgstr "Automatisch auf Aktualisierungen prüfen"
+
+msgid "Auto-start Skype if not running"
+msgstr "Skype automatisch starten wenn es nicht läuft"
+
+msgid "The user does not exist in Skype"
+msgstr "Der Benutzer existiert nicht in Skype"
+
+msgid "Offline with Voicemail"
+msgstr "Offline (Anrufbeantworter)"
+
+msgid "Offline with Call Forwarding"
+msgstr "Offline (Anrufweiterleitung)"
+
+msgid "Only one Skype account allowed"
+msgstr "Es ist nur ein Skype Account möglich"
+
+msgid "Skype not responding"
+msgstr "Skype antwortet nicht"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Verbindung zu Skype konnte nicht hergestellt werden.  Ist Skype gestartet?"
+
+msgid "Skype client not ready"
+msgstr "Skype-Client nicht bereit"
+
+msgid "Connected to Skype"
+msgstr "Mit Skype verbunden"
+
+msgid "Skype program closed"
+msgstr "Skype wurde geschlossen"
+
+msgid "%s is calling you."
+msgstr "%s ruft an."
+
+msgid "Do you want to accept their call?"
+msgstr "Anruf entgegennehmen?"
+
+msgid "Last online"
+msgstr "Zuletzt gesehen"
+
+msgid "Number of buddies"
+msgstr "Kontakte"
+
+msgid "Is Video Capable"
+msgstr "Unterstützt Video"
+
+msgid "Hide Skype"
+msgstr "Skype verstecken"
+
+msgid "Check for Skype updates..."
+msgstr "Nach Skype Aktualisierungen suchen..."
+
+msgid "Check for plugin updates..."
+msgstr "Nach Plugin Aktualisierungen suchen..."
+
+msgid "Search for buddies..."
+msgstr "Nach Kontakten suchen..."
+
+msgid "Check Skype balance..."
+msgstr "Skype Guthaben abfragen..."
+
+msgid "Call..."
+msgstr "Anrufen..."
+
+msgid "Open Skype Options..."
+msgstr "Skype Einstellungen öffnen..."
+
+msgid "Search for Skype Users"
+msgstr "Nach Skype Benutzern suchen"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Suchen sie nach Kontakte über Skype-Namen, vollem Namen oder E-Mail-Adresse."
+
+msgid "Skype Name"
+msgstr "Skype-Name"
+
+# Duplicate stuff from Pidgin
+msgid "_Search"
+msgstr "_Suchen"
+
+msgid "_Cancel"
+msgstr "_Abbrechen"
+
+msgid "_Send File"
+msgstr "Datei _senden"
+
+msgid "Initiate _Chat"
+msgstr "_Chat beginnen"
+
+msgid "_Close"
+msgstr "_Schließen"
+
+msgid "Full Name"
+msgstr "Voller Name"
+
+msgid "Country/Region"
+msgstr "Land/Region"
+
+msgid "_Add"
+msgstr "_Hinzufügen"
+
+msgid "Full name"
+msgstr "Voller Name"
+
+msgid "Personal Information"
+msgstr "Persönliche Informationen"
+
+msgid "Birthday"
+msgstr "Geburtstag"
+
+msgid "Gender"
+msgstr "Geschlecht"
+
+msgid "Preferred Language"
+msgstr "Sprache"
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Authorization Granted"
+msgstr "Autorisiert"
+
+msgid "Blocked"
+msgstr "Blockiert"
+
+msgid "Timezone"
+msgstr "Zeitzone"
+
+msgid "_Accept"
+msgstr "_Annehmen"
+
+msgid "_Reject"
+msgstr "_Ablehnen"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Die Datei %s konnte nicht gesendet werden. Der Benutzer unterstützt keine Dateiübertragungen"
+
+msgid "Recipient Unavailable"
+msgstr "Empfänger nicht verfügbar"
+
+msgid "Read Error"
+msgstr "Lesefehler"
+
+msgid "Write error"
+msgstr "Schreibfehler"
+
+msgid "Not Authorized"
+msgstr "Nicht autorisiert"
+
+msgid "%s wants to send you a file"
+msgstr "%s möchte ihnen eine Datei senden"
+
+msgid "File Transfers"
+msgstr "Dateiübertragungen"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s hat das Chat-Thema auf '%s' geändert"
+
+msgid "Contact Info"
+msgstr "Kontaktinformationen"
