@@ -17,16 +17,25 @@
  */
 
 #define PURPLE_PLUGIN
+#define PURPLE_PLUGINS
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define _GNU_SOURCE
+#define GETTEXT_PACKAGE "skype4pidgin"
 
 #include <glib.h>
+#include <glib/gstdio.h>
+#include <unistd.h>
+#include <string.h>
 
-#define GETTEXT_PACKAGE "skype4pidgin"
-#include <internal.h>
+//#include <internal.h>
 
-#define GETTEXT_PACKAGE "skype4pidgin"
-#include <glib/gi18n-lib.h>
+#ifdef ENABLE_NLS
+#	ifdef _WIN32
+#		include <win32dep.h>
+#	endif
+#	include <glib/gi18n-lib.h>
+#endif
+
 
 #include <notify.h>
 #include <core.h>
