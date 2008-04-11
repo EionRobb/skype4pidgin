@@ -34,7 +34,7 @@ Known Issues
 * Send file doesn't use the built in libpurple methods. (API Limitation)
 * Linux version still opens up Skype message windows. (API Limitation)
 * Linux/OSX version doesn't show buddy icons. (API Limitation)
-* No typing notifications. (API Limitation)
+* No typing notifications with official Skype clients. (API Limitation)
 
 
 FAQ
@@ -45,6 +45,12 @@ A: Yes.
 
 Q: Can you make a version that doesn't need Skype?
 A: Not possible right now.
+
+Q: What version of Pidgin do I need to be able to run this plugin?
+A: You need at least version 2.1.1 of Pidgin.  You can download updates to Pidgin from www.pidgin.im
+
+Q: What version of Adium do I need to be able to run this plugin?
+A: You need version 1.2 to run the latest version of the plugin or 1.1 to run the older version of the plugin.  You can download updates to Adium from www.adiumx.com
 
 Q: Where can I get the protocol icons?
 A: Download skype_icons.zip from this website and install the icons into the appropriate pixmaps/pidgin/protocols directory.
