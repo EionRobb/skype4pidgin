@@ -1,0 +1,216 @@
+# Japanese translation of skype4pidgin plugin
+# Copyright © 2007-2008 Eion Robb
+# Translated by Yann Ricquebourg
+
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-03-26\n"
+"PO-Revision-Date: 2008-03-26\n"
+"Last-Translator: Yann Ricquebourg\n"
+"Language-Team: Eion Robb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Une nouvelle version du plugin Skype est disponible"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Une nouvelle version de Skype est disponible"
+
+msgid "No updates found"
+msgstr "Aucune mise à jour trouvée"
+
+msgid "You have the latest version of Skype"
+msgstr "Votre version de Skype est la plus récente"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Votre version du plugin Skype est la plus récente"
+
+msgid "Your version:"
+msgstr "Votre version :"
+
+msgid "Latest version:"
+msgstr "Version à jour :"
+
+msgid "Download from:"
+msgstr "Téléchargement depuis :"
+
+msgid "Your current Skype credit balance is:"
+msgstr "Votre crédit Skype est :"
+
+msgid "Skype Balance"
+msgstr "Crédit Skype"
+
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Entrez un numéro de téléphone ou un nom d'ami Skype à appeler"
+
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Montrer les contacts SkypeOut en 'Connecté'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Basculer Skype en connecté/déconnecté en se connectant/déconnectant"
+
+msgid "Automatically check for updates"
+msgstr "Vérifier automatiquement les mises à jour"
+
+msgid "Auto-start Skype if not running"
+msgstr "Démarrer automatiquement Skype si nécessaire"
+
+msgid "The user does not exist in Skype"
+msgstr "Cet utilisateur n'existe pas dans Skype"
+
+msgid "Offline with Voicemail"
+msgstr "Déconnecté avec Voicemail"
+
+msgid "Offline with Call Forwarding"
+msgstr "Déconnecté avec renvoi d'appel"
+
+msgid "Only one Skype account allowed"
+msgstr "Un seul compte Skype autorisé"
+
+msgid "Skype not responding"
+msgstr "Skype ne répond pas"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Impossible de se connecter au processus Skype. Skype non lancé ?"
+
+msgid "Skype client not ready"
+msgstr "Client Skype non prêt"
+
+msgid "Connected to Skype"
+msgstr "Connecté à Skype"
+
+msgid "Skype program closed"
+msgstr "Arrêt du programme Skype"
+
+msgid "%s is calling you."
+msgstr "%s vous appelle."
+
+msgid "Do you want to accept their call?"
+msgstr "Acceptez-vous l'appel ?"
+
+msgid "Last online"
+msgstr "Dernière connexion"
+
+msgid "Number of buddies"
+msgstr "Nombre de contacts"
+
+msgid "Is Video Capable"
+msgstr "Avec vidéo"
+
+msgid "Hide Skype"
+msgstr "Masquer Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Vérifier les mises à jour de Skype..."
+
+msgid "Check for plugin updates..."
+msgstr "Vérifier les mises à jour du plugin Skype..."
+
+msgid "Search for buddies..."
+msgstr "Recherche d'amis..."
+
+msgid "Check Skype balance..."
+msgstr "Vérifier le compte Skype..."
+
+msgid "Call..."
+msgstr "Appel..."
+
+msgid "Open Skype Options..."
+msgstr "Ouvrir les préférences de Skype..."
+
+msgid "Search for Skype Users"
+msgstr "Recherche d'utilisateurs Skype"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Entrez le nom Skype, le nom complet ou l'adresse de courriel d'un ami à rechercher"
+
+msgid "Skype Name"
+msgstr "Nom Skype"
+
+# Duplicate stuff from Pidgin
+msgid "_Search"
+msgstr "_Rechercher"
+
+msgid "_Cancel"
+msgstr "_Annuler"
+
+msgid "_Send File"
+msgstr "_Envoyer un fichier"
+
+msgid "Initiate _Chat"
+msgstr "Démarrer un _clavardage"
+
+msgid "_Close"
+msgstr "_Fermer"
+
+msgid "Full Name"
+msgstr "Nom Complet"
+
+msgid "Country/Region"
+msgstr "Pays/Province"
+
+msgid "_Add"
+msgstr "_Ajouter"
+
+msgid "Full name"
+msgstr "Nom complet"
+
+msgid "Personal Information"
+msgstr "Informations personnelles"
+
+msgid "Birthday"
+msgstr "Date de naissance"
+
+msgid "Gender"
+msgstr "Sexe"
+
+msgid "Preferred Language"
+msgstr "Langue de prédilection"
+
+msgid "Country"
+msgstr "Pays"
+
+msgid "Authorization Granted"
+msgstr "Autorisation fournie"
+
+msgid "Blocked"
+msgstr "Bloqué"
+
+msgid "Timezone"
+msgstr "Fuseau horaire"
+
+msgid "_Accept"
+msgstr "_Accepter"
+
+msgid "_Reject"
+msgstr "_Refuser"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Impossible d'envoyer le fichier à %s, il ne peut recevoir les transferts"
+
+msgid "Recipient Unavailable"
+msgstr "Destinataire non disponible"
+
+msgid "Read Error"
+msgstr "Erreur de lecture"
+
+msgid "Write error"
+msgstr "Erreur d'écriture"
+
+msgid "Not Authorized"
+msgstr "Non autorisé"
+
+msgid "%s wants to send you a file"
+msgstr "%s souhaite vous envoyer un fichier"
+
+msgid "File Transfers"
+msgstr "Transferts de fichiers"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s à changé le sujet en : %s"
+
+msgid "Contact Info"
+msgstr "Info sur le contact"
+
