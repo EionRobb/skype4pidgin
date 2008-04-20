@@ -4,7 +4,7 @@
 static Display *disp = NULL;
 static Window win = (Window)-1;
 Window skype_win = (Window)-1;
-GThread *receiving_thread;
+static GThread *receiving_thread = NULL;
 Atom message_start, message_continue;
 static gboolean run_loop = FALSE;
 static unsigned char x11_error_code = 0;
@@ -51,7 +51,7 @@ skype_connect()
 		return FALSE;
 	}
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
-	if(status != Success || format_ret != 32 || nitems_ret != 1)
+	if(status != Success || format_ret != 32 || nitems_ret < 1)
 	{
 		skype_win = (Window)-1;
 		skype_debug_info("skype", "Skype instance not found\n");
@@ -61,7 +61,8 @@ skype_connect()
 	
 	run_loop = TRUE;
 	
-	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
+	if (receiving_thread == NULL)
+		receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
 	
 	return TRUE;
 }
@@ -207,6 +208,7 @@ receive_message_loop(void)
 			XFlush(disp);
 		}
 	}
+	receiving_thread = NULL;
 }
 
 static void
