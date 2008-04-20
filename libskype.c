@@ -210,7 +210,11 @@ static PurplePluginInfo info = {
 	NULL, /* dependencies */
 	PURPLE_PRIORITY_DEFAULT, /* priority */
 	"prpl-bigbrownchunx-skype", /* id */
+#ifdef SKYPE_DBUS
+	"Skype (D-Bus)",
+#else
 	"Skype", /* name */
+#endif
 	"1.2", /* version */
 	"Allows using Skype IM functions from within Pidgin", /* summary */
 	"Allows using Skype IM functions from within Pidgin", /* description */
@@ -618,7 +622,7 @@ skype_set_buddies(PurpleAccount *acct)
 			}
 			else
 			{
-				if (skype_group === NULL)
+				if (skype_group == NULL)
 				{
 					skype_group = purple_group_new("Skype");
 					purple_blist_add_group(skype_group, NULL);
@@ -836,7 +840,6 @@ skype_login(PurpleAccount *acct)
 {
 	PurpleConnection *gc;
 	gchar *reply;
-	gboolean connect_successful;
 	
 	if(acct == NULL)
 	{
@@ -859,8 +862,7 @@ skype_login(PurpleAccount *acct)
 	
 	purple_connection_update_progress(gc, _("Connecting"), 0, 5);
 	
-	connect_successful = skype_connect();
-	if (!connect_successful)
+	if (!skype_connect())
 	{
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", TRUE))
