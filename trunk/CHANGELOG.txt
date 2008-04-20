@@ -1,6 +1,10 @@
 Changelog
 =========
 
+20 April 2008
+-------------
+* Updated Adium plugin so that it hopefully doesn't freeze Adium while starting Skype
+
 12 April 2008
 -------------
 * Windows installer updated to not create a Program Files directory now
