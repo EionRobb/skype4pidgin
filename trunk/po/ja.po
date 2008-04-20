@@ -216,3 +216,8 @@ msgstr "%s さんがトピックを変更しました: %s"
 msgid "Contact Info"
 msgstr "連絡先の情報"
 
+msgid "Status"
+msgstr "状態"
+
+msgid "Message"
+msgstr "メッセージ"
