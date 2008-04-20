@@ -572,15 +572,9 @@ skype_set_buddies(PurpleAccount *acct)
 	GSList *existing_friends;
 	GSList *found_buddy;
 	PurpleBuddy *buddy;
-	PurpleGroup *skype_group;
-	PurpleGroup *skypeout_group;
+	PurpleGroup *skype_group = NULL;
+	PurpleGroup *skypeout_group = NULL;
 	int i;
-
-	skype_group = purple_group_new("Skype");
-	skypeout_group = purple_group_new("SkypeOut");
-	purple_blist_add_group(skype_group, NULL);
-	purple_blist_add_group(skypeout_group, NULL);
-
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
 	friends = g_strsplit_set(friends_text, ", ", 0);
@@ -614,9 +608,23 @@ skype_set_buddies(PurpleAccount *acct)
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
 			if (friends[i][0] == '+')
+			{
+				if (skypeout_group == NULL)
+				{
+					skypeout_group = purple_group_new("SkypeOut");
+					purple_blist_add_group(skypeout_group, NULL);
+				}
 				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
+			}
 			else
+			{
+				if (skype_group === NULL)
+				{
+					skype_group = purple_group_new("Skype");
+					purple_blist_add_group(skype_group, NULL);
+				}
 				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
+			}
 		}
 		skype_update_buddy_status(buddy);
 		skype_update_buddy_alias(buddy);
@@ -849,9 +857,8 @@ skype_login(PurpleAccount *acct)
 		return;
 	}
 	
-	
 	purple_connection_update_progress(gc, _("Connecting"), 0, 5);
-
+	
 	connect_successful = skype_connect();
 	if (!connect_successful)
 	{
