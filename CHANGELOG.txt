@@ -1,6 +1,12 @@
 Changelog
 =========
 
+21 April 2008
+-------------
+* Fixed startup crash on Linux systems
+* Added D-Bus versions to .deb package
+* D-Bus and X11 versions can now run at the same time
+
 20 April 2008
 -------------
 * Updated Adium plugin so that it hopefully doesn't freeze Adium while starting Skype
