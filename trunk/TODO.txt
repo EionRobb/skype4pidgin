@@ -5,4 +5,5 @@ Show in multiuser chats if someone is offline with, eg "Eion Robb (offline)", or
 Fix up joining/leaving messages in multiuser chats (make so they work out who joined/left)
 show a window of currently active chats/latest chats
 show joining messages on new chat window creation
-not add skype/skypeout contacts group if there's no buddies to go into it
+Allow leaving of conversations from the conversation menu
+Show when you have left a conversation with /leave
