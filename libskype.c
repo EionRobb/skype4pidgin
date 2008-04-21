@@ -202,8 +202,10 @@ PurplePluginProtocolInfo prpl_info = {
 
 static PurplePluginInfo info = {
 	PURPLE_PLUGIN_MAGIC,
-	PURPLE_MAJOR_VERSION,
+/*	PURPLE_MAJOR_VERSION,
 	PURPLE_MINOR_VERSION,
+*/
+	2, 1,
 	PURPLE_PLUGIN_PROTOCOL, /* type */
 	NULL, /* ui_requirement */
 	0, /* flags */
