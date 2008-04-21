@@ -7,6 +7,7 @@ Changelog
 * Added D-Bus versions to .deb package
 * D-Bus and X11 versions can now run at the same time
 * Skype and SkypeOut groups aren't created at startup if not needed
+* Changed Pidgin version number required, so that the plugin runs on older copies of Pidgin again
 
 20 April 2008
 -------------
