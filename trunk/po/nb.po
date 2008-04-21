@@ -1,0 +1,217 @@
+# Norwegian Bokmål translation of skype4pidgin plugin
+# Translated by Thomas B
+# Thomas B, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-04-22\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: (null)\n"
+"PO-Revision-Date: 2008-04-22 08:24+1200\n"
+"Last-Translator: Thomas B <(null)>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Det finnes en nyere versjon av Skype-innstikksprogrammet tilgjengelig for nedlasting"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Det finnes en nyere versjon av Skype tilgjengelig for nedlasting"
+
+msgid "No updates found"
+msgstr "Ingen oppdateringer funnet"
+
+msgid "You have the latest version of Skype"
+msgstr "Du har siste versjon av Skype"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Du har siste versjon av Skype-innstikksprogrammet"
+
+msgid "Your version:"
+msgstr "Din versjon:"
+
+msgid "Latest version:"
+msgstr "Siste versjon:"
+
+msgid "Download from:"
+msgstr "Last ned fra:"
+
+msgid "Your current Skype credit balance is:"
+msgstr "Din nåværende Skype-kredittbalanse er:"
+
+msgid "Skype Balance"
+msgstr "Skype-balanse"
+
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Tast inn telefonnummer eller Skype-kompis å ringe til"
+
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Vis SkypeOut-kontakter som 'Pålogget'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Logg Skype av/på når du logger av/på"
+
+msgid "Automatically check for updates"
+msgstr "Automatisk se etter oppdateringer"
+
+msgid "Auto-start Skype if not running"
+msgstr "Start Skype automatisk hvis det ikke kjører"
+
+msgid "The user does not exist in Skype"
+msgstr "Brukeren eksisterer ikke i Skype"
+
+msgid "Offline with Voicemail"
+msgstr "Avlogget med telefonsvarer"
+
+msgid "Offline with Call Forwarding"
+msgstr "Avlogget med viderekobling"
+
+msgid "Only one Skype account allowed"
+msgstr "Kun en Skype-konto tillatt"
+
+msgid "Skype not responding"
+msgstr "Skype svarer ikke"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Kunne ikke koble til Skype-prosessen. Kjører ikke Skype ?"
+
+msgid "Skype client not ready"
+msgstr "Skype-klienten er ikke klar"
+
+msgid "Connected to Skype"
+msgstr "Tilkoblet Skype"
+
+msgid "Skype program closed"
+msgstr "Skype-programmet er lukket"
+
+msgid "%s is calling you."
+msgstr "%s ringer deg."
+
+msgid "Do you want to accept their call?"
+msgstr "Ønsker du å besvare ?"
+
+msgid "Last online"
+msgstr "Sist pålogget"
+
+msgid "Number of buddies"
+msgstr "Antall kompiser"
+
+msgid "Is Video Capable"
+msgstr "Har videokapabilitet"
+
+msgid "Hide Skype"
+msgstr "Skjul Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Se etter Skype-oppdateringer..."
+
+msgid "Check for plugin updates..."
+msgstr "Se etter oppdatering for Skype-innstikk.."
+
+msgid "Search for buddies..."
+msgstr "Søke etter kompiser..."
+
+msgid "Check Skype balance..."
+msgstr "Sjekke Skype-balanse..."
+
+msgid "Call..."
+msgstr "Ringe..."
+
+msgid "Open Skype Options..."
+msgstr "Åpne Skype-valg..."
+
+msgid "Search for Skype Users"
+msgstr "Søk etter Skype-brukere"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Tast inn Skype-navnet, det fulle navnet eller e-postadressen til kompisen du vil søke etter."
+
+msgid "Skype Name"
+msgstr "Skype-navn"
+
+# Duplicate stuff from Pidgin
+
+msgid "_Search"
+msgstr "_Søk"
+
+msgid "_Cancel"
+msgstr "_Avbryt"
+
+msgid "_Send File"
+msgstr "_Send fil"
+
+msgid "Initiate _Chat"
+msgstr "Start gruppesamtale"
+
+msgid "_Close"
+msgstr "L_ukk"
+
+msgid "Full Name"
+msgstr "Fullt navn"
+
+msgid "Country/Region"
+msgstr "Land"
+
+msgid "_Add"
+msgstr "_Legg til"
+
+msgid "Full name"
+msgstr "Fullt navn"
+
+msgid "Personal Information"
+msgstr "Personlig informasjon"
+
+msgid "Birthday"
+msgstr "Fødselsdag"
+
+msgid "Gender"
+msgstr "Kjønn"
+
+msgid "Preferred Language"
+msgstr "Foretrukket språk"
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Authorization Granted"
+msgstr "Godkjent"
+
+msgid "Blocked"
+msgstr "Blokkert"
+
+msgid "Timezone"
+msgstr "Tidssone"
+
+msgid "_Accept"
+msgstr "_Godta"
+
+msgid "_Reject"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Klarte ikke sende fil til %s - brukeren støtter ikke filoverføringer"
+
+msgid "Recipient Unavailable"
+msgstr "Mottager utilgjengelig"
+
+msgid "Read Error"
+msgstr "Lesefeil"
+
+msgid "Write error"
+msgstr "Feil ved skriving"
+
+msgid "Not Authorized"
+msgstr "Ikke godkjent"
+
+msgid "%s wants to send you a file"
+msgstr "%s ønsker å sende deg en fil"
+
+msgid "File Transfers"
+msgstr "Filoverføringer"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s har endret temaet til: %s"
+
+msgid "Contact Info"
+msgstr "Kontaktinformasjon"
