@@ -11,7 +11,11 @@ WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0
 
 DEB_PACKAGE_DIR = /root/skypeplugin
 
+LOCALES = $(patsubst %.po, %.mo, $(wildcard po/*.po))
+
 #Standard stuff here
+.PHONY:	all clean
+
 all:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so
 
 clean:
@@ -32,11 +36,10 @@ libskype_dbus64.so:
 libskype.dll:
 	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS}
 
-po/ja.mo:
-	msgfmt -cf -o po/ja.mo po/ja.po
+po/%.mo: po/%.po
+	msgfmt -cf -o $@ $<
 
-po/de.mo:
-	msgfmt -cf -o po/de.mo po/de.po
+locales:	${LOCALES}
 
 skype4pidgin-installer.exe: libskype.dll
 	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i skype4pidgin.nsi
