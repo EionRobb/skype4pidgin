@@ -61,8 +61,7 @@ skype_connect()
 	
 	run_loop = TRUE;
 	
-	if (receiving_thread == NULL)
-		receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
+	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
 	
 	return TRUE;
 }
@@ -208,7 +207,6 @@ receive_message_loop(void)
 			XFlush(disp);
 		}
 	}
-	receiving_thread = NULL;
 }
 
 static void
