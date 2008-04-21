@@ -245,7 +245,6 @@ is_skype_running()
 	while((temp = g_dir_read_name(procdir)))
 	{
 		pid = atoi(temp);
-		g_free(temp);
 		if (!pid)
 			continue;
 		// /proc/{pid}/stat contains lots of juicy info
