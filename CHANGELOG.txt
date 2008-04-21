@@ -6,6 +6,7 @@ Changelog
 * Fixed startup crash on Linux systems
 * Added D-Bus versions to .deb package
 * D-Bus and X11 versions can now run at the same time
+* Skype and SkypeOut groups aren't created at startup if not needed
 
 20 April 2008
 -------------
