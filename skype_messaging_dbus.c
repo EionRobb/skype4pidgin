@@ -37,21 +37,29 @@ skype_connect()
 	GError *error = NULL;
 	DBusObjectPathVTable vtable;
 	
-	connection = dbus_g_bus_get (SKYPE_DBUS_BUS, &error);
-	if (connection == NULL && error != NULL)
+	if (connection == NULL)
 	{
-		skype_debug_info("skype_dbus", "Error: %s\n", error->message);
-		g_error_free(error);
-		return FALSE;
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+		if (connection == NULL && error != NULL)
+		{
+			skype_debug_info("skype_dbus", "Error: %s\n", error->message);
+			g_error_free(error);
+			return FALSE;
+		}
 	}
     
-	proxy = dbus_g_proxy_new_for_name (connection,
-                                     "com.Skype.API",
-                                     "/com/Skype",
-                                     "com.Skype.API");
-    
-    vtable.message_function = &skype_notify_handler;
-	dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
+    if (proxy == NULL)
+    {
+		proxy = dbus_g_proxy_new_for_name (connection,
+	                                     "com.Skype.API",
+	                                     "/com/Skype",
+	                                     "com.Skype.API");
+	    if (proxy == NULL)
+	    	return FALSE;
+	    
+	    vtable.message_function = &skype_notify_handler;
+		dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
+    }
     
 	return TRUE;
 }
@@ -80,7 +88,7 @@ send_message(char* message)
 	{
     	if (error && error->message)
     	{
-	    	skype_debug_info("skype_dbus", "Error: %s\n", error->message);
+	    	skype_debug_info("skype_dbus", "Error sending message: %s\n", error->message);
 	    	if (message[0] == '#')
 	    	{
 	    		//We're expecting a response
@@ -95,7 +103,8 @@ send_message(char* message)
 	if (str != NULL)
 		g_thread_create((GThreadFunc)skype_message_received, (void *)str, FALSE, NULL);
 }
-static gboolean
+
+static gboolean
 is_skype_running()
 {
 	const gchar *temp;
@@ -103,22 +112,22 @@ is_skype_running()
 	gchar* stat_path;
 	FILE *fh;
 	gchar exec_name[15];
-	struct stat *statobj = NULL;
+	struct stat *statobj = g_new(struct stat, 1);
 	//open /proc
 	GDir *procdir = g_dir_open("/proc", 0, NULL);
 	//go through directories that are numbers
 	while((temp = g_dir_read_name(procdir)))
 	{
 		pid = atoi(temp);
+		g_free(temp);
 		if (!pid)
 			continue;
 		// /proc/{pid}/stat contains lots of juicy info
 		stat_path = g_strdup_printf("/proc/%d/stat", pid);
 		fh = fopen(stat_path, "r");
-		// fscanf (file, "%*d (%15[^)]"
 		pid = fscanf(fh, "%*d (%15[^)]", exec_name);
 		fclose(fh);
-		if (strcmp(exec_name, "skype") != 0)
+		if (!g_str_equal(exec_name, "skype"))
 		{
 			g_free(stat_path);
 			continue;
@@ -130,14 +139,15 @@ is_skype_running()
 		if (statobj->st_uid == getuid())
 		{
 			//this copy of skype was started by us
+			g_dir_close(procdir);
+			g_free(statobj);
 			return TRUE;
 		}
 	}
 	g_dir_close(procdir);
+	g_free(statobj);
 	return FALSE;
-}
-
-
+}
 static void
 hide_skype()
 {
@@ -148,7 +158,7 @@ static gboolean
 exec_skype()
 {
 	GError *error;
-	if (g_spawn_command_line_async("skype", &error))
+	if (g_spawn_command_line_async("skype --enable-dbus --use-session-dbus", &error))
 	{
 		return TRUE;
 	} else {
