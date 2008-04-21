@@ -238,22 +238,22 @@ is_skype_running()
 	gchar* stat_path;
 	FILE *fh;
 	gchar exec_name[15];
-	struct stat *statobj = NULL;
+	struct stat *statobj = g_new(struct stat, 1);
 	//open /proc
 	GDir *procdir = g_dir_open("/proc", 0, NULL);
 	//go through directories that are numbers
 	while((temp = g_dir_read_name(procdir)))
 	{
 		pid = atoi(temp);
+		g_free(temp);
 		if (!pid)
 			continue;
 		// /proc/{pid}/stat contains lots of juicy info
 		stat_path = g_strdup_printf("/proc/%d/stat", pid);
 		fh = fopen(stat_path, "r");
-		// fscanf (file, "%*d (%15[^)]"
 		pid = fscanf(fh, "%*d (%15[^)]", exec_name);
 		fclose(fh);
-		if (strcmp(exec_name, "skype") != 0)
+		if (!g_str_equal(exec_name, "skype"))
 		{
 			g_free(stat_path);
 			continue;
@@ -265,10 +265,13 @@ is_skype_running()
 		if (statobj->st_uid == getuid())
 		{
 			//this copy of skype was started by us
+			g_dir_close(procdir);
+			g_free(statobj);
 			return TRUE;
 		}
 	}
 	g_dir_close(procdir);
+	g_free(statobj);
 	return FALSE;
 }
 
