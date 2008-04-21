@@ -14,7 +14,7 @@ WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0
 all:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so
 
 clean:
-	rm libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskype.dll skype4pidgin.deb skype4pidgin-installer.exe
+	rm -f libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskype.dll skype4pidgin.deb skype4pidgin-installer.exe
 
 libskype.so:
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
