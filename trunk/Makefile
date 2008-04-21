@@ -9,6 +9,7 @@ DBUS_CFLAGS = -DSKYPE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include
 WIN32_DEV_DIR = /root/pidgin/win32-dev
 WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 
 
+DEB_PACKAGE_DIR = /root/skypeplugin
 
 #Standard stuff here
 all:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so
@@ -38,15 +39,12 @@ po/de.mo:
 	msgfmt -cf -o po/de.mo po/de.po
 
 skype4pidgin-installer.exe: libskype.dll
-	date=`date +%d-%b-%Y`
-	sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"${date}\"/" -i skype4pidgin.nsi
+	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i skype4pidgin.nsi
 	echo "Making .exe package"
 	makensis skype4pidgin.nsi > /dev/null
 
 skype4pidgin.deb: libskype.so libskype64.so
-	cd /root
-	date=`date +%F`
-	sed "s/Version: [-a-z0-9A-Z]*/Version: ${date}/" -i skypeplugin/DEBIAN/control
+	date=`date +%F` && sed "s/Version: [-a-z0-9A-Z]*/Version: $$date/" -i ${DEB_PACKAGE_DIR}/DEBIAN/control
 	echo "Making .deb package"
-	dpkg-deb --build skypeplugin /tmp/skype/skype4pidgin.deb > /dev/null
+	dpkg-deb --build ${DEB_PACKAGE_DIR} skype4pidgin.deb > /dev/null
 	
