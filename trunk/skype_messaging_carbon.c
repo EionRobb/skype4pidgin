@@ -126,11 +126,11 @@ skype_connect()
 		skype_disconnect();
 	
 	SetSkypeDelegate(&skypeDelegate);
-	ConnectToSkype();
 	
 	//g_thread_create((GThreadFunc)skype_connect_thread, NULL, FALSE, NULL);
 	while(connected_to_skype == FALSE)
 	{
+		ConnectToSkype();
 		RunCurrentEventLoop(1);
 	}
 	printf("Connected to skype\n");
@@ -235,13 +235,19 @@ allow_app_in_skype_api()
 	AEDesc script_data;
 	OSAID script_id;
 	OSAError err;
+	
+	printf("Enabling universal access\n");
+	fclose(fopen("/private/var/db/.AccessibilityAPIEnabled", "w"));
+	
 	ComponentInstance script = OpenDefaultComponent(kOSAComponentType, typeAppleScript);
 	AECreateDesc(typeChar, script_string, strlen(script_string), &script_data);
 	OSACompile(script, &script_data, kOSAModeNull, &script_id);
+	printf("Trying to run AppleScript code\n");
 	err = OSAExecute(script, script_id, kOSANullScript, kOSAModeNull, &script_id);
 	if (err == -1753)
 	{
-		//theres an error that the access assistive devices isn't enabled
-		//see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg for details
+		printf("Error: 'Access assistive devices' isn't enabled\n"
+				"see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg for details.\n");
 	}
 }	
+
