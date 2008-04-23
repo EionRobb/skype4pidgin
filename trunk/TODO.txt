@@ -2,8 +2,6 @@ Todo:
 
 SMS messages
 Show in multiuser chats if someone is offline with, eg "Eion Robb (offline)", or show a message saying when they went offline?
-Fix up joining/leaving messages in multiuser chats (make so they work out who joined/left)
 show a window of currently active chats/latest chats
 show joining messages on new chat window creation
 Allow leaving of conversations from the conversation menu
-Show when you have left a conversation with /leave
