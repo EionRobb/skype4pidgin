@@ -29,12 +29,19 @@
 //#include <internal.h>
 
 #ifdef ENABLE_NLS
-#	ifdef _WIN32
+/*#	ifdef _WIN32
 #		include <win32dep.h>
-#	endif
+#	endif*/
 #	include <glib/gi18n-lib.h>
 #endif
 
+#ifndef G_GNUC_NULL_TERMINATED
+#  if __GNUC__ >= 4
+#    define G_GNUC_NULL_TERMINATED __attribute__((__sentinel__))
+#  else
+#    define G_GNUC_NULL_TERMINATED
+#  endif /* __GNUC__ >= 4 */
+#endif /* G_GNUC_NULL_TERMINATED */
 
 #include <notify.h>
 #include <core.h>
@@ -44,6 +51,7 @@
 #include <blist.h>
 #include <request.h>
 #include <cmds.h>
+#include <status.h>
 
 #ifdef USE_FARSIGHT
 #include <mediamanager.h>
@@ -119,14 +127,6 @@ static void skype_open_skype_options(void);
 unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
 static PurpleCmdRet skype_cmd_leave(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
-
-#ifndef G_GNUC_NULL_TERMINATED
-#  if __GNUC__ >= 4
-#    define G_GNUC_NULL_TERMINATED __attribute__((__sentinel__))
-#  else
-#    define G_GNUC_NULL_TERMINATED
-#  endif /* __GNUC__ >= 4 */
-#endif /* G_GNUC_NULL_TERMINATED */
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
