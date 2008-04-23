@@ -5,3 +5,4 @@ Show in multiuser chats if someone is offline with, eg "Eion Robb (offline)", or
 show a window of currently active chats/latest chats
 show joining messages on new chat window creation
 Allow leaving of conversations from the conversation menu
+Don't show info pages for crap data, eg birthdays that are unknown, or last online times of 0
