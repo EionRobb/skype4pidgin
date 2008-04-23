@@ -17,7 +17,6 @@
  */
 
 #define PURPLE_PLUGIN
-#define PURPLE_PLUGINS
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define _GNU_SOURCE
 #define GETTEXT_PACKAGE "skype4pidgin"
@@ -44,6 +43,7 @@
 #include <accountopt.h>
 #include <blist.h>
 #include <request.h>
+#include <cmds.h>
 
 #ifdef USE_FARSIGHT
 #include <mediamanager.h>
@@ -117,6 +117,8 @@ void skype_call_number(gpointer ignore, gchar *number);
 void skype_call_number_request(PurplePlugin *plugin, gpointer data);
 static void skype_open_skype_options(void);
 unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
+static PurpleCmdRet skype_cmd_leave(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
+static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 
 #ifndef G_GNUC_NULL_TERMINATED
 #  if __GNUC__ >= 4
@@ -128,7 +130,7 @@ unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypin
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
-	  OPT_PROTO_NO_PASSWORD|OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC,
+	  OPT_PROTO_NO_PASSWORD|OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC|OPT_PROTO_SLASH_COMMANDS_NATIVE,
 
 	NULL,                /* user_splits */
 	NULL,                /* protocol_options */
@@ -265,6 +267,55 @@ plugin_init(PurplePlugin *plugin)
 	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	
+	//leave
+	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_IM |
+						PURPLE_CMD_FLAG_CHAT | PURPLE_CMD_FLAG_PRPL_ONLY |
+						PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						"prpl-bigbrownchunx-skype", skype_cmd_leave,
+						_("leave [channel]:  Leave the chat"), NULL);
+	//topic
+	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						"prpl-bigbrownchunx-skype", skype_cmd_topic,
+						_("topic [&lt;new topic&gt;]:  View or change the topic"),
+						NULL);
+	//call, as in call person
+	//kick
+	//kickban
+}
+
+static PurpleCmdRet
+skype_cmd_leave(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *gc = NULL;
+	int id = -1;
+	
+	gc = purple_conversation_get_gc(conv);	
+	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	
+	if (gc == NULL || id == -1)
+		return PURPLE_CMD_RET_FAILED;
+	
+	skype_chat_leave(gc, id);
+	
+	return PURPLE_CMD_RET_OK;
+}
+
+static PurpleCmdRet
+skype_cmd_topic(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *gc = NULL;
+	int id = -1;
+	
+	gc = purple_conversation_get_gc(conv);
+	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	
+	if (gc == NULL || id == -1)
+		return PURPLE_CMD_RET_FAILED;
+	
+	skype_set_chat_topic(gc, id, args ? args[0] : NULL);
+	
+	return PURPLE_CMD_RET_OK;
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
@@ -1392,10 +1443,10 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 	skype_debug_info("skype", "chat_id: %s\n", chat_id);
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
-#ifndef USE_SKYPE_SENT
+/*#ifndef USE_SKYPE_SENT
 	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SEND,
 					message, time(NULL));
-#endif
+#endif*/
 	return 1;
 }
 

@@ -187,9 +187,7 @@ skype_handle_received_message(char *message)
 	} else if (strcmp(command, "CHATMESSAGE") == 0)
 	{
 		if ((strcmp(string_parts[3], "RECEIVED") == 0)
-#ifdef USE_SKYPE_SENT
 			|| (strcmp(string_parts[3], "SENT") == 0)
-#endif
 			)
 		{
 			msg_num = string_parts[1];
@@ -267,12 +265,21 @@ skype_handle_received_message(char *message)
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
 				serv_got_chat_in(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), sender, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), sender, body)), time(NULL));
-			} else if (strcmp(type, "SAID") == 0 ||
-						strcmp(type, "TEXT") == 0)
+				
+			} else if (g_str_equal(type, "SAID") ||
+						g_str_equal(type, "TEXT") ||
+						g_str_equal(type, "EMOTED"))
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s BODY", msg_num);
 				body = g_strdup(&temp[18+strlen(msg_num)]);
 				g_free(temp);
+				if (g_str_equal(type, "EMOTED"))
+				{
+					//its a /me command so prepend /me to the body
+					temp = g_strdup_printf("/me %s", body);
+					g_free(body);
+					body = temp;
+				}
 				//skype_debug_info("skype", "Message received: %s\n", body);
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				sender = g_strdup(&temp[25+strlen(msg_num)]);
@@ -295,6 +302,7 @@ skype_handle_received_message(char *message)
 				{
 					if (strcmp(sender, my_username) == 0)
 					{
+#ifdef USE_SKYPE_SENT
 						g_free(sender);
 						temp = skype_send_message("GET CHAT %s MEMBERS", chatname);
 						chatusers = g_strsplit(&temp[14+strlen(chatname)], " ", 0);
@@ -305,6 +313,7 @@ skype_handle_received_message(char *message)
 						g_strfreev(chatusers);
 						g_free(temp);
 						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_SEND, mtime);
+#endif
 					} else {
 						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 					}
@@ -317,20 +326,51 @@ skype_handle_received_message(char *message)
 				skype_debug_info("skype", "Friends added: %s\n", body);
 				chatusers = g_strsplit(body, " ", 0);
 				for (i=0; chatusers[i]; i++)
-					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
+					if (!purple_conv_chat_find_user(PURPLE_CONV_CHAT(conv), chatusers[i]))
+						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				g_strfreev(chatusers);
 				g_free(body);
 			} else if (strcmp(type, "LEFT") == 0 && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
-				body = g_strdup(&temp[19+strlen(msg_num)]);
+				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
+				body = g_strdup(&temp[25+strlen(msg_num)]);
 				g_free(temp);
+				if (g_str_equal(body, my_username))
+					purple_conv_chat_left(PURPLE_CONV_CHAT(conv));
 				skype_debug_info("skype", "Friends left: %s\n", body);
 				temp = skype_send_message("GET CHATMESSAGE %s LEAVEREASON", msg_num);
 				purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), body, g_strdup(&temp[25+strlen(msg_num)]));
+				g_free(temp);
 			}
 			/* dont async this -> infinite loop */
 			skype_send_message("SET CHATMESSAGE %s SEEN", msg_num);
+		}
+	} else if (g_str_equal(command, "CHAT"))
+	{
+		//find the matching chat to update
+		glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[1], (GCompareFunc)skype_find_chat);
+		if (glist_temp != NULL && glist_temp->data != NULL)
+		{
+			conv = glist_temp->data;
+			if (g_str_equal(string_parts[2], "MEMBERS"))
+			{
+				if (conv->type == PURPLE_CONV_TYPE_CHAT)
+				{
+					chatusers = g_strsplit(string_parts[3], " ", 0);
+					for (i=0; chatusers[i]; i++)
+					{
+						skype_debug_info("skype", "Buddy in chat: %s\n", chatusers[i]);
+					}
+					g_strfreev(chatusers);
+				}
+			} else if (g_str_equal(string_parts[2], "FRIENDLYNAME"))
+			{
+				if (conv->type == PURPLE_CONV_TYPE_CHAT)
+				{
+					purple_conversation_set_title(conv, g_strdup(string_parts[3]));
+					purple_conversation_update(conv, PURPLE_CONV_UPDATE_TITLE);
+				}
+			}
 		}
 	} else if (strcmp(command, "FILETRANSFER") == 0)
 	{
