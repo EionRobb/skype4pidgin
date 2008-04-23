@@ -1,6 +1,13 @@
 Changelog
 =========
 
+23 April 2008
+-------------
+* Multi-user chats should be vastly better
+* Joining and leaving messages should show properly in multi-user chats
+* The /leave and /topic commands should work in multi-user chats
+* The title of the window is now something more useful than a random pile of characters
+
 21 April 2008
 -------------
 * Fixed startup crash on Linux systems
