@@ -1,4 +1,4 @@
-# Norwegian Bokmål translation of skype4pidgin plugin
+﻿# Norwegian Bokmål translation of skype4pidgin plugin
 # Translated by Thomas B
 # Thomas B, 2008.
 # 
@@ -188,6 +188,7 @@ msgid "_Accept"
 msgstr "_Godta"
 
 msgid "_Reject"
+msgstr "_Avslå"
 
 msgid "Unable to send file to %s, user does not support file transfers"
 msgstr "Klarte ikke sende fil til %s - brukeren støtter ikke filoverføringer"
