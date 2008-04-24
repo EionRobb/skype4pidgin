@@ -104,9 +104,9 @@ Function GetPidginInstPath
 	IfFileExists "$0\pidgin.exe" cont
 	ReadRegStr $0 HKCU "Software\pidgin" ""
 	IfFileExists "$0\pidgin.exe" cont
-  MessageBox MB_OK|MB_ICONINFORMATION "Failed to find Pidgin installation."
+		MessageBox MB_OK|MB_ICONINFORMATION "Failed to find Pidgin installation."
 		Abort "Failed to find Pidgin installation. Please install Pidgin first."
-cont:
+  cont:
 	StrCpy $PidginDir $0
 FunctionEnd
 
@@ -122,9 +122,9 @@ Function UnInstOld
 		  ClearErrors
 			;ExecWait '"$0" _?=$INSTDIR'
 			ExecWait '"$0" _?="$PROGRAMFILES\skype4pidgin"'
-			IfErrors 0 cont
-				MessageBox MB_OK|MB_ICONEXCLAMATION  "Uninstall failed or aborted"
-				Abort "Uninstalling of the previous version gave an error. Install aborted."
+			;IfErrors 0 cont
+			;	MessageBox MB_OK|MB_ICONEXCLAMATION  "Uninstall failed or aborted"
+			;	Abort "Uninstalling of the previous version gave an error. Install aborted."
 			
 	cont:
 		
