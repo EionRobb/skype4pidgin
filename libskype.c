@@ -29,9 +29,9 @@
 //#include <internal.h>
 
 #ifdef ENABLE_NLS
-/*#	ifdef _WIN32
+#	ifdef _WIN32
 #		include <win32dep.h>
-#	endif*/
+#	endif
 #	include <glib/gi18n-lib.h>
 #endif
 
@@ -244,6 +244,11 @@ plugin_init(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
 
+#ifdef ENABLE_NLS
+	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+#endif
+
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 	this_plugin = plugin;
@@ -366,6 +371,9 @@ skype_node_menu(PurpleBlistNode *node)
 							PURPLE_CALLBACK(skype_initiate_chat),
 							NULL, NULL);
 		m = g_list_append(m, act);
+	} else if (PURPLE_BLIST_NODE_IS_CHAT(node))
+	{
+		
 	}
 	return m;
 }

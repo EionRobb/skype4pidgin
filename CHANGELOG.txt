@@ -1,6 +1,11 @@
 Changelog
 =========
 
+24 April 2008
+-------------
+* At long last, translations for Windows versions of the plugin
+* /me command is received properly now
+
 23 April 2008
 -------------
 * Multi-user chats should be vastly better
