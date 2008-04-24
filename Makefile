@@ -49,8 +49,9 @@ skype4pidgin-installer.exe: libskype.dll
 	echo "Making .exe package"
 	makensis skype4pidgin.nsi > /dev/null
 
-skype4pidgin.deb: libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so
-	cp libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so ${DEB_PACKAGE_DIR}/usr/lib/purple-2/
+skype4pidgin.deb: libskype.so libskype64.so
+	rm ${DEB_PACKAGE_DIR}/usr/lib/purple-2/libskype*.so
+	cp libskype.so libskype64.so ${DEB_PACKAGE_DIR}/usr/lib/purple-2/
 	date=`date +%F` && sed "s/Version: [-a-z0-9A-Z]*/Version: $$date/" -i ${DEB_PACKAGE_DIR}/DEBIAN/control
 	echo "Making .deb package"
 	dpkg-deb --build ${DEB_PACKAGE_DIR} skype4pidgin.deb > /dev/null
