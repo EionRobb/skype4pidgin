@@ -33,6 +33,8 @@
 #		include <win32dep.h>
 #	endif
 #	include <glib/gi18n-lib.h>
+#else
+#	define _(a) a
 #endif
 
 #ifndef G_GNUC_NULL_TERMINATED
