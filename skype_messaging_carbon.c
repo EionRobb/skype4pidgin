@@ -112,6 +112,7 @@ static gboolean
 skype_connect()
 {
 	gboolean is_skype_running = FALSE;
+	int timeout_count = 0;
 	
 	if (!static_pool)
 		static_pool = initAutoreleasePool();
@@ -126,12 +127,16 @@ skype_connect()
 		skype_disconnect();
 	
 	SetSkypeDelegate(&skypeDelegate);
+	RunCurrentEventLoop(1);
+	ConnectToSkype();
 	
 	//g_thread_create((GThreadFunc)skype_connect_thread, NULL, FALSE, NULL);
 	while(connected_to_skype == FALSE)
 	{
-		ConnectToSkype();
 		RunCurrentEventLoop(1);
+		allow_app_in_skype_api();
+		if (timeout_count++ == 8)
+			return FALSE;
 	}
 	printf("Connected to skype\n");
 	return TRUE;
@@ -237,9 +242,9 @@ allow_app_in_skype_api()
 													"exit repeat\n"
 												"end if\n"
 											"end repeat\n"
-										"end tell"
+										"end tell";
 	AEDesc script_data;
-	OSAID script_id;
+	OSAID script_id = kOSANullScript;
 	OSAError err;
 	
 	printf("Enabling universal access\n");
@@ -254,6 +259,8 @@ allow_app_in_skype_api()
 	{
 		printf("Error: 'Access assistive devices' isn't enabled\n"
 				"see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg for details.\n");
+	} else {
+		printf("Error number %d\n", err);
 	}
 }	
 
