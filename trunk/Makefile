@@ -3,7 +3,7 @@ LINUX32_COMPILER = i686-pc-linux-gnu-gcc
 LINUX64_COMPILER = x86_64-linux-gnu-gcc
 WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
 
-LIBPURPLE_CFLAGS = -I/usr/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS
+LIBPURPLE_CFLAGS = -I/usr/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DUSE_XVFB_SERVER
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include
 DBUS_CFLAGS = -DSKYPE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include
 WIN32_DEV_DIR = /root/pidgin/win32-dev
