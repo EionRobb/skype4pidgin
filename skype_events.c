@@ -10,6 +10,7 @@ gint skype_find_chat(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 void skype_call_accept_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
+gboolean skype_sync_skype_close(PurpleConnection *gc);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
@@ -64,7 +65,10 @@ skype_handle_received_message(char *message)
 	{
 		if (strcmp(string_parts[1], "LOGGEDOUT") == 0)
 		{
-			purple_connection_error(gc, _("\nSkype program closed"));
+			//need to make this synchronous :(
+			if (gc != NULL)
+				purple_connection_error(gc, _("\nSkype program closed"));
+			//purple_timeout_add(0, (GSourceFunc)skype_sync_skype_close, gc);
 		}
 	} else if ((strcmp(command, "USER") == 0) && (strcmp(string_parts[1], my_username) != 0))
 	{
@@ -706,4 +710,11 @@ purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 	}
 
 	xfer->status = status;
+}
+gboolean
+skype_sync_skype_close(PurpleConnection *gc)
+{
+	if (gc != NULL)
+		purple_connection_error(gc, _("\nSkype program closed"));
+	return FALSE;
 }
