@@ -1,0 +1,228 @@
+# English-Australian translation of skype4pidgin plugin
+# Translated by Eion Robb
+# Eion Robb, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-04-22\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2008-04-22 11:19+1200\n"
+"Last-Translator: Eion Robb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr ""
+
+msgid "There is a newer version of Skype available for download"
+msgstr ""
+
+msgid "No updates found"
+msgstr ""
+
+msgid "You have the latest version of Skype"
+msgstr ""
+
+msgid "You have the latest version of the Skype plugin"
+msgstr ""
+
+msgid "Your version:"
+msgstr ""
+
+msgid "Latest version:"
+msgstr ""
+
+msgid "Download from:"
+msgstr ""
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr ""
+
+msgid "Skype Balance"
+msgstr ""
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr ""
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr ""
+
+msgid "Automatically check for updates"
+msgstr ""
+
+msgid "Auto-start Skype if not running"
+msgstr ""
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr ""
+
+msgid "Offline with Call Forwarding"
+msgstr ""
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr ""
+
+msgid "Skype not responding"
+msgstr ""
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr ""
+
+msgid "Skype client not ready"
+msgstr ""
+
+msgid "Connected to Skype"
+msgstr ""
+
+msgid "Skype program closed"
+msgstr ""
+
+# Skype calling stuff
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr ""
+
+msgid "%s is calling you."
+msgstr ""
+
+msgid "Do you want to accept their call?"
+msgstr ""
+
+# Buddy information
+msgid "Last online"
+msgstr ""
+
+msgid "Number of buddies"
+msgstr ""
+
+msgid "Is Video Capable"
+msgstr ""
+
+# Plugin menu options
+msgid "Hide Skype"
+msgstr ""
+
+msgid "Check for Skype updates..."
+msgstr ""
+
+msgid "Check for plugin updates..."
+msgstr ""
+
+msgid "Search for buddies..."
+msgstr ""
+
+msgid "Check Skype balance..."
+msgstr ""
+
+msgid "Call..."
+msgstr ""
+
+msgid "Open Skype Options..."
+msgstr ""
+
+# User searching:
+msgid "Search for Skype Users"
+msgstr ""
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr ""
+
+msgid "The user does not exist in Skype"
+msgstr ""
+
+msgid "Skype Name"
+msgstr ""
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+
+msgid "_Search"
+msgstr ""
+
+msgid "_Cancel"
+msgstr ""
+
+msgid "_Send File"
+msgstr ""
+
+msgid "Initiate _Chat"
+msgstr ""
+
+msgid "_Close"
+msgstr ""
+
+msgid "Full Name"
+msgstr ""
+
+msgid "Country/Region"
+msgstr ""
+
+msgid "_Add"
+msgstr ""
+
+msgid "Full name"
+msgstr ""
+
+msgid "Personal Information"
+msgstr ""
+
+msgid "Birthday"
+msgstr ""
+
+msgid "Gender"
+msgstr ""
+
+msgid "Preferred Language"
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Authorization Granted"
+msgstr "Authorisation Granted"
+
+msgid "Blocked"
+msgstr ""
+
+msgid "Timezone"
+msgstr ""
+
+msgid "_Accept"
+msgstr ""
+
+msgid "_Reject"
+msgstr ""
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr ""
+
+msgid "Recipient Unavailable"
+msgstr ""
+
+msgid "Read Error"
+msgstr ""
+
+msgid "Write error"
+msgstr ""
+
+msgid "Not Authorized"
+msgstr "Not Authorised"
+
+msgid "%s wants to send you a file"
+msgstr ""
+
+msgid "File Transfers"
+msgstr ""
+
+msgid "%s has changed the topic to: %s"
+msgstr ""
+
+msgid "Contact Info"
+msgstr ""
