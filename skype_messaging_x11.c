@@ -25,7 +25,12 @@ skype_connect()
 	int status;
 	
 	XSetErrorHandler(x11_error_handler);
-	disp = XOpenDisplay(getenv("DISPLAY"));
+#ifdef USE_XVFB_SERVER	
+	if (getenv("SKYPEDISPLAY"))
+		disp = XOpenDisplay(getenv("SKYPEDISPLAY"));
+	else
+#endif
+		disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
 		skype_debug_info("skype", "Couldn't open display\n");
@@ -58,7 +63,6 @@ skype_connect()
 		return FALSE;
 	}
 	skype_win = * (const unsigned long *) prop & 0xffffffff;
-	
 	run_loop = TRUE;
 	
 	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
@@ -75,16 +79,20 @@ skype_disconnect()
 	run_loop = FALSE;
 	skype_win = (Window)-1;
 	
-	e = g_new0(XEvent, 1);
-	e->xclient.type = DestroyNotify;
-	XSendEvent(disp, win, False, 0, e);
-	
-	//wait here for the event to be handled
-	
-	
-	XDestroyWindow(disp, win);
-	XCloseDisplay(disp);
-	
+	if (disp != NULL)
+	{
+		if (win != -1)
+		{
+			e = g_new0(XEvent, 1);
+			e->xclient.type = DestroyNotify;
+			XSendEvent(disp, win, False, 0, e);
+			
+			//wait here for the event to be handled
+			XDestroyWindow(disp, win);
+		}
+		XCloseDisplay(disp);
+	}
+		
 	win = (Window)-1;
 	disp = NULL;
 }
@@ -166,13 +174,6 @@ receive_message_loop(void)
 	msg_temp[20] = '\0';
 	while(run_loop)
 	{
-		//XNextEvent(disp, &e);
-		//if (e.type != ClientMessage)
-		//{
-		//	skype_debug_info("skype_x11", "Unknown event received: %d\n", e.xclient.type);
-		//	XFlush(disp);
-		//	continue;
-		//}
 		if (!disp)
 		{
 			skype_debug_error("skype_x11", "display has disappeared\n");
@@ -200,10 +201,7 @@ receive_message_loop(void)
 
 		if (len < 20)
 		{
-			//if (msg->str[0] == '#')
-				g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
-			//else
-			//	purple_timeout_add(1, (GSourceFunc)skype_handle_received_message, (gpointer)g_string_free(msg, FALSE));
+			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			XFlush(disp);
 		}
 	}
@@ -219,6 +217,43 @@ static gboolean
 exec_skype()
 {
 	GError *error;
+	
+#ifdef USE_XVFB_SERVER	
+	PurpleAccount *acct = NULL;
+	int skype_stdin;
+	gchar **skype_list;
+	
+	unsetenv("DBUS_SESSION_BUS_ADDRESS");
+	if (g_spawn_command_line_async("Xvfb :25 -ac -terminate -tst -xinerama -render -shmem -screen 0 640x480x16", NULL))
+	//if (g_spawn_command_line_async("Xnest :25 -ac -terminate -tst -xinerama", NULL))
+	{
+		acct = skype_get_account(NULL);
+		skype_debug_info("skype_x11", "acct: %d\n", acct);
+		if (acct)
+		{
+			skype_debug_info("skype_x11", "login: %s %s\n", acct->username, acct->password);
+		}
+		if (acct && acct->username && strlen(acct->username) &&
+			acct->password && strlen(acct->password))
+		{
+			g_shell_parse_argv("skype --pipelogin -display :25", NULL, &skype_list, NULL);
+			if (g_spawn_async_with_pipes(NULL, skype_list, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &skype_stdin, NULL, NULL, NULL))
+			{
+				g_strfreev(skype_list);
+				write(skype_stdin, acct->username, strlen(acct->username));
+				write(skype_stdin, " ", 1);
+				write(skype_stdin, acct->password, strlen(acct->password));
+				write(skype_stdin, "\n", 1);
+				fsync(skype_stdin);
+				skype_debug_info("skype_x11", "pipelogin worked\n");
+				setenv("SKYPEDISPLAY", ":25", TRUE);
+				return TRUE;
+			}
+			g_strfreev(skype_list);
+		}
+	}
+#endif
+	
 	if (g_spawn_command_line_async("skype", &error))
 	{
 		return TRUE;
