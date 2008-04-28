@@ -132,7 +132,10 @@ static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar *
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
-	  OPT_PROTO_NO_PASSWORD|OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC|OPT_PROTO_SLASH_COMMANDS_NATIVE,
+#if _WIN32 || __APPLE__ || SKYPE_DBUS || !USE_XVFB_SERVER
+	OPT_PROTO_NO_PASSWORD|
+#endif
+	OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC|OPT_PROTO_SLASH_COMMANDS_NATIVE|OPT_PROTO_UNIQUE_CHATNAME,
 
 	NULL,                /* user_splits */
 	NULL,                /* protocol_options */
@@ -215,10 +218,11 @@ static PurplePluginInfo info = {
 	0, /* flags */
 	NULL, /* dependencies */
 	PURPLE_PRIORITY_DEFAULT, /* priority */
-	"prpl-bigbrownchunx-skype", /* id */
 #ifdef SKYPE_DBUS
+	"prpl-bigbrownchunx-skype-dbus", /* id */
 	"Skype (D-Bus)",
 #else
+	"prpl-bigbrownchunx-skype", /* id */
 	"Skype", /* name */
 #endif
 	"1.2", /* version */
@@ -246,7 +250,7 @@ plugin_init(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
 
-#ifdef ENABLE_NLS
+#if _WIN32 && ENABLE_NLS
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
@@ -908,6 +912,9 @@ skype_login(PurpleAccount *acct)
 	{
 		return;
 	}
+	
+	//set the account, with misleading function name :)
+	skype_get_account(acct);
 
 	gc = purple_account_get_connection(acct);
 	gc->flags = PURPLE_CONNECTION_NO_BGCOLOR |
@@ -971,7 +978,6 @@ skype_login(PurpleAccount *acct)
 	purple_connection_update_progress(gc, _("Connected"), 3, 4);
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
 
-	skype_get_account(acct);
 	skype_get_account_alias(acct);
 	skype_get_account_username(acct);
 	if (purple_account_get_bool(acct, "skype_sync", TRUE))
