@@ -1,6 +1,10 @@
 Changelog
 =========
 
+28 April 2008
+-------------
+* Adium plugin should hide Skype API window for languages other than English now
+
 24 April 2008
 -------------
 * At long last, translations for Windows versions of the plugin
