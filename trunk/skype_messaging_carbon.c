@@ -226,12 +226,18 @@ static void
 allow_app_in_skype_api()
 {
 	static const char *script_string = "tell application \"System Events\" to tell process \"Skype\"\n"
-										"if window \"Skype API Security\" exists then\n"
-										"click radio button \"Allow this application to use Skype\" of radio group 1 of window \"Skype API Security\"\n"
-										"delay 1\n"
-										"click button \"OK\" of window \"Skype API Security\"\n"
-										"end if\n"
-										"end tell";
+											"set numWindows to count of windows\n"
+											"repeat with w from 1 to numWindows\n"
+												"if (name of window w contains \"Skype\" and name of window w contains \"API\")\n"
+													"tell window w\n"
+														"click radio button 1 of radio group 1\n"
+														"delay 0.1\n"
+														"click button 1\n"
+													"end tell\n"
+													"exit repeat\n"
+												"end if\n"
+											"end repeat\n"
+										"end tell"
 	AEDesc script_data;
 	OSAID script_id;
 	OSAError err;
