@@ -45,7 +45,7 @@ msgid "Enter the phone number or Skype buddy name to call"
 msgstr "Írja be a felhívni kívánt személy telefonszámát vagy Skype nevét"
 
 msgid "Show SkypeOut contacts as 'Online'"
-msgstr "SkypeOut partnerek megjelenítése "Elérhető" állapotúként"
+msgstr "SkypeOut partnerek megjelenítése 'Elérhető' állapotúként"
 
 msgid "Make Skype online/offline when going online/offline"
 msgstr "Skype online/offline állapot váltása ki- és bejelentkezéskor"
