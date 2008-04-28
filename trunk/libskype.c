@@ -129,6 +129,7 @@ static void skype_open_skype_options(void);
 unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
 static PurpleCmdRet skype_cmd_leave(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
+int skype_send_raw(PurpleConnection *, const char *, int);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -196,7 +197,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* new_xfer */
 	skype_offline_msg,   /* offline_message */
 	NULL,                /* whiteboard_prpl_ops */
-	NULL,                /* send_raw */
+	skype_send_raw,      /* send_raw */
 	NULL,                /* roomlist_room_serialize */
 	NULL,                /* unregister_user */
 	NULL,                /* send_attention */
@@ -1388,6 +1389,23 @@ const char *
 skype_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
 	return "skype";
+}
+
+int
+skype_send_raw(PurpleConnection *gc, const char *buf, int len)
+{
+	gchar *newbuf = NULL;
+	int newlen = 0;
+	
+	newbuf = g_strndup(buf, len);
+	newlen = strlen(newbuf);
+	if (newbuf != NULL)
+	{
+		skype_send_message_nowait(newbuf);
+		g_free(newbuf);
+	}
+	
+	return newlen;
 }
 
 static void
