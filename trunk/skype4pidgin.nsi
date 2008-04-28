@@ -7,7 +7,7 @@ SetCompressor lzma
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "24-Apr-2008"
+!define PRODUCT_VERSION "28-Apr-2008"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -71,7 +71,9 @@ Section "MainSection" SEC01
 	File "/oname=protocols\16\skype.png" "icons\16\skype.png"
 	File "/oname=protocols\22\skype.png" "icons\22\skype.png"
 	File "/oname=protocols\48\skype.png" "icons\48\skype.png"
-	File "/oname=emotes\skype\theme" "theme"
+
+	SetOutPath "$PidginDir\pixmaps\pidgin\emotes\skype"
+	File "theme"
 
 	SetOutPath "$PidginDir\locale"
 	File /nonfatal "/oname=ja\LC_MESSAGES\skype4pidgin.mo" "po\ja.mo"
