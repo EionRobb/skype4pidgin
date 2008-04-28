@@ -78,6 +78,7 @@ Section "MainSection" SEC01
 	File /nonfatal "/oname=de\LC_MESSAGES\skype4pidgin.mo" "po\de.mo"
 	File /nonfatal "/oname=fr\LC_MESSAGES\skype4pidgin.mo" "po\fr.mo"
 	File /nonfatal "/oname=es\LC_MESSAGES\skype4pidgin.mo" "po\es.mo"
+	File /nonfatal "/oname=hu\LC_MESSAGES\skype4pidgin.mo" "po\hu.mo"
 	File /nonfatal "/oname=nb\LC_MESSAGES\skype4pidgin.mo" "po\nb.mo"
 	File /nonfatal "/oname=en_AU\LC_MESSAGES\skype4pidgin.mo" "po\en_AU.mo"
 
