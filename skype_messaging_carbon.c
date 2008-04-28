@@ -237,7 +237,7 @@ allow_app_in_skype_api()
 													"tell window w\n"
 														"click radio button 1 of radio group 1\n"
 														"delay 0.1\n"
-														"click button 1\n"
+														"click button 4\n"
 													"end tell\n"
 													"exit repeat\n"
 												"end if\n"
