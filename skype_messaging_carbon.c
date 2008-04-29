@@ -246,9 +246,15 @@ allow_app_in_skype_api()
 	AEDesc script_data;
 	OSAID script_id = kOSANullScript;
 	OSAError err;
+	FILE *access_file = NULL;
 	
 	printf("Enabling universal access\n");
-	fclose(fopen("/private/var/db/.AccessibilityAPIEnabled", "w"));
+	access_file = fopen("/private/var/db/.AccessibilityAPIEnabled", "w");
+	if (access_file != NULL)
+	{
+		fwrite("a\n", 1, 2, access_file);
+		fclose(access_file);
+	}
 	
 	ComponentInstance script = OpenDefaultComponent(kOSAComponentType, typeAppleScript);
 	AECreateDesc(typeChar, script_string, strlen(script_string), &script_data);
