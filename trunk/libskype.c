@@ -909,7 +909,7 @@ skype_login(PurpleAccount *acct)
 	PurpleConnection *gc;
 	gchar *reply;
 	
-	if(acct == NULL)
+	if (acct == NULL)
 	{
 		return;
 	}
@@ -918,6 +918,10 @@ skype_login(PurpleAccount *acct)
 	skype_get_account(acct);
 
 	gc = purple_account_get_connection(acct);
+	
+	if (gc == NULL)
+		return;
+	
 	gc->flags = PURPLE_CONNECTION_NO_BGCOLOR |
 				PURPLE_CONNECTION_NO_URLDESC |
 				PURPLE_CONNECTION_NO_FONTSIZE |
@@ -925,7 +929,8 @@ skype_login(PurpleAccount *acct)
 
 	/* 1. connect to server */
 	/* TODO: Work out if a skype connection is already running */
-	if(FALSE)
+	//purple_account_is_connected(acct)
+	if (FALSE)
 	{
 		purple_connection_error(gc, g_strconcat("\n",_("Only one Skype account allowed"), NULL));
 		return;
@@ -977,7 +982,6 @@ skype_login(PurpleAccount *acct)
 	purple_connection_update_progress(gc, _("Hide Skype"), 2, 4);
 	skype_silence(NULL, NULL);
 	purple_connection_update_progress(gc, _("Connected"), 3, 4);
-	purple_connection_set_state(gc, PURPLE_CONNECTED);
 
 	skype_get_account_alias(acct);
 	skype_get_account_username(acct);
@@ -986,6 +990,8 @@ skype_login(PurpleAccount *acct)
 	//sync buddies after everything else has finished loading
 	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);
 	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
+	
+	purple_connection_set_state(gc, PURPLE_CONNECTED);
 }
 
 char *
