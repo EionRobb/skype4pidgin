@@ -914,6 +914,11 @@ skype_login(PurpleAccount *acct)
 		return;
 	}
 	
+	if (purple_get_blist() == NULL)
+	{
+		return;
+	}
+	
 	//set the account, with misleading function name :)
 	skype_get_account(acct);
 
