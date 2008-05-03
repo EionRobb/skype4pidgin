@@ -424,7 +424,7 @@ Author=Eion Robb and Hylke Bons
 ../default/glasses-nerdy.png	8-| B-| 8| B| 8=| B=| (nerd)
 ../default/quiet.png			:x :-x :X :-X :# :-# :=x :=X :=#
 ../default/waving.png			(hi)
-../default/on-the-phone.png	(call)
+../default/call-me.png	(call)
 ../default/devil.png			(devil)
 ../default/angel.png			(angel)
 ../default/desire.png			(envy)
@@ -466,3 +466,4 @@ Author=Eion Robb and Hylke Bons
 ../default/sigarette.png		(smoking) (smoke) (ci)
 ../default/male-fighter1.png	(ninja)
 ../default/dazed.png			(tmi)
+../default/goat.png		(emo)
