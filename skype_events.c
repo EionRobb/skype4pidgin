@@ -334,7 +334,7 @@ skype_handle_received_message(char *message)
 						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				g_strfreev(chatusers);
 				g_free(body);
-			} else if ((g_str_equal(type, "LEFT") || g_str_equal(type, "KICKED") || g_str_equal(type, "KICKBANNED")) && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			} else if (g_str_equal(type, "LEFT") && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				body = g_strdup(&temp[25+strlen(msg_num)]);
@@ -345,6 +345,17 @@ skype_handle_received_message(char *message)
 				temp = skype_send_message("GET CHATMESSAGE %s LEAVEREASON", msg_num);
 				purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), body, g_strdup(&temp[25+strlen(msg_num)]));
 				g_free(temp);
+			} else if ((g_str_equal(type, "KICKED") || g_str_equal(type, "KICKBANNED")) && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				temp = skype_send_message("GET CHATMESSAGE %s USERS", msg_num);
+				body = g_strdup(&temp[19+strlen(msg_num)]);
+				g_free(temp);
+				skype_debug_info("skype", "Friends kicked/banned: %s\n", body);
+				chatusers = g_strsplit(body, " ", 0);
+				for (i=0; chatusers[i]; i++)
+					purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), chatusers[i], g_strdup(type));
+				g_strfreev(chatusers);
+				g_free(body);
 			}
 			/* dont async this -> infinite loop */
 			skype_send_message("SET CHATMESSAGE %s SEEN", msg_num);
