@@ -334,7 +334,7 @@ skype_handle_received_message(char *message)
 						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				g_strfreev(chatusers);
 				g_free(body);
-			} else if (strcmp(type, "LEFT") == 0 && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			} else if ((g_str_equal(type, "LEFT") || g_str_equal(type, "KICKED") || g_str_equal(type, "KICKBANNED")) && conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				temp = skype_send_message("GET CHATMESSAGE %s FROM_HANDLE", msg_num);
 				body = g_strdup(&temp[25+strlen(msg_num)]);
