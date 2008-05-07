@@ -344,7 +344,13 @@ skype_cmd_kick(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar *
 	gchar *chat_id;
 
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
-	temp = skype_send_message_nowait("ALTER CHAT %s KICK %s", chat_id, args[0]);
+	temp = skype_send_message("ALTER CHAT %s KICK %s", chat_id, args[0]);
+	if (!temp || !strlen(temp))
+	{
+		if(temp) g_free(temp);
+		return PURPLE_CMD_RET_FAILED;
+	}
+	return PURPLE_CMD_RET_OK;	
 }
 
 static PurpleCmdRet
@@ -354,7 +360,13 @@ skype_cmd_kickban(PurpleConversation *conv, const gchar *cmd, gchar **args, gcha
 	gchar *chat_id;
 
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
-	temp = skype_send_message_nowait("ALTER CHAT %s KICKBAN %s", chat_id, args[0]);
+	temp = skype_send_message("ALTER CHAT %s KICKBAN %s", chat_id, args[0]);
+	if (!temp || !strlen(temp))
+	{
+		if(temp) g_free(temp);
+		return PURPLE_CMD_RET_FAILED;
+	}
+	return PURPLE_CMD_RET_OK;	
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
