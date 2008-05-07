@@ -295,12 +295,17 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 	//call, as in call person
 	//kick
-	purple_cmd_register("kick", "ws", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY,
 						"prpl-bigbrownchunx-skype", skype_cmd_kick,
 						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
 						NULL);
 	//kickban
+	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						"prpl-bigbrownchunx-skype", skype_cmd_kickban,
+						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
+						NULL);
 }
 
 static PurpleCmdRet
