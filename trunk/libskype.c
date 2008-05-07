@@ -129,6 +129,8 @@ static void skype_open_skype_options(void);
 unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
 static PurpleCmdRet skype_cmd_leave(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
+static PurpleCmdRet skype_cmd_kick(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
+static PurpleCmdRet skype_cmd_kickban(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 int skype_send_raw(PurpleConnection *, const char *, int);
 
 PurplePluginProtocolInfo prpl_info = {
@@ -293,6 +295,11 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 	//call, as in call person
 	//kick
+	purple_cmd_register("kick", "ws", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						"prpl-bigbrownchunx-skype", skype_cmd_kick,
+						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
+						NULL);
 	//kickban
 }
 
@@ -328,6 +335,26 @@ skype_cmd_topic(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar 
 	skype_set_chat_topic(gc, id, args ? args[0] : NULL);
 	
 	return PURPLE_CMD_RET_OK;
+}
+
+static PurpleCmdRet
+skype_cmd_kick(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	gchar *temp;
+	gchar *chat_id;
+
+	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
+	temp = skype_send_message_nowait("ALTER CHAT %s KICK %s", chat_id, args[0]);
+}
+
+static PurpleCmdRet
+skype_cmd_kickban(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	gchar *temp;
+	gchar *chat_id;
+
+	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
+	temp = skype_send_message_nowait("ALTER CHAT %s KICKBAN %s", chat_id, args[0]);
 }
 
 PURPLE_INIT_PLUGIN(skype, plugin_init, info);
