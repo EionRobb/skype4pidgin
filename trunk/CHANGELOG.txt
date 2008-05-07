@@ -1,6 +1,11 @@
 Changelog
 =========
 
+8 May 2008
+----------
+* Adium plugin updated to not crash on startup with 1.2.5
+* Pidgin plugin now has /kick commands and can handle users being kicked out of a multi-user chat
+
 28 April 2008
 -------------
 * Adium plugin should hide Skype API window for languages other than English now
