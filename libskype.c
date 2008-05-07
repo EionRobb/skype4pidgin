@@ -976,7 +976,7 @@ skype_login(PurpleAccount *acct)
 	g_free(reply);
 #endif
 	purple_connection_update_progress(gc, _("Initializing"), 1, 4);
-	reply = skype_send_message("PROTOCOL 5");
+	reply = skype_send_message("PROTOCOL 7");
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
