@@ -1561,6 +1561,7 @@ void
 skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
 	static int chat_number = 2000;
+	PurpleConversation *conv;
 	
 	gchar *chat_id = (gchar *)g_hash_table_lookup(data, "chat_id");
 	if (chat_id == NULL)
@@ -1569,6 +1570,7 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 	}
 	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
 	conv = serv_got_joined_chat(gc, chat_number++, chat_id);
+	purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 }
 
 gchar *
