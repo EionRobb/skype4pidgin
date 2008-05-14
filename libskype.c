@@ -989,7 +989,6 @@ skype_login(PurpleAccount *acct)
 	
 	if (!skype_connect())
 	{
-		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));
 		if (purple_account_get_bool(acct, "skype_autostart", TRUE))
 		{
 			skype_debug_info("skype", "Should I start Skype?\n");
@@ -997,8 +996,10 @@ skype_login(PurpleAccount *acct)
 			{
 				skype_debug_info("skype", "Yes, start Skype\n");
 				exec_skype();
+				return;
 			}
 		}
+		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));		
 		return;
 	}
 	
@@ -1294,7 +1295,8 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 void
 skype_set_idle(PurpleConnection *gc, int time)
 {
-	skype_send_message("SET AUTOAWAY OFF");
+	skype_send_message_nowait("SET AUTOAWAY OFF");
+	skype_send_message_nowait("RESETIDLETIMER");
 	if (time <= 0) {
 		skype_send_message_nowait("SET USERSTATUS ONLINE");
 	} else if ((time >= 300) && (time < 1200)) {
@@ -1558,18 +1560,31 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 void
 skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
+	static int chat_number = 2000;
+	
 	gchar *chat_id = (gchar *)g_hash_table_lookup(data, "chat_id");
 	if (chat_id == NULL)
 	{
 		return;
 	}
 	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
+	conv = serv_got_joined_chat(gc, chat_number++, chat_id);
 }
 
 gchar *
 skype_get_chat_name(GHashTable *data)
 {
-	return g_strdup(g_hash_table_lookup(data, "chat_id"));
+	gchar *temp;
+
+	if (data == NULL)
+		return NULL;
+	
+	temp = g_hash_table_lookup(data, "chat_id");
+
+	if (temp == NULL)
+		return NULL;
+
+	return g_strdup(temp);
 }
 
 gchar *
