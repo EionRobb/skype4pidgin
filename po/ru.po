@@ -1,0 +1,225 @@
+# Russian translation of skype4pidgin plugin
+# Translated by Petr Vasilyev
+# Petr Vasilyev, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-04-22\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2008-05-16 09:52+1200\n"
+"Last-Translator: Petr Vasilyev\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Доступно обновление Pidgin/Skype плагина"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Доступна новая версия Skype"
+
+msgid "No updates found"
+msgstr "Обновлений не найдено"
+
+msgid "You have the latest version of Skype"
+msgstr "У Вас самая свежая версия Skype"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "У Вас самая свежия версия Pidgin/Skype плагина"
+
+msgid "Your version:"
+msgstr "Ваша версия:"
+
+msgid "Latest version:"
+msgstr "Самая свежая версия:"
+
+msgid "Download from:"
+msgstr "Скачать с:"
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr "На Вашем Skype счёте осталось:"
+
+msgid "Skype Balance"
+msgstr "Skype счёт:"
+
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Введите телефонный номер или имя пользователя Skype"
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Показывать статус Skype Out контактов как 'Доступен'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Соединять/отсоединять Skype от сети вместе с Pidgin"
+
+msgid "Automatically check for updates"
+msgstr "Автоматически проверять обновления"
+
+msgid "Auto-start Skype if not running"
+msgstr "Запускать Skype, если он не запущен"
+
+msgid "The user does not exist in Skype"
+msgstr "Такого пользователя Skype не существует"
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr "Не в сети, включена голосовая почта"
+
+msgid "Offline with Call Forwarding"
+msgstr "Не в сети, включена переадресация вызова"
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr "Можно пользоваться только одной учётной записью Skype"
+
+msgid "Skype not responding"
+msgstr "Skype не отвечает"
+
+msgid "Could not connect to Skype process. Skype not running?"
+msgstr "Не могу соединиться с процессом Skype. Skype не запущен?"
+
+msgid "Skype client not ready"
+msgstr "Skype не готов"
+
+msgid "Connected to Skype"
+msgstr "Соединён со Skype"
+
+msgid "Skype program closed"
+msgstr "Приложение Skype было закрыто"
+
+msgid "%s is calling you."
+msgstr "Вам звонит %s"
+
+msgid "Do you want to accept their call?"
+msgstr "Вы хотите принять звонок?"
+
+msgid "Last online"
+msgstr "Последний раз был в сети"
+
+msgid "Number of buddies"
+msgstr "Количество контактов"
+
+msgid "Is Video Capable"
+msgstr "Доступен ли видео чат"
+
+msgid "Hide Skype"
+msgstr "Скрыть Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Проверить обновления Skype..."
+
+msgid "Check for plugin updates..."
+msgstr "Проверить обновления Pidgin/Skype плагина..."
+
+msgid "Search for buddies..."
+msgstr "Поискать пользователей Skype..."
+
+msgid "Check Skype balance..."
+msgstr "Проверить состояние счёта Skype..."
+
+msgid "Call..."
+msgstr "Позвонить..."
+
+msgid "Open Skype Options..."
+msgstr "Открыть окно настроек Skype..."
+
+msgid "Search for Skype Users"
+msgstr "Искать пользователей Skype"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Введите Skype имя, полное имя или почтовый адрес человека, которого Вы ищете."
+
+msgid "Skype Name"
+msgstr "Skype имя"
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+
+msgid "_Search"
+msgstr "_Искать"
+
+msgid "_Cancel"
+msgstr "О_тменить"
+
+msgid "_Send File"
+msgstr "Отправить _файл"
+
+msgid "Initiate _Chat"
+msgstr "Создать _чат"
+
+msgid "_Close"
+msgstr "_Закрыть"
+
+msgid "Full Name"
+msgstr "Полное имя"
+
+msgid "Country/Region"
+msgstr "Страна/Регион"
+
+msgid "_Add"
+msgstr "_Добавить"
+
+msgid "Full name"
+msgstr "Полное Имя"
+
+msgid "Personal Information"
+msgstr "Персональная информация"
+
+msgid "Birthday"
+msgstr "Дата рождения"
+
+msgid "Gender"
+msgstr "Пол"
+
+msgid "Preferred Language"
+msgstr "Предпочитаемый язык"
+
+msgid "Country"
+msgstr "Страна"
+
+msgid "Authorization Granted"
+msgstr "Авторизация дана"
+
+msgid "Blocked"
+msgstr "Заблокирован"
+
+msgid "Timezone"
+msgstr "Часовой пояс"
+
+msgid "_Accept"
+msgstr "_Принять"
+
+msgid "_Reject"
+msgstr "_Отвергнуть"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Не удаётся отправить файл для %s, пользователь не поддерживает приём файлов"
+
+msgid "Recipient Unavailable"
+msgstr "Получатель недоступен"
+
+msgid "Read Error"
+msgstr "Ошибка чтения"
+
+msgid "Write error"
+msgstr "Ошибка записи"
+
+msgid "Not Authorized"
+msgstr "Не авторизован"
+
+msgid "%s wants to send you a file"
+msgstr "%s хочет отправить вам файл"
+
+msgid "File Transfers"
+msgstr "Передача файлов"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s сменил тему на: %s"
+
+msgid "Contact Info"
+msgstr "Контактная информация"
+
