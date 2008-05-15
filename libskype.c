@@ -674,8 +674,11 @@ skype_status_types(PurpleAccount *acct)
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_EXTENDED_AWAY, "Not Available");
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_UNAVAILABLE, "Do Not Disturb");
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_INVISIBLE, "Invisible");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_OFFLINE, "Offline");
-
+	//_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_OFFLINE, "Offline");
+	
+	//Offline people shouldn't have status messages
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, NULL, _("Offline"), TRUE, TRUE, FALSE);
+	types = g_list_append(types, status);
 
 	return types;
 }
@@ -996,16 +999,18 @@ skype_login(PurpleAccount *acct)
 			{
 				skype_debug_info("skype", "Yes, start Skype\n");
 				exec_skype();
-				return;
+				gc->wants_to_die = FALSE;
 			}
+		} else {
+			gc->wants_to_die = TRUE;
 		}
 		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));		
 		return;
 	}
 	
 	purple_connection_update_progress(gc, _("Authorizing"),
-								  0,   /* which connection step this is */
-								  4);  /* total number of steps */
+								  1,   /* which connection step this is */
+								  5);  /* total number of steps */
 
 #ifndef __APPLE__
 #ifdef SKYPE_DBUS
@@ -1020,7 +1025,7 @@ skype_login(PurpleAccount *acct)
 	}
 	g_free(reply);
 #endif
-	purple_connection_update_progress(gc, _("Initializing"), 1, 4);
+	purple_connection_update_progress(gc, _("Initializing"), 2, 5);
 	reply = skype_send_message("PROTOCOL 7");
 	if (reply == NULL || strlen(reply) == 0)
 	{
@@ -1029,9 +1034,9 @@ skype_login(PurpleAccount *acct)
 	}
 	g_free(reply);
 	
-	purple_connection_update_progress(gc, _("Hide Skype"), 2, 4);
+	purple_connection_update_progress(gc, _("Hide Skype"), 3, 5);
 	skype_silence(NULL, NULL);
-	purple_connection_update_progress(gc, _("Connected"), 3, 4);
+	purple_connection_update_progress(gc, _("Connected"), 4, 5);
 
 	skype_get_account_alias(acct);
 	skype_get_account_username(acct);
