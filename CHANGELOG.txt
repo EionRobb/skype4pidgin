@@ -1,6 +1,12 @@
 Changelog
 =========
 
+16 May 2008
+-----------
+* Italian translation thanks to Roberto Agria
+* Russian translation thanks to Petr Vasilyev
+* Few minor tweaks to Pidgin plugin
+
 8 May 2008
 ----------
 * Adium plugin updated to not crash on startup with 1.2.5
