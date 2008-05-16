@@ -1,4 +1,4 @@
-﻿# Hungarian translation of skype4pidgin plugin
+# Hungarian translation of skype4pidgin plugin
 # Translated by Lipilee
 
 msgid ""

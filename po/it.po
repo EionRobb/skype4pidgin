@@ -11,6 +11,7 @@ msgstr ""
 "PO-Revision-Date: 2008-05-15 10:51+1200\n"
 "Last-Translator: Roberto Agria\n"
 "MIME-Version: 1.0\n"
+"Language-Team: \n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit"
 
