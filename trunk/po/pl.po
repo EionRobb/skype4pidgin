@@ -1,0 +1,230 @@
+# Polish translation of skype4pidgin plugin
+# Translated by Jakub Chrzanowski
+# Jakub Chrzanowski, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-05-18\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2008-05-20 12:56+1200\n"
+"Last-Translator: Jakub Chrzanowski\n"
+"MIME-Version: 1.0\n"
+"Language-Team: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Ukazała się nowa wersja pluginu Skype do pobrania"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Ukazała się nowa wersja Skype do pobrania"
+
+msgid "No updates found"
+msgstr "Nie znaleziono aktualizacji"
+
+msgid "You have the latest version of Skype"
+msgstr "Posiadasz aktualną wersję Skype"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Posiadasz aktualną wersję pluginu Skype"
+
+msgid "Your version:"
+msgstr "Twoja wersja:"
+
+msgid "Latest version:"
+msgstr "Ostatnia wersja"
+
+msgid "Download from:"
+msgstr "Pobierz z:"
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr "Aktualny stan Twojego konta Skype wynosi:"
+
+msgid "Skype Balance"
+msgstr "Środki Skype"
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Pokaż kontakty SkypeOut jako 'Dostępne'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Ustaw status Skype na dostępny/niedostępny gdy staniesz się dostępny/niedostępny"
+
+msgid "Automatically check for updates"
+msgstr "Automatycznie sprawdzaj aktualizacje"
+
+msgid "Auto-start Skype if not running"
+msgstr "Automatycznie uruchom Skype jeśli wyłączony"
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr "Niedostępni z Pocztą głosową"
+
+msgid "Offline with Call Forwarding"
+msgstr "Niedostępni z Przekierowaniem połączeń"
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr "Dozwolone tylko jedno konto Skype"
+
+msgid "Skype not responding"
+msgstr "Skype nie odpowiada"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Nie można połączyć się z procesem Skype. Skype nie jest uruchomione ?"
+
+msgid "Skype client not ready"
+msgstr "Klient Skype niegotowy"
+
+msgid "Connected to Skype"
+msgstr "Podłączono do Skype"
+
+msgid "Skype program closed"
+msgstr "Skype zostało zamknięte"
+
+# Skype calling stuff
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Wpisz numer telefonu lub nazwę użytkownika Skype aby zadzwonić"
+
+msgid "%s is calling you."
+msgstr "%s dzwoni do Ciebie"
+
+msgid "Do you want to accept their call?"
+msgstr "Czy chcesz zaakceptować ich rozmowę?"
+
+# Buddy information
+msgid "Last online"
+msgstr "Ostatnio dostępny"
+
+msgid "Number of buddies"
+msgstr "Liczba znajomych"
+
+msgid "Is Video Capable"
+msgstr "Czy obsługuje wideo"
+
+# Plugin menu options
+msgid "Hide Skype"
+msgstr "Ukryj Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Sprawdź aktualizacje Skype..."
+
+msgid "Check for plugin updates..."
+msgstr "Sprawdź aktualizacje pluginu..."
+
+msgid "Search for buddies..."
+msgstr "Szukaj znajomych..."
+
+msgid "Check Skype balance..."
+msgstr "Sprawdź środki Skype..."
+
+msgid "Call..."
+msgstr "Rozpocznij rozmowę..."
+
+msgid "Open Skype Options..."
+msgstr "Otwórz opcje Skype..."
+
+# User searching:
+msgid "Search for Skype Users"
+msgstr "Szukaj Użytkowników Skype..."
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you
+are searching for."
+msgstr "Wpisz nazwę użytkownika Skype, imię i nazwisko lub adres e-mail znajomego, którego szukasz:"
+
+msgid "The user does not exist in Skype"
+msgstr "Użytkownik nie istnieje w Skype"
+
+msgid "Skype Name"
+msgstr "Nazwa użytkownika Skype"
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+
+msgid "_Search"
+msgstr "Zn_ajdź"
+
+msgid "_Cancel"
+msgstr "_Anuluj"
+
+msgid "_Send File"
+msgstr "Wyślij _plik"
+
+msgid "Initiate _Chat"
+msgstr "Rozpocznij _konferencję"
+
+msgid "_Close"
+msgstr "_Zamknij"
+
+msgid "Full Name"
+msgstr "Imię i nazwisko"
+
+msgid "Country/Region"
+msgstr "Kraj/Region"
+
+msgid "_Add"
+msgstr "_Dodaj"
+
+msgid "Full name"
+msgstr "Imię i nazwisko"
+
+msgid "Personal Information"
+msgstr "Informacje osobiste"
+
+msgid "Birthday"
+msgstr "Data urodzenia"
+
+msgid "Gender"
+msgstr "Płeć"
+
+msgid "Preferred Language"
+msgstr "Preferowany język"
+
+msgid "Country"
+msgstr "Kraj"
+
+msgid "Authorization Granted"
+msgstr "Udzielono autoryzacji"
+
+msgid "Blocked"
+msgstr "Zablokowane"
+
+msgid "Timezone"
+msgstr "Strefa czasowa"
+
+msgid "_Accept"
+msgstr "_Akceptuj"
+
+msgid "_Reject"
+msgstr "_Odrzuć"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Nie można przesłać pliku do %s, użytkownik nie ma włączonej obsługi przesyłania plików"
+
+msgid "Recipient Unavailable"
+msgstr "Odbiorca jest niedostępny"
+
+msgid "Read Error"
+msgstr "Błąd oczytu"
+
+msgid "Write error"
+msgstr "Błąd zapisu"
+
+msgid "Not Authorized"
+msgstr "Brak autoryzacji"
+
+msgid "%s wants to send you a file"
+msgstr "%s chce wysłać tobie plik"
+
+msgid "File Transfers"
+msgstr "Transmisja plików"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s zmieniła/zmienił temat na: %s"
+
+msgid "Contact Info"
+msgstr "Informacje o kontakcie"
