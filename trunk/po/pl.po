@@ -132,8 +132,7 @@ msgstr "Otwórz opcje Skype..."
 msgid "Search for Skype Users"
 msgstr "Szukaj Użytkowników Skype..."
 
-msgid "Type the Skype Name, full name or e-mail address of the buddy you
-are searching for."
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
 msgstr "Wpisz nazwę użytkownika Skype, imię i nazwisko lub adres e-mail znajomego, którego szukasz:"
 
 msgid "The user does not exist in Skype"
