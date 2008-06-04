@@ -1,6 +1,10 @@
 Changelog
 =========
 
+5 June 2008
+-----------
+* Polish translation thanks to Jakub Chrzanowski
+
 16 May 2008
 -----------
 * Italian translation thanks to Roberto Agria

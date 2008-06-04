@@ -7,7 +7,7 @@ SetCompressor lzma
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "16-May-2008"
+!define PRODUCT_VERSION "05-Jun-2008"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -83,7 +83,8 @@ Section "MainSection" SEC01
 	File /nonfatal "/oname=hu\LC_MESSAGES\skype4pidgin.mo" "po\hu.mo"
 	File /nonfatal "/oname=nb\LC_MESSAGES\skype4pidgin.mo" "po\nb.mo"
 	File /nonfatal "/oname=it\LC_MESSAGES\skype4pidgin.mo" "po\it.mo"
-	File /nonfatal "/oname=it\LC_MESSAGES\skype4pidgin.mo" "po\ru.mo"
+	File /nonfatal "/oname=ru\LC_MESSAGES\skype4pidgin.mo" "po\ru.mo"
+	File /nonfatal "/oname=pl\LC_MESSAGES\skype4pidgin.mo" "po\pl.mo"
 	File /nonfatal "/oname=en_AU\LC_MESSAGES\skype4pidgin.mo" "po\en_AU.mo"
 
     SetOverwrite try
