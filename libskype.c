@@ -696,7 +696,14 @@ skype_set_buddies(PurpleAccount *acct)
 	int i;
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
-	friends = g_strsplit_set(friends_text, ", ", 0);
+	if (strlen(friends_text) == 0)
+	{
+		g_free(friends_text);
+		return FALSE;
+	}
+	//skip first word (should be USERS) and seperate by comma-space
+	friends = g_strsplit(strchr(friends_text, ' '), ", ", 0);
+	g_free(friends_text);
 	if (friends == NULL || friends[0] == NULL)
 	{
 		return FALSE;
@@ -711,8 +718,9 @@ skype_set_buddies(PurpleAccount *acct)
 
 	for (i=1; friends[i]; i++)
 	{
-		if (strlen(friends[i]) == 0)
-			continue;
+		//remove whitespace
+		g_strstrip(friends[i]);
+		
 		//If already in list, dont recreate, reuse
 		skype_debug_info("skype", "Searching for friend %s\n", friends[i]);
 		found_buddy = g_slist_find_custom(existing_friends,
@@ -1450,6 +1458,8 @@ skype_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *userinfo, gboolean 
 const char *
 skype_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
+	if (buddy->name[0] == '+')
+		return "skypeout";
 	return "skype";
 }
 
