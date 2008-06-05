@@ -105,6 +105,7 @@ skype_handle_received_message(char *message)
 				{
 					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
+					//TODO Put buddies into proper group
 					if (string_parts[1][0] == '+')
 						purple_blist_add_buddy(buddy, NULL, purple_group_new(_("SkypeOut")), NULL);
 					else
@@ -542,6 +543,10 @@ skype_handle_received_message(char *message)
 		{
 			skype_send_message("SET SILENT_MODE ON");
 		}
+	} else if (strcmp(command, "GROUP") == 0)
+	{
+		//TODO Handle Group stuff:
+		//  Messages from skype to move users in to/out of a group
 	} else if (strcmp(command, "APPLICATION") == 0 && 
 				strcmp(string_parts[1], "libpurple_typing") == 0)
 	{
