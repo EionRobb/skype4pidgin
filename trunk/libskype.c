@@ -136,6 +136,7 @@ void skype_group_buddy(PurpleConnection *, const char *who, const char *old_grou
 void skype_rename_group(PurpleConnection *, const char *old_name, PurpleGroup *group, GList *moved_buddies);
 void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
+static int skype_find_group_for_buddy(PurpleBuddy *buddy);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -1322,6 +1323,49 @@ skype_set_idle(PurpleConnection *gc, int time)
 	} else if (time >= 1200) {
 		skype_send_message_nowait("SET USERSTATUS NA");
 	}
+}
+
+static int
+skype_find_group_for_buddy(PurpleBuddy *buddy)
+{
+	gchar *groups;
+	gchar *group_users;
+	int group_number_temp;
+	int group_number = 0;
+	gchar **group_list;
+	gchar **group_users_split;
+	int i,j;
+	
+	groups = skype_send_message("SEARCH GROUPS CUSTOM");
+	group_list = g_strsplit(strchr(groups, ' '), ", ", 0);
+	g_free(groups);
+	for(i = 0; group_list[i]; i++)
+	{
+		group_users = skype_send_message("GET GROUP %s USERS", group_list[i]);
+		group_users_split = g_strsplit(group_users, " ", 4);
+		g_free(group_users);
+		group_users = g_strdup(group_users_split[3]);
+		group_number_temp = atoi(group_users_split[1]);
+		g_strfreev(group_users_split);
+		
+		group_users_split = g_strsplit(group_users, ", ", 0);
+		
+		for(j = 0; group_users_split[j]; j++)
+		{
+			if (g_str_equal(group_users_split[j], buddy->name))
+			{
+				group_number = group_number_temp;
+				break;
+			}
+		}
+		g_strfreev(group_users_split);
+		if (group_number != 0)
+			break;
+	}
+	
+	g_strfreev(group_list);
+	
+	return group_number;
 }
 
 int
