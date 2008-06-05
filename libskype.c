@@ -132,6 +132,10 @@ static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar *
 static PurpleCmdRet skype_cmd_kick(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 static PurpleCmdRet skype_cmd_kickban(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 int skype_send_raw(PurpleConnection *, const char *, int);
+void skype_group_buddy(PurpleConnection *, const char *who, const char *old_group, const char *new_group);
+void skype_rename_group(PurpleConnection *, const char *old_name, PurpleGroup *group, GList *moved_buddies);
+void skype_remove_group(PurpleConnection *, PurpleGroup *);
+int skype_find_group_with_name(const char *group_name_in);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -181,13 +185,13 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* get_cb_info */
 	NULL,                /* get_cb_away */
 	skype_alias_buddy,   /* alias_buddy */
-	NULL,                /* group_buddy */
-	NULL,                /* rename_group */
+	skype_group_buddy,   /* group_buddy */
+	skype_rename_group,  /* rename_group */
 	NULL,                /* buddy_free */
 	NULL,                /* convo_closed */
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
-	NULL,                /* remove_group */
+	skype_remove_group,  /* remove_group */
 	skype_cb_real_name,  /* get_cb_real_name */
 	skype_set_chat_topic,/* set_chat_topic */
 	NULL,                /* find_blist_chat */
@@ -732,6 +736,7 @@ skype_set_buddies(PurpleAccount *acct)
 			buddy = (PurpleBuddy *)found_buddy->data;
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
+		 //TODO Deal with putting buddies into the right group
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
 			if (friends[i][0] == '+')
@@ -1319,6 +1324,86 @@ skype_set_idle(PurpleConnection *gc, int time)
 	}
 }
 
+int
+skype_find_group_with_name(const char *group_name_in)
+{
+	gchar *groups;
+	gchar *group_name;
+	int group_number = 0;
+	gchar **group_list;
+	gchar **group_name_split;
+	int i;
+	
+	groups = skype_send_message("SEARCH GROUPS CUSTOM");
+	group_list = g_strsplit(strchr(groups, ' '), ", ", 0);
+	g_free(groups);
+	for(i = 0; group_list[i]; i++)
+	{
+		group_name = skype_send_message("GET GROUP %s DISPLAYNAME", group_list[i]);
+		group_name_split = g_strsplit(group_name, " ", 4);
+		g_free(group_name);
+		if (g_str_equal(group_name_split[3], group_name_in))
+		{
+			group_number = atoi(group_name_split[1]);
+		}
+		g_strfreev(group_name_split);
+		if (group_number != 0)
+			break;
+	}
+	
+	g_strfreev(group_list);
+	
+	return group_number;
+}
+
+void
+skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, const char *new_group)
+{
+	gchar *group_response;
+	int group_number = 0;
+
+	//add to new group
+	group_number = skype_find_group_with_name(new_group);
+	if (!group_number)
+	{
+		group_response = skype_send_message("CREATE GROUP %s", new_group);
+		sscanf(group_response, "GROUP %d ", &group_number);
+		g_free(group_response);
+	}
+	if (group_number)
+		skype_send_message_nowait("ALTER GROUP %d ADDUSER %s", group_number, who);
+	
+	if (old_group == NULL)
+		return;
+	
+	//remove from old group
+	group_number = skype_find_group_with_name(old_group);
+	if (!group_number)
+		return;
+	skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, who);
+}
+
+void
+skype_rename_group(PurpleConnection *gc, const char *old_name, PurpleGroup *group, GList *moved_buddies)
+{
+	int group_number = 0;
+	
+	group_number = skype_find_group_with_name(old_name);
+	if (!group_number)
+	{
+		group->name = g_strdup(old_name);
+		return;
+	}
+	skype_send_message_nowait("SET GROUP %d DISPLAYNAME %s", group_number, group->name);
+}
+
+void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
+{
+	int group_number = 0;
+	
+	group_number = skype_find_group_with_name(group->name);
+	skype_send_message_nowait("DELETE GROUP %d", group_number);
+}
 
 void 
 skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
@@ -1336,7 +1421,7 @@ skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 		skype_update_buddy_alias(buddy);
 	if (group && group->name)
 	{
-		/* TODO: Deal with groups */
+		skype_group_buddy(gc, buddy->name, NULL, group->name);
 	}
 	skype_add_permit(gc, buddy->name);
 	skype_rem_deny(gc, buddy->name);
