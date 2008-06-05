@@ -1349,6 +1349,7 @@ skype_find_group_for_buddy(PurpleBuddy *buddy)
 		g_strfreev(group_users_split);
 		
 		group_users_split = g_strsplit(group_users, ", ", 0);
+		g_free(group_users);
 		
 		for(j = 0; group_users_split[j]; j++)
 		{
