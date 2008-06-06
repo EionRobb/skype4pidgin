@@ -19,6 +19,8 @@ static PurpleAccount *skype_get_account(PurpleAccount *account);
 char *skype_get_account_username(PurpleAccount *acct);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
 gchar *skype_strdup_withhtml(const gchar *src);
+static int skype_find_group_for_buddy(const char *buddy_name);
+gchar *skype_get_group_name(int group_number);
 
 char *skype_send_message(char *message, ...);
 
@@ -49,6 +51,7 @@ skype_handle_received_message(char *message)
 	GList *glist_temp = NULL;
 	int i;
 	static int chat_count = 0;
+	PurpleGroup *temp_group;
 	
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
@@ -105,11 +108,35 @@ skype_handle_received_message(char *message)
 				{
 					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
-					//TODO Put buddies into proper group
-					if (string_parts[1][0] == '+')
-						purple_blist_add_buddy(buddy, NULL, purple_group_new(_("SkypeOut")), NULL);
-					else
-						purple_blist_add_buddy(buddy, NULL, purple_group_new(_("Skype")), NULL);
+					temp = skype_get_group_name(skype_find_group_for_buddy(string_parts[1]));
+					if (temp != NULL)
+					{
+						temp_group = purple_find_group(temp);
+						if (temp_group == NULL)
+						{
+							temp_group = purple_group_new(temp);
+							purple_blist_add_group(temp_group, NULL);
+						}
+						g_free(temp);
+					} else {
+						if (string_parts[1][0] == '+')
+						{
+							temp_group = purple_find_group("SkypeOut");
+							if (temp_group == NULL)
+							{
+								temp_group = purple_group_new("SkypeOut");
+								purple_blist_add_group(temp_group, NULL);
+							}
+						} else {
+							temp_group = purple_find_group("Skype");
+							if (temp_group == NULL)
+							{
+								temp_group = purple_group_new("Skype");
+								purple_blist_add_group(temp_group, NULL);
+							}
+						}
+					}
+					purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
 					skype_update_buddy_status(buddy);
 					skype_update_buddy_alias(buddy);
 					purple_prpl_got_user_idle(this_account, buddy->name, FALSE, 0);
