@@ -136,7 +136,8 @@ void skype_group_buddy(PurpleConnection *, const char *who, const char *old_grou
 void skype_rename_group(PurpleConnection *, const char *old_name, PurpleGroup *group, GList *moved_buddies);
 void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
-static int skype_find_group_for_buddy(PurpleBuddy *buddy);
+static int skype_find_group_for_buddy(const char *buddy_name);
+gchar *skype_get_group_name(int group_number);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -1325,8 +1326,28 @@ skype_set_idle(PurpleConnection *gc, int time)
 	}
 }
 
+gchar *
+skype_get_group_name(int group_number)
+{
+	gchar group_name;
+	gchar **group_name_split;
+	
+	group_name = skype_send_message("GET GROUP %d DISPLAYNAME");
+	group_name_split = g_strsplit(group_name, " ", 4);
+	g_free(group_name);
+	
+	if (group_name_split && group_name_split[0] && group_name_split[1] && 
+			group_name_split[2] && group_name_split[3])
+		group_name = g_strdup(group_name_split[3]);
+	else
+		group_name = NULL;
+	
+	g_strfreev(group_name_split);
+	return group_name;
+}
+
 static int
-skype_find_group_for_buddy(PurpleBuddy *buddy)
+skype_find_group_for_buddy(const char *buddy_name)
 {
 	gchar *groups;
 	gchar *group_users;
@@ -1353,7 +1374,7 @@ skype_find_group_for_buddy(PurpleBuddy *buddy)
 		
 		for(j = 0; group_users_split[j]; j++)
 		{
-			if (g_str_equal(group_users_split[j], buddy->name))
+			if (g_str_equal(group_users_split[j], buddy_name))
 			{
 				group_number = group_number_temp;
 				break;
