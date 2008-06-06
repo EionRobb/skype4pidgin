@@ -740,7 +740,6 @@ skype_set_buddies(PurpleAccount *acct)
 			buddy = (PurpleBuddy *)found_buddy->data;
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
-		 //TODO Deal with putting buddies into the right group
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
 			
