@@ -699,6 +699,8 @@ skype_set_buddies(PurpleAccount *acct)
 	PurpleBuddy *buddy;
 	PurpleGroup *skype_group = NULL;
 	PurpleGroup *skypeout_group = NULL;
+	char *buddy_group_name;
+	PurpleGroup *skype_temp_group = NULL;
 	int i;
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
@@ -741,23 +743,46 @@ skype_set_buddies(PurpleAccount *acct)
 		 //TODO Deal with putting buddies into the right group
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
-			if (friends[i][0] == '+')
+			
+			//find out what group this buddy is in
+			buddy_group_name = skype_get_group_name(skype_find_group_for_buddy(friends[i]));
+			if (buddy_group_name == NULL)
 			{
-				if (skypeout_group == NULL)
+				if (friends[i][0] == '+')
 				{
-					skypeout_group = purple_group_new("SkypeOut");
-					purple_blist_add_group(skypeout_group, NULL);
+					if (skypeout_group == NULL)
+					{
+						skypeout_group = purple_find_group("SkypeOut");
+						if (skypeout_group == NULL)
+						{
+							skypeout_group = purple_group_new("SkypeOut");
+							purple_blist_add_group(skypeout_group, NULL);
+						}
+					}
+					purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
 				}
-				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
-			}
-			else
-			{
-				if (skype_group == NULL)
+				else
 				{
-					skype_group = purple_group_new("Skype");
-					purple_blist_add_group(skype_group, NULL);
+					if (skype_group == NULL)
+					{
+						skype_group = purple_find_group("Skype");
+						if (skype_group == NULL)
+						{
+							skype_group = purple_group_new("Skype");
+							purple_blist_add_group(skype_group, NULL);
+						}
+					}
+					purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 				}
-				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
+			} else {
+				skype_temp_group = purple_find_group(buddy_group_name);
+				if (skype_temp_group == NULL)
+				{
+					skype_temp_group = purple_group_new(buddy_group_name);
+					purple_blist_add_group(skype_temp_group, NULL);
+				}
+				g_free(buddy_group_name);
+				purple_blist_add_buddy(buddy, NULL, skype_temp_group, NULL);
 			}
 		}
 		skype_update_buddy_status(buddy);
@@ -1329,7 +1354,7 @@ skype_set_idle(PurpleConnection *gc, int time)
 gchar *
 skype_get_group_name(int group_number)
 {
-	gchar group_name;
+	gchar *group_name;
 	gchar **group_name_split;
 	
 	group_name = skype_send_message("GET GROUP %d DISPLAYNAME");
