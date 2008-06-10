@@ -1,7 +1,7 @@
 
 #Customisable stuff here
 LINUX32_COMPILER = i686-pc-linux-gnu-gcc
-LINUX64_COMPILER = x86_64-linux-gnu-gcc
+LINUX64_COMPILER = x86_64-pc-linux-gnu-gcc
 WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
 LINUX_ARM_COMPILER = arm-pc-linux-gnu-gcc
 
