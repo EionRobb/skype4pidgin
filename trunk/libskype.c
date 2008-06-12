@@ -989,6 +989,13 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	return FALSE;
 }
 
+gboolean
+skype_login_cb(gpointer acct)
+{
+	skype_login(acct);
+	return FALSE;
+}
+
 void 
 skype_login(PurpleAccount *acct)
 {
@@ -1038,6 +1045,8 @@ skype_login(PurpleAccount *acct)
 			{
 				skype_debug_info("skype", "Yes, start Skype\n");
 				exec_skype();
+				purple_timeout_add_seconds(10, skype_login_cb, acct);
+				return;
 				gc->wants_to_die = FALSE;
 			}
 		} else {
