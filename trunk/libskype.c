@@ -1642,7 +1642,7 @@ skype_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *userinfo, gboolean 
 const char *
 skype_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
-	if (buddy->name[0] == '+')
+	if (buddy && buddy->name[0] == '+')
 		return "skypeout";
 	return "skype";
 }
