@@ -24,6 +24,7 @@ skype_connect()
 	unsigned char *prop;
 	int status;
 	
+	XInitThreads();
 	XSetErrorHandler(x11_error_handler);
 #ifdef USE_XVFB_SERVER	
 	if (getenv("SKYPEDISPLAY"))
@@ -162,6 +163,15 @@ send_message(char* message)
 	}
 }
 
+Bool
+check_for_clientmessage_predicate(Display *display, XEvent *event, XPointer arg)
+{
+	printf("skype x11 debug: %d %d\n", event->type, ClientMessage);
+	if (event && event->type == ClientMessage)
+		return True;
+	return False;
+}
+
 static void
 receive_message_loop(void)
 {
@@ -179,6 +189,7 @@ receive_message_loop(void)
 			skype_debug_error("skype_x11", "display has disappeared\n");
 			break;
 		}
+		//XIfEvent(disp, &e, check_for_clientmessage_predicate, NULL);
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
 		if (!event_bool)
 		{
