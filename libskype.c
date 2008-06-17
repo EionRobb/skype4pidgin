@@ -1391,7 +1391,7 @@ skype_find_group_for_buddy(const char *buddy_name)
 	int i,j;
 	
 	groups = skype_send_message("SEARCH GROUPS CUSTOM");
-	group_list = g_strsplit(strchr(groups, ' '), ", ", 0);
+	group_list = g_strsplit(g_strstrip(groups), ", ", 0);
 	g_free(groups);
 	for(i = 0; group_list[i]; i++)
 	{
@@ -1434,7 +1434,7 @@ skype_find_group_with_name(const char *group_name_in)
 	int i;
 	
 	groups = skype_send_message("SEARCH GROUPS CUSTOM");
-	group_list = g_strsplit(strchr(groups, ' '), ", ", 0);
+	group_list = g_strsplit(g_strstrip(groups, ' '), ", ", 0);
 	g_free(groups);
 	for(i = 0; group_list[i]; i++)
 	{
