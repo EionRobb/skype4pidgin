@@ -24,7 +24,6 @@ skype_connect()
 	unsigned char *prop;
 	int status;
 	
-	XInitThreads();
 	XSetErrorHandler(x11_error_handler);
 #ifdef USE_XVFB_SERVER	
 	if (getenv("SKYPEDISPLAY"))
@@ -163,15 +162,6 @@ send_message(char* message)
 	}
 }
 
-Bool
-check_for_clientmessage_predicate(Display *display, XEvent *event, XPointer arg)
-{
-	printf("skype x11 debug: %d %d\n", event->type, ClientMessage);
-	if (event && event->type == ClientMessage)
-		return True;
-	return False;
-}
-
 static void
 receive_message_loop(void)
 {
@@ -187,9 +177,10 @@ receive_message_loop(void)
 		if (!disp)
 		{
 			skype_debug_error("skype_x11", "display has disappeared\n");
+			g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
 			break;
 		}
-		//XIfEvent(disp, &e, check_for_clientmessage_predicate, NULL);
+		
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
 		if (!event_bool)
 		{
@@ -206,14 +197,16 @@ receive_message_loop(void)
 		else
 		{
 			skype_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
-			XFlush(disp);
+			if (disp)
+				XFlush(disp);
 			continue;
 		}
 
 		if (len < 20)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
-			XFlush(disp);
+			if (disp)
+				XFlush(disp);
 		}
 	}
 }
