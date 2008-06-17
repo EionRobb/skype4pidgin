@@ -1,6 +1,13 @@
 Changelog
 =========
 
+17 June 2008
+------------
+* Italian translation shouldn't be in Russian
+* Group stuff: changing groups of buddies in Pidgin changes them in Skype
+* Shouldn't come up with the "Skype not running" error message as often
+* A few other minor bug fixes
+
 5 June 2008
 -----------
 * Polish translation thanks to Jakub Chrzanowski
