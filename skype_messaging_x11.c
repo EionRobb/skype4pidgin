@@ -169,9 +169,9 @@ receive_message_loop(void)
 	GString *msg = NULL;
 	char msg_temp[21];
 	size_t len;
-	Bool event_bool;
 	
 	msg_temp[20] = '\0';
+	XSetErrorHandler(x11_error_handler);
 	while(run_loop)
 	{
 		if (!disp)
@@ -181,12 +181,21 @@ receive_message_loop(void)
 			break;
 		}
 		
+		
+		Bool event_bool;
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
 		if (!event_bool)
 		{
+			g_thread_yield();
 			usleep(1000);
+			//XPeekEvent(disp, &e);
+			//sleep(1);
 			continue;
-		}
+		}/*
+		XNextEvent(disp, &e);
+		printf("skype event: %d  (clientmessage: %d)\n", e.type, ClientMessage);
+		if (e.type != ClientMessage)
+			continue;*/
 		
 		strncpy(msg_temp, e.xclient.data.b, 20);
 		len = strlen(msg_temp);

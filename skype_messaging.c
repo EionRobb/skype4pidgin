@@ -40,6 +40,7 @@ typedef struct {
 
 static GHashTable *message_queue = NULL;
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+static GCond *condition = NULL;
 
 #ifdef _WIN32
 //these two #defines override g_static_mutex_lock and
@@ -78,6 +79,7 @@ skype_message_received(char *orig_message)
 		
 		g_static_mutex_lock2(&mutex);
 		g_hash_table_insert(message_queue, key, g_strdup(&message[string_pos]));
+		g_cond_broadcast(condition);
 		g_static_mutex_unlock2(&mutex);
 		
 		g_free(message);
@@ -107,8 +109,9 @@ char *skype_send_message(char *message_format, ...)
 	guint cur_message_num;
 	char *message;
 	char *return_msg;
+	gboolean condition_result;
+	GTimeVal endtime = {0,0};
 	va_list args;
-	unsigned int timeout = 0;
 	
 	va_start(args, message_format);
 	message = g_strdup_vprintf(message_format, args);
@@ -118,6 +121,8 @@ char *skype_send_message(char *message_format, ...)
 		message_queue = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	
 	g_static_mutex_lock2(&mutex);
+	if (!condition)
+		condition = g_cond_new();
 	cur_message_num = next_message_num++;
 	if (next_message_num == G_MAXUINT)
 		next_message_num = 0;
@@ -133,18 +138,22 @@ char *skype_send_message(char *message_format, ...)
 	{
 		g_static_mutex_unlock2(&mutex);
 		g_thread_yield();
+			
 #ifdef __APPLE__
 		RunCurrentEventLoop(0);
 #endif
-#ifndef _WIN32
-		usleep(1000);
-#else
-		Sleep(1);
-#endif
-		g_static_mutex_lock2(&mutex);
 		
-		if(timeout++ == 10000)
+		//wait for message for a maximum of 10 seconds
+		g_get_current_time(&endtime);
+		g_time_val_add(&endtime, 10 * G_USEC_PER_SEC);
+		condition_result = g_cond_timed_wait(condition, g_static_mutex_get_mutex(&mutex), &endtime);
+		
+		//g_cond_timed_wait already locks this mutex
+		//g_static_mutex_lock2(&mutex);
+		
+		if(!condition_result)
 		{
+			//we timed out while waiting
 			g_hash_table_remove(message_queue, &cur_message_num);
 			g_static_mutex_unlock2(&mutex);
 			return g_strdup("");	
