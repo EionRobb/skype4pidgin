@@ -46,11 +46,14 @@ static GCond *condition = NULL;
 //these two #defines override g_static_mutex_lock and
 // g_static_mutex_unlock so as to remove "strict-aliasing"
 // compiler warnings
+#define g_static_mutex_get_mutex2(mutex) \
+	g_static_mutex_get_mutex ((GMutex **)(void*)mutex)
 #define g_static_mutex_lock2(mutex) \
-    g_mutex_lock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
+    g_mutex_lock (g_static_mutex_get_mutex2 (mutex))
 #define g_static_mutex_unlock2(mutex) \
-    g_mutex_unlock (g_static_mutex_get_mutex ((GMutex **)(void*)mutex))
+    g_mutex_unlock (g_static_mutex_get_mutex2 (mutex))
 #else
+#define g_static_mutex_get_mutex2 g_static_mutex_get_mutex
 #define g_static_mutex_lock2 g_static_mutex_lock
 #define g_static_mutex_unlock2 g_static_mutex_unlock
 #endif
@@ -154,7 +157,7 @@ char *skype_send_message(char *message_format, ...)
 		//wait for message for a maximum of 10 seconds
 		g_get_current_time(&endtime);
 		g_time_val_add(&endtime, 10 * G_USEC_PER_SEC);
-		condition_result = g_cond_timed_wait(condition, g_static_mutex_get_mutex(&mutex), &endtime);
+		condition_result = g_cond_timed_wait(condition, g_static_mutex_get_mutex2(&mutex), &endtime);
 		
 		//g_cond_timed_wait already locks this mutex
 		//g_static_mutex_lock2(&mutex);
