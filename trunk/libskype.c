@@ -1365,7 +1365,7 @@ skype_get_group_name(int group_number)
 	gchar *group_name;
 	gchar **group_name_split;
 	
-	group_name = skype_send_message("GET GROUP %d DISPLAYNAME");
+	group_name = skype_send_message("GET GROUP %d DISPLAYNAME", group_number);
 	group_name_split = g_strsplit(group_name, " ", 4);
 	g_free(group_name);
 	
@@ -1458,19 +1458,18 @@ skype_find_group_with_name(const char *group_name_in)
 void
 skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, const char *new_group)
 {
-	gchar *group_response;
 	int group_number = 0;
 
 	//add to new group
 	group_number = skype_find_group_with_name(new_group);
 	if (!group_number)
 	{
-		group_response = skype_send_message("CREATE GROUP %s", new_group);
-		sscanf(group_response, "GROUP %d ", &group_number);
-		g_free(group_response);
+		skype_send_message_nowait("CREATE GROUP %s", new_group);
+		skype_group_buddy(gc, who, old_group, new_group);
+		return;
 	}
-	if (group_number)
-		skype_send_message_nowait("ALTER GROUP %d ADDUSER %s", group_number, who);
+	
+	skype_send_message_nowait("ALTER GROUP %d ADDUSER %s", group_number, who);
 	
 	if (old_group == NULL)
 		return;
