@@ -109,9 +109,13 @@ char *skype_send_message(char *message_format, ...)
 	guint cur_message_num;
 	char *message;
 	char *return_msg;
+	va_list args;
+#ifdef __APPLE__
+	guint timeout = 0;
+#else
 	gboolean condition_result;
 	GTimeVal endtime = {0,0};
-	va_list args;
+#endif
 	
 	va_start(args, message_format);
 	message = g_strdup_vprintf(message_format, args);
@@ -141,7 +145,11 @@ char *skype_send_message(char *message_format, ...)
 			
 #ifdef __APPLE__
 		RunCurrentEventLoop(0);
-#endif
+		usleep(1000);
+		g_static_mutex_lock2(&mutex);
+
+		if (timeout++ == 10000)
+#else
 		
 		//wait for message for a maximum of 10 seconds
 		g_get_current_time(&endtime);
@@ -152,6 +160,7 @@ char *skype_send_message(char *message_format, ...)
 		//g_static_mutex_lock2(&mutex);
 		
 		if(!condition_result)
+#endif
 		{
 			//we timed out while waiting
 			g_hash_table_remove(message_queue, &cur_message_num);
