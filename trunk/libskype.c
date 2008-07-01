@@ -724,7 +724,7 @@ skype_set_buddies(PurpleAccount *acct)
 	//grab the list of buddy's again since they could have changed
 	existing_friends = purple_find_buddies(acct, NULL);
 
-	for (i=1; friends[i]; i++)
+	for (i=0; friends[i]; i++)
 	{
 		//remove whitespace
 		g_strstrip(friends[i]);
@@ -820,7 +820,7 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 		return;
 	}
 
-	for(i=1; friends[i]; i++)
+	for(i=0; friends[i]; i++)
 	{
 		if (strlen(friends[i]) == 0)
 			continue;
