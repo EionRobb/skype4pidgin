@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1 July 2008
+-----------
+* Fix changing groups for buddies (sometimes crashed)
+* New messaging code should reduce battery usage
+
 17 June 2008
 ------------
 * Italian translation shouldn't be in Russian
