@@ -1,10 +1,16 @@
 Changelog
 =========
 
+2 July 2008
+-----------
+* Adium 1.2.x users will be able to use the latest version of the plugin
+* Please send me a message if languages other than English work for you in Adium menus
+
 1 July 2008
 -----------
 * Fix changing groups for buddies (sometimes crashed)
 * New messaging code should reduce battery usage
+* Adium plugin icons should line up properly now
 
 17 June 2008
 ------------
