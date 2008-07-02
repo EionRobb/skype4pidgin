@@ -1,4 +1,4 @@
-﻿# Norwegian Bokmål translation of skype4pidgin plugin
+# Norwegian Bokmål translation of skype4pidgin plugin
 # Translated by Thomas B
 # Thomas B, 2008.
 # 
