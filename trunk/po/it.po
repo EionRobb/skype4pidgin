@@ -75,8 +75,8 @@ msgstr "E' permesso un solo account Skype"
 msgid "Skype not responding"
 msgstr "Skype non risponde"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "Impossibile collegarsi al processo Skype. Skype non è in esecuzione ?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Impossibile collegarsi al processo Skype.\nSkype non è in esecuzione ?"
 
 msgid "Skype client not ready"
 msgstr "Skype non è ancora operativo"

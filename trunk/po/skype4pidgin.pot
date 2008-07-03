@@ -74,7 +74,7 @@ msgstr ""
 msgid "Skype not responding"
 msgstr ""
 
-msgid "Could not connect to Skype process.  Skype not running?"
+msgid "Could not connect to Skype process.\nSkype not running?"
 msgstr ""
 
 msgid "Skype client not ready"
