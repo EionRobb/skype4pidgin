@@ -1,0 +1,202 @@
+# Portuguese translation of skype4pidgin plugin
+# Translated by Paulo Matos
+# Paulo Matos, 2008.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: 2008-07-01\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2008-07-02 17:30+0100\n"
+"Last-Translator: Paulo Matos <paulo.matos@fct.unl.pt>\n"
+"MIME-Version: 1.0\n"
+"Language-Team: \n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Existe uma nova versão do plugin do Skype disponível para download"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Existe uma nova versão do Skype disponível para download"
+
+msgid "No updates found"
+msgstr "Não há actualizações"
+
+msgid "You have the latest version of Skype"
+msgstr "Tem a última versão do Skype"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Tem a última versão do plugin do Skype"
+
+msgid "Your version:"
+msgstr "Versão:"
+
+msgid "Latest version:"
+msgstr "Última versão:"
+
+msgid "Download from:"
+msgstr "Download de:"
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr "O seu saldo Skype é:"
+
+msgid "Skype Balance"
+msgstr "Saldo Skype"
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Mostrar contactos SkypeOut como 'Online'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Ligar ou desligar o skype quando se liga/desliga"
+
+msgid "Automatically check for updates"
+msgstr "Verificar actualizações automaticamente"
+
+msgid "Auto-start Skype if not running"
+msgstr "Ligar o Skype automaticamente se não estiver ligado"
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr "Desligado com Atendedor de Chamadas"
+
+msgid "Offline with Call Forwarding"
+msgstr "Desligado com Reenvio de Chamadas"
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr "Apenas uma conta Skype é permitida"
+
+msgid "Skype not responding"
+msgstr "Skype não responde"
+
+msgid "Could not connect to Skype process.  Skype not running?"
+msgstr "Não foi possível establecer ligação ao processo Skype.  O Skype está a funcionar?"
+
+msgid "Skype client not ready"
+msgstr "Cliente Skype ainda não está operacional"
+
+msgid "Connected to Skype"
+msgstr "Ligado ao Skype"
+
+msgid "Skype program closed"
+msgstr "Programa de Skype encerrado"
+
+# Skype calling stuff
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Introduza o número de telefone ou o nome SKype para efectuar a ligação"
+
+msgid "%s is calling you."
+msgstr "%s está a ligar-lhe."
+
+msgid "Do you want to accept their call?"
+msgstr "Deseja aceitar a ligação?"
+
+# Buddy information
+msgid "Last online"
+msgstr "Última vez online"
+
+msgid "Number of buddies"
+msgstr "Número de amigos"
+
+msgid "Is Video Capable"
+msgstr "Suporta vídeo"
+
+# Plugin menu options
+msgid "Hide Skype"
+msgstr "Esconder Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Verificar actualizações do Skype..."
+
+msgid "Check for plugin updates..."
+msgstr "Verificar actualizações do plugin..."
+
+msgid "Search for buddies..."
+msgstr "Pesquisar pessoas..."
+
+msgid "Check Skype balance..."
+msgstr "Verificar Saldo Skype..."
+
+msgid "Call..."
+msgstr "Ligar..."
+
+msgid "Open Skype Options..."
+msgstr "Abrir Opções Skype..."
+
+# User searching:
+msgid "Search for Skype Users"
+msgstr "Pesquisa de Utilizadores Skype"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Escreva o Nome Skype, nome completo ou endereço de email da pessoa que pretende pesquisar."
+
+msgid "The user does not exist in Skype"
+msgstr "O utilizador não existe no Skype"
+
+msgid "Skype Name"
+msgstr "Nome Skype"
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+
+msgid "_Search"
+msgstr "_Pesquisa"
+msgid "_Cancel"
+msgstr "_Cancelar"
+msgid "_Send File"
+msgstr "_Enviar Ficheiro"
+msgid "Initiate _Chat"
+msgstr "Iniciar _Chat"
+msgid "_Close"
+msgstr "_Fechar"
+msgid "Full Name"
+msgstr "Nome Completo"
+msgid "Country/Region"
+msgstr "País/Região"
+msgid "_Add"
+msgstr "_Adicionar"
+msgid "Full name"
+msgstr "Nome completo"
+msgid "Personal Information"
+msgstr "Informação Pessoal"
+msgid "Birthday"
+msgstr "Aniversário"
+msgid "Gender"
+msgstr "Género"
+msgid "Preferred Language"
+msgstr "Idioma "
+msgid "Country"
+msgstr "País"
+msgid "Authorization Granted"
+msgstr "Autorização Concedida"
+msgid "Blocked"
+msgstr "Bloqueado"
+msgid "Timezone"
+msgstr "Zona horária"
+msgid "_Accept"
+msgstr "_Aceitar"
+msgid "_Reject"
+msgstr "_Rejeitar"
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Impossível o envio de ficheiros para %s, o utilizador não suporta transferência de ficheiros"
+msgid "Recipient Unavailable"
+msgstr "Receptor Indisponível"
+msgid "Read Error"
+msgstr "Erro de leitura"
+msgid "Write error"
+msgstr "Erro de escrita"
+msgid "Not Authorized"
+msgstr "Não Autorizado"
+msgid "%s wants to send you a file"
+msgstr "%s enviou-lhe um ficheiro"
+msgid "File Transfers"
+msgstr "Tranferências de Ficheiros"
+msgid "%s has changed the topic to: %s"
+msgstr "%s alterou o tópico para: %s"
+msgid "Contact Info"
+msgstr "Informação de Contacto"
