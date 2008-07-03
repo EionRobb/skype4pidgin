@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3 July 2008
+-----------
+* Portuguese translation thanks to Paulo Matos
+* Polish translation should be in .deb now
+
 2 July 2008
 -----------
 * Adium 1.2.x users will be able to use the latest version of the plugin
