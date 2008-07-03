@@ -11,6 +11,7 @@ msgstr ""
 "PO-Revision-Date: 2008-04-22 08:24+1200\n"
 "Last-Translator: Thomas B <(null)>\n"
 "MIME-Version: 1.0\n"
+"Language-Team: \n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit"
 
@@ -74,8 +75,8 @@ msgstr "Kun en Skype-konto tillatt"
 msgid "Skype not responding"
 msgstr "Skype svarer ikke"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "Kunne ikke koble til Skype-prosessen. Kjører ikke Skype ?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Kunne ikke koble til Skype-prosessen.\nKjører ikke Skype ?"
 
 msgid "Skype client not ready"
 msgstr "Skype-klienten er ikke klar"

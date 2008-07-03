@@ -1052,7 +1052,7 @@ skype_login(PurpleAccount *acct)
 		} else {
 			gc->wants_to_die = TRUE;
 		}
-		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process\nSkype not running?"), NULL));		
+		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
 		return;
 	}
 	

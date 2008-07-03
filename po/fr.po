@@ -1,5 +1,4 @@
-# Japanese translation of skype4pidgin plugin
-# Copyright © 2007-2008 Eion Robb
+# French translation of skype4pidgin plugin
 # Translated by Yann Ricquebourg
 
 msgid ""
@@ -72,8 +71,8 @@ msgstr "Un seul compte Skype autorisé"
 msgid "Skype not responding"
 msgstr "Skype ne répond pas"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "Impossible de se connecter au processus Skype. Skype non lancé ?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Impossible de se connecter au processus Skype.\nSkype non lancé ?"
 
 msgid "Skype client not ready"
 msgstr "Client Skype non prêt"

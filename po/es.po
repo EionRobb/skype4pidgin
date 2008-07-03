@@ -1,4 +1,4 @@
-# LANGUAGE translation of skype4pidgin plugin
+# Spanish translation of skype4pidgin plugin
 # Translated by JOHANNA SALCEDO WEEBER
 # JOHANNA SALCEDO WEEBER, 2008.
 # 
@@ -11,6 +11,7 @@ msgstr ""
 "PO-Revision-Date: 2008-04-23 HO:MI+ZONE\n"
 "Last-Translator: JOHANNA SALCEDO WEEBER <jannita@cogitowireless.net>\n"
 "MIME-Version: 1.0\n"
+"Language-Team: \n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit"
 
@@ -73,8 +74,8 @@ msgstr "Solo una cuenta de Skype permitida"
 msgid "Skype not responding"
 msgstr "Skype no está respondiendo"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "No se pudo conectar al proceso de Skype. ¿Skype no se está ejecutando?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "No se pudo conectar al proceso de Skype.\n¿Skype no se está ejecutando?"
 
 msgid "Skype client not ready"
 msgstr "El cliente de Skype no está listo"

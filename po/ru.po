@@ -80,8 +80,8 @@ msgstr "Можно пользоваться только одной учётно
 msgid "Skype not responding"
 msgstr "Skype не отвечает"
 
-msgid "Could not connect to Skype process. Skype not running?"
-msgstr "Не могу соединиться с процессом Skype. Skype не запущен?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Не могу соединиться с процессом Skype.\nSkype не запущен?"
 
 msgid "Skype client not ready"
 msgstr "Skype не готов"

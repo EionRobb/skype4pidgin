@@ -71,8 +71,8 @@ msgstr "Csak egy Skype fiók engedélyezett"
 msgid "Skype not responding"
 msgstr "A Skype nem válaszol"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "Nem sikerült a Skype-hoz csatlakozni. Lehet, hogy nem fut?"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Nem sikerült a Skype-hoz csatlakozni.\nLehet, hogy nem fut?"
 
 msgid "Skype client not ready"
 msgstr "Skype kliens nincs kész"

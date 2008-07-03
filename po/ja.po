@@ -72,8 +72,8 @@ msgstr "一つのSkypeアカウントしか登録できません。"
 msgid "Skype not responding"
 msgstr "Skypeが接続できません"
 
-msgid "Could not connect to Skype process.  Skype not running?"
-msgstr "Skypeが接続できません。Skypeが起動されていますか？"
+msgid "Could not connect to Skype process.\nSkype not running?"
+msgstr "Skypeが接続できません。\nSkypeが起動されていますか？"
 
 msgid "Skype client not ready"
 msgstr "Skypeプログラムが起動中です。"
