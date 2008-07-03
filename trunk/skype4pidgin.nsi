@@ -85,6 +85,7 @@ Section "MainSection" SEC01
 	File /nonfatal "/oname=it\LC_MESSAGES\skype4pidgin.mo" "po\it.mo"
 	File /nonfatal "/oname=ru\LC_MESSAGES\skype4pidgin.mo" "po\ru.mo"
 	File /nonfatal "/oname=pl\LC_MESSAGES\skype4pidgin.mo" "po\pl.mo"
+	File /nonfatal "/oname=pt\LC_MESSAGES\skype4pidgin.mo" "po\pt.mo"
 	File /nonfatal "/oname=en_AU\LC_MESSAGES\skype4pidgin.mo" "po\en_AU.mo"
 
     SetOverwrite try
