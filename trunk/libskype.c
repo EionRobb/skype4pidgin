@@ -710,7 +710,7 @@ skype_set_buddies(PurpleAccount *acct)
 		return FALSE;
 	}
 	//skip first word (should be USERS) and seperate by comma-space
-	friends = g_strsplit(strchr(friends_text, ' '), ", ", 0);
+	friends = g_strsplit((strchr(friends_text, ' ')+1), ", ", 0);
 	g_free(friends_text);
 	if (friends == NULL || friends[0] == NULL)
 	{
@@ -726,9 +726,6 @@ skype_set_buddies(PurpleAccount *acct)
 
 	for (i=0; friends[i]; i++)
 	{
-		//remove whitespace
-		g_strstrip(friends[i]);
-		
 		//If already in list, dont recreate, reuse
 		skype_debug_info("skype", "Searching for friend %s\n", friends[i]);
 		found_buddy = g_slist_find_custom(existing_friends,
@@ -814,7 +811,7 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
 	char **friends = (char **)friends_pointer;
 
-	if (strcmp(buddy->name, skype_get_account_username(NULL)) == 0)
+	if (g_str_equal(buddy->name, skype_get_account_username(NULL)))
 	{
 		//we must have put ourselves on our own list in pidgin, ignore
 		return;
@@ -824,7 +821,7 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 	{
 		if (strlen(friends[i]) == 0)
 			continue;
-		if (strcmp(buddy->name, friends[i]) == 0)
+		if (g_str_equal(buddy->name, friends[i]))
 			return;
 	}
 	skype_debug_info("skype", "removing buddy %d with name %s\n", buddy, buddy->name);
