@@ -1639,9 +1639,22 @@ skype_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *userinfo, gboolean 
 const char *
 skype_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
-	skype_debug_info("skype", "skype_list_icon for %s\n", (buddy?buddy->name:"(null)"));
-	if (buddy && buddy->name[0] == '+')
+	//when pidgin requests the icon for a skypeout buddy, it also requests the icon
+	//for the account, which overwrites the buddy's skypeout icon, so cheat
+	//and store it :)
+	static gboolean last_icon_was_skypeout = FALSE;
+
+	if (last_icon_was_skypeout)
+	{
+		last_icon_was_skypeout = FALSE;
 		return "skypeout";
+	}
+
+	if (buddy && buddy->name[0] == '+')
+	{
+		last_icon_was_skypeout = TRUE;
+		return "skypeout";
+	}
 	return "skype";
 }
 
