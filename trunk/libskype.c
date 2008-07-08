@@ -138,6 +138,7 @@ void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
 static int skype_find_group_for_buddy(const char *buddy_name);
 gchar *skype_get_group_name(int group_number);
+static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -312,6 +313,8 @@ plugin_init(PurplePlugin *plugin)
 						"prpl-bigbrownchunx-skype", skype_cmd_kickban,
 						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
 						NULL);
+						
+	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skype_uri_handler), NULL);
 }
 
 static PurpleCmdRet
@@ -1636,6 +1639,7 @@ skype_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *userinfo, gboolean 
 const char *
 skype_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
+	skype_debug_info("skype", "skype_list_icon for %s\n", (buddy?buddy->name:"(null)"));
 	if (buddy && buddy->name[0] == '+')
 		return "skypeout";
 	return "skype";
@@ -1958,6 +1962,74 @@ void
 skype_open_sms_im(PurplePlugin *plugin, gpointer data)
 {
 	
+}
+
+static void
+dump_hash_table(gchar *key, gchar *value, gpointer data)
+{
+	printf("'%s' = '%s'\n", key, value);
+}
+
+static gboolean
+skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
+{
+	gchar *temp;
+	
+	//only deal with skype: uri's
+	if (!g_str_equal(proto, "skype"))
+		return FALSE;
+		
+	/*uri's:
+	
+		skype:						//does nothing
+		skype:{buddynames}			//open im with {buddynames}
+		skype:{buddynames}?chat		//open multi-user chat with {buddynames}
+		skype:?chat&blob={blob id}	//open public multi-user chat with the blog id of {blob id}
+		skype:?chat&id={chat id}	//open multi-user chat with the id of {chat id}
+		skype:{buddynames}?call		//call {buddynames}
+		skype:{buddyname}?add		//add user to buddy list 
+		
+		//not sure about these ones
+		skype:{buddynames}?userinfo	//get buddy's info?
+		skype:{buddynames}?voicemail	//send a voice mail message?
+		skype:{buddynames}?sendfile	//send a file?
+		*/
+	
+	//lets have a look at the hash table!
+	skype_debug_info("skype", "dumping uri handler hashtable\n");
+	g_hash_table_foreach(params, (GHFunc)dump_hash_table, NULL);
+	
+	if (g_hash_table_lookup(params, "chat"))
+	{
+		if (!strlen(cmd))
+		{
+			//probably a public multi-user chat?
+			temp = g_hash_table_lookup(params, "blob");
+			if (!temp)
+				temp = g_hash_table_lookup(params, "id");
+			if (temp)
+				skype_send_message_nowait("ALTER CHAT %s JOIN", temp);
+			return TRUE;
+		}
+	} else if (g_hash_table_lookup(params, "add"))
+	{
+		purple_blist_request_add_buddy(skype_get_account(NULL), cmd, NULL, g_hash_table_lookup(params, "displayname"));
+		return TRUE;
+	} else if (g_hash_table_lookup(params, "call"))
+	{
+		skype_send_message_nowait("CALL %s", cmd);
+		return TRUE;
+	} else if (g_hash_table_lookup(params, "userinfo") || g_hash_table_lookup(params, "voicemail") || g_hash_table_lookup(params, "sendfile"))
+	{
+		//not sure?
+	} else if (strlen(cmd)) {
+		//there'll be a bunch of usernames, seperated by comma
+		skype_send_message_nowait("CHAT CREATE %s", cmd);
+		return TRUE;
+	}
+	
+	//we don't know how to handle this
+	return FALSE;
 }
 
 #ifdef USE_FARSIGHT
