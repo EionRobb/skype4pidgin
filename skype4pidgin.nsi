@@ -60,7 +60,7 @@ Section "MainSection" SEC01
     ;InstallDir "$PROGRAMFILES\Pidgin\plugins"
 
     ; uninstall previous install if found.
-    Call UnInstOld
+    ;Call UnInstOld
     ;Check for pidgin installation
     Call GetPidginInstPath
     ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "SOFTWARE\skype4pidgin" "pidgindir" "$PidginDir"
@@ -71,6 +71,9 @@ Section "MainSection" SEC01
 	File "/oname=protocols\16\skype.png" "icons\16\skype.png"
 	File "/oname=protocols\22\skype.png" "icons\22\skype.png"
 	File "/oname=protocols\48\skype.png" "icons\48\skype.png"
+	File "/oname=protocols\16\skypeout.png" "icons\16\skypeout.png"
+	File "/oname=protocols\22\skypeout.png" "icons\22\skypeout.png"
+	File "/oname=protocols\48\skypeout.png" "icons\48\skypeout.png"
 
 	SetOutPath "$PidginDir\pixmaps\pidgin\emotes\skype"
 	File "theme"
@@ -105,6 +108,16 @@ Section "MainSection" SEC01
 		
 SectionEnd
 
+Function RegisterURIHandler
+  DeleteRegKey HKCR "skype"
+  WriteRegStr HKCR "skype" "" "URL:skype"
+  WriteRegStr HKCR "skype" "URL Protocol" ""
+  WriteRegStr HKCR "skype\DefaultIcon" "" "$PidginDir\pidgin.exe"
+  WriteRegStr HKCR "skype\shell" "" ""
+  WriteRegStr HKCR "skype\shell\Open" "" ""
+  WriteRegStr HKCR "skype\shell\Open\command" "" "$PidginDir\pidgin.exe --protocolhandler=%1"
+FunctionEnd
+
 Function GetPidginInstPath
   Push $0
   ReadRegStr $0 HKLM "Software\pidgin" ""
@@ -134,5 +147,6 @@ Function UnInstOld
 			;	Abort "Uninstalling of the previous version gave an error. Install aborted."
 			
 	cont:
+	  DeleteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 		
 FunctionEnd
