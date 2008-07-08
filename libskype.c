@@ -1057,12 +1057,10 @@ skype_login(PurpleAccount *acct)
 								  1,   /* which connection step this is */
 								  5);  /* total number of steps */
 
+	
+
 #ifndef __APPLE__
-#ifdef SKYPE_DBUS
-	reply = skype_send_message("NAME Finch");
-#else
-	reply = skype_send_message("NAME Pidgin");
-#endif
+	reply = skype_send_message("NAME %s", g_get_application_name());
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
