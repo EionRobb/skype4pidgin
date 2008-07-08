@@ -7,7 +7,7 @@ SetCompressor lzma
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "03-Jul-2008"
+!define PRODUCT_VERSION "08-Jul-2008"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -105,6 +105,7 @@ Section "MainSection" SEC01
 	cancel:
 		Abort "Installation of skype4pidgin aborted"
 	after_copy:
+		Call RegisterURIHandler
 		
 SectionEnd
 
@@ -147,6 +148,6 @@ Function UnInstOld
 			;	Abort "Uninstalling of the previous version gave an error. Install aborted."
 			
 	cont:
-	  DeleteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
+	  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 		
 FunctionEnd
