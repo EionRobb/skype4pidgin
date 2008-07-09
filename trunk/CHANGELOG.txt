@@ -1,6 +1,12 @@
 Changelog
 =========
 
+9 July 2008
+-----------
+* No more annoying error in the Windows installer
+* Added SkypeOut icons so that its easier to tell the difference between normal contacts and SkypeOut ones
+* Dbus plugin on Pidgin won't say that it's Finch anymore
+
 3 July 2008
 -----------
 * Portuguese translation thanks to Paulo Matos
