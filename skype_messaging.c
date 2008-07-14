@@ -16,19 +16,23 @@ char *skype_send_message(char *message, ...);
 
 // Sort through the mess of different OS's to get the right proto
 
-#ifdef _WIN32
-#	include "skype_messaging_win32.c"
-#else /*if !win32 */
-#	ifdef __APPLE__
-#		include "skype_messaging_carbon.c"
-#	else /*if !apple */
-#		ifndef SKYPE_DBUS
-#			include "skype_messaging_x11.c"
-#		else 
-#			include "skype_messaging_dbus.c"
-#		endif /* !x11 */
-#	endif /* !apple */
-#endif /* win32 */
+#ifndef SKYPENET
+#	ifdef _WIN32
+#		include "skype_messaging_win32.c"
+#	else /*if !win32 */
+#		ifdef __APPLE__
+#			include "skype_messaging_carbon.c"
+#		else /*if !apple */
+#			ifndef SKYPE_DBUS
+#				include "skype_messaging_x11.c"
+#			else 
+#				include "skype_messaging_dbus.c"
+#			endif /* !x11 */
+#		endif /* !apple */
+#	endif /* win32 */
+#else /* skypenet */
+#	include "skype_messaging_network.c"
+#endif
 
 
 typedef struct {
