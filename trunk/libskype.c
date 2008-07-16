@@ -928,8 +928,6 @@ skype_update_buddy_alias(PurpleBuddy *buddy)
 gboolean
 skype_update_buddy_status(PurpleBuddy *buddy)
 {
-	char *status;
-	PurpleStatusPrimitive primitive;
 	PurpleAccount *acct;
 	
 	acct = purple_buddy_get_account(buddy);
@@ -1542,7 +1540,6 @@ skype_status_text(PurpleBuddy *buddy)
 	PurplePresence *presence;
 	PurpleStatus *status;
 	PurpleStatusType *type;
-	int i;
 
 	if (buddy->proto_data != NULL && strlen(buddy->proto_data))
 		return g_strdup((char *)buddy->proto_data);

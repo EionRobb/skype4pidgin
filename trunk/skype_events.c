@@ -106,7 +106,7 @@ skype_handle_received_message(char *message)
 
 				//Dont say we got their status unless its changed
 				if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
-					purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
+					purple_prpl_got_user_status(this_account, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 
 				//Grab the buddy's avatar
 				skype_update_buddy_icon(buddy);
