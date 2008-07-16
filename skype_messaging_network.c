@@ -1,7 +1,11 @@
 #include <glib.h>
 #include <errno.h>
 #include <string.h>
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
+
+#ifdef _WIN32
+#define fsync(fd) _commit(fd)
+#endif
 
 static PurpleProxyConnectData *proxy_data = NULL;
 static guint input_timeout;
@@ -82,11 +86,11 @@ skype_read_thread(gpointer data)
 	{
 		read_function_cb(data, source_sock, PURPLE_INPUT_READ);
 		g_thread_yield();
-		usleep(1000);
+		sleep(1);
 	}
 	return data;
 }
-
+/*
 void
 read_function_thread(gpointer source_pointer)
 {
@@ -112,9 +116,9 @@ read_function_thread(gpointer source_pointer)
 		printf("select_return: %d\n", select_return);
 		read_function_cb(NULL, source, PURPLE_INPUT_READ);
 		g_thread_yield();
-		usleep(1000);
+		sleep(1);
 	}
-}
+}*/
 
 void
 connect_function(gpointer data, gint source, const gchar *error_message)
