@@ -142,8 +142,10 @@ static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
+#ifndef SKYPENET
 #if _WIN32 || __APPLE__ || SKYPE_DBUS || !USE_XVFB_SERVER
 	OPT_PROTO_NO_PASSWORD|
+#endif
 #endif
 	OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC|OPT_PROTO_SLASH_COMMANDS_NATIVE|OPT_PROTO_UNIQUE_CHATNAME,
 
@@ -228,12 +230,17 @@ static PurplePluginInfo info = {
 	0, /* flags */
 	NULL, /* dependencies */
 	PURPLE_PRIORITY_DEFAULT, /* priority */
+#ifdef SKYPENET
+	"prpl-bigbrownchunx-skypenet",
+	"Skype (Network)",
+#else
 #ifdef SKYPE_DBUS
 	"prpl-bigbrownchunx-skype-dbus", /* id */
 	"Skype (D-Bus)",
 #else
 	"prpl-bigbrownchunx-skype", /* id */
 	"Skype", /* name */
+#endif
 #endif
 	"1.2", /* version */
 	"Allows using Skype IM functions from within Pidgin", /* summary */
