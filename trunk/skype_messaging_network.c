@@ -148,7 +148,7 @@ gpointer
 skype_connect_thread(gpointer data)
 {
 	PurpleAccount *acct = data;
-	proxy_data = purple_proxy_connect(acct->gc, acct, "127.0.0.1", 5000, connect_function, acct);
+	proxy_data = purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
 	//printf("skype connect thread\n");
 	return proxy_data;
 }
@@ -160,7 +160,7 @@ skype_connect()
 	
 	PurpleAccount *acct = skype_get_account(NULL);
 	g_thread_create((GThreadFunc)skype_connect_thread, acct, FALSE, NULL);
-	//purple_proxy_connect(acct->gc, acct, "127.0.0.1", 5000, connect_function, acct);
+	//purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
 
 	connected = FALSE;
 	
@@ -235,7 +235,7 @@ exec_skype()
 		in_progress = TRUE;
 		PurpleAccount *acct = skype_get_account(NULL);
 		//g_thread_create((GThreadFunc)skype_connect_thread, acct, FALSE, NULL);
-		purple_proxy_connect(acct->gc, acct, "127.0.0.1", 5000, connect_function, acct);
+		purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
 		g_thread_create((GThreadFunc)skype_read_thread, acct, FALSE, NULL);
 	}
 	return TRUE;
