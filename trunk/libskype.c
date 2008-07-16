@@ -937,60 +937,8 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	{
 		return FALSE;
 	}
-	status = skype_get_user_info(buddy->name, "ONLINESTATUS");
-	if (strlen(status) == 0)
-	{
-		primitive = PURPLE_STATUS_OFFLINE;
-		purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
-		return FALSE;
-	}
-	skype_debug_info("skype", "User %s status is %s\n", buddy->name, status);
-	
-	if (strcmp(status, "OFFLINE") == 0)
-	{
-		primitive = PURPLE_STATUS_OFFLINE;
-		if (strcmp(skype_get_user_info(buddy->name, "IS_VOICEMAIL_CAPABLE"), "TRUE") == 0)
-		{
-			buddy->proto_data = g_strdup(_("Offline with Voicemail"));
-		} else if (strcmp(skype_get_user_info(buddy->name, "IS_CF_ACTIVE"), "TRUE") == 0)
-		{
-			buddy->proto_data = g_strdup(_("Offline with Call Forwarding"));
-		}
-	} else if (strcmp(status, "ONLINE") == 0 ||
-			strcmp(status, "SKYPEME") == 0)
-	{
-		primitive = PURPLE_STATUS_AVAILABLE;
-	} else if (strcmp(status, "AWAY") == 0)
-	{
-		primitive = PURPLE_STATUS_AWAY;
-	} else if (strcmp(status, "NA") == 0)
-	{
-		primitive = PURPLE_STATUS_EXTENDED_AWAY;
-	} else if (strcmp(status, "DND") == 0)
-	{
-		primitive = PURPLE_STATUS_UNAVAILABLE;
-	} else if (strcmp(status, "SKYPEOUT") == 0)
-	{
-		if (purple_account_get_bool(buddy->account, "skypeout_online", TRUE))
-		{
-			primitive = PURPLE_STATUS_AVAILABLE;
-		} else {
-			primitive = PURPLE_STATUS_OFFLINE;
-		}
-		buddy->proto_data = g_strdup(_("SkypeOut"));
-	} else
-	{
-		primitive = PURPLE_STATUS_UNSET;
-	}
-	
-	//Dont say we got their status unless its changed
-	if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
-		purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
-	
-	if (primitive != PURPLE_STATUS_OFFLINE &&
-		strcmp(status, "SKYPEOUT") != 0 &&
-		primitive != PURPLE_STATUS_UNSET)
-			skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+	skype_send_message_nowait("GET USER %s ONLINESTATUS", buddy->name);
+	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 	
 	/* if this function was called from another thread, don't loop over it */
 	return FALSE;

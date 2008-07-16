@@ -52,6 +52,7 @@ skype_handle_received_message(char *message)
 	int i;
 	static int chat_count = 0;
 	PurpleGroup *temp_group;
+	PurpleStatusPrimitive primitive;
 	
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
@@ -78,18 +79,48 @@ skype_handle_received_message(char *message)
 		buddy = purple_find_buddy(this_account, string_parts[1]);
 		if (buddy != NULL)
 		{
-			if (strcmp(string_parts[2], "ONLINESTATUS") == 0)
+			if (g_str_equal(string_parts[2], "ONLINESTATUS"))
 			{
-				skype_update_buddy_status(buddy);
+				if (g_str_equal(string_parts[3], "OFFLINE"))
+					primitive = PURPLE_STATUS_OFFLINE;
+				else if (g_str_equal(string_parts[3], "ONLINE") ||
+						g_str_equal(string_parts[3], "SKYPEME"))
+					primitive = PURPLE_STATUS_AVAILABLE;
+				else if (g_str_equal(string_parts[3], "AWAY"))
+					primitive = PURPLE_STATUS_AWAY;
+				else if (g_str_equal(string_parts[3], "NA"))
+					primitive = PURPLE_STATUS_EXTENDED_AWAY;
+				else if (g_str_equal(string_parts[3], "DND"))
+					primitive = PURPLE_STATUS_UNAVAILABLE;
+				else if (g_str_equal(string_parts[3], "SKYPEOUT"))
+				{
+					if (purple_account_get_bool(buddy->account, "skypeout_online", TRUE))
+					{
+						primitive = PURPLE_STATUS_AVAILABLE;
+					} else {
+						primitive = PURPLE_STATUS_OFFLINE;
+					}
+					buddy->proto_data = g_strdup(_("SkypeOut"));
+				} else
+					primitive = PURPLE_STATUS_UNSET;
+
+				//Dont say we got their status unless its changed
+				if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
+					purple_prpl_got_user_status(acct, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
+
+				//Grab the buddy's avatar
 				skype_update_buddy_icon(buddy);
-			} else if (strcmp(string_parts[2], "MOOD_TEXT") == 0)
+			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
 			{
-				if (buddy->proto_data != NULL)
-					g_free(buddy->proto_data);
-				for (i=0; i<strlen(string_parts[3]); i++)
-					if (string_parts[3][i] == '\n')
-						string_parts[3][i] = ' ';
-				buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
+				if (!g_str_equal(buddy->proto_data, _("SkypeOut")))
+				{
+					if (buddy->proto_data != NULL)
+						g_free(buddy->proto_data);
+					for (i=0; i<strlen(string_parts[3]); i++)
+						if (string_parts[3][i] == '\n')
+							string_parts[3][i] = ' ';
+					buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
+				}
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
 				purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
