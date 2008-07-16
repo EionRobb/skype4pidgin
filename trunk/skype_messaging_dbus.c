@@ -146,8 +146,7 @@ is_skype_running()
 	g_dir_close(procdir);
 	g_free(statobj);
 	return FALSE;
-}
-static void
+} static void
 hide_skype()
 {
 	
