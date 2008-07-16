@@ -20,29 +20,32 @@ LOCALES = $(patsubst %.po, %.mo, $(wildcard po/*.po))
 #Standard stuff here
 .PHONY:	all clean
 
-.DEPENDS: libskype.c skype_messaging.c skype_messaging_x11.c skype_messaging_dbus.c skype_events.c debug.c skype_messaging_carbon.c skype_messaging_carbon2.c skype_messaging_win32.c
+.DEPENDS: libskype.c skype_messaging.c skype_events.c debug.c
 
 all:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so libskypearm.so
 
 clean:
 	rm -f libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so libskype.dll skype4pidgin.deb skype4pidgin-installer.exe
 
-libskype.so: .DEPENDS
+libskypenet.so:  .DEPENDS skype_messaging_network.c
+	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskypenet.so -shared -fPIC -DPIC -DSKYPENET
+
+libskype.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
 
-libskype64.so: .DEPENDS
+libskype64.so: .DEPENDS skype_messaging_x11.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC
 
-libskypearm.so: .DEPENDS
+libskypearm.so: .DEPENDS skype_messaging_x11.c
 	${LINUX_ARM_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskypearm.so -shared -fPIC -DPIC
 
-libskype_dbus.so: .DEPENDS
+libskype_dbus.so: .DEPENDS skype_messaging_dbus.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
-libskype_dbus64.so: .DEPENDS
+libskype_dbus64.so: .DEPENDS skype_messaging_dbus.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
-libskype.dll: .DEPENDS
+libskype.dll: .DEPENDS skype_messaging_win32.c
 	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
 	upx libskype.dll
 
