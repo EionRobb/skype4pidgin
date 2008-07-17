@@ -1004,6 +1004,13 @@ skype_login(PurpleAccount *acct)
 		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
 		return;
 	}
+	if (g_str_equal(reply, "CONNSTATUS OFFLINE"))
+	{
+		//this happens if we connect before skype has connected to the network
+		purple_timeout_add_seconds(10, skype_login_cb, acct);
+		g_free(reply);
+		return;
+	}
 	g_free(reply);
 #endif
 	purple_connection_update_progress(gc, _("Initializing"), 2, 5);
