@@ -136,8 +136,6 @@ void skype_group_buddy(PurpleConnection *, const char *who, const char *old_grou
 void skype_rename_group(PurpleConnection *, const char *old_name, PurpleGroup *group, GList *moved_buddies);
 void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
-static int skype_find_group_for_buddy(const char *buddy_name);
-gchar *skype_get_group_name(int group_number);
 static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
 
 PurplePluginProtocolInfo prpl_info = {
@@ -715,8 +713,6 @@ skype_set_buddies(PurpleAccount *acct)
 	PurpleBuddy *buddy;
 	PurpleGroup *skype_group = NULL;
 	PurpleGroup *skypeout_group = NULL;
-	char *buddy_group_name;
-	PurpleGroup *skype_temp_group = NULL;
 	int i;
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
@@ -757,44 +753,32 @@ skype_set_buddies(PurpleAccount *acct)
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
 			
 			//find out what group this buddy is in
-			buddy_group_name = skype_get_group_name(skype_find_group_for_buddy(friends[i]));
-			if (buddy_group_name == NULL)
+			//for now, dump them into a default group, until skype tells us where they belong
+			if (friends[i][0] == '+')
 			{
-				if (friends[i][0] == '+')
+				if (skypeout_group == NULL)
 				{
+					skypeout_group = purple_find_group("SkypeOut");
 					if (skypeout_group == NULL)
 					{
-						skypeout_group = purple_find_group("SkypeOut");
-						if (skypeout_group == NULL)
-						{
-							skypeout_group = purple_group_new("SkypeOut");
-							purple_blist_add_group(skypeout_group, NULL);
-						}
+						skypeout_group = purple_group_new("SkypeOut");
+						purple_blist_add_group(skypeout_group, NULL);
 					}
-					purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
 				}
-				else
+				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
+			}
+			else
+			{
+				if (skype_group == NULL)
 				{
+					skype_group = purple_find_group("Skype");
 					if (skype_group == NULL)
 					{
-						skype_group = purple_find_group("Skype");
-						if (skype_group == NULL)
-						{
-							skype_group = purple_group_new("Skype");
-							purple_blist_add_group(skype_group, NULL);
-						}
+						skype_group = purple_group_new("Skype");
+						purple_blist_add_group(skype_group, NULL);
 					}
-					purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 				}
-			} else {
-				skype_temp_group = purple_find_group(buddy_group_name);
-				if (skype_temp_group == NULL)
-				{
-					skype_temp_group = purple_group_new(buddy_group_name);
-					purple_blist_add_group(skype_temp_group, NULL);
-				}
-				g_free(buddy_group_name);
-				purple_blist_add_buddy(buddy, NULL, skype_temp_group, NULL);
+				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 			}
 		}
 		skype_update_buddy_status(buddy);
@@ -816,6 +800,8 @@ skype_set_buddies(PurpleAccount *acct)
 
 	skype_debug_info("skype", "Friends Count: %d\n", i);
 	g_strfreev(friends);
+	
+	skype_put_buddies_in_groups();
 	
 	return FALSE;
 }
@@ -1306,68 +1292,11 @@ skype_set_idle(PurpleConnection *gc, int time)
 	}
 }
 
-gchar *
-skype_get_group_name(int group_number)
-{
-	gchar *group_name;
-	gchar **group_name_split;
-	
-	group_name = skype_send_message("GET GROUP %d DISPLAYNAME", group_number);
-	group_name_split = g_strsplit(group_name, " ", 4);
-	g_free(group_name);
-	
-	if (group_name_split && group_name_split[0] && group_name_split[1] && 
-			group_name_split[2] && group_name_split[3])
-		group_name = g_strdup(group_name_split[3]);
-	else
-		group_name = NULL;
-	
-	g_strfreev(group_name_split);
-	return group_name;
-}
 
-static int
-skype_find_group_for_buddy(const char *buddy_name)
+void
+skype_put_buddies_in_groups()
 {
-	gchar *groups;
-	gchar *group_users;
-	int group_number_temp;
-	int group_number = 0;
-	gchar **group_list;
-	gchar **group_users_split;
-	int i,j;
-	
-	groups = skype_send_message("SEARCH GROUPS CUSTOM");
-	group_list = g_strsplit(strchr(groups, ' ')+1, ", ", 0);
-	g_free(groups);
-	for(i = 0; group_list[i]; i++)
-	{
-		group_users = skype_send_message("GET GROUP %s USERS", group_list[i]);
-		group_users_split = g_strsplit(group_users, " ", 4);
-		g_free(group_users);
-		group_users = g_strdup(group_users_split[3]);
-		group_number_temp = atoi(group_users_split[1]);
-		g_strfreev(group_users_split);
-		
-		group_users_split = g_strsplit(group_users, ", ", 0);
-		g_free(group_users);
-		
-		for(j = 0; group_users_split[j]; j++)
-		{
-			if (g_str_equal(group_users_split[j], buddy_name))
-			{
-				group_number = group_number_temp;
-				break;
-			}
-		}
-		g_strfreev(group_users_split);
-		if (group_number != 0)
-			break;
-	}
-	
-	g_strfreev(group_list);
-	
-	return group_number;
+	skype_send_message_nowait("SEARCH GROUPS CUSTOM");
 }
 
 int
@@ -1422,10 +1351,10 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 		return;
 	
 	//remove from old group
-	group_number = skype_find_group_with_name(old_group);
-	if (!group_number)
-		return;
-	skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, who);
+	//group_number = skype_find_group_with_name(old_group);
+	//if (!group_number)
+	//	return;
+	//skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, who);
 }
 
 void

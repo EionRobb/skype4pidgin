@@ -19,8 +19,7 @@ static PurpleAccount *skype_get_account(PurpleAccount *account);
 char *skype_get_account_username(PurpleAccount *acct);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
 gchar *skype_strdup_withhtml(const gchar *src);
-static int skype_find_group_for_buddy(const char *buddy_name);
-gchar *skype_get_group_name(int group_number);
+void skype_put_buddies_in_groups();
 
 char *skype_send_message(char *message, ...);
 
@@ -49,7 +48,7 @@ skype_handle_received_message(char *message)
 	PurpleXfer *transfer = NULL;
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
-	int i;
+	int i,j;
 	static int chat_count = 0;
 	PurpleGroup *temp_group;
 	PurpleStatusPrimitive primitive;
@@ -143,32 +142,20 @@ skype_handle_received_message(char *message)
 				{
 					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
-					temp = skype_get_group_name(skype_find_group_for_buddy(string_parts[1]));
-					if (temp != NULL)
+					if (string_parts[1][0] == '+')
 					{
-						temp_group = purple_find_group(temp);
+						temp_group = purple_find_group("SkypeOut");
 						if (temp_group == NULL)
 						{
-							temp_group = purple_group_new(temp);
+							temp_group = purple_group_new("SkypeOut");
 							purple_blist_add_group(temp_group, NULL);
 						}
-						g_free(temp);
 					} else {
-						if (string_parts[1][0] == '+')
+						temp_group = purple_find_group("Skype");
+						if (temp_group == NULL)
 						{
-							temp_group = purple_find_group("SkypeOut");
-							if (temp_group == NULL)
-							{
-								temp_group = purple_group_new("SkypeOut");
-								purple_blist_add_group(temp_group, NULL);
-							}
-						} else {
-							temp_group = purple_find_group("Skype");
-							if (temp_group == NULL)
-							{
-								temp_group = purple_group_new("Skype");
-								purple_blist_add_group(temp_group, NULL);
-							}
+							temp_group = purple_group_new("Skype");
+							purple_blist_add_group(temp_group, NULL);
 						}
 					}
 					purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
@@ -176,6 +163,7 @@ skype_handle_received_message(char *message)
 					skype_update_buddy_alias(buddy);
 					purple_prpl_got_user_idle(this_account, buddy->name, FALSE, 0);
 					skype_update_buddy_icon(buddy);
+					skype_put_buddies_in_groups();
 				}
 			}
 		} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
@@ -617,6 +605,24 @@ skype_handle_received_message(char *message)
 		{
 			skype_send_message("SET SILENT_MODE ON");
 		}
+	} else if (g_str_equal(command, "GROUPS"))
+	{
+		chatusers = g_strsplit(strchr(message, ' ')+1, ", ", 0);
+		for(i = 0; chatusers[i]; i++)
+		{
+			temp = skype_send_message("GET GROUP %s DISPLAYNAME", chatusers[i]);
+			body = g_strdup(&temp[19+strlen(chatusers[i])]);
+			g_free(temp);
+			if (!purple_find_group(body))
+				purple_blist_add_group(purple_group_new(body), NULL);
+			
+			temp = skype_send_message("GET GROUP %s USERS", chatusers[i]);
+			g_strfreev(string_parts);
+			string_parts = g_strsplit(&temp[13+strlen(chatusers[i])], ", ", -1);
+			for (j = 0; string_parts[j]; j++)
+				purple_blist_add_buddy(purple_find_buddy(this_account, string_parts[j]), NULL, purple_find_group(body), NULL);
+		}
+		g_strfreev(chatusers);
 	} else if (strcmp(command, "GROUP") == 0)
 	{
 		//TODO Handle Group stuff:
