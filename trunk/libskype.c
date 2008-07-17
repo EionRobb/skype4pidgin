@@ -909,20 +909,8 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 void
 skype_update_buddy_alias(PurpleBuddy *buddy)
 {
-	char *alias;
-	
-	alias = skype_get_user_info(buddy->name, "DISPLAYNAME");
-	if (strlen(alias) > 0)
-	{
-		purple_blist_server_alias_buddy(buddy, alias);
-		return;
-	}
-	
-	alias = skype_get_user_info(buddy->name, "FULLNAME");
-	if (strlen(alias) > 0)
-	{
-		purple_blist_server_alias_buddy(buddy, alias);
-	}
+	skype_send_message_nowait("GET USER %S DISPLAYNAME", buddy->name);
+	skype_send_message_nowait("GET USER %S FULLNAME", buddy->name);
 }
 
 gboolean
