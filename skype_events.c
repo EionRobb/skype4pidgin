@@ -258,9 +258,6 @@ skype_handle_received_message(char *message)
 			)
 		{
 			msg_num = string_parts[1];
-			temp = skype_send_message("GET CHATMESSAGE %s TYPE", msg_num);
-			type = g_strdup(&temp[18+strlen(msg_num)]);
-			g_free(temp);
 			temp = skype_send_message("GET CHATMESSAGE %s CHATNAME", msg_num);
 			chatname = g_strdup(&temp[22+strlen(msg_num)]);
 			g_free(temp);
@@ -314,6 +311,21 @@ skype_handle_received_message(char *message)
 			} else {
 				conv = glist_temp->data;
 			}
+			
+			//This bit stops us from requesting info we dont need
+#ifndef USE_SKYPE_SENT			
+			if (conv && conv->type != PURPLE_CONV_TYPE_CHAT && g_str_equal(string_parts[3], "SENT"))
+			{
+				g_free(chatname);
+				g_strfreev(string_parts);
+				return FALSE;
+			}
+#endif
+			
+			temp = skype_send_message("GET CHATMESSAGE %s TYPE", msg_num);
+			type = g_strdup(&temp[18+strlen(msg_num)]);
+			g_free(temp);
+			
 			//Types of chat message are:
 			//    SETTOPIC - change of chat topic
 			//    SAID - IM
