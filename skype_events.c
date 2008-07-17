@@ -112,7 +112,7 @@ skype_handle_received_message(char *message)
 				skype_update_buddy_icon(buddy);
 			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
 			{
-				if (!g_str_equal(buddy->proto_data, _("SkypeOut")))
+				if (!buddy->proto_data || !g_str_equal(buddy->proto_data, _("SkypeOut")))
 				{
 					if (buddy->proto_data != NULL)
 						g_free(buddy->proto_data);
