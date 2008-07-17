@@ -286,6 +286,12 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #endif
 */
+	option = purple_account_option_string_new(_("Server"), "host", "skype.robbmob.com");
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_int_new(_("Port"), "port", 5000);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	
+
 	option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Make Skype online/offline when going online/offline"), "skype_sync", TRUE);
@@ -861,6 +867,7 @@ skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_p
 void
 skype_update_buddy_icon(PurpleBuddy *buddy)
 {
+#ifndef SKYPENET
 	PurpleAccount *acct;
 	gchar *filename = NULL;
 	gchar *new_filename = NULL;
@@ -903,6 +910,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 	}
 
 	purple_buddy_icons_set_for_user(acct, buddy->name, g_memdup(image_data,image_data_len), image_data_len, NULL);
+#endif
 }
 
 
