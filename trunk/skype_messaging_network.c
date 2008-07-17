@@ -7,7 +7,6 @@
 #define fsync(fd) _commit(fd)
 #endif
 
-static PurpleProxyConnectData *proxy_data = NULL;
 static guint input_timeout;
 static gint source_sock = -1;
 static gboolean connected = FALSE;
@@ -42,11 +41,6 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 		else
 			response_string = g_string_append_len(response_string, response, len);
 	}
-	//if (len == 0 && response_string && response_string->str)
-	//else if (len == 0)
-	//{
-	//	skype_disconnect();
-	//}
 	else
 	{
 		if (response_string)
@@ -65,7 +59,6 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 		for (i=0; reply_pieces[i]; i++)
 		{
 			reply = reply_pieces[i];
-			//printf("skype Received %d %s\n", len, reply);
 			if (g_str_equal(reply, "LOGIN"))
 			{
 				connected = TRUE;
@@ -74,7 +67,6 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 				g_thread_create((GThreadFunc)skype_message_received, reply, FALSE, NULL);
 			}
 		}
-		//g_strfreev(reply_pieces);
 		response_string = NULL;
 	}
 }
@@ -90,35 +82,6 @@ skype_read_thread(gpointer data)
 	}
 	return data;
 }
-/*
-void
-read_function_thread(gpointer source_pointer)
-{
-	gint source = GPOINTER_TO_INT(source_pointer);
-	fd_set fds;
-	struct timeval tv;
-	gint select_return;
-	
-	FD_ZERO(&fds);
-	FD_SET(source, &fds);
-	
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
-	
-	//int nonblock = 0;
-
-	//turn off non blocking mode
-	//setsockopt(source, SOL_SOCKET, SO_NONBLOCK, &nonblock, sizeof(nonblock));
-	//ioctl(source, FIONBIO, &nonblock);
-	while (connected || in_progress)
-	{
-		select_return = select(1, &fds, NULL, NULL, &tv);
-		printf("select_return: %d\n", select_return);
-		read_function_cb(NULL, source, PURPLE_INPUT_READ);
-		g_thread_yield();
-		sleep(1);
-	}
-}*/
 
 void
 connect_function(gpointer data, gint source, const gchar *error_message)
@@ -126,10 +89,9 @@ connect_function(gpointer data, gint source, const gchar *error_message)
 	gchar *loginmsg;
 	PurpleAccount *acct = skype_get_account(NULL);
 	
-	//printf("skype connect_function\n");
-	
 	if (error_message)
 	{
+		in_progress = FALSE;
 		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
 		return;
 	}
@@ -139,40 +101,12 @@ connect_function(gpointer data, gint source, const gchar *error_message)
 	send_message(loginmsg);
 	g_free(loginmsg);
 	
-	//input_timeout = purple_input_add(source, PURPLE_INPUT_READ, read_function_cb, data);
-	//g_thread_create((GThreadFunc)read_function_thread, GINT_TO_POINTER(source), FALSE, NULL);
 	g_thread_create((GThreadFunc)skype_read_thread, NULL, FALSE, NULL);
-}
-
-gpointer
-skype_connect_thread(gpointer data)
-{
-	PurpleAccount *acct = data;
-	proxy_data = purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
-	//printf("skype connect thread\n");
-	return proxy_data;
 }
 
 static gboolean
 skype_connect()
 {
-	/*long timeout = 0;
-	
-	PurpleAccount *acct = skype_get_account(NULL);
-	g_thread_create((GThreadFunc)skype_connect_thread, acct, FALSE, NULL);
-	//purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
-
-	connected = FALSE;
-	
-	while (!connected && timeout < G_USEC_PER_SEC*10)
-	{
-		g_thread_yield();
-		timeout += 1000;
-		usleep(1000);
-	}
-	
-	purple_proxy_connect_cancel(proxy_data);
-	*/
 	return connected;
 }
 
@@ -185,7 +119,6 @@ skype_disconnect()
 	send_message("QUIT");
 
 	connected = FALSE;
-	//printf("skype skype_disconnect\n");
 	close(source_sock);
 	source_sock = -1;
 	purple_input_remove(input_timeout);
@@ -197,16 +130,18 @@ send_message(char* message)
 {
 	int message_num;
 	char *error_return;
-	int msglen;
-	int len;
+	char *temp;
+	int msglen = -1;
+	int len = 0;
 	
-	msglen = strlen(message);
-	len = write(source_sock, message, msglen);
-	if (len)
+	if (message)
 	{
-		write(source_sock, etb_string, 1);
+		msglen = strlen(message) + 1;
+		temp = g_strdup_printf("%s%c", message, 23);
+		len = write(source_sock, temp, msglen);
+		fsync(source_sock);
 	}
-	fsync(source_sock);
+	
 	if (len != msglen)
 	{
 		//There was an error
@@ -234,7 +169,6 @@ exec_skype()
 	{
 		in_progress = TRUE;
 		PurpleAccount *acct = skype_get_account(NULL);
-		//g_thread_create((GThreadFunc)skype_connect_thread, acct, FALSE, NULL);
 		purple_proxy_connect(acct->gc, acct, "5.5.242.9", 5000, connect_function, acct);
 		g_thread_create((GThreadFunc)skype_read_thread, acct, FALSE, NULL);
 	}
