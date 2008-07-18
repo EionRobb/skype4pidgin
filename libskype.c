@@ -1007,7 +1007,7 @@ skype_login(PurpleAccount *acct)
 	if (g_str_equal(reply, "CONNSTATUS OFFLINE"))
 	{
 		//this happens if we connect before skype has connected to the network
-		purple_timeout_add_seconds(10, skype_login_cb, acct);
+		purple_timeout_add_seconds(1, skype_login_cb, acct);
 		g_free(reply);
 		return;
 	}
@@ -1709,6 +1709,18 @@ gboolean
 skype_offline_msg(const PurpleBuddy *buddy)
 {
 	return TRUE;
+}
+
+void
+skype_get_chatmessage_info(int message)
+{
+	skype_send_message_nowait("GET CHATMESSAGE %d TYPE", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d CHATNAME", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d BODY", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d FROM_HANDLE", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d USERS", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d LEAVEREASON", message);
+	skype_send_message_nowait("GET CHATMESSAGE %d TIMESTAMP", message);
 }
 
 void
