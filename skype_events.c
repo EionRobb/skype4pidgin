@@ -374,9 +374,13 @@ skype_handle_received_message(char *message)
 				//if they have an IM window open, assign it the chatname
 				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
 				if (conv == NULL)
-					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, string_parts[3]);
+				{
+					//conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, string_parts[3]);
+					serv_got_im(gc, string_parts[3], ".", PURPLE_MESSAGE_RECV, time(NULL));
+					conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
+				}
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
-			} else if (g_str_equal(string_parts[2], "STATUS") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
+			} else if (g_str_equal(string_parts[2], "TYPE") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
 			{
 				//most likely a chat
 				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
