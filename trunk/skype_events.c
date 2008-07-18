@@ -285,7 +285,7 @@ skype_handle_received_message(char *message)
 			else if (g_str_equal(string_parts[3], "SENT"))
 				skypemessage->flags = PURPLE_MESSAGE_SEND;
 			g_hash_table_insert(messages_table, GINT_TO_POINTER(atoi(string_parts[1])), skypemessage);
-			printf("Message %s has int %d (%d)\n", string_parts[1], atoi(string_parts[1]), GINT_TO_POINTER(atoi(string_parts[1])));
+//			printf("Message %s has int %d (%d)\n", string_parts[1], atoi(string_parts[1]), GINT_TO_POINTER(atoi(string_parts[1])));
 			skype_get_chatmessage_info(atoi(string_parts[1]));
 		} else if (g_str_equal(string_parts[2], "TYPE"))
 		{
@@ -386,7 +386,7 @@ skype_handle_received_message(char *message)
 				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			}
-			printf("Conv %d\n", conv);
+			printf("Conv %d\n", (int)conv);
 		} else {
 			conv = glist_temp->data;
 		}
