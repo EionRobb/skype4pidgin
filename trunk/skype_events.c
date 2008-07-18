@@ -103,7 +103,7 @@ skype_handle_received_message(char *message)
 				purple_connection_error(gc, _("\nSkype program closed"));
 			//purple_timeout_add(0, (GSourceFunc)skype_sync_skype_close, gc);
 		}
-	} else if ((strcmp(command, "USER") == 0) && (strcmp(string_parts[1], my_username) != 0))
+	} else if (g_str_equal(command, "USER"))
 	{
 		buddy = purple_find_buddy(this_account, string_parts[1]);
 		if (buddy != NULL)
