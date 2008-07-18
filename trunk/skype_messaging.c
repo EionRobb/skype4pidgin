@@ -35,12 +35,12 @@ char *skype_send_message(char *message, ...);
 #endif
 
 
-typedef struct {
+/*typedef struct {
 	gpointer sender;
 	gpointer body;
 	int time;
 	gpointer chatname;
-} SkypeMessage;
+} SkypeMessage;*/
 
 static GHashTable *message_queue = NULL;
 static GStaticMutex mutex = G_STATIC_MUTEX_INIT;

@@ -45,8 +45,10 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 	{
 		if (response_string)
 		{
-			response_string = g_string_append_len(response_string, response, len);
+			if (len > 0)
+				response_string = g_string_append_len(response_string, response, len);
 			reply = g_string_free(response_string, FALSE);
+			response_string = NULL;
 		}
 		else if (len)
 			reply = g_strndup(response, len);
@@ -67,7 +69,6 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 				g_thread_create((GThreadFunc)skype_message_received, reply, FALSE, NULL);
 			}
 		}
-		response_string = NULL;
 	}
 }
 
