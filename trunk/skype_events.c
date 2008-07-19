@@ -24,9 +24,12 @@ void skype_put_buddies_in_groups();
 void skype_get_chatmessage_info(int message);
 
 char *skype_send_message(char *message, ...);
+//dont use this unless you know what you're doing:
+void skype_send_message_nowait(char *message, ...);
 
 
 static GHashTable *messages_table = NULL;
+static GHashTable *groups_table = NULL;
 
 typedef enum _SkypeMessageType {
 	SKYPE_MESSAGE_OTHER = 0,
@@ -77,7 +80,7 @@ skype_handle_received_message(char *message)
 	PurpleXfer *transfer = NULL;
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
-	int i,j;
+	int i;
 	static int chat_count = 0;
 	PurpleGroup *temp_group;
 	PurpleStatusPrimitive primitive;
@@ -375,9 +378,9 @@ skype_handle_received_message(char *message)
 				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
 				if (conv == NULL)
 				{
-					//conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, string_parts[3]);
-					serv_got_im(gc, string_parts[3], ".", PURPLE_MESSAGE_RECV, time(NULL));
-					conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
+					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, string_parts[3]);
+					//serv_got_im(gc, string_parts[3], ".", PURPLE_MESSAGE_RECV, time(NULL));
+					//conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
 				}
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			} else if (g_str_equal(string_parts[2], "TYPE") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
@@ -576,26 +579,56 @@ skype_handle_received_message(char *message)
 		}
 	} else if (g_str_equal(command, "GROUPS"))
 	{
+		if (groups_table == NULL)
+			groups_table = g_hash_table_new(NULL, NULL);
 		chatusers = g_strsplit(strchr(message, ' ')+1, ", ", 0);
 		for(i = 0; chatusers[i]; i++)
 		{
-			temp = skype_send_message("GET GROUP %s DISPLAYNAME", chatusers[i]);
-			body = g_strdup(&temp[19+strlen(chatusers[i])]);
-			g_free(temp);
-			if (!purple_find_group(body))
-				purple_blist_add_group(purple_group_new(body), NULL);
-			
-			temp = skype_send_message("GET GROUP %s USERS", chatusers[i]);
-			g_strfreev(string_parts);
-			string_parts = g_strsplit(&temp[13+strlen(chatusers[i])], ", ", -1);
-			for (j = 0; string_parts[j]; j++)
-				purple_blist_add_buddy(purple_find_buddy(this_account, string_parts[j]), NULL, purple_find_group(body), NULL);
+			skype_send_message_nowait("GET GROUP %s DISPLAYNAME", chatusers[i]);
+			skype_send_message_nowait("GET GROUP %s USERS", chatusers[i]);
+			//temp = skype_send_message("GET GROUP %s DISPLAYNAME", chatusers[i]);
+			//body = g_strdup(&temp[19+strlen(chatusers[i])]);
+			//g_free(temp);
+			//if (!purple_find_group(body))
+			//	purple_blist_add_group(purple_group_new(body), NULL);
+			//
+			//temp = skype_send_message("GET GROUP %s USERS", chatusers[i]);
+			//g_strfreev(string_parts);
+			//string_parts = g_strsplit(&temp[13+strlen(chatusers[i])], ", ", -1);
+			//for (j = 0; string_parts[j]; j++)
+			//	purple_blist_add_buddy(purple_find_buddy(this_account, string_parts[j]), NULL, purple_find_group(body), NULL);
 		}
 		g_strfreev(chatusers);
-	} else if (strcmp(command, "GROUP") == 0)
+	} else if (g_str_equal(command, "GROUP"))
 	{
+		if (groups_table == NULL)
+			groups_table = g_hash_table_new(NULL, NULL);
 		//TODO Handle Group stuff:
 		//  Messages from skype to move users in to/out of a group
+		if (g_str_equal(string_parts[2], "DISPLAYNAME"))
+		{
+			temp_group = g_hash_table_lookup(groups_table, GINT_TO_POINTER(atoi(string_parts[1])));
+			if (!temp_group)
+			{
+				temp_group = purple_find_group(string_parts[3]);
+				if (!temp_group)
+				{
+					temp_group = purple_group_new(string_parts[3]);
+					purple_blist_add_group(temp_group, NULL);
+				}
+				g_hash_table_insert(groups_table, GINT_TO_POINTER(string_parts[1]), temp_group);
+			}
+		} else if (g_str_equal(string_parts[2], "USERS"))
+		{
+			temp_group = g_hash_table_lookup(groups_table, GINT_TO_POINTER(atoi(string_parts[1])));
+			if (temp_group)
+			{
+				chatusers = g_strsplit(string_parts[3], ", ", -1);
+				for (i = 0; chatusers[i]; i++)
+					purple_blist_add_buddy(purple_find_buddy(this_account, chatusers[i]), NULL, temp_group, NULL);
+				g_strfreev(chatusers);	
+			}		
+		}
 	} else if (strcmp(command, "APPLICATION") == 0 && 
 				strcmp(string_parts[1], "libpurple_typing") == 0)
 	{
@@ -786,7 +819,6 @@ skype_sync_skype_close(PurpleConnection *gc)
 
 
 
-void skype_send_message_nowait(char *message, ...);
 
 void
 handle_complete_message(int messagenumber)

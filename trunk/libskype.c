@@ -1306,36 +1306,37 @@ skype_put_buddies_in_groups()
 	skype_send_message_nowait("SEARCH GROUPS CUSTOM");
 }
 
+gboolean
+groups_table_find_group(gpointer key, gpointer value, gpointer user_data)
+{
+	gchar *group_name = user_data;
+	gint group_number = GPOINTER_TO_INT(key);
+	PurpleGroup *group = value;
+	if (g_str_equal(group_name, group->name))
+	{
+		purple_blist_node_set_int(&group->node, "skype_group_number", group_number);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 int
 skype_find_group_with_name(const char *group_name_in)
 {
-	gchar *groups;
-	gchar *group_name;
-	int group_number = 0;
-	gchar **group_list;
-	gchar **group_name_split;
-	int i;
+	PurpleGroup *purple_group;
 	
-	groups = skype_send_message("SEARCH GROUPS CUSTOM");
-	group_list = g_strsplit(strchr(groups, ' ')+1, ", ", 0);
-	g_free(groups);
-	for(i = 0; group_list[i]; i++)
+	if (groups_table == NULL)
 	{
-		group_name = skype_send_message("GET GROUP %s DISPLAYNAME", group_list[i]);
-		group_name_split = g_strsplit(group_name, " ", 4);
-		g_free(group_name);
-		if (g_str_equal(group_name_split[3], group_name_in))
-		{
-			group_number = atoi(group_name_split[1]);
-		}
-		g_strfreev(group_name_split);
-		if (group_number != 0)
-			break;
+		skype_send_message_nowait("SEARCH GROUPS CUSTOM");
+		return 0;
 	}
 	
-	g_strfreev(group_list);
-	
-	return group_number;
+	purple_group = g_hash_table_find(groups_table, groups_table_find_group, (gpointer)group_name_in);
+	if (purple_group == NULL)
+	{
+		return 0;
+	}
+	return purple_blist_node_get_int(&purple_group->node, "skype_group_number");
 }
 
 void
