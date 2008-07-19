@@ -143,7 +143,8 @@ skype_handle_received_message(char *message)
 				if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
 					purple_prpl_got_user_status(this_account, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 
-				//Grab the buddy's avatar
+				//Grab the buddy's mood and avatar
+				skype_send_message_nowait("GET USER %s MOOD_TEXT", string_parts[1]);
 				skype_update_buddy_icon(buddy);
 			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
 			{
