@@ -851,8 +851,29 @@ skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_p
 }
 
 void
+skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	PurpleBuddy *buddy = user_data;
+	PurpleAccount *acct = buddy->account;
+	
+	if (error_message || !len || !url_text)
+		return;
+	
+	purple_buddy_icons_set_for_user(acct, buddy->name, g_memdup(url_text,len), len, NULL);	
+}
+
+void
 skype_update_buddy_icon(PurpleBuddy *buddy)
 {
+#ifdef SKYPENET
+	PurpleAccount *acct;
+	gchar *url;
+	
+	acct = purple_buddy_get_account(buddy);
+	url = g_strconcat("http://", purple_account_get_string(acct, "host", "skype.robbmob.com"), "/avatars/", buddy->name, NULL);
+	purple_util_fetch_url(url, TRUE, NULL, FALSE, skype_got_buddy_icon_cb, buddy);
+	g_free(url);
+#endif
 #ifndef SKYPENET
 	PurpleAccount *acct;
 	gchar *filename = NULL;
