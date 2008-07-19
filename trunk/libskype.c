@@ -1324,6 +1324,15 @@ int
 skype_find_group_with_name(const char *group_name_in)
 {
 	PurpleGroup *purple_group;
+	gint group_number;
+
+	purple_group = purple_find_group(group_name_in);
+	if (purple_group != NULL)
+	{
+		group_number = purple_blist_node_get_int(&purple_group->node, "skype_group_number");
+		if (group_number)
+			return group_number;
+	}
 	
 	if (groups_table == NULL)
 	{
@@ -1349,6 +1358,7 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 	if (!group_number)
 	{
 		skype_send_message_nowait("CREATE GROUP %s", new_group);
+		sleep(1);
 		skype_group_buddy(gc, who, old_group, new_group);
 		return;
 	}
@@ -1441,16 +1451,22 @@ skype_rem_permit(PurpleConnection *gc, const char *who)
 	skype_send_message_nowait("SET USER %s ISAUTHORIZED FALSE", who);
 }
 
+static time_t last_ping = 0;
+
+gboolean
+skype_check_keepalive(PurpleConnection *gc)
+{
+	if (last_pong < last_ping)
+		purple_connection_error(gc, _("\nSkype not responding"));
+	return FALSE;
+}
+
 void
 skype_keepalive(PurpleConnection *gc)
 {
-	gchar *connected;
-	connected = skype_send_message("PING");
-	if (strlen(connected) == 0)
-	{
-		purple_connection_error(gc, _("\nSkype not responding"));
-	}
-	g_free(connected);
+	last_ping = time(NULL);
+	skype_send_message_nowait("PING");
+	purple_timeout_add_seconds(10, (GSourceFunc)skype_check_keepalive, gc);
 }
 
 void

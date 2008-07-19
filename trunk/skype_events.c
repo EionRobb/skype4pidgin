@@ -27,7 +27,7 @@ char *skype_send_message(char *message, ...);
 //dont use this unless you know what you're doing:
 void skype_send_message_nowait(char *message, ...);
 
-
+static time_t last_pong = 0;
 static GHashTable *messages_table = NULL;
 static GHashTable *groups_table = NULL;
 
@@ -94,7 +94,10 @@ skype_handle_received_message(char *message)
 	my_username = skype_get_account_username(this_account);
 	string_parts = g_strsplit(message, " ", 4);
 	
-	if (strcmp(command, "USERSTATUS") == 0)
+	if (g_str_equal(command, "PONG"))
+	{
+		last_pong = time(NULL);
+	} else if (strcmp(command, "USERSTATUS") == 0)
 	{
 
 	} else if (strcmp(command, "CONNSTATUS") == 0)
@@ -616,6 +619,7 @@ skype_handle_received_message(char *message)
 					temp_group = purple_group_new(string_parts[3]);
 					purple_blist_add_group(temp_group, NULL);
 				}
+				purple_blist_node_set_int(&temp_group->node, "skype_group_number", atoi(string_parts[1]));
 				g_hash_table_insert(groups_table, GINT_TO_POINTER(string_parts[1]), temp_group);
 			}
 		} else if (g_str_equal(string_parts[2], "USERS"))
