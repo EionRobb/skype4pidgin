@@ -215,7 +215,7 @@ is_skype_running()
 	entry.dwSize = sizeof(PROCESSENTRY32);
 	Process32First(snapshot, &entry);
 	do {
-		if (strcmp("Skype.exe", entry.szExeFile) == 0)
+		if (g_str_equal("Skype.exe", entry.szExeFile))
 		{
 			temp = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 			CloseHandle(snapshot);

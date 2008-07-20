@@ -1076,7 +1076,7 @@ skype_get_account_username(PurpleAccount *acct)
 	username = g_strdup(&ret[18]);
 	g_free(ret);
 
-	if (acct && strcmp(acct->username, username) != 0)
+	if (acct && !g_str_equal(acct->username, username))
 	{
 		skype_debug_info("skype", "Setting username to %s\n", username);
 		purple_account_set_username(acct, username);
@@ -1422,7 +1422,7 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 void 
 skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	if (strcmp(skype_get_user_info(buddy->name, "ONLINESTATUS"), "UNKNOWN") == 0)
+	if (g_str_equal(skype_get_user_info(buddy->name, "ONLINESTATUS"), "UNKNOWN"))
 	{
 		//this user doesn't exist
 		purple_blist_remove_buddy(buddy);

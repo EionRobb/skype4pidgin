@@ -300,7 +300,7 @@ IsSkypeRunning(void)
 			if (GetProcessInformation(&psn, &info) == noErr)
 			{
 				//for some reason first character is poisioned
-				if (strcmp((char *)&procName[1], "Skype") == 0)
+				if (g_str_equal((char *)&procName[1], "Skype"))
 				{
 					if (GetProcessPID(&psn, &pid) == noErr)
 					{
