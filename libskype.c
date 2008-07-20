@@ -275,20 +275,13 @@ plugin_init(PurplePlugin *plugin)
 	this_plugin = plugin;
 	/* plugin's path at
 		this_plugin->path */
-/*
-#ifdef __APPLE__
-	//Adium demands a server and port, but there isn't one
-	option = purple_account_option_string_new(_("Server"), "server", "localhost");
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	option = purple_account_option_int_new(_("Port"), "port", 0);
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-#endif
-*/
+
+#ifdef SKYPENET
 	option = purple_account_option_string_new(_("Server"), "host", "skype.robbmob.com");
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_int_new(_("Port"), "port", 5000);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	
+#endif	
 
 	option = purple_account_option_bool_new(_("Show SkypeOut contacts as 'Online'"), "skypeout_online", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
