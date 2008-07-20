@@ -1128,7 +1128,6 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 		PurpleMessageFlags flags)
 {
 	char *stripped;
-	char *temp;
 	char *chat_id;
 	PurpleConversation *conv;
 	
@@ -1137,19 +1136,21 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, who, purple_connection_get_account(gc));
 	if (conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
 	{
-		chat_id = g_new(char, 200);
+		/*chat_id = g_new(char, 200);
+		char *temp;
 		temp = skype_send_message("CHAT CREATE %s", who);
 		sscanf(temp, "CHAT %s ", chat_id);
 		g_free(temp);
 		if (conv != NULL)
 		{
 			purple_conversation_set_data(conv, "chat_id", chat_id);
-		}
+		}*/
+		skype_send_message_nowait("MESSAGE %s %s", who, stripped);
 	} else {
 		chat_id = purple_conversation_get_data(conv, "chat_id");
+		skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 	}
 
-	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
 
 #ifdef USE_SKYPE_SENT
 	return 0;
