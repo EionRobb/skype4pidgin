@@ -97,12 +97,12 @@ skype_handle_received_message(char *message)
 	if (g_str_equal(command, "PONG"))
 	{
 		last_pong = time(NULL);
-	} else if (strcmp(command, "USERSTATUS") == 0)
+	} else if (g_str_equal(command, "USERSTATUS"))
 	{
 
-	} else if (strcmp(command, "CONNSTATUS") == 0)
+	} else if (g_str_equal(command, "CONNSTATUS"))
 	{
-		if (strcmp(string_parts[1], "LOGGEDOUT") == 0)
+		if (g_str_equal(string_parts[1], "LOGGEDOUT"))
 		{
 			//need to make this synchronous :(
 			if (gc != NULL)
@@ -140,7 +140,7 @@ skype_handle_received_message(char *message)
 					primitive = PURPLE_STATUS_UNSET;
 
 				//Dont say we got their status unless its changed
-				if (strcmp(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)) != 0)
+				if (!g_str_equal(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)))
 					purple_prpl_got_user_status(this_account, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
 
 				//Grab the buddy's mood and avatar
@@ -157,7 +157,7 @@ skype_handle_received_message(char *message)
 							string_parts[3][i] = ' ';
 					buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
 				}
-			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
+			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 			{
 				if (strlen(g_strstrip(string_parts[3])))
 					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
@@ -165,14 +165,14 @@ skype_handle_received_message(char *message)
 			{
 				if (strlen(g_strstrip(string_parts[3])) && (!purple_buddy_get_server_alias(buddy) || !strlen(purple_buddy_get_server_alias(buddy))))
 					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
-			} else if ((strcmp(string_parts[2], "BUDDYSTATUS") == 0) &&
-					(strcmp(string_parts[3], "1") == 0))
+			} else if ((g_str_equal(string_parts[2], "BUDDYSTATUS")) &&
+					(g_str_equal(string_parts[3], "1")))
 			{
 				purple_blist_remove_buddy(buddy);
 			}
-		} else if (strcmp(string_parts[2], "BUDDYSTATUS") == 0)
+		} else if (g_str_equal(string_parts[2], "BUDDYSTATUS"))
 		{
-			if (strcmp(string_parts[3], "3") == 0)
+			if (g_str_equal(string_parts[3], "3"))
 			{
 				skype_debug_info("skype", "Buddy %s just got added\n", string_parts[1]);
 				//buddy just got added.. handle it
@@ -204,11 +204,11 @@ skype_handle_received_message(char *message)
 					skype_put_buddies_in_groups();
 				}
 			}
-		} else if (strcmp(string_parts[2], "RECEIVEDAUTHREQUEST") == 0)
+		} else if (g_str_equal(string_parts[2], "RECEIVEDAUTHREQUEST"))
 		{
 			//this event can be fired directly after authorising someone
 			temp = skype_get_user_info(string_parts[1], "ISAUTHORIZED");
-			if (strcmp(temp, "TRUE") != 0)
+			if (!g_str_equal(temp, "TRUE"))
 			{
 				skype_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
 				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
@@ -217,16 +217,16 @@ skype_handle_received_message(char *message)
 			}
 			g_free(temp);
 		}
-	} else if (strcmp(command, "MESSAGE") == 0)
+	} else if (g_str_equal(command, "MESSAGE"))
 	{
-		if (strcmp(string_parts[3], "RECEIVED") == 0)
+		if (g_str_equal(string_parts[3], "RECEIVED"))
 		{
 			msg_num = string_parts[1];
 			temp = skype_send_message("GET MESSAGE %s TYPE", msg_num);
 			type = g_strdup(&temp[14+strlen(msg_num)]);
 			g_free(temp);
-			if (strcmp(type, "TEXT") == 0 ||
-				strcmp(type, "AUTHREQUEST") == 0)
+			if (g_str_equal(type, "TEXT") ||
+				g_str_equal(type, "AUTHREQUEST"))
 			{
 				temp = skype_send_message("GET MESSAGE %s PARTNER_HANDLE", msg_num);
 				sender = g_strdup(&temp[24+strlen(msg_num)]);
@@ -242,16 +242,16 @@ skype_handle_received_message(char *message)
 				body_html = skype_strdup_withhtml(body);
 				g_free(body);
 
-				if (strcmp(type, "TEXT")==0)
+				if (g_str_equal(type, "TEXT"))
 				{
-					if (strcmp(sender, my_username) == 0)
+					if (g_str_equal(sender, my_username))
 					{
 						temp = skype_send_message("GET CHATMESSAGE %s CHATNAME", msg_num);
 						chatname = g_strdup(&temp[18+strlen(msg_num)]);
 						g_free(temp);
 						//skype_debug_info("skype", "Chatname: '%s'\n", chatname);
 						chatusers = g_strsplit_set(chatname, "/;", 3);
-						if (strcmp(&chatusers[0][1], my_username) == 0)
+						if (g_str_equal(&chatusers[0][1], my_username))
 							sender = &chatusers[1][1];
 						else
 							sender = &chatusers[0][1];
@@ -260,7 +260,7 @@ skype_handle_received_message(char *message)
 					} else {
 						serv_got_im(gc, sender, body_html, PURPLE_MESSAGE_RECV, mtime);
 					}
-				}/* else if (strcmp(type, "AUTHREQUEST") == 0 && strcmp(sender, my_username) != 0)
+				}/* else if (g_str_equal(type, "AUTHREQUEST") && !g_str_equal(sender, my_username))
 				{
 					skype_debug_info("User %s requested alternate authorisation\n", sender);
 					purple_account_request_authorization(this_account, sender, NULL, skype_get_user_info(sender, "FULLNAME"),
@@ -270,17 +270,17 @@ skype_handle_received_message(char *message)
 
 				skype_send_message("SET MESSAGE %s SEEN", msg_num);
 			}
-		} else if (strcmp(string_parts[3], "SENT") == 0)
+		} else if (g_str_equal(string_parts[3], "SENT"))
 		{
 			/* mark it as seen, to remove notification from skype ui */
 			
 			/* dont async this -> infinite loop */
 			skype_send_message("SET MESSAGE %s SEEN", string_parts[1]);
 		}
-	} else if (strcmp(command, "CHATMESSAGE") == 0)
+	} else if (g_str_equal(command, "CHATMESSAGE"))
 	{
-		if ((strcmp(string_parts[3], "RECEIVED") == 0)
-			|| (strcmp(string_parts[3], "SENT") == 0)
+		if ((g_str_equal(string_parts[3], "RECEIVED"))
+			|| (g_str_equal(string_parts[3], "SENT"))
 			)
 		{
 			if (messages_table == NULL)
@@ -427,18 +427,18 @@ skype_handle_received_message(char *message)
 				}
 			}
 		}
-	} else if (strcmp(command, "FILETRANSFER") == 0)
+	} else if (g_str_equal(command, "FILETRANSFER"))
 	{
 		//lookup current file transfers to see if there's already one there
 		glist_temp = g_list_find_custom(purple_xfers_get_all(),
 										string_parts[1],
 										(GCompareFunc)skype_find_filetransfer);
-		if (glist_temp == NULL && strcmp(string_parts[2], "TYPE") == 0)
+		if (glist_temp == NULL && g_str_equal(string_parts[2], "TYPE"))
 		{
 			temp = skype_send_message("GET FILETRANSFER %s PARTNER_HANDLE", string_parts[1]);
 			sender = g_strdup(&temp[29+strlen(string_parts[1])]);
 			g_free(temp);
-			if (strcmp(string_parts[3], "INCOMING") == 0)
+			if (g_str_equal(string_parts[3], "INCOMING"))
 			{
 				transfer = purple_xfer_new(this_account, PURPLE_XFER_RECEIVE, sender);
 			} else {
@@ -466,28 +466,28 @@ skype_handle_received_message(char *message)
 		}
 		if (transfer != NULL)
 		{
-			/*if (strcmp(string_parts[2], "TYPE") == 0)
+			/*if (g_str_equal(string_parts[2], "TYPE"))
 			{
-				if (strcmp(string_parts[3], "INCOMING") == 0)
+				if (g_str_equal(string_parts[3], "INCOMING"))
 				{
 					transfer->type = PURPLE_XFER_RECEIVE;
 				} else {
 					transfer->type = PURPLE_XFER_SEND;
 				}
-			} else if (strcmp(string_parts[2], "PARTNER_HANDLE") == 0)
+			} else if (g_str_equal(string_parts[2], "PARTNER_HANDLE"))
 			{
 				transfer->who = g_strdup(string_parts[3]);
-			} else*/ if (strcmp(string_parts[2], "FILENAME") == 0)
+			} else*/ if (g_str_equal(string_parts[2], "FILENAME"))
 			{
 				purple_xfer_set_filename(transfer, string_parts[3]);
-			} else if (strcmp(string_parts[2], "FILEPATH") == 0)
+			} else if (g_str_equal(string_parts[2], "FILEPATH"))
 			{
 				if (strlen(string_parts[3]))
 					purple_xfer_set_local_filename(transfer, string_parts[3]);
-			} else if (strcmp(string_parts[2], "STATUS") == 0)
+			} else if (g_str_equal(string_parts[2], "STATUS"))
 			{
-				if (strcmp(string_parts[3], "NEW") == 0 ||
-					strcmp(string_parts[3], "WAITING_FOR_ACCEPT") == 0)
+				if (g_str_equal(string_parts[3], "NEW") ||
+					g_str_equal(string_parts[3], "WAITING_FOR_ACCEPT"))
 				{
 					//Skype API doesn't let us accept transfers
 					//purple_xfer_request(transfer);
@@ -501,71 +501,71 @@ skype_handle_received_message(char *message)
 						purple_xfer_conversation_write(transfer, g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), FALSE);
 					}
 					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_NOT_STARTED);
-				} else if (strcmp(string_parts[3], "COMPLETED") == 0)
+				} else if (g_str_equal(string_parts[3], "COMPLETED"))
 				{
 					purple_xfer_set_completed(transfer, TRUE);
-				} else if (strcmp(string_parts[3], "CONNECTING") == 0 ||
-							strcmp(string_parts[3], "TRANSFERRING") == 0 ||
-							strcmp(string_parts[3], "TRANSFERRING_OVER_RELAY") == 0)
+				} else if (g_str_equal(string_parts[3], "CONNECTING") ||
+							g_str_equal(string_parts[3], "TRANSFERRING") ||
+							g_str_equal(string_parts[3], "TRANSFERRING_OVER_RELAY"))
 				{
 					purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_STARTED);
 					transfer->start_time = time(NULL);
-				} else if (strcmp(string_parts[3], "CANCELLED") == 0)
+				} else if (g_str_equal(string_parts[3], "CANCELLED"))
 				{
 					//transfer->end_time = time(NULL);
 					//transfer->bytes_remaining = 0;
 					//purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_LOCAL);
 					purple_xfer_cancel_local(transfer);
-				}/* else if (strcmp(string_parts[3], "FAILED") == 0)
+				}/* else if (g_str_equal(string_parts[3], "FAILED"))
 				{
 					//transfer->end_time = time(NULL);
 					//purple_xfer_set_status(transfer, PURPLE_XFER_STATUS_CANCEL_REMOTE);
 					purple_xfer_cancel_remote(transfer);
 				}*/
 				purple_xfer_update_progress(transfer);
-			} else if (strcmp(string_parts[2], "STARTTIME") == 0)
+			} else if (g_str_equal(string_parts[2], "STARTTIME"))
 			{
 				transfer->start_time = atol(string_parts[3]);
 				purple_xfer_update_progress(transfer);
-			/*} else if (strcmp(string_parts[2], "FINISHTIME") == 0)
+			/*} else if (g_str_equal(string_parts[2], "FINISHTIME"))
 			{
-				if (strcmp(string_parts[3], "0") != 0)
+				if (!g_str_equal(string_parts[3], "0"))
 					transfer->end_time = atol(string_parts[3]);
 				purple_xfer_update_progress(transfer);*/
-			} else if (strcmp(string_parts[2], "BYTESTRANSFERRED") == 0)
+			} else if (g_str_equal(string_parts[2], "BYTESTRANSFERRED"))
 			{
 				purple_xfer_set_bytes_sent(transfer, atol(string_parts[3]));
 				purple_xfer_update_progress(transfer);
-			} else if (strcmp(string_parts[2], "FILESIZE") == 0)
+			} else if (g_str_equal(string_parts[2], "FILESIZE"))
 			{
 				purple_xfer_set_size(transfer, atol(string_parts[3]));
-			} else if (strcmp(string_parts[2], "FAILUREREASON") == 0 &&
-						strcmp(string_parts[3], "UNKNOWN") != 0)
+			} else if (g_str_equal(string_parts[2], "FAILUREREASON") &&
+						!g_str_equal(string_parts[3], "UNKNOWN"))
 			{
 				temp = NULL;
-				if (strcmp(string_parts[3], "SENDER_NOT_AUTHORIZED") == 0)
+				if (g_str_equal(string_parts[3], "SENDER_NOT_AUTHORIZED"))
 				{
 					temp = g_strdup(_("Not Authorized"));
-				} else if (strcmp(string_parts[3], "REMOTELY_CANCELLED") == 0)
+				} else if (g_str_equal(string_parts[3], "REMOTELY_CANCELLED"))
 				{
 					purple_xfer_cancel_remote(transfer);
 					purple_xfer_update_progress(transfer);
-				} else if (strcmp(string_parts[3], "FAILED_READ") == 0)
+				} else if (g_str_equal(string_parts[3], "FAILED_READ"))
 				{
 					temp = g_strdup(_("Read error"));
-				} else if (strcmp(string_parts[3], "FAILED_REMOTE_READ") == 0)
+				} else if (g_str_equal(string_parts[3], "FAILED_REMOTE_READ"))
 				{
 					temp = g_strdup(_("Read error"));
-				} else if (strcmp(string_parts[3], "FAILED_WRITE") == 0)
+				} else if (g_str_equal(string_parts[3], "FAILED_WRITE"))
 				{
 					temp = g_strdup(_("Write error"));
-				} else if (strcmp(string_parts[3], "FAILED_REMOTE_WRITE") == 0)
+				} else if (g_str_equal(string_parts[3], "FAILED_REMOTE_WRITE"))
 				{
 					temp = g_strdup(_("Write error"));
-				} else if (strcmp(string_parts[3], "REMOTE_DOES_NOT_SUPPORT_FT") == 0)
+				} else if (g_str_equal(string_parts[3], "REMOTE_DOES_NOT_SUPPORT_FT"))
 				{
 					temp = g_strdup_printf(_("Unable to send file to %s, user does not support file transfers"), transfer->who);
-				} else if (strcmp(string_parts[3], "REMOTE_OFFLINE_FOR_TOO_LONG") == 0)
+				} else if (g_str_equal(string_parts[3], "REMOTE_OFFLINE_FOR_TOO_LONG"))
 				{
 					temp = g_strdup(_("Recipient Unavailable"));
 				}
@@ -576,9 +576,9 @@ skype_handle_received_message(char *message)
 				}
 			}
 		}
-	} else if (strcmp(command, "WINDOWSTATE") == 0)
+	} else if (g_str_equal(command, "WINDOWSTATE"))
 	{
-		if (strcmp(string_parts[1], "HIDDEN") == 0)
+		if (g_str_equal(string_parts[1], "HIDDEN"))
 		{
 			skype_send_message("SET SILENT_MODE ON");
 		}
@@ -635,21 +635,21 @@ skype_handle_received_message(char *message)
 				g_strfreev(chatusers);	
 			}		
 		}
-	} else if (strcmp(command, "APPLICATION") == 0 && 
-				strcmp(string_parts[1], "libpurple_typing") == 0)
+	} else if (g_str_equal(command, "APPLICATION") && 
+				g_str_equal(string_parts[1], "libpurple_typing"))
 	{
-		if (strcmp(string_parts[2], "DATAGRAM") == 0)
+		if (g_str_equal(string_parts[2], "DATAGRAM"))
 		{
 			chatusers = g_strsplit_set(string_parts[3], ": ", 3);
 			sender = chatusers[0];
 			temp = chatusers[2];
 			if (sender != NULL && temp != NULL)
 			{
-				if (strcmp(temp, "PURPLE_NOT_TYPING") == 0)
+				if (g_str_equal(temp, "PURPLE_NOT_TYPING"))
 					serv_got_typing(gc, sender, 10, PURPLE_NOT_TYPING);
-				else if (strcmp(temp, "PURPLE_TYPING") == 0)
+				else if (g_str_equal(temp, "PURPLE_TYPING"))
 					serv_got_typing(gc, sender, 10, PURPLE_TYPING);
-				else if (strcmp(temp, "PURPLE_TYPED") == 0)
+				else if (g_str_equal(temp, "PURPLE_TYPED"))
 					serv_got_typing(gc, sender, 10, PURPLE_TYPED);
 			}
 			g_strfreev(chatusers);
@@ -665,25 +665,25 @@ skype_handle_received_message(char *message)
 			g_strfreev(chatusers);
 		}
 #ifdef USE_FARSIGHT
-	} else if (strcmp(command, "CALL") == 0)
+	} else if (g_str_equal(command, "CALL"))
 	{
-		if (strcmp(string_parts[2], "STATUS") == 0)
+		if (g_str_equal(string_parts[2], "STATUS"))
 		{ 
-			if (strcmp(string_parts[3], "RINGING") == 0)
+			if (g_str_equal(string_parts[3], "RINGING"))
 			{
 				skype_handle_incoming_call(gc, string_parts[1]);
-			} else if (strcmp(string_parts[3], "FINISHED") == 0 ||
-						strcmp(string_parts[3], "CANCELLED") == 0 ||
-						strcmp(string_parts[3], "FAILED") == 0)
+			} else if (g_str_equal(string_parts[3], "FINISHED") ||
+						g_str_equal(string_parts[3], "CANCELLED") ||
+						g_str_equal(string_parts[3], "FAILED"))
 			{
 				skype_handle_call_got_ended(string_parts[1]);
 			}
 		}
 #else
-	} else if (strcmp(command, "CALL") == 0)
+	} else if (g_str_equal(command, "CALL"))
 	{
-		if (strcmp(string_parts[2], "STATUS") == 0 &&
-			strcmp(string_parts[3], "RINGING") == 0)
+		if (g_str_equal(string_parts[2], "STATUS") &&
+			g_str_equal(string_parts[3], "RINGING"))
 		{
 			temp = skype_send_message("GET CALL %s TYPE", string_parts[1]);
 			type = g_new0(gchar, 9);
@@ -692,7 +692,7 @@ skype_handle_received_message(char *message)
 			temp = skype_send_message("GET CALL %s PARTNER_HANDLE", string_parts[1]);
 			sender = g_strdup(&temp[21+strlen(string_parts[1])]);
 			g_free(temp);
-			if (strcmp(type, "INCOMING") == 0)
+			if (g_str_equal(type, "INCOMING"))
 			{
 				purple_request_action(gc, _("Incoming Call"), g_strdup_printf(_("%s is calling you."), sender), _("Do you want to accept their call?"),
 								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("_Accept"), 

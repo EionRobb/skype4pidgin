@@ -207,7 +207,7 @@ hide_skype()
 		if (status == noErr)
 			if (GetProcessInformation(&psn, &info) == noErr)
 				//for some reason first character is poisioned
-				if (strcmp((char *)&procName[1], "Skype") == 0)
+				if (g_str_equal((char *)&procName[1], "Skype"))
 				{
 					ShowHideProcess(&psn, FALSE);
 					return;
