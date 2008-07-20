@@ -159,11 +159,11 @@ skype_handle_received_message(char *message)
 				}
 			} else if (strcmp(string_parts[2], "DISPLAYNAME") == 0)
 			{
-				if (strlen(string_parts[3]))
+				if (strlen(g_strstrip(string_parts[3])))
 					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
 			} else if (g_str_equal(string_parts[2], "FULLNAME"))
 			{
-				if (strlen(string_parts[3]) && !purple_buddy_get_server_alias(buddy))
+				if (strlen(g_strstrip(string_parts[3])) && (!purple_buddy_get_server_alias(buddy) || !strlen(purple_buddy_get_server_alias(buddy))))
 					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
 			} else if ((strcmp(string_parts[2], "BUDDYSTATUS") == 0) &&
 					(strcmp(string_parts[3], "1") == 0))
