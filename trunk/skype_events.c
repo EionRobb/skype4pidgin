@@ -849,11 +849,11 @@ handle_complete_message(int messagenumber)
 	printf("Skypemessage has chatname and type\n");
 		
 	glist_temp = g_list_find_custom(purple_get_conversations(), skypemessage->chatname, (GCompareFunc)skype_find_chat);
-	if (!glist_temp || !glist_temp->data)
-		return;
-	printf("Found a conversation that matches\n");
-	
-	conv = glist_temp->data;
+	if (glist_temp && glist_temp->data)
+	{
+		printf("Found a conversation that matches\n");
+		conv = glist_temp->data;
+	}
 	
 	switch(skypemessage->type)
 	{
@@ -875,13 +875,20 @@ handle_complete_message(int messagenumber)
 				return;
 			printf("Has body, from_handle, timestamp\n");
 			body_html = skype_strdup_withhtml(skypemessage->body);
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				serv_got_chat_in(conv->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
 			} else
 			{
 				if (skypemessage->flags != PURPLE_MESSAGE_SEND)
-					serv_got_im(conv->account->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+				{
+					PurpleAccount *acct;
+					if (!conv)
+						acct = skype_get_account(NULL);
+					else
+						acct = conv->account;
+					serv_got_im(acct->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+				}
 			}
 			break;
 		case SKYPE_MESSAGE_LEFT:
@@ -889,7 +896,7 @@ handle_complete_message(int messagenumber)
 			if (!skypemessage->from_handle || !skypemessage->leavereason)
 				return;
 			printf("Has from_handle, leavereason\n");
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				if (g_str_equal(skypemessage->from_handle, conv->account->username))
 					purple_conv_chat_left(PURPLE_CONV_CHAT(conv));
@@ -901,7 +908,7 @@ handle_complete_message(int messagenumber)
 			if (!skypemessage->users)
 				return;
 			printf("Has users\n");
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
 					if (!purple_conv_chat_find_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i]))
@@ -913,7 +920,7 @@ handle_complete_message(int messagenumber)
 			if (!skypemessage->users)
 				return;
 			printf("Has users\n");
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
 					purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup("Kicked"));
@@ -924,7 +931,7 @@ handle_complete_message(int messagenumber)
 			if (!skypemessage->body || !skypemessage->from_handle)
 				return;
 			printf("has body, from_handle\n");
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, skypemessage->body);
 				serv_got_chat_in(conv->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), skypemessage->from_handle, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), skypemessage->from_handle, skypemessage->body)), time(NULL));
