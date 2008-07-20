@@ -163,6 +163,13 @@ hide_skype()
 	return;
 }
 
+gboolean
+connection_timeout(gpointer data)
+{
+	in_progress = FALSE;
+	return FALSE;
+}
+
 static gboolean
 exec_skype()
 {
@@ -172,6 +179,7 @@ exec_skype()
 		PurpleAccount *acct = skype_get_account(NULL);
 		purple_proxy_connect(acct->gc, acct, purple_account_get_string(acct, "host", "skype.robbmob.com"), purple_account_get_int(acct, "port", 5000), connect_function, acct);
 		g_thread_create((GThreadFunc)skype_read_thread, acct, FALSE, NULL);
+		purple_timeout_add_seconds(10, connection_timeout, acct);
 	}
 	return TRUE;
 }
