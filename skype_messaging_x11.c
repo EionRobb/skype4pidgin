@@ -112,7 +112,7 @@ send_message(char* message)
 	unsigned int len = strlen( message );
 	XEvent e;
 	int message_num;
-	char error_return[15];
+	char *error_return;
 	unsigned int i;
 	
 	if (skype_win == -1 || win == -1 || disp == NULL)
@@ -122,8 +122,8 @@ send_message(char* message)
 		{
 			//And we're expecting a response
 			sscanf(message, "#%d ", &message_num);
-			sprintf(error_return, "#%d ERROR", message_num);
-			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+			error_return = g_strdup_printf("#%d ERROR X11", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
 		return;
 	}
@@ -154,10 +154,10 @@ send_message(char* message)
 		{
 			//And we're expecting a response
 			sscanf(message, "#%d ", &message_num);
-			sprintf(error_return, "#%d ERROR", message_num);
-			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+			error_return = g_strdup_printf("#%d ERROR X11_2", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
-		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL); 
+		g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL); 
 		return;
 	}
 }
@@ -177,7 +177,7 @@ receive_message_loop(void)
 		if (!disp)
 		{
 			skype_debug_error("skype_x11", "display has disappeared\n");
-			g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
+			g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL);
 			break;
 		}
 		

@@ -110,7 +110,7 @@ gchar *skype_cb_real_name(PurpleConnection *gc, int id, const char *who);
 GList *skype_join_chat_info(PurpleConnection *gc);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
-void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
+//void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
 static void skype_program_update_check(void);
 static void skype_plugin_update_check(void);
 void skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
@@ -137,6 +137,7 @@ void skype_rename_group(PurpleConnection *, const char *old_name, PurpleGroup *g
 void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
 static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
+void skype_buddy_free(PurpleBuddy *buddy);
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -190,7 +191,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_alias_buddy,   /* alias_buddy */
 	skype_group_buddy,   /* group_buddy */
 	skype_rename_group,  /* rename_group */
-	NULL,                /* buddy_free */
+	skype_buddy_free,    /* buddy_free */
 	NULL,                /* convo_closed */
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
@@ -472,7 +473,11 @@ skype_call_user_from_blist(PurpleBlistNode *node, gpointer data)
 const char *
 skype_normalize(const PurpleAccount *acct, const char *who)
 {
-	return g_utf8_strdown(who, -1);
+	static gchar *last_normalize = NULL;
+	if (last_normalize)
+		g_free(last_normalize);
+	last_normalize = g_utf8_strdown(who, -1);
+	return last_normalize;
 }
 
 GList *
@@ -740,10 +745,12 @@ skype_set_buddies(PurpleAccount *acct)
 		{
 			//the buddy was already in the list
 			buddy = (PurpleBuddy *)found_buddy->data;
+			buddy->proto_data = NULL;
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
+			buddy->proto_data = NULL;
 			
 			//find out what group this buddy is in
 			//for now, dump them into a default group, until skype tells us where they belong
@@ -778,7 +785,7 @@ skype_set_buddies(PurpleAccount *acct)
 		skype_update_buddy_alias(buddy);
 		purple_prpl_got_user_idle(acct, buddy->name, FALSE, 0);
 
-		skype_update_buddy_icon(buddy);
+		//skype_update_buddy_icon(buddy);
 	}
 	
 	//special case, if we're on our own buddy list
@@ -788,7 +795,7 @@ skype_set_buddies(PurpleAccount *acct)
 		skype_update_buddy_status(buddy);
 		skype_update_buddy_alias(buddy);
 		purple_prpl_got_user_idle(acct, buddy->name, FALSE, 0);
-		skype_update_buddy_icon(buddy);
+		//skype_update_buddy_icon(buddy);
 	}
 
 	skype_debug_info("skype", "Friends Count: %d\n", i);
@@ -1086,9 +1093,10 @@ skype_get_account_alias(PurpleAccount *acct)
 	alias = g_strdup(&ret[17]);
 	g_free(ret);
 	purple_account_set_alias(acct, alias);
+	g_free(alias);
 }
 
-void
+/*void
 skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
 {
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
@@ -1096,24 +1104,24 @@ skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
 	{
 		buddy->proto_data = NULL;
 	}
-}
+}*/
 
 void 
 skype_close(PurpleConnection *gc)
 {
-	GSList *buddies;
+	//GSList *buddies;
 
 	skype_debug_info("skype", "logging out\n");
 	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
-	if (gc)
+	/*if (gc)
 	{
 		buddies = purple_find_buddies(gc->account, NULL);
 		if (buddies != NULL && g_slist_length(buddies) > 0)
 			g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
-	}
+	}*/
 }
 
 int 
@@ -1195,14 +1203,24 @@ timestamp_to_datetime(time_t timestamp)
 	return g_strdup(purple_date_format_long(localtime(&timestamp)));
 }
 
+void
+skype_buddy_free(PurpleBuddy *buddy)
+{
+	if (buddy->proto_data)
+	{
+		g_free(buddy->proto_data);
+		buddy->proto_data = NULL;
+	}
+}
+
 void 
 skype_get_info(PurpleConnection *gc, const gchar *username)
 {
 	PurpleNotifyUserInfo *user_info;
-	double timezoneoffset;
-	char timezone_str[9];
+	double timezoneoffset = 0;
 	struct tm *birthday_time = g_new(struct tm, 1);
 	int time;
+	gchar *temp;
 	
 	user_info = purple_notify_user_info_new();
 #define _SKYPE_USER_INFO(prop, key)  \
@@ -1215,8 +1233,14 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	purple_notify_user_info_add_section_break(user_info);
 	purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
 	//_SKYPE_USER_INFO("BIRTHDAY", "Birthday");
-	purple_str_to_time(skype_get_user_info(username, "BIRTHDAY"), FALSE, birthday_time, NULL, NULL);
-	purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
+	temp = skype_get_user_info(username, "BIRTHDAY");
+	if (temp && strlen(temp) && !g_str_equal(temp, "0"))
+	{
+		purple_str_to_time(temp, FALSE, birthday_time, NULL, NULL);
+		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
+	} else {
+		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup("0"));
+	}
 	_SKYPE_USER_INFO("SEX", "Gender");
 	_SKYPE_USER_INFO("LANGUAGE", "Preferred Language");
 	_SKYPE_USER_INFO("COUNTRY", "Country");
@@ -1232,8 +1256,7 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
 	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
 	timezoneoffset -= 24; //timezones are offset by 24 hours to keep them valid and unsigned
-	g_snprintf(timezone_str, 9, "UMT +%.1f", timezoneoffset);
-	purple_notify_user_info_add_pair(user_info, _("Timezone"), g_strdup(timezone_str));
+	purple_notify_user_info_add_pair(user_info, _("Timezone"), g_strdup_printf("UMT %+.1f", timezoneoffset));
 	
 	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
 	purple_notify_user_info_add_section_break(user_info);

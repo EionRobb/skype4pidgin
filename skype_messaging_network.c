@@ -57,7 +57,6 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 		reply = g_strstrip(reply);
 		reply_pieces = g_strsplit(reply, etb_string, -1);
 		g_free(reply);
-		i = 0;
 		for (i=0; reply_pieces[i]; i++)
 		{
 			reply = reply_pieces[i];
@@ -66,9 +65,10 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 				connected = TRUE;
 				in_progress = FALSE;
 			} else {
-				g_thread_create((GThreadFunc)skype_message_received, reply, FALSE, NULL);
+				g_thread_create((GThreadFunc)skype_message_received, g_strdup(reply), FALSE, NULL);
 			}
 		}
+		g_strfreev(reply_pieces);
 	}
 }
 
@@ -93,14 +93,15 @@ connect_function(gpointer data, gint source, const gchar *error_message)
 	if (error_message)
 	{
 		in_progress = FALSE;
-		g_thread_create((GThreadFunc)skype_message_received, "CONNSTATUS LOGGEDOUT", FALSE, NULL);
+		g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL);
 		return;
 	}
 	source_sock = source;
 	
 	loginmsg = g_strdup_printf("LOGIN %s %s", acct->username, acct->password);
 	send_message(loginmsg);
-	g_free(loginmsg);
+	//send_message frees this
+	//g_free(loginmsg);
 	
 	g_thread_create((GThreadFunc)skype_read_thread, NULL, FALSE, NULL);
 }
@@ -117,7 +118,7 @@ skype_disconnect()
 	if (!connected)
 		return;
 	
-	send_message("QUIT");
+	send_message(g_strdup("QUIT"));
 
 	connected = FALSE;
 	close(source_sock);
@@ -141,6 +142,7 @@ send_message(char* message)
 		temp = g_strdup_printf("%s%c", message, 23);
 		len = write(source_sock, temp, msglen);
 		fsync(source_sock);
+		g_free(temp);
 	}
 	
 	if (len != msglen)
@@ -154,6 +156,8 @@ send_message(char* message)
 			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
 	}
+	
+	g_free(message);
 }
 
 static void

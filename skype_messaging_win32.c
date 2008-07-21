@@ -112,7 +112,7 @@ static void
 send_message(char* message)
 {
 	int message_num;
-	char error_return[15];
+	char *error_return;
 
 	COPYDATASTRUCT oCopyData;
 	oCopyData.dwData = 0;
@@ -128,8 +128,8 @@ send_message(char* message)
 		{
 			//And we're expecting a response
 			sscanf(message, "#%d ", &message_num);
-			sprintf(error_return, "#%d ERROR WIN32", message_num);
-			g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+			error_return = g_strdup_printf("#%d ERROR WIN32", message_num);
+			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
 	}
 }
