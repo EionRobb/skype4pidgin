@@ -1461,14 +1461,6 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 void 
 skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	if (g_str_equal(skype_get_user_info(buddy->name, "ONLINESTATUS"), "UNKNOWN"))
-	{
-		//this user doesn't exist
-		purple_blist_remove_buddy(buddy);
-		purple_notify_error(gc, "Error", "User does not exist", "The user does not exist in Skype");
-		return;
-	}
-
 	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
 	if (buddy->alias == NULL || strlen(buddy->alias) == 0)
 		skype_update_buddy_alias(buddy);
