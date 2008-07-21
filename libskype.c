@@ -1386,6 +1386,25 @@ skype_find_group_with_name(const char *group_name_in)
 	return purple_blist_node_get_int(&purple_group->node, "skype_group_number");
 }
 
+//use this to try and regroup a buddy after a few seconds
+struct _cheat_skype_group_buddy_struct {
+	PurpleConnection *gc;
+	const char *who;
+	const char *old_group;
+	const char *new_group;
+};
+
+gboolean
+skype_group_buddy_timeout(struct _cheat_skype_group_buddy_struct *cheat)
+{
+	if (!cheat)
+		return FALSE;
+	
+	skype_group_buddy(cheat->gc, cheat->who, cheat->old_group, cheat->new_group);
+	g_free(cheat);
+	return FALSE;
+}
+
 void
 skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, const char *new_group)
 {
@@ -1396,8 +1415,12 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 	if (!group_number)
 	{
 		skype_send_message_nowait("CREATE GROUP %s", new_group);
-		sleep(1);
-		skype_group_buddy(gc, who, old_group, new_group);
+		struct _cheat_skype_group_buddy_struct *cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
+		cheat->gc = gc;
+		cheat->who = who;
+		cheat->old_group = old_group;
+		cheat->new_group = new_group;
+		purple_timeout_add_seconds(5, (GSourceFunc)skype_group_buddy_timeout, cheat);
 		return;
 	}
 	
