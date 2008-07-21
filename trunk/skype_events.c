@@ -160,11 +160,11 @@ skype_handle_received_message(char *message)
 			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 			{
 				if (strlen(g_strstrip(string_parts[3])))
-					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
+					purple_blist_server_alias_buddy(buddy, string_parts[3]);
 			} else if (g_str_equal(string_parts[2], "FULLNAME"))
 			{
 				if (strlen(g_strstrip(string_parts[3])) && (!purple_buddy_get_server_alias(buddy) || !strlen(purple_buddy_get_server_alias(buddy))))
-					purple_blist_server_alias_buddy(buddy, g_strdup(string_parts[3]));
+					purple_blist_server_alias_buddy(buddy, string_parts[3]);
 			} else if ((g_str_equal(string_parts[2], "BUDDYSTATUS")) &&
 					(g_str_equal(string_parts[3], "1")))
 			{
@@ -706,6 +706,10 @@ skype_handle_received_message(char *message)
 	if (string_parts)
 	{
 		g_strfreev(string_parts);
+	}
+	if (message)
+	{
+		g_free(message);
 	}
 	return FALSE;
 }

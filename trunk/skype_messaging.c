@@ -74,6 +74,7 @@ skype_message_received(char *orig_message)
 		return;
 	
 	message = g_strdup(orig_message);
+	g_free(orig_message);
 
 	skype_debug_info("skype", "Received: %s\n", message);
 

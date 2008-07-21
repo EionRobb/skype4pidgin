@@ -87,6 +87,8 @@ skype_debug_cb(SkypeDebugWrapper *wrapper)
 	if (wrapper != NULL)
 	{
 		purple_debug(wrapper->level, wrapper->category, wrapper->message);
+		g_free(wrapper->category);
+		g_free(wrapper->message);
 		g_free(wrapper);
 	}
 	return FALSE;
