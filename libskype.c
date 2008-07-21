@@ -1430,10 +1430,10 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 		return;
 	
 	//remove from old group
-	//group_number = skype_find_group_with_name(old_group);
-	//if (!group_number)
-	//	return;
-	//skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, who);
+	group_number = skype_find_group_with_name(old_group);
+	if (!group_number)
+		return;
+	skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, who);
 }
 
 void
