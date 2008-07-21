@@ -167,9 +167,7 @@ skype_handle_received_message(char *message)
 				{
 					if (buddy->proto_data != NULL)
 						g_free(buddy->proto_data);
-					for (i=0; i<strlen(string_parts[3]); i++)
-						if (string_parts[3][i] == '\n')
-							string_parts[3][i] = ' ';
+					purple_util_chrreplace(string_parts[3], '\n', ' ');
 					buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
 				}
 			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
