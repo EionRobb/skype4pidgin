@@ -495,11 +495,11 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 	GList *m = NULL;
 	PurpleMenuAction *act;
 
+#ifndef SKYPENET
 	act = purple_menu_action_new(_("Hide Skype"),
 									PURPLE_CALLBACK(skype_silence),
 									NULL, NULL);
 	m = g_list_append(m, act);
-#ifndef SKYPENET
 	act = purple_menu_action_new(_("Check for Skype updates..."),
 									PURPLE_CALLBACK(skype_program_update_check),
 									NULL, NULL);
