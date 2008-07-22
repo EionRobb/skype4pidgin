@@ -64,6 +64,7 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 			{
 				connected = TRUE;
 				in_progress = FALSE;
+				skype_debug_info("skype", "Received: LOGIN\n");
 			} else {
 				g_thread_create((GThreadFunc)skype_message_received, g_strdup(reply), FALSE, NULL);
 			}
@@ -71,6 +72,7 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 		//check that we received part of a message
 		if (strlen(reply_pieces[i]))
 		{
+			skype_debug_info("skype", "Last piece: '%s'\n", reply_pieces[i]);
 			response_string = g_string_new(reply_pieces[i]);
 		}
 		g_strfreev(reply_pieces);
@@ -105,6 +107,7 @@ connect_function(gpointer data, gint source, const gchar *error_message)
 	
 	loginmsg = g_strdup_printf("LOGIN %s %s", acct->username, acct->password);
 	send_message(loginmsg);
+	skype_debug_info("skype", "Sending: 'LOGIN {username} {password}'\n");
 	//send_message frees this
 	//g_free(loginmsg);
 	
