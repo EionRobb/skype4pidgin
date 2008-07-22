@@ -95,9 +95,7 @@ void skype_get_account_alias(PurpleAccount *acct);
 char *skype_get_account_username(PurpleAccount *acct);
 static PurpleAccount *skype_get_account(PurpleAccount *newaccount);
 void skype_update_buddy_icon(PurpleBuddy *buddy);
-static void skype_send_file_from_blist(PurpleBlistNode *node, gpointer data);
 static GList *skype_node_menu(PurpleBlistNode *node);
-static void skype_call_user_from_blist(PurpleBlistNode *node, gpointer data);
 static void skype_silence(PurplePlugin *plugin, gpointer data);
 void skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer);
 int skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_pointer);
@@ -111,10 +109,8 @@ GList *skype_join_chat_info(PurpleConnection *gc);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
 //void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
-static void skype_program_update_check(void);
 static void skype_plugin_update_check(void);
 void skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
-void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 gchar *timestamp_to_datetime(time_t timestamp);
 void skype_show_search_users(PurplePluginAction *action);
 static void skype_search_users(PurpleConnection *gc, const gchar *searchterm);
@@ -123,9 +119,6 @@ gchar *skype_strdup_withhtml(const gchar *src);
 void skype_join_chat(PurpleConnection *, GHashTable *components);
 gchar *skype_get_chat_name(GHashTable *components);
 static void skype_display_skype_credit(PurplePluginAction *action);
-void skype_call_number(gpointer ignore, gchar *number);
-void skype_call_number_request(PurplePlugin *plugin, gpointer data);
-static void skype_open_skype_options(void);
 unsigned int skype_send_typing(PurpleConnection *, const char *name, PurpleTypingState state);
 static PurpleCmdRet skype_cmd_leave(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
 static PurpleCmdRet skype_cmd_topic(PurpleConversation *, const gchar *, gchar **, gchar **, void *);
@@ -138,6 +131,17 @@ void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
 static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
 void skype_buddy_free(PurpleBuddy *buddy);
+
+#ifndef SKYPENET
+static void skype_open_skype_options(void);
+void skype_call_number(gpointer ignore, gchar *number);
+void skype_call_number_request(PurplePlugin *plugin, gpointer data);
+void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
+static void skype_program_update_check(void);
+static void skype_send_file_from_blist(PurpleBlistNode *node, gpointer data);
+static void skype_call_user_from_blist(PurpleBlistNode *node, gpointer data);
+#endif
+
 
 PurplePluginProtocolInfo prpl_info = {
 	/* options */
@@ -290,8 +294,10 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+#ifndef SKYPENET
 	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+#endif	
 	
 	//leave
 	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_IM |
@@ -421,6 +427,7 @@ skype_node_menu(PurpleBlistNode *node)
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
+#ifndef SKYPENET
 #ifndef __APPLE__
 		act = purple_menu_action_new(_("_Send File"),
 										PURPLE_CALLBACK(skype_send_file_from_blist),
@@ -431,7 +438,7 @@ skype_node_menu(PurpleBlistNode *node)
 										PURPLE_CALLBACK(skype_call_user_from_blist),
 										NULL, NULL);
 		m = g_list_append(m, act);
-
+#endif
 		act = purple_menu_action_new(_("Initiate _Chat"),
 							PURPLE_CALLBACK(skype_initiate_chat),
 							NULL, NULL);
@@ -443,6 +450,7 @@ skype_node_menu(PurpleBlistNode *node)
 	return m;
 }
 
+#ifndef SKYPENET
 static void
 skype_send_file_from_blist(PurpleBlistNode *node, gpointer data)
 {
@@ -469,6 +477,7 @@ skype_call_user_from_blist(PurpleBlistNode *node, gpointer data)
 		skype_send_message_nowait("CALL %s", buddy->name);
 	}
 }
+#endif
 
 const char *
 skype_normalize(const PurpleAccount *acct, const char *who)
@@ -490,12 +499,12 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_silence),
 									NULL, NULL);
 	m = g_list_append(m, act);
-
+#ifndef SKYPENET
 	act = purple_menu_action_new(_("Check for Skype updates..."),
 									PURPLE_CALLBACK(skype_program_update_check),
 									NULL, NULL);
 	m = g_list_append(m, act);
-	
+#endif	
 	if (this_plugin != NULL && this_plugin->path != NULL)
 	{
 		act = purple_menu_action_new(_("Check for plugin updates..."),
@@ -513,7 +522,7 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									PURPLE_CALLBACK(skype_display_skype_credit),
 									NULL, NULL);
 	m = g_list_append(m, act);
-	
+#ifndef SKYPENET	
 	act = purple_menu_action_new(_("Call..."),
 									PURPLE_CALLBACK(skype_call_number_request),
 									NULL, NULL);
@@ -525,15 +534,17 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									NULL, NULL);
 	m = g_list_append(m, act);
 #endif
-
+#endif
 	return m;
 }
 
+#ifndef SKYPENET
 static void
 skype_open_skype_options(void)
 {
 	skype_send_message_nowait("OPEN OPTIONS");
 }
+#endif
 
 static void
 skype_silence(PurplePlugin *plugin, gpointer data)
@@ -575,6 +586,7 @@ skype_plugin_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	}
 }
 
+#ifndef SKYPENET
 static void
 skype_program_update_check(void)
 {
@@ -656,6 +668,7 @@ skype_call_number(gpointer ignore, gchar *number)
 {
 	skype_send_message_nowait("CALL %s", number);
 }
+#endif
 
 GList *
 skype_status_types(PurpleAccount *acct)
