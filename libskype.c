@@ -303,25 +303,25 @@ plugin_init(PurplePlugin *plugin)
 	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_IM |
 						PURPLE_CMD_FLAG_CHAT | PURPLE_CMD_FLAG_PRPL_ONLY |
 						PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
-						"prpl-bigbrownchunx-skype", skype_cmd_leave,
+						plugin->info->id, skype_cmd_leave,
 						_("leave [channel]:  Leave the chat"), NULL);
 	//topic
 	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
-						"prpl-bigbrownchunx-skype", skype_cmd_topic,
+						plugin->info->id, skype_cmd_topic,
 						_("topic [&lt;new topic&gt;]:  View or change the topic"),
 						NULL);
 	//call, as in call person
 	//kick
 	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY,
-						"prpl-bigbrownchunx-skype", skype_cmd_kick,
+						plugin->info->id, skype_cmd_kick,
 						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
 						NULL);
 	//kickban
 	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY,
-						"prpl-bigbrownchunx-skype", skype_cmd_kickban,
+						plugin->info->id, skype_cmd_kickban,
 						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
 						NULL);
 						
