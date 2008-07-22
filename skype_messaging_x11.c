@@ -24,6 +24,7 @@ skype_connect()
 	unsigned char *prop;
 	int status;
 	
+	x11_error_code = 0;
 	XSetErrorHandler(x11_error_handler);
 #ifdef USE_XVFB_SERVER	
 	if (getenv("SKYPEDISPLAY"))
