@@ -57,7 +57,7 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 		reply = g_strstrip(reply);
 		reply_pieces = g_strsplit(reply, etb_string, -1);
 		g_free(reply);
-		for (i=0; reply_pieces[i]; i++)
+		for (i=0; reply_pieces[i+1]; i++)
 		{
 			reply = reply_pieces[i];
 			if (g_str_equal(reply, "LOGIN"))
@@ -67,6 +67,11 @@ read_function_cb(gpointer data, gint source, PurpleInputCondition cond)
 			} else {
 				g_thread_create((GThreadFunc)skype_message_received, g_strdup(reply), FALSE, NULL);
 			}
+		}
+		//check that we received part of a message
+		if (strlen(reply_pieces[i]))
+		{
+			response_string = g_string_new(reply_pieces[i]);
 		}
 		g_strfreev(reply_pieces);
 	}
