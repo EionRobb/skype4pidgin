@@ -159,6 +159,8 @@ skype_handle_received_message(char *message)
 
 					//Grab the buddy's mood and avatar
 					skype_send_message_nowait("GET USER %s MOOD_TEXT", string_parts[1]);
+					if (primitive != PURPLE_STATUS_OFFLINE && 
+						primitive != PURPLE_STATUS_UNSET);
 					skype_update_buddy_icon(buddy);
 				}
 			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
