@@ -36,6 +36,9 @@ libskype.so: .DEPENDS skype_messaging_x11.c
 libskype64.so: .DEPENDS skype_messaging_x11.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC
 
+libskypenet64.so: .DEPENDS skype_messaging_network.c
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskypenet64.so -shared -fPIC -DPIC -DSKYPENET
+
 libskypearm.so: .DEPENDS skype_messaging_x11.c
 	${LINUX_ARM_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskypearm.so -shared -fPIC -DPIC
 
