@@ -878,16 +878,6 @@ skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 void
 skype_update_buddy_icon(PurpleBuddy *buddy)
 {
-#ifdef SKYPENET
-	PurpleAccount *acct;
-	gchar *url;
-	
-	acct = purple_buddy_get_account(buddy);
-	url = g_strconcat("http://", purple_account_get_string(acct, "host", "skype.robbmob.com"), "/avatars/", buddy->name, NULL);
-	purple_util_fetch_url(url, TRUE, NULL, FALSE, skype_got_buddy_icon_cb, buddy);
-	g_free(url);
-#endif
-#ifndef SKYPENET
 	PurpleAccount *acct;
 	gchar *filename = NULL;
 	gchar *new_filename = NULL;
@@ -896,41 +886,115 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 	gchar *ret;
 	int fh;
 	GError *error;
-	static gboolean api_supports_avatar = TRUE;
+	/* -1 unknown, 0 none, 1 skype api, 2 dbb file, 3 url */
+	static gint api_supports_avatar =
+#ifndef SKYPENET
+	-1;
+#else
+	3;
+#endif
 	
-	if (api_supports_avatar == FALSE)
+	if (api_supports_avatar == 0)
 	{
 		return;
 	}
 	
-	skype_debug_info("skype", "Updating buddy icon for %s\n", buddy->name);
+	skype_debug_info("skype", "Updating buddy icon for %s (%d)\n", buddy->name, api_supports_avatar);
 
 	acct = purple_buddy_get_account(buddy);
-	fh = g_file_open_tmp("skypeXXXXXX", &filename, &error);
-	close(fh);
 	
-	if (filename != NULL)
+	if (api_supports_avatar == 1 || api_supports_avatar == -1)
 	{
-		new_filename = g_strconcat(filename, ".jpg", NULL);
-		g_rename(filename, new_filename);
-		ret = skype_send_message("GET USER %s AVATAR 1 %s", buddy->name, new_filename);
-		if (strlen(ret) == 0)
+		fh = g_file_open_tmp("skypeXXXXXX", &filename, &error);
+		close(fh);
+		
+		if (filename != NULL)
 		{
-			skype_debug_warning("skype", "Error: Protocol doesn't suppot AVATAR\n");
-			api_supports_avatar = FALSE;
+			new_filename = g_strconcat(filename, ".jpg", NULL);
+			g_rename(filename, new_filename);
+			ret = skype_send_message("GET USER %s AVATAR 1 %s", buddy->name, new_filename);
+			if (strlen(ret) == 0)
+			{
+				skype_debug_warning("skype", "Error: Protocol doesn't suppot AVATAR\n");
+			} else {
+				if (g_file_get_contents(new_filename, &image_data, &image_data_len, NULL))
+				{
+					api_supports_avatar = 1;
+					purple_buddy_icons_set_for_user(acct, buddy->name, image_data, image_data_len, NULL);
+				}
+			}
+			g_unlink(new_filename);
+			g_free(filename);
+			g_free(new_filename);
 		} else {
-			g_file_get_contents(new_filename, &image_data, &image_data_len, NULL);
+			skype_debug_warning("skype", "Error making temp file %s\n", error->message);
+			g_error_free(error);
 		}
-		g_unlink(new_filename);
-		g_free(filename);
-		g_free(new_filename);
-	} else {
-		skype_debug_warning("skype", "Error making temp file %s\n", error->message);
-		g_error_free(error);
 	}
-
-	purple_buddy_icons_set_for_user(acct, buddy->name, g_memdup(image_data,image_data_len), image_data_len, NULL);
-#endif
+	if (api_supports_avatar == 2 || api_supports_avatar == -1)
+	{
+		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", 
+									"profile256", "profile1024", "profile4096", "profile16384", 
+									NULL};
+		char *username = g_strdup_printf("\x03\x10%s", buddy->name);
+		for (fh = 0; userfiles[fh]; fh++)
+		{
+			filename = g_strconcat(purple_home_dir(), "/.Skype/", acct->username, "/", userfiles[fh], ".dbb", NULL);
+			//skype_debug_info("skype", "Looking for buddy icon for %s in %s\n", buddy->name, filename);
+			if (g_file_get_contents(filename, &image_data, &image_data_len, NULL))
+			{
+				//skype_debug_info("skype", "Imagedata: %d\n", image_data);
+				//skype_debug_info("skype", "Image_data_len: %d\n", image_data_len);
+				api_supports_avatar = 2;
+				//char *start = g_strstr_len(image_data, image_data_len, username);
+				char *start = memmem(image_data, image_data_len, username, strlen(username));
+				//skype_debug_info("skype", "Start: %d\n", start);
+				if (start != NULL)
+				{
+					//TODO make this bit work for memory lookups
+					start = g_strrstr_len(image_data, start-image_data, "l33l");
+					if (start != NULL)
+					{
+						//skype_debug_info("skype", "Start2: %d\n", start);
+						//char *end = strstr(start, "l33l");
+						char *end = memmem(start, image_data_len-(start-image_data), "l33l", 4);
+						if (!end) end = image_data+image_data_len;
+						//skype_debug_info("skype", "End: %d\n", end);
+						//char *img_start = g_strstr_len(start, end-start, "\xFF\xD8");
+						char *img_start = memmem(start, end-start, "\xFF\xD8", 2);
+						//skype_debug_info("skype", "Img_start: %d\n", img_start);
+						if (img_start)
+						{
+							//char *img_end = g_strstr_len(img_start, end-img_start, "\xFF\xD9");
+							char *img_end = memmem(img_start, end-img_start, "\xFF\xD9", 2);
+							//skype_debug_info("skype", "Img_end: %d\n", img_end);
+							if (img_end)
+							{
+								image_data_len = img_end - img_start + 1;
+								//skype_debug_info("skype", "Image_data_len: %d\n", image_data_len);
+								purple_buddy_icons_set_for_user(acct, buddy->name, g_memdup(img_start, image_data_len), image_data_len, NULL);
+							}
+						}
+					}
+				}
+				g_free(image_data);
+			}
+			g_free(filename);
+		}
+		g_free(username);
+	}
+	if (api_supports_avatar == 3)
+	{
+		filename = g_strconcat("http://", purple_account_get_string(acct, "host", "skype.robbmob.com"), "/avatars/", buddy->name, NULL);
+		purple_util_fetch_url(filename, TRUE, NULL, FALSE, skype_got_buddy_icon_cb, buddy);
+		g_free(filename);
+		return;
+	}
+	if (api_supports_avatar == -1)
+	{
+		api_supports_avatar = 0;
+		return;
+	}
 }
 
 
