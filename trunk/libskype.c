@@ -933,13 +933,17 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 	}
 	if (api_supports_avatar == 2 || api_supports_avatar == -1)
 	{
-		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", 
+		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", "user32768",
 									"profile256", "profile1024", "profile4096", "profile16384", 
 									NULL};
 		char *username = g_strdup_printf("\x03\x10%s", buddy->name);
 		for (fh = 0; userfiles[fh]; fh++)
 		{
+#ifdef _WIN32
+			filename = g_strconcat(purple_home_dir(), "\\Skype\\", acct->username, "\\", userfiles[fh], ".dbb", NULL);
+#else
 			filename = g_strconcat(purple_home_dir(), "/.Skype/", acct->username, "/", userfiles[fh], ".dbb", NULL);
+#endif
 			//skype_debug_info("skype", "Looking for buddy icon for %s in %s\n", buddy->name, filename);
 			if (g_file_get_contents(filename, &image_data, &image_data_len, NULL))
 			{
