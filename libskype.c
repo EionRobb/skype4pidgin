@@ -942,40 +942,41 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 #ifdef _WIN32
 			filename = g_strconcat(purple_home_dir(), "\\Skype\\", acct->username, "\\", userfiles[fh], ".dbb", NULL);
 #else
+#ifdef __APPLE__
+			filename = g_strconcat(purple_home_dir(), "/Library/Application Support/Skype/", acct->username, "/", userfiles[fh], ".dbb", NULL);
+#else
 			filename = g_strconcat(purple_home_dir(), "/.Skype/", acct->username, "/", userfiles[fh], ".dbb", NULL);
 #endif
-			//skype_debug_info("skype", "Looking for buddy icon for %s in %s\n", buddy->name, filename);
+#endif
 			if (g_file_get_contents(filename, &image_data, &image_data_len, NULL))
 			{
-				//skype_debug_info("skype", "Imagedata: %d\n", image_data);
-				//skype_debug_info("skype", "Image_data_len: %d\n", image_data_len);
 				api_supports_avatar = 2;
-				//char *start = g_strstr_len(image_data, image_data_len, username);
-				char *start = memmem(image_data, image_data_len, username, strlen(username));
-				//skype_debug_info("skype", "Start: %d\n", start);
+				char *start = memmem(image_data, image_data_len, username, strlen(username)+1);
 				if (start != NULL)
 				{
-					//TODO make this bit work for memory lookups
-					start = g_strrstr_len(image_data, start-image_data, "l33l");
+					char *next = image_data;
+					char *last = next;
+					//find last index of l33l
+					while ((next = memmem(next+4, start-next-4, "l33l", 4)))
+					{
+						last = next;
+					}
+					start = last;
 					if (start != NULL)
 					{
-						//skype_debug_info("skype", "Start2: %d\n", start);
-						//char *end = strstr(start, "l33l");
-						char *end = memmem(start, image_data_len-(start-image_data), "l33l", 4);
+						//find end of l33l block
+						char *end = memmem(start+4, image_data_len-(start-image_data)-4, "l33l", 4);
 						if (!end) end = image_data+image_data_len;
-						//skype_debug_info("skype", "End: %d\n", end);
-						//char *img_start = g_strstr_len(start, end-start, "\xFF\xD8");
+						
+						//look for start of JPEG block
 						char *img_start = memmem(start, end-start, "\xFF\xD8", 2);
-						//skype_debug_info("skype", "Img_start: %d\n", img_start);
 						if (img_start)
 						{
-							//char *img_end = g_strstr_len(img_start, end-img_start, "\xFF\xD9");
+							//look for end of JPEG block
 							char *img_end = memmem(img_start, end-img_start, "\xFF\xD9", 2);
-							//skype_debug_info("skype", "Img_end: %d\n", img_end);
 							if (img_end)
 							{
-								image_data_len = img_end - img_start + 1;
-								//skype_debug_info("skype", "Image_data_len: %d\n", image_data_len);
+								image_data_len = img_end - img_start + 2;
 								purple_buddy_icons_set_for_user(acct, buddy->name, g_memdup(img_start, image_data_len), image_data_len, NULL);
 							}
 						}
