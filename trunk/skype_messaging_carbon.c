@@ -154,7 +154,6 @@ skype_disconnect()
 static void
 send_message(char* message)
 {
-	CFStringRef messageString = CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8);
 	if (!connected_to_skype)
 	{
 		if (message[0] == '#')
@@ -165,11 +164,11 @@ send_message(char* message)
 			char *error_return = g_strdup_printf("#%d ERROR Carbon", message_num);
 			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
-		CFRelease(messageString);
 		return;
 	}
 
-	gpointer pool = initAutoreleasePool();
+	//gpointer pool = initAutoreleasePool();
+	CFStringRef messageString = CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8);
 	printf("Skype send message ");
 #if SENDSKYPERETURNS
 	CFStringRef returnString = NULL;
@@ -179,7 +178,7 @@ send_message(char* message)
 #else
 	SendSkypeCommand(messageString);
 #endif
-	destroyAutoreleasePool(pool);
+	//destroyAutoreleasePool(pool);
 	printf("%s\n", message);
 	CFRelease(messageString);
 }
