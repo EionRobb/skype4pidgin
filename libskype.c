@@ -92,7 +92,7 @@ const char *skype_normalize(const PurpleAccount *acct, const char *who);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_get_account_alias(PurpleAccount *acct);
-char *skype_get_account_username(PurpleAccount *acct);
+const char *skype_get_account_username(PurpleAccount *acct);
 static PurpleAccount *skype_get_account(PurpleAccount *newaccount);
 void skype_update_buddy_icon(PurpleBuddy *buddy);
 static GList *skype_node_menu(PurpleBlistNode *node);
@@ -863,6 +863,47 @@ skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_p
 	return strcmp(buddy->name, buddyname);
 }
 
+//create the memmem() function for platforms that dont support it
+#if __APPLE__ || _WIN32
+#ifndef _LIBC
+# define __builtin_expect(expr, val)   (expr)
+#endif
+
+#undef memmem
+
+/* Return the first occurrence of NEEDLE in HAYSTACK.  */
+void *
+memmem (haystack, haystack_len, needle, needle_len)
+     const void *haystack;
+     size_t haystack_len;
+     const void *needle;
+     size_t needle_len;
+{
+  const char *begin;
+  const char *const last_possible
+    = (const char *) haystack + haystack_len - needle_len;
+
+  if (needle_len == 0)
+    /* The first occurrence of the empty string is deemed to occur at
+       the beginning of the string.  */
+    return (void *) haystack;
+
+  /* Sanity check, otherwise the loop might search through the whole
+     memory.  */
+  if (__builtin_expect (haystack_len < needle_len, 0))
+    return NULL;
+
+  for (begin = (const char *) haystack; begin <= last_possible; ++begin)
+    if (begin[0] == ((const char *) needle)[0] &&
+	!memcmp ((const void *) &begin[1],
+		 (const void *) ((const char *) needle + 1),
+		 needle_len - 1))
+      return (void *) begin;
+
+  return NULL;
+}
+#endif
+
 void
 skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
@@ -951,13 +992,13 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 			if (g_file_get_contents(filename, &image_data, &image_data_len, NULL))
 			{
 				api_supports_avatar = 2;
-				char *start = memmem(image_data, image_data_len, username, strlen(username)+1);
+				char *start = (char *)memmem(image_data, image_data_len, username, strlen(username)+1);
 				if (start != NULL)
 				{
 					char *next = image_data;
 					char *last = next;
 					//find last index of l33l
-					while ((next = memmem(next+4, start-next-4, "l33l", 4)))
+					while ((next = (char *)memmem(next+4, start-next-4, "l33l", 4)))
 					{
 						last = next;
 					}
@@ -965,15 +1006,15 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 					if (start != NULL)
 					{
 						//find end of l33l block
-						char *end = memmem(start+4, image_data_len-(start-image_data)-4, "l33l", 4);
+						char *end = (char *)memmem(start+4, start-image_data+image_data_len-4, "l33l", 4);
 						if (!end) end = image_data+image_data_len;
 						
 						//look for start of JPEG block
-						char *img_start = memmem(start, end-start, "\xFF\xD8", 2);
+						char *img_start = (char *)memmem(start, end-start, "\xFF\xD8", 2);
 						if (img_start)
 						{
 							//look for end of JPEG block
-							char *img_end = memmem(img_start, end-img_start, "\xFF\xD9", 2);
+							char *img_end = (char *)memmem(img_start, end-img_start, "\xFF\xD9", 2);
 							if (img_end)
 							{
 								image_data_len = img_end - img_start + 2;
@@ -1140,9 +1181,12 @@ skype_login(PurpleAccount *acct)
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
 }
 
-char *
+const char *
 skype_get_account_username(PurpleAccount *acct)
 {
+#ifdef SKYPENET
+	return acct->username;
+#else
 	char *ret;
 	static char *username = NULL;
 	
@@ -1164,6 +1208,7 @@ skype_get_account_username(PurpleAccount *acct)
 		purple_account_set_username(acct, username);
 	}
 	return username;
+#endif
 }
 
 void
