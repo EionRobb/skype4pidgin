@@ -120,12 +120,13 @@ char *skype_send_message(char *message_format, ...)
 	va_list args;
 #ifdef __APPLE__
 	guint timeout = 0;
-#endif
+#else
 #ifdef _WIN32
 	guint timeout = 0;
 #else
 	gboolean condition_result;
 	GTimeVal endtime = {0,0};
+#endif
 #endif
 	
 	va_start(args, message_format);
@@ -160,7 +161,7 @@ char *skype_send_message(char *message_format, ...)
 		g_static_mutex_lock2(&mutex);
 
 		if (timeout++ == 10000)
-#endif
+#else
 #ifdef _WIN32
 		Sleep(1);
 		g_static_mutex_lock2(&mutex);
@@ -177,6 +178,7 @@ char *skype_send_message(char *message_format, ...)
 		//g_static_mutex_lock2(&mutex);
 		
 		if(!condition_result)
+#endif
 #endif
 		{
 			//we timed out while waiting
