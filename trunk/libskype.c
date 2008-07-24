@@ -1009,7 +1009,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 					if (start != NULL)
 					{
 						//find end of l33l block
-						char *end = (char *)memmem(start+4, start-image_data+image_data_len-4, "l33l", 4);
+						char *end = (char *)memmem(start+4, image_data+image_data_len-start-4, "l33l", 4);
 						if (!end) end = image_data+image_data_len;
 						
 						//look for start of JPEG block
