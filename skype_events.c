@@ -854,23 +854,19 @@ handle_complete_message(int messagenumber)
 	PurpleConversation *conv = NULL;
 	int i;
 
-	printf("Checking message %d\n", messagenumber);
 	if (messages_table == NULL)
 		return;
-	printf("Messages table exists\n");
+	
 	skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(messagenumber));
 	if (skypemessage == NULL)
 		return;
-	printf("Skypemessage exists\n");
 	
 	if (!skypemessage->chatname || !skypemessage->type)
 		return;
-	printf("Skypemessage has chatname and type\n");
 		
 	glist_temp = g_list_find_custom(purple_get_conversations(), skypemessage->chatname, (GCompareFunc)skype_find_chat);
 	if (glist_temp && glist_temp->data)
 	{
-		printf("Found a conversation that matches\n");
 		conv = glist_temp->data;
 	}
 	
@@ -879,20 +875,16 @@ handle_complete_message(int messagenumber)
 		case SKYPE_MESSAGE_OTHER:
 			return;
 		case SKYPE_MESSAGE_EMOTE:
-			printf("Emote\n");
 			if (!skypemessage->body)
 				return;
-			printf("Has body\n");
 			body_html = g_strdup_printf("/me %s", skypemessage->body);
 			g_free(skypemessage->body);
 			skypemessage->body = body_html;
 			skypemessage->type = SKYPE_MESSAGE_TEXT;
 			//fallthrough
 		case SKYPE_MESSAGE_TEXT:
-			printf("Text\n");
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return;
-			printf("Has body, from_handle, timestamp\n");
 			body_html = skype_strdup_withhtml(skypemessage->body);
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
@@ -911,10 +903,8 @@ handle_complete_message(int messagenumber)
 			}
 			break;
 		case SKYPE_MESSAGE_LEFT:
-			printf("Left\n");
 			if (!skypemessage->from_handle || !skypemessage->leavereason)
 				return;
-			printf("Has from_handle, leavereason\n");
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				if (g_str_equal(skypemessage->from_handle, conv->account->username))
@@ -923,10 +913,8 @@ handle_complete_message(int messagenumber)
 			}
 			break;
 		case SKYPE_MESSAGE_ADD:
-			printf("Add\n");
 			if (!skypemessage->users)
 				return;
-			printf("Has users\n");
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
@@ -935,10 +923,8 @@ handle_complete_message(int messagenumber)
 			}
 			break;
 		case SKYPE_MESSAGE_KICKED:
-			printf("Kicked\n");
 			if (!skypemessage->users)
 				return;
-			printf("Has users\n");
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
@@ -946,10 +932,8 @@ handle_complete_message(int messagenumber)
 			}
 			break;
 		case SKYPE_MESSAGE_TOPIC:
-			printf("Topic\n");
 			if (!skypemessage->body || !skypemessage->from_handle)
 				return;
-			printf("has body, from_handle\n");
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, skypemessage->body);
@@ -962,7 +946,6 @@ handle_complete_message(int messagenumber)
 		skype_send_message_nowait("SET CHATMESSAGE %d SEEN", messagenumber);
 	if (g_hash_table_remove(messages_table, GINT_TO_POINTER(messagenumber)))
 	{
-		printf("Removing message %d from table\n", messagenumber);
 		//free the message here
 		skypemessage->type = 0;
 		skypemessage->timestamp = 0;
