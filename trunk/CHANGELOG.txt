@@ -1,6 +1,12 @@
 Changelog
 =========
 
+24 July 2008
+------------
+* Lots of speed improvements
+* Buddy icons for Linux and Mac
+* New No-Skype-Needed version of the plugin needs testing.  Contact me if you're interested
+
 9 July 2008
 -----------
 * No more annoying error in the Windows installer
