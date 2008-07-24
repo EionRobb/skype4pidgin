@@ -17,7 +17,7 @@ gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
 void skype_update_buddy_icon(PurpleBuddy *buddy);
 static PurpleAccount *skype_get_account(PurpleAccount *account);
-char *skype_get_account_username(PurpleAccount *acct);
+const char *skype_get_account_username(PurpleAccount *acct);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
 gchar *skype_strdup_withhtml(const gchar *src);
 void skype_put_buddies_in_groups();
@@ -65,7 +65,7 @@ skype_handle_received_message(char *message)
 	char **string_parts = NULL;
 	PurpleAccount *this_account;
 	PurpleConnection *gc;
-	char *my_username;
+	const char *my_username;
 	PurpleBuddy *buddy;
 	char *body;
 	char *body_html;
