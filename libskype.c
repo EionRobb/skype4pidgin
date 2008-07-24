@@ -216,7 +216,10 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* unregister_user */
 	NULL,                /* send_attention */
 	NULL,                /* attention_types */
-	(gpointer)sizeof(PurplePluginProtocolInfo) /* struct_size */
+#ifndef __APPLE__
+	(gpointer)
+#endif
+	sizeof(PurplePluginProtocolInfo) /* struct_size */
 #ifdef USE_FARSIGHT
 	, skype_media_initiate /* initiate_media */
 #endif
