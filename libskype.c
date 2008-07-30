@@ -829,7 +829,7 @@ skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer)
 	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
 	char **friends = (char **)friends_pointer;
 
-	if (g_str_equal(buddy->name, skype_get_account_username(NULL)))
+	if (g_str_equal(buddy->name, skype_get_account_username(buddy->account)))
 	{
 		//we must have put ourselves on our own list in pidgin, ignore
 		return;
@@ -1144,8 +1144,12 @@ skype_login(PurpleAccount *acct)
 
 	
 
-#ifndef __APPLE__
+#if SKYPENET || ! __APPLE__
+#ifdef __APPLE__
+	reply = skype_send_message("NAME Adium");
+#else
 	reply = skype_send_message("NAME %s", g_get_application_name());
+#endif
 	if (reply == NULL || strlen(reply) == 0)
 	{
 		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
@@ -1188,6 +1192,8 @@ const char *
 skype_get_account_username(PurpleAccount *acct)
 {
 #ifdef SKYPENET
+	if (acct == NULL)
+		return NULL;
 	return acct->username;
 #else
 	char *ret;
