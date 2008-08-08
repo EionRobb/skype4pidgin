@@ -1060,11 +1060,13 @@ skype_list_emblem(PurpleBuddy *buddy)
 	gchar *birthday = skype_get_user_info(buddy->name, "BIRTHDAY");
 	struct tm *birthday_tm = g_new(struct tm, 1);
 	struct tm *today_tm;
+	time_t now;
 
 	if (birthday && strlen(birthday) && !g_str_equal(birthday, "0"))
 	{
-		purple_str_to_time(temp, FALSE, birthday_tm, NULL, NULL);
-		today_tm = localtime(time(NULL));
+		purple_str_to_time(birthday, FALSE, birthday_tm, NULL, NULL);
+		now = time(NULL);
+		today_tm = localtime(&now);
 		if (birthday_tm->tm_mday == today_tm->tm_mday &&
 			birthday_tm->tm_mon == today_tm->tm_mon &&
 			birthday_tm->tm_year == today_tm->tm_year)
