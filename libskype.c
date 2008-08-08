@@ -1287,7 +1287,7 @@ skype_close(PurpleConnection *gc)
 
 	skype_debug_info("skype", "logging out\n");
 	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
-		skype_send_message("SET USERSTATUS OFFLINE");
+		skype_send_message_nowait("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
 	/*if (gc)
