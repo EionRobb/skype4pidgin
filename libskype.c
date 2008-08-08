@@ -131,6 +131,7 @@ void skype_remove_group(PurpleConnection *, PurpleGroup *);
 int skype_find_group_with_name(const char *group_name_in);
 static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
 void skype_buddy_free(PurpleBuddy *buddy);
+const char *skype_list_emblem(PurpleBuddy *buddy);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -156,7 +157,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* protocol_options */
 	{"png,gif,jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_SEND}, /* icon_spec */
 	skype_list_icon,     /* list_icon */
-	NULL,                /* list_emblems */
+	skype_list_emblem,   /* list_emblem */
 	skype_status_text,   /* status_text */
 	skype_tooltip_text,  /* tooltip_text */
 	skype_status_types,  /* status_types */
@@ -1051,6 +1052,32 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		api_supports_avatar = 0;
 		return;
 	}
+}
+
+const char *
+skype_list_emblem(PurpleBuddy *buddy)
+{
+	gchar *birthday = skype_get_user_info(buddy->name, "BIRTHDAY");
+	struct tm *birthday_tm = g_new(struct tm, 1);
+	struct tm *today_tm;
+
+	if (birthday && strlen(birthday) && !g_str_equal(birthday, "0"))
+	{
+		purple_str_to_time(temp, FALSE, birthday_tm, NULL, NULL);
+		today_tm = localtime(time(NULL));
+		if (birthday_tm->tm_mday == today_tm->tm_mday &&
+			birthday_tm->tm_mon == today_tm->tm_mon &&
+			birthday_tm->tm_year == today_tm->tm_year)
+		{
+			g_free(birthday_tm);
+			g_free(birthday);
+			return "birthday";
+		}
+	}
+	
+	g_free(birthday_tm);
+	g_free(birthday);
+	return NULL;
 }
 
 
