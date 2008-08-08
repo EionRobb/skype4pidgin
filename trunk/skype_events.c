@@ -385,12 +385,12 @@ skype_handle_received_message(char *message)
 		handle_complete_message(atoi(string_parts[1]));
 	} else if (g_str_equal(command, "CHAT"))
 	{
-		printf("Looking for conv %s\n", string_parts[1]);
+		//printf("Looking for conv %s\n", string_parts[1]);
 		//find the matching chat to update
 		glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[1], (GCompareFunc)skype_find_chat);
 		if (glist_temp == NULL || glist_temp->data == NULL)
 		{
-			printf("No conversation\n");
+			//printf("No conversation\n");
 			if (g_str_equal(string_parts[2], "DIALOG_PARTNER"))
 			{
 				//most likely an IM
@@ -409,7 +409,7 @@ skype_handle_received_message(char *message)
 				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			}
-			printf("Conv %d\n", (int)conv);
+			//printf("Conv %d\n", (int)conv);
 		} else {
 			conv = glist_temp->data;
 		}
@@ -898,7 +898,56 @@ handle_complete_message(int messagenumber)
 						acct = skype_get_account(NULL);
 					else
 						acct = conv->account;
-					serv_got_im(acct->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+					if (!g_str_equal(skypemessage->from_handle, skype_get_account_username(acct)))
+					{
+						serv_got_im(acct->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+					} else {
+						//if we're here, then we're receiving a message that we sent from a different computer
+						//use the chat name to work out who it came from
+						//in format #username1/$username2;junktext for IM's
+						char *start, *end;
+						start = strchr(skypemessage->chatname, '#');
+						if (start)
+						{
+							start += 1;
+							end = strchr(start, '/');
+							if (end)
+							{
+								start = g_strndup(start, end-start);
+								if (!g_str_equal(skype_get_account_username(acct), start))
+								{
+									serv_got_im(acct->gc, start, body_html, PURPLE_MESSAGE_SEND, skypemessage->timestamp);
+									g_free(start);
+									start = (char *) 1;
+								}
+								else
+								{
+									g_free(start);
+									start = NULL;
+								}
+							} else {
+								start = NULL;
+							}
+						}
+						if (!start)
+						{
+							start = strchr(skypemessage->chatname, '$');
+							if (start)
+							{
+								start += 1;
+								end = strchr(start, ';');
+								if (end)
+								{
+									start = g_strndup(start, end-start);
+									if (!g_str_equal(skype_get_account_username(acct), start))
+									{
+										serv_got_im(acct->gc, start, body_html, PURPLE_MESSAGE_SEND, skypemessage->timestamp);
+										g_free(start);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			break;

@@ -449,6 +449,12 @@ skype_node_menu(PurpleBlistNode *node)
 	} else if (PURPLE_BLIST_NODE_IS_CHAT(node))
 	{
 		
+	} else if (PURPLE_BLIST_NODE_IS_GROUP(node))
+	{
+		act = purple_menu_action_new(_("Initiate _Chat"),
+							PURPLE_CALLBACK(skype_initiate_chat),
+							NULL, NULL);
+		m = g_list_append(m, act);
 	}
 	return m;
 }
@@ -704,6 +710,7 @@ skype_status_types(PurpleAccount *acct)
 
 
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "Online");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "SkypeMe");
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AWAY, "Away");
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_EXTENDED_AWAY, "Not Available");
 	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_UNAVAILABLE, "Do Not Disturb");
@@ -1191,6 +1198,8 @@ skype_login(PurpleAccount *acct)
 const char *
 skype_get_account_username(PurpleAccount *acct)
 {
+	if (!acct)
+		return "Skype";
 #ifdef SKYPENET
 	if (acct == NULL)
 		return NULL;
@@ -1764,6 +1773,7 @@ static void
 skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 {
 	PurpleBuddy *buddy;
+	PurpleGroup *group;
 	PurpleConversation *conv;
 	gchar *msg;
 	gchar chat_id[200];
@@ -1775,7 +1785,7 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 		msg = skype_send_message("CHAT CREATE");
 		sscanf(msg, "CHAT %s ", chat_id);
 		g_free(msg);
-		//conv = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, buddy->account, buddy->name);
+		
 		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, chat_id);
 		skype_send_message_nowait("ALTER CHAT %s ADDMEMBERS %s", chat_id, buddy->name);
 		skype_debug_info("skype", "Conv Hash Table: %d\n", conv->data);
@@ -1786,7 +1796,23 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv),
 									buddy->name, NULL, PURPLE_CBFLAGS_NONE, FALSE);
 		purple_conv_chat_set_id(PURPLE_CONV_CHAT(conv), chat_number++);
-	}
+	} else if (PURPLE_BLIST_NODE_IS_GROUP(node))
+	{
+/*		group = (PurpleGroup *) node;
+		msg = skype_send_message("CHAT CREATE");
+		sscanf(msg, "CHAT %s ", chat_id);
+		g_free(msg);
+		
+		conv = serv_got_joined_chat(purple_account_get_connection(purple_buddy_get_account(buddy)), chat_number, chat_id);
+		purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
+		purple_conv_chat_set_id(PURPLE_CONV_CHAT(conv), chat_number++);
+		
+		//loop through all the child nodes of the group
+		
+		//add buddy to the chat
+		
+		//add self to the chat
+*/	}
 }
 
 static void
