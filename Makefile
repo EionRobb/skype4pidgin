@@ -57,10 +57,10 @@ libskypenet.dll: .DEPENDS skype_messaging_network.c
 	upx libskypenet.dll
 
 libskype-debug.dll: .DEPENDS skype_messaging_win32.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
+	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
 
 libskypenet-debug.dll: .DEPENDS skype_messaging_network.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET
+	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET
 
 po/%.mo: po/%.po
 	msgfmt -cf -o $@ $<
