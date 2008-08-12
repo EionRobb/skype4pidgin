@@ -112,8 +112,6 @@ send_messages_thread_func(gpointer data)
 		message = g_async_queue_pop(send_messages_queue);
 		//send the message
 		send_message(message);
-		//free the memory
-		g_free(message);
 	}
 	g_async_queue_unref(send_messages_queue);
 	
