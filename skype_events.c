@@ -22,6 +22,8 @@ gchar *skype_get_user_info(const gchar *username, const gchar *property);
 gchar *skype_strdup_withhtml(const gchar *src);
 void skype_put_buddies_in_groups();
 void skype_get_chatmessage_info(int message);
+void set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property, const gchar *value);
+SkypeBuddy *skype_buddy_new(PurpleBuddy *buddy);
 
 char *skype_send_message(char *message, ...);
 //dont use this unless you know what you're doing:
@@ -67,6 +69,7 @@ skype_handle_received_message(char *message)
 	PurpleConnection *gc;
 	const char *my_username;
 	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
 	char *body;
 	char *body_html;
 	char *msg_num;
@@ -114,6 +117,7 @@ skype_handle_received_message(char *message)
 		buddy = purple_find_buddy(this_account, string_parts[1]);
 		if (buddy != NULL)
 		{
+			sbuddy = buddy->proto_data;
 			if (g_str_equal(string_parts[2], "ONLINESTATUS"))
 			{
 				if (g_str_equal(string_parts[3], "OFFLINE"))
@@ -140,7 +144,7 @@ skype_handle_received_message(char *message)
 					} else {
 						primitive = PURPLE_STATUS_OFFLINE;
 					}
-					buddy->proto_data = g_strdup(_("SkypeOut"));
+					set_skype_buddy_attribute(sbuddy, "MOOD_TEXT", _("SkypeOut"));
 				} else if (g_str_equal(string_parts[3], "UNKNOWN"))
 				{
 					//user doesn't exist
@@ -163,15 +167,6 @@ skype_handle_received_message(char *message)
 						primitive != PURPLE_STATUS_UNSET);
 					skype_update_buddy_icon(buddy);
 				}
-			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
-			{
-				if (!buddy->proto_data || !g_str_equal(buddy->proto_data, _("SkypeOut")))
-				{
-					if (buddy->proto_data != NULL)
-						g_free(buddy->proto_data);
-					purple_util_chrreplace(string_parts[3], '\n', ' ');
-					buddy->proto_data = skype_strdup_withhtml(string_parts[3]);
-				}
 			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 			{
 				if (strlen(g_strstrip(string_parts[3])))
@@ -180,10 +175,13 @@ skype_handle_received_message(char *message)
 			{
 				if (strlen(g_strstrip(string_parts[3])) && (!purple_buddy_get_server_alias(buddy) || !strlen(purple_buddy_get_server_alias(buddy))))
 					purple_blist_server_alias_buddy(buddy, string_parts[3]);
+				set_skype_buddy_attribute(sbuddy, "FULLNAME", string_parts[3]);
 			} else if ((g_str_equal(string_parts[2], "BUDDYSTATUS")) &&
 					(g_str_equal(string_parts[3], "1")))
 			{
 				purple_blist_remove_buddy(buddy);
+			} else {
+				set_skype_buddy_attribute(sbuddy, string_parts[2], string_parts[3]);
 			}
 		} else if (g_str_equal(string_parts[2], "BUDDYSTATUS"))
 		{
@@ -195,6 +193,7 @@ skype_handle_received_message(char *message)
 				{
 					skype_debug_info("skype", "Buddy not in list\n");
 					buddy = purple_buddy_new(this_account, g_strdup(string_parts[1]), NULL);
+					skype_buddy_new(buddy);
 					if (string_parts[1][0] == '+')
 					{
 						temp_group = purple_find_group("SkypeOut");
