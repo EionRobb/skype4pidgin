@@ -60,6 +60,41 @@
 PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
 #endif
 
+typedef struct _SkypeBuddy {
+	PurpleBuddy *buddy;
+	
+	//this bit used in Get Info
+	gchar *handle;
+	gchar *fullname;
+	gchar *mood;
+	struct tm *birthday;
+	gchar *gender;
+	gchar *language;
+	gchar *country;
+	gboolean is_video_capable;
+	gboolean is_authorized;
+	gboolean is_blocked;
+	time_t last_online;
+	gdouble timezone_offset;
+	guint number_of_buddies;
+	gchar *about;
+	
+	//this bit not used yet
+	gchar *province;
+	gchar *city;
+	gchar *phone_home;
+	gchar *phone_office;
+	gchar *phone_mobile;
+	gchar *homepage;
+	gboolean has_call_equipment;
+	gboolean is_voicemail_capable;
+	gboolean is_callforward_active;
+	gboolean can_leave_voicemail;
+	
+	//libpurple buddy stuff
+	guint typing_stream;
+} SkypeBuddy;
+
 #include "debug.c"
 #include "skype_messaging.c"
 
@@ -132,6 +167,7 @@ int skype_find_group_with_name(const char *group_name_in);
 static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable *params);
 void skype_buddy_free(PurpleBuddy *buddy);
 const char *skype_list_emblem(PurpleBuddy *buddy);
+SkypeBuddy *skype_buddy_new(PurpleBuddy *buddy);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -769,12 +805,12 @@ skype_set_buddies(PurpleAccount *acct)
 		{
 			//the buddy was already in the list
 			buddy = (PurpleBuddy *)found_buddy->data;
-			buddy->proto_data = NULL;
+			buddy->proto_data = skype_buddy_new(buddy);
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
 			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
-			buddy->proto_data = NULL;
+			buddy->proto_data = skype_buddy_new(buddy);
 			
 			//find out what group this buddy is in
 			//for now, dump them into a default group, until skype tells us where they belong
@@ -1057,28 +1093,25 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 const char *
 skype_list_emblem(PurpleBuddy *buddy)
 {
-	gchar *birthday = skype_get_user_info(buddy->name, "BIRTHDAY");
-	struct tm *birthday_tm = g_new(struct tm, 1);
-	struct tm *today_tm;
+	SkypeBuddy *sbuddy;
 	time_t now;
-
-	if (birthday && strlen(birthday) && !g_str_equal(birthday, "0"))
-	{
-		purple_str_to_time(birthday, FALSE, birthday_tm, NULL, NULL);
-		now = time(NULL);
-		today_tm = localtime(&now);
-		if (birthday_tm->tm_mday == today_tm->tm_mday &&
-			birthday_tm->tm_mon == today_tm->tm_mon &&
-			birthday_tm->tm_year == today_tm->tm_year)
-		{
-			g_free(birthday_tm);
-			g_free(birthday);
-			return "birthday";
-		}
-	}
+	struct tm *today_tm;
 	
-	g_free(birthday_tm);
-	g_free(birthday);
+	if (buddy && buddy->proto_data)
+	{
+		sbuddy = buddy->proto_data;
+		if (sbuddy->birthday)
+		{
+			now = time(NULL);
+			today_tm = localtime(&now);
+			if (sbuddy->birthday->tm_mday == today_tm->tm_mday &&
+				sbuddy->birthday->tm_mon == today_tm->tm_mon &&
+				sbuddy->birthday->tm_year == today_tm->tm_year)
+			{
+				return "birthday";
+			}
+		} 
+	}
 	return NULL;
 }
 
@@ -1227,8 +1260,6 @@ skype_login(PurpleAccount *acct)
 const char *
 skype_get_account_username(PurpleAccount *acct)
 {
-	if (!acct)
-		return "Skype";
 #ifdef SKYPENET
 	if (acct == NULL)
 		return NULL;
@@ -1239,6 +1270,9 @@ skype_get_account_username(PurpleAccount *acct)
 	
 	if (username != NULL)
 		return username;
+	
+	if (!acct)
+		return "Skype";
 	
 	ret = skype_send_message("GET CURRENTUSERHANDLE");
 	if (!ret || !strlen(ret))
@@ -1269,16 +1303,6 @@ skype_get_account_alias(PurpleAccount *acct)
 	purple_account_set_alias(acct, alias);
 	g_free(alias);
 }
-
-/*void
-skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused)
-{
-	PurpleBuddy *buddy = (PurpleBuddy *)buddy_pointer;
-	if (buddy && buddy->proto_data)
-	{
-		buddy->proto_data = NULL;
-	}
-}*/
 
 void 
 skype_close(PurpleConnection *gc)
@@ -1378,12 +1402,266 @@ timestamp_to_datetime(time_t timestamp)
 }
 
 void
+set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property, const gchar *value)
+{
+	if (sbuddy == NULL)
+		return;
+	if (skype_buddy_property == NULL)
+		return;
+
+	if (g_str_equal(skype_buddy_property, "FULLNAME"))
+	{
+		if (sbuddy->fullname)
+			g_free(sbuddy->fullname);
+		sbuddy->fullname = NULL;
+		if (value && strlen(value))
+			sbuddy->fullname = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "MOOD_TEXT"))
+	{
+		if (sbuddy->mood)
+			g_free(sbuddy->mood);
+		sbuddy->mood = NULL;
+		if (value && strlen(value))
+		{
+			sbuddy->mood = g_strdup(value);
+			purple_util_chrreplace(sbuddy->mood, '\n', ' ');
+		}
+	} else if (g_str_equal(skype_buddy_property, "BIRTHDAY"))
+	{
+		if (sbuddy->birthday)
+			g_free(sbuddy->birthday);
+		sbuddy->birthday = NULL;
+		if (value && strlen(value) && !g_str_equal(value, "0"))
+		{
+			sbuddy->birthday = g_new(struct tm, 1);
+			purple_str_to_time(value, FALSE, sbuddy->birthday, NULL, NULL);
+		}
+	} else if (g_str_equal(skype_buddy_property, "SEX"))
+	{
+		if (sbuddy->gender)
+			g_free(sbuddy->gender);
+		sbuddy->gender = NULL;
+		if (value && strlen(value) && !g_str_equal(value, "UNKNOWN"))
+			sbuddy->gender = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "LANGUAGE"))
+	{
+		if (sbuddy->language)
+			g_free(sbuddy->language);
+		sbuddy->language = NULL;
+		if (value && strlen(value))
+			sbuddy->language = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "COUNTRY"))
+	{
+		if (sbuddy->country)
+			g_free(sbuddy->country);
+		sbuddy->country = NULL;
+		if (value && strlen(value))
+			sbuddy->country = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "IS_VIDEO_CAPABLE"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->is_video_capable = TRUE;
+		else
+			sbuddy->is_video_capable = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "ISAUTHORIZED"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->is_authorized = TRUE;
+		else
+			sbuddy->is_authorized = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "ISBLOCKED"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->is_blocked = TRUE;
+		else
+			sbuddy->is_blocked = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "LASTONLINETIMESTAMP"))
+	{
+		sbuddy->last_online = 0;
+		if (value)
+			sbuddy->last_online = (time_t) atoi(value);
+	} else if (g_str_equal(skype_buddy_property, "TIMEZONE"))
+	{
+		sbuddy->timezone_offset = 0;
+		if (value)
+			sbuddy->timezone_offset = (g_ascii_strtod(value, NULL) / 3600) - 24;
+	} else if (g_str_equal(skype_buddy_property, "NROF_AUTHED_BUDDIES"))
+	{
+		sbuddy->number_of_buddies = 0;
+		if (value)
+			sbuddy->number_of_buddies = g_ascii_strtoull(value, NULL, 10);
+	} else if (g_str_equal(skype_buddy_property, "ABOUT"))
+	{
+		if (sbuddy->about)
+			g_free(sbuddy->about);
+		sbuddy->about = NULL;
+		if (value && strlen(value))
+		{
+			sbuddy->about = g_strdup(value);
+		}
+	} else if (g_str_equal(skype_buddy_property, "PROVINCE"))
+	{
+		if (sbuddy->province)
+			g_free(sbuddy->province);
+		sbuddy->province = NULL;
+		if (value && strlen(value))
+		{
+			sbuddy->province = g_strdup(value);
+		}
+	} else if (g_str_equal(skype_buddy_property, "CITY"))
+	{
+		if (sbuddy->city)
+			g_free(sbuddy->city);
+		sbuddy->city = NULL;
+		if (value && strlen(value))
+			sbuddy->city = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "PHONE_HOME"))
+	{
+		if (sbuddy->phone_home)
+			g_free(sbuddy->phone_home);
+		sbuddy->phone_home = NULL;
+		if (value && strlen(value))
+			sbuddy->phone_home = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "PHONE_OFFICE"))
+	{
+		if (sbuddy->phone_office)
+			g_free(sbuddy->phone_office);
+		sbuddy->phone_office = NULL;
+		if (value && strlen(value))
+			sbuddy->phone_office = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "PHONE_MOBILE"))
+	{
+		if (sbuddy->phone_mobile)
+			g_free(sbuddy->phone_mobile);
+		sbuddy->phone_mobile = NULL;
+		if (value && strlen(value))
+			sbuddy->phone_mobile = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "HOMEPAGE"))
+	{
+		if (sbuddy->homepage)
+			g_free(sbuddy->homepage);
+		sbuddy->homepage = NULL;
+		if (value && strlen(value))
+			sbuddy->homepage = g_strdup(value);
+	} else if (g_str_equal(skype_buddy_property, "HASCALLEQUIPMENT"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->has_call_equipment = TRUE;
+		else
+			sbuddy->has_call_equipment = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "IS_VIDEO_CAPABLE"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->is_video_capable = TRUE;
+		else
+			sbuddy->is_video_capable = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "IS_VOICEMAIL_CAPABLE"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->is_voicemail_capable = TRUE;
+		else
+			sbuddy->is_voicemail_capable = FALSE;
+	} else if (g_str_equal(skype_buddy_property, "CAN_LEAVE_VM"))
+	{
+		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+			sbuddy->can_leave_voicemail = TRUE;
+		else
+			sbuddy->can_leave_voicemail = FALSE;
+	}
+}
+
+SkypeBuddy *
+skype_buddy_new(PurpleBuddy *buddy)
+{
+	SkypeBuddy *newbuddy = g_new(SkypeBuddy, 1);
+	newbuddy->buddy = buddy;
+	
+	//this bit used in Get Info
+	newbuddy->handle = g_strdup(buddy->name);
+	newbuddy->fullname = NULL;
+	newbuddy->mood = NULL;
+	newbuddy->birthday = NULL;
+	newbuddy->gender = NULL;
+	newbuddy->language = NULL;
+	newbuddy->country = NULL;
+	newbuddy->is_video_capable = FALSE;
+	newbuddy->is_authorized = FALSE;
+	newbuddy->is_blocked = FALSE;
+	newbuddy->last_online = 0;
+	newbuddy->timezone_offset = 0;
+	newbuddy->number_of_buddies = 0;
+	newbuddy->about = NULL;
+	
+	//this bit not used yet
+	newbuddy->province = NULL;
+	newbuddy->city = NULL;
+	newbuddy->phone_home = NULL;
+	newbuddy->phone_office = NULL;
+	newbuddy->phone_mobile = NULL;
+	newbuddy->homepage = NULL;
+	newbuddy->has_call_equipment = FALSE;
+	newbuddy->is_voicemail_capable = FALSE;
+	newbuddy->is_callforward_active = FALSE;
+	newbuddy->can_leave_voicemail = FALSE;
+	
+	//libpurple buddy stuff
+	newbuddy->typing_stream = 0;
+	
+	skype_send_message_nowait("GET USER %s FULLNAME");
+	skype_send_message_nowait("GET USER %s MOOD_TEXT");
+	skype_send_message_nowait("GET USER %s BIRTHDAY");
+	skype_send_message_nowait("GET USER %s SEX");
+	skype_send_message_nowait("GET USER %s LANGUAGE");
+	skype_send_message_nowait("GET USER %s COUNTRY");
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE");
+	skype_send_message_nowait("GET USER %s ISAUTHORIZED");
+	skype_send_message_nowait("GET USER %s ISBLOCKED");
+	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP");
+	skype_send_message_nowait("GET USER %s TIMEZONE");
+	skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES");
+	skype_send_message_nowait("GET USER %s ABOUT");
+	
+	skype_send_message_nowait("GET USER %s PROVINCE");
+	skype_send_message_nowait("GET USER %s CITY");
+	skype_send_message_nowait("GET USER %s PHONE_HOME");
+	skype_send_message_nowait("GET USER %s PHONE_OFFICE");
+	skype_send_message_nowait("GET USER %s PHONE_MOBILE");
+	skype_send_message_nowait("GET USER %s HOMEPAGE");
+	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT");
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE");
+	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE");
+	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM");
+	
+	buddy->proto_data = newbuddy;
+	return newbuddy;
+}
+
+void
 skype_buddy_free(PurpleBuddy *buddy)
 {
+	SkypeBuddy *sbuddy;
+	
 	if (buddy->proto_data)
 	{
-		g_free(buddy->proto_data);
+		sbuddy = buddy->proto_data;
 		buddy->proto_data = NULL;
+		
+		if (sbuddy->handle) g_free(sbuddy->handle);
+		if (sbuddy->fullname) g_free(sbuddy->fullname);
+		if (sbuddy->mood) g_free(sbuddy->mood);
+		if (sbuddy->birthday) g_free(sbuddy->birthday);
+		if (sbuddy->gender) g_free(sbuddy->gender);
+		if (sbuddy->language) g_free(sbuddy->language);
+		if (sbuddy->country) g_free(sbuddy->country);
+		if (sbuddy->about) g_free(sbuddy->about);
+		if (sbuddy->province) g_free(sbuddy->province);
+		if (sbuddy->city) g_free(sbuddy->city);
+		if (sbuddy->phone_home) g_free(sbuddy->phone_home);
+		if (sbuddy->phone_office) g_free(sbuddy->phone_office);
+		if (sbuddy->phone_mobile) g_free(sbuddy->phone_mobile);
+		if (sbuddy->homepage) g_free(sbuddy->homepage);
+		
+		g_free(sbuddy);
 	}
 }
 
@@ -1392,9 +1670,52 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 {
 	PurpleNotifyUserInfo *user_info;
 	double timezoneoffset = 0;
-	struct tm *birthday_time = g_new(struct tm, 1);
+	struct tm *birthday_time;
 	int time;
 	gchar *temp;
+	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
+	
+	buddy = purple_find_buddy(gc->account, username);
+	if (buddy && buddy->proto_data)
+	{
+		sbuddy = buddy->proto_data;
+		user_info = purple_notify_user_info_new();
+		
+		purple_notify_user_info_add_section_header(user_info, _("Contact Info"));
+		purple_notify_user_info_add_pair(user_info, _("Skype Name"), buddy->name);
+		purple_notify_user_info_add_pair(user_info, _("Full Name"), sbuddy->fullname);
+		purple_notify_user_info_add_pair(user_info, _("Mood Text"), sbuddy->mood);
+		
+		purple_notify_user_info_add_section_break(user_info);
+		
+		purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
+		purple_notify_user_info_add_pair(user_info, _("Birthday"), purple_date_format_short(sbuddy->birthday));
+		purple_notify_user_info_add_pair(user_info, _("Gender"), sbuddy->gender);
+		purple_notify_user_info_add_pair(user_info, _("Preferred Language"), sbuddy->language);
+		purple_notify_user_info_add_pair(user_info, _("Country"), sbuddy->country);
+		purple_notify_user_info_add_pair(user_info, _("Is Video Capable"), (sbuddy->is_video_capable?"TRUE":"FALSE"));
+		purple_notify_user_info_add_pair(user_info, _("Authorization Granted"), (sbuddy->is_authorized?"TRUE":"FALSE"));
+		purple_notify_user_info_add_pair(user_info, _("Blocked"), (sbuddy->is_blocked?"TRUE":"FALSE"));
+		if (sbuddy->timezone_offset)
+		{
+			purple_notify_user_info_add_pair(user_info, _("Timezone"), temp = g_strdup_printf("UMT %+.1f", sbuddy->timezone_offset));
+			g_free(temp);
+		} else {
+			purple_notify_user_info_add_pair(user_info, _("Timezone"), NULL);
+		}
+		purple_notify_user_info_add_pair(user_info, _("Number of buddies"), temp = g_strdup_printf("%d", sbuddy->number_of_buddies));
+		g_free(temp);
+		
+		purple_notify_user_info_add_section_break(user_info);
+		
+		purple_notify_user_info_add_pair(user_info, NULL, sbuddy->about);
+	
+		purple_notify_userinfo(gc, username, user_info, NULL, NULL);
+		purple_notify_user_info_destroy(user_info);
+		
+		return;
+	}
 	
 	user_info = purple_notify_user_info_new();
 #define _SKYPE_USER_INFO(prop, key)  \
@@ -1410,8 +1731,10 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	temp = skype_get_user_info(username, "BIRTHDAY");
 	if (temp && strlen(temp) && !g_str_equal(temp, "0"))
 	{
+		birthday_time = g_new(struct tm, 1);
 		purple_str_to_time(temp, FALSE, birthday_time, NULL, NULL);
 		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
+		g_free(birthday_time);
 	} else {
 		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup("0"));
 	}
@@ -1435,12 +1758,11 @@ skype_get_info(PurpleConnection *gc, const gchar *username)
 	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
 	purple_notify_user_info_add_section_break(user_info);
 	//_SKYPE_USER_INFO("ABOUT", "");
-	purple_notify_user_info_add_pair(user_info, "", (skype_get_user_info(username, "ABOUT")));
+	purple_notify_user_info_add_pair(user_info, NULL, (skype_get_user_info(username, "ABOUT")));
 	
 	purple_notify_userinfo(gc, username, user_info, NULL, NULL);
 	purple_notify_user_info_destroy(user_info);
 	
-	g_free(birthday_time);
 }
 
 gchar *
@@ -1716,11 +2038,12 @@ skype_status_text(PurpleBuddy *buddy)
 	PurplePresence *presence;
 	PurpleStatus *status;
 	PurpleStatusType *type;
-
-	if (buddy->proto_data != NULL && strlen(buddy->proto_data))
-		return g_strdup((char *)buddy->proto_data);
+	SkypeBuddy *sbuddy = buddy->proto_data;
+	
+	if (sbuddy && sbuddy->mood != NULL && strlen(sbuddy->mood))
+		return skype_strdup_withhtml(sbuddy->mood);
 		
-	if (buddy->proto_data == NULL)
+	if (sbuddy == NULL || sbuddy->mood == NULL)
 	{
 		skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 		return NULL;
@@ -1751,12 +2074,13 @@ skype_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *userinfo, gboolean 
 {
 	PurplePresence *presence;
 	PurpleStatus *status;
+	SkypeBuddy *sbuddy = buddy->proto_data;
 
 	presence = purple_buddy_get_presence(buddy);
 	status = purple_presence_get_active_status(presence);
 	purple_notify_user_info_add_pair(userinfo, _("Status"), purple_status_get_name(status));
-	if (buddy->proto_data && strlen(buddy->proto_data))
-		purple_notify_user_info_add_pair(userinfo, _("Message"), buddy->proto_data);
+	if (sbuddy && sbuddy->mood && strlen(sbuddy->mood))
+		purple_notify_user_info_add_pair(userinfo, _("Message"), sbuddy->mood);
 }
 
 const char *
@@ -1802,7 +2126,7 @@ static void
 skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 {
 	PurpleBuddy *buddy;
-	PurpleGroup *group;
+	//PurpleGroup *group;
 	PurpleConversation *conv;
 	gchar *msg;
 	gchar chat_id[200];
@@ -1942,6 +2266,18 @@ skype_get_chat_name(GHashTable *data)
 gchar *
 skype_cb_real_name(PurpleConnection *gc, int id, const char *who)
 {
+	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
+	
+	buddy = purple_find_buddy(gc->account, who);
+	if (buddy && buddy->proto_data)
+	{
+		sbuddy = buddy->proto_data;
+		if (sbuddy->fullname)
+			return g_strdup(sbuddy->fullname);
+	} else if (buddy && buddy->server_alias)
+		return g_strdup(buddy->server_alias);
+	
 	return skype_get_user_info(who, "FULLNAME");
 }
 
