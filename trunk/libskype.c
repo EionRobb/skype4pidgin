@@ -1421,7 +1421,7 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		if (sbuddy->mood)
 			g_free(sbuddy->mood);
 		sbuddy->mood = NULL;
-		if (value && strlen(value))
+		if (value)
 		{
 			sbuddy->mood = g_strdup(value);
 			purple_util_chrreplace(sbuddy->mood, '\n', ' ');
@@ -1607,30 +1607,30 @@ skype_buddy_new(PurpleBuddy *buddy)
 	//libpurple buddy stuff
 	newbuddy->typing_stream = 0;
 	
-	skype_send_message_nowait("GET USER %s FULLNAME");
-	skype_send_message_nowait("GET USER %s MOOD_TEXT");
-	skype_send_message_nowait("GET USER %s BIRTHDAY");
-	skype_send_message_nowait("GET USER %s SEX");
-	skype_send_message_nowait("GET USER %s LANGUAGE");
-	skype_send_message_nowait("GET USER %s COUNTRY");
-	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE");
-	skype_send_message_nowait("GET USER %s ISAUTHORIZED");
-	skype_send_message_nowait("GET USER %s ISBLOCKED");
-	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP");
-	skype_send_message_nowait("GET USER %s TIMEZONE");
-	skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES");
-	skype_send_message_nowait("GET USER %s ABOUT");
+	skype_send_message_nowait("GET USER %s FULLNAME", buddy->name);
+	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+	skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
+	skype_send_message_nowait("GET USER %s SEX", buddy->name);
+	skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
+	skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
+	skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
+	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
+	skype_send_message_nowait("GET USER %s TIMEZONE", buddy->name);
+	skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES", buddy->name);
+	skype_send_message_nowait("GET USER %s ABOUT", buddy->name);
 	
-	skype_send_message_nowait("GET USER %s PROVINCE");
-	skype_send_message_nowait("GET USER %s CITY");
-	skype_send_message_nowait("GET USER %s PHONE_HOME");
-	skype_send_message_nowait("GET USER %s PHONE_OFFICE");
-	skype_send_message_nowait("GET USER %s PHONE_MOBILE");
-	skype_send_message_nowait("GET USER %s HOMEPAGE");
-	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT");
-	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE");
-	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE");
-	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM");
+	skype_send_message_nowait("GET USER %s PROVINCE", buddy->name);
+	skype_send_message_nowait("GET USER %s CITY", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_HOME", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_OFFICE", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+	skype_send_message_nowait("GET USER %s HOMEPAGE", buddy->name);
+	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);
 	
 	buddy->proto_data = newbuddy;
 	return newbuddy;

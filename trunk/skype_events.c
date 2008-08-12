@@ -659,12 +659,16 @@ skype_handle_received_message(char *message)
 			temp = chatusers[2];
 			if (sender != NULL && temp != NULL)
 			{
+				sender = g_strdup(sender);
+				temp = g_strdup(temp);
 				if (g_str_equal(temp, "PURPLE_NOT_TYPING"))
 					serv_got_typing(gc, sender, 10, PURPLE_NOT_TYPING);
 				else if (g_str_equal(temp, "PURPLE_TYPING"))
 					serv_got_typing(gc, sender, 10, PURPLE_TYPING);
 				else if (g_str_equal(temp, "PURPLE_TYPED"))
 					serv_got_typing(gc, sender, 10, PURPLE_TYPED);
+				g_free(sender);
+				g_free(temp);
 			}
 			g_strfreev(chatusers);
 		} else if (g_str_equal(string_parts[2], "STREAMS"))

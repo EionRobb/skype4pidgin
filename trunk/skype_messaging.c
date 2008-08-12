@@ -96,6 +96,30 @@ skype_message_received(char *orig_message)
 	}
 }
 
+static GThread *send_messages_thread = NULL;
+static gboolean send_thread_state = FALSE;
+static GAsyncQueue *send_messages_queue = NULL;
+
+gpointer
+send_messages_thread_func(gpointer data)
+{
+	gchar *message;
+	
+	send_thread_state = TRUE;
+	while (send_thread_state)
+	{
+		//read from async queue
+		message = g_async_queue_pop(send_messages_queue);
+		//send the message
+		send_message(message);
+		//free the memory
+		g_free(message);
+	}
+	g_async_queue_unref(send_messages_queue);
+	
+	return NULL;
+}
+
 void 
 skype_send_message_nowait(char *message_format, ...)
 {
@@ -107,7 +131,16 @@ skype_send_message_nowait(char *message_format, ...)
 	va_end(args);
 	
 	skype_debug_info("skype", "Sending: '%s'\n", message);
-	g_thread_create((GThreadFunc)send_message, message, FALSE, NULL);
+	
+	if (send_messages_queue == NULL)
+		send_messages_queue = g_async_queue_new();
+		
+	if (send_messages_thread == NULL)
+	{
+		send_messages_thread = g_thread_create(send_messages_thread_func, NULL, FALSE, NULL);
+	}
+	
+	g_async_queue_push(send_messages_queue, message);
 
 }
 
