@@ -809,7 +809,7 @@ skype_set_buddies(PurpleAccount *acct)
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
 			skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
-			buddy = purple_buddy_new(acct, g_strdup(friends[i]), NULL);
+			buddy = purple_buddy_new(acct, friends[i], NULL);
 			buddy->proto_data = skype_buddy_new(buddy);
 			
 			//find out what group this buddy is in
@@ -1011,6 +1011,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 					purple_buddy_icons_set_for_user(acct, buddy->name, image_data, image_data_len, NULL);
 				}
 			}
+			g_free(ret);
 			g_unlink(new_filename);
 			g_free(filename);
 			g_free(new_filename);
