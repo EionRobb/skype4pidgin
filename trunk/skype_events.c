@@ -594,8 +594,19 @@ skype_handle_received_message(char *message)
 	{
 		if (g_str_equal(string_parts[1], "HIDDEN"))
 		{
-			skype_send_message("SET SILENT_MODE ON");
+			skype_send_message_nowait("SET SILENT_MODE ON");
 		}
+	} else if (g_str_equal(command, "PROFILE"))
+	{
+		if (g_str_equal(string_parts[1], "FULLNAME"))
+		{
+			temp = g_strconcat(string_parts[2], " ", string_parts[3], NULL);
+			//this is the full name of the logged in user... useful for the account name
+			g_free(temp);
+		}
+	} else if (g_str_equal(command, "CURRENTUSERHANDLE"))
+	{
+		//the currently logged in username is at string_parts[1]
 	} else if (g_str_equal(command, "GROUPS"))
 	{
 		if (groups_table == NULL)

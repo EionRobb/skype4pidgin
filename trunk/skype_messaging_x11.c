@@ -59,11 +59,13 @@ skype_connect()
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret < 1)
 	{
+		XFree(prop);
 		skype_win = (Window)-1;
 		skype_debug_info("skype", "Skype instance not found\n");
 		return FALSE;
 	}
 	skype_win = * (const unsigned long *) prop & 0xffffffff;
+	XFree(prop);
 	run_loop = TRUE;
 	
 	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
