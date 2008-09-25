@@ -2475,6 +2475,7 @@ dump_hash_table(gchar *key, gchar *value, gpointer data)
 static gboolean
 skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 {
+	PurpleAccount *acct;
 	gchar *temp;
 	
 	//only deal with skype: uri's
@@ -2486,7 +2487,7 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 		skype:						//does nothing
 		skype:{buddynames}			//open im with {buddynames}
 		skype:{buddynames}?chat		//open multi-user chat with {buddynames}
-		skype:?chat&blob={blob id}	//open public multi-user chat with the blog id of {blob id}
+		skype:?chat&blob={blob id}	//open public multi-user chat with the blob id of {blob id}
 		skype:?chat&id={chat id}	//open multi-user chat with the id of {chat id}
 		skype:{buddynames}?call		//call {buddynames}
 		skype:{buddyname}?add		//add user to buddy list 
@@ -2496,7 +2497,9 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 		skype:{buddynames}?voicemail	//send a voice mail message?
 		skype:{buddynames}?sendfile	//send a file?
 		*/
-	
+	acct = find_acct(purple_plugin_get_id(this_plugin), g_hash_table_lookup(params, "account"));	
+
+
 	//lets have a look at the hash table!
 	skype_debug_info("skype", "dumping uri handler hashtable\n");
 	g_hash_table_foreach(params, (GHFunc)dump_hash_table, NULL);
@@ -2506,12 +2509,24 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 		if (!strlen(cmd))
 		{
 			//probably a public multi-user chat?
-			temp = g_hash_table_lookup(params, "blob");
-			if (!temp)
-				temp = g_hash_table_lookup(params, "id");
-			if (temp)
+			if ((temp = g_hash_table_lookup(params, "blob")))
+			{
+				temp = skype_send_message("CHAT CREATEUSINGBLOB %s", temp);
+				if (strlen(temp))
+				{
+					g_free(temp);
+					return FALSE;
+				}
+				*strchr(strchr(temp, ' '), ' ') = '\0';
+				skype_send_message("ALTER %s JOIN", temp);
+				g_free(temp);
+				return TRUE;
+			}
+			else if ((temp = g_hash_table_lookup(params, "id")))
+			{
 				skype_send_message_nowait("ALTER CHAT %s JOIN", temp);
-			return TRUE;
+				return TRUE;
+			}
 		}
 	} else if (g_hash_table_lookup(params, "add"))
 	{
@@ -2521,7 +2536,11 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	{
 		skype_send_message_nowait("CALL %s", cmd);
 		return TRUE;
-	} else if (g_hash_table_lookup(params, "userinfo") || g_hash_table_lookup(params, "voicemail") || g_hash_table_lookup(params, "sendfile"))
+	} else if (g_hash_table_lookup(params, "userinfo"))
+	{
+		skype_get_info(NULL, cmd);
+		return TRUE;
+	} else if (g_hash_table_lookup(params, "voicemail") || g_hash_table_lookup(params, "sendfile"))
 	{
 		//not sure?
 	} else if (strlen(cmd)) {
