@@ -507,7 +507,9 @@ skype_send_file_from_blist(PurpleBlistNode *node, gpointer data)
 		buddy = (PurpleBuddy *) node;
 		if (PURPLE_BUDDY_IS_ONLINE(buddy))
 		{
+			skype_send_message_nowait("SET SILENT_MODE OFF");
 			skype_send_message_nowait("OPEN FILETRANSFER %s", buddy->name);
+			skype_send_message_nowait("SET SILENT_MODE ON");
 		}
 	}
 }
