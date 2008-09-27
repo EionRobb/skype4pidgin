@@ -289,7 +289,7 @@ static PurplePluginInfo info = {
 	"Allows using Skype IM functions from within Pidgin", /* summary */
 	"Allows using Skype IM functions from within Pidgin", /* description */
 	"Eion Robb <eion@robbmob.com>", /* author */
-	"http://tinyurl.com/2by8rw", /* homepage */
+	"http://eion.robbmob.com/", /* homepage */
 	plugin_load, /* load */
 	plugin_unload, /* unload */
 	NULL, /* destroy */
@@ -614,7 +614,7 @@ skype_plugin_update_check(void)
 		purple_notify_warning(this_plugin, "Warning", "Could not check for updates", NULL);
 	} else {
 		basename = g_path_get_basename(this_plugin->path);
-		purple_util_fetch_url(g_strconcat("http://myjob", "space.co.nz/images/pidgin/", "?version=", basename, NULL),
+		purple_util_fetch_url(g_strconcat("http://eion.robbmob.com/version?version=", basename, NULL),
 			TRUE, NULL, FALSE, skype_plugin_update_callback, (gpointer)filestat);
 	}
 }
