@@ -2465,8 +2465,21 @@ skype_display_skype_credit(PurplePluginAction *action)
 void
 skype_open_sms_im(PurplePlugin *plugin, gpointer data)
 {
-	
+	//Open a conversation window
+	//store the fact that it's an SMS convo in the conversation
+	//CREATE SMS OUTGOING +number
+	//store the SMS number in the conversation
+	//if the sms price is > 0, output that to the window
 }
+
+int
+skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags)
+{
+	//SET SMS {sms number} BODY {body}
+	//ALTER SMS {sms number} SEND
+	//delete the sms number from the conversation
+}
+
 
 static void
 dump_hash_table(gchar *key, gchar *value, gpointer data)
