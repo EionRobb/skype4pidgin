@@ -102,6 +102,8 @@ send_message(char* message)
 	}
 	if (str != NULL)
 		g_thread_create((GThreadFunc)skype_message_received, (void *)str, FALSE, NULL);
+	
+	g_free(message);
 }
 
 static gboolean
