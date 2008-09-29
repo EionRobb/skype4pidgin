@@ -1398,6 +1398,10 @@ skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState sta
 	PurpleAccount *account;
 	account = purple_connection_get_account(gc);
 	
+	//Don't send typing messages to SkypeOut
+	if (name[0] == '+')
+		return 0;
+	
 	switch(state)
 	{
 		case PURPLE_NOT_TYPING:
