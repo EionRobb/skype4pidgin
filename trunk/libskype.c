@@ -106,6 +106,7 @@ GList *skype_status_types(PurpleAccount *acct);
 void skype_login(PurpleAccount *acct);
 void skype_close(PurpleConnection *gc);
 int skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags);
+int skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags);
 static void hide_skype();
 void skype_get_info(PurpleConnection *gc, const gchar *username);
 gchar *skype_get_user_info(const gchar *username, const gchar *property);
@@ -1358,6 +1359,12 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 	stripped = purple_markup_strip_html(message);
 	
 	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, who, purple_connection_get_account(gc));
+	
+	if (who[0] == '+' && conv && purple_conversation_get_data(conv, "sms_msg"))
+	{
+		return skype_send_sms(gc, who, message, flags);
+	}
+	
 	if (conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
 	{
 		/*chat_id = g_new(char, 200);
@@ -1978,6 +1985,8 @@ skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
 	if (buddy->alias == NULL || strlen(buddy->alias) == 0)
 		skype_update_buddy_alias(buddy);
+	else
+		skype_alias_buddy(gc, buddy->name, buddy->alias);
 	if (group && group->name)
 	{
 		skype_group_buddy(gc, buddy->name, NULL, group->name);
@@ -2482,6 +2491,7 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 {
 	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
+	PurpleConversation *conv;
 	gchar *mobile_number = NULL;
 
 	if (!PURPLE_BLIST_NODE_IS_BUDDY(node))
@@ -2495,16 +2505,28 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 	else if (sbuddy && sbuddy->phone_mobile)
 		mobile_number = sbuddy->phone_mobile;
 	
+	
 	//Open a conversation window
+	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, mobile_number, buddy->account);
+	if (conv == NULL)
+	{
+		conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, mobile_number);
+	}
 	//store the fact that it's an SMS convo in the conversation
-	//CREATE SMS OUTGOING +number
-	//store the SMS number in the conversation
-	//if the sms price is > 0, output that to the window
+	purple_conversation_set_data(conv, "sms_msg", TRUE);
 }
 
 int
 skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags)
 {
+	gchar *sms_reply;
+
+	if (who[0] != '+')
+		return -1;
+
+	//CREATE SMS OUTGOING +number
+	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
+	//if the sms price is > 0, output that to the window
 	//SET SMS {sms number} BODY {body}
 	//ALTER SMS {sms number} SEND
 	//delete the sms number from the conversation
