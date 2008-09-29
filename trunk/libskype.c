@@ -17,6 +17,7 @@
  */
 
 #define PURPLE_PLUGIN
+#define PURPLE_PLUGINS
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define _GNU_SOURCE
 #define GETTEXT_PACKAGE "skype4pidgin"
@@ -168,6 +169,9 @@ static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable
 void skype_buddy_free(PurpleBuddy *buddy);
 const char *skype_list_emblem(PurpleBuddy *buddy);
 SkypeBuddy *skype_buddy_new(PurpleBuddy *buddy);
+static void skype_open_sms_im(PurpleBlistNode *node, gpointer data);
+void skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
+gboolean skype_check_keepalive(PurpleConnection *gc);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -464,6 +468,8 @@ skype_node_menu(PurpleBlistNode *node)
 {
 	GList *m = NULL;
 	PurpleMenuAction *act;
+	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
@@ -483,6 +489,17 @@ skype_node_menu(PurpleBlistNode *node)
 							PURPLE_CALLBACK(skype_initiate_chat),
 							NULL, NULL);
 		m = g_list_append(m, act);
+
+		buddy = (PurpleBuddy *)node;
+		sbuddy = (SkypeBuddy *)buddy->proto_data;
+
+		if (buddy->name[0] == '+' || (sbuddy && sbuddy->phone_mobile))
+		{
+			act = purple_menu_action_new(_("Send SMS"),
+								PURPLE_CALLBACK(skype_open_sms_im),
+								NULL, NULL);
+			m = g_list_append(m, act);
+		}
 	} else if (PURPLE_BLIST_NODE_IS_CHAT(node))
 	{
 		
@@ -979,7 +996,11 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 	/* -1 unknown, 0 none, 1 skype api, 2 dbb file, 3 url */
 	static gint api_supports_avatar =
 #ifndef SKYPENET
-	-1;
+#	ifdef _WIN32
+		1;
+#	else
+		2;
+#	endif
 #else
 	3;
 #endif
@@ -1138,6 +1159,7 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	}
 	skype_send_message_nowait("GET USER %s ONLINESTATUS", buddy->name);
 	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+	skype_send_message_nowait("GET USER %s RICH_MOOD_TEXT", buddy->name);
 	
 	/* if this function was called from another thread, don't loop over it */
 	return FALSE;
@@ -2455,9 +2477,24 @@ skype_display_skype_credit(PurplePluginAction *action)
 	g_free(currency);
 }
 
-void
-skype_open_sms_im(PurplePlugin *plugin, gpointer data)
+static void
+skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 {
+	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
+	gchar *mobile_number = NULL;
+
+	if (!PURPLE_BLIST_NODE_IS_BUDDY(node))
+		return;
+	
+	buddy = (PurpleBuddy *)node;
+	sbuddy = (SkypeBuddy *)buddy->proto_data;
+
+	if (buddy->name[0] == '+')
+		mobile_number = buddy->name;
+	else if (sbuddy && sbuddy->phone_mobile)
+		mobile_number = sbuddy->phone_mobile;
+	
 	//Open a conversation window
 	//store the fact that it's an SMS convo in the conversation
 	//CREATE SMS OUTGOING +number
