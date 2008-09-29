@@ -2487,6 +2487,32 @@ dump_hash_table(gchar *key, gchar *value, gpointer data)
 	printf("'%s' = '%s'\n", key, value);
 }
 
+/* copied from oscar.c to be libpurple 2.1 compatible */
+static PurpleAccount *
+find_acct(const char *prpl, const char *acct_id)
+{
+	PurpleAccount *acct = NULL;
+
+	/* If we have a specific acct, use it */
+	if (acct_id) {
+		acct = purple_accounts_find(acct_id, prpl);
+		if (acct && !purple_account_is_connected(acct))
+			acct = NULL;
+	} else { /* Otherwise find an active account for the protocol */
+		GList *l = purple_accounts_get_all();
+		while (l) {
+			if (!strcmp(prpl, purple_account_get_protocol_id(l->data))
+					&& purple_account_is_connected(l->data)) {
+				acct = l->data;
+				break;
+			}
+			l = l->next;
+		}
+	}
+
+	return acct;
+}
+
 static gboolean
 skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 {
