@@ -17,7 +17,9 @@
  */
 
 #define PURPLE_PLUGIN
+#ifndef PURPLE_PLUGINS
 #define PURPLE_PLUGINS
+#endif
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define _GNU_SOURCE
 #define GETTEXT_PACKAGE "skype4pidgin"
@@ -258,9 +260,6 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* unregister_user */
 	NULL,                /* send_attention */
 	NULL,                /* attention_types */
-#ifndef __APPLE__
-	(gpointer)
-#endif
 	sizeof(PurplePluginProtocolInfo) /* struct_size */
 #ifdef USE_FARSIGHT
 	, skype_media_initiate /* initiate_media */
@@ -2537,7 +2536,7 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 		conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, mobile_number);
 	}
 	//store the fact that it's an SMS convo in the conversation
-	purple_conversation_set_data(conv, "sms_msg", TRUE);
+	purple_conversation_set_data(conv, "sms_msg", "TRUE");
 }
 
 int
