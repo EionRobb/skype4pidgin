@@ -11,7 +11,7 @@ static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status
 void skype_call_accept_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
 gboolean skype_sync_skype_close(PurpleConnection *gc);
-void handle_complete_message(int messagenumber);
+gboolean handle_complete_message(int messagenumber);
 
 gboolean skype_update_buddy_status(PurpleBuddy *buddy);
 void skype_update_buddy_alias(PurpleBuddy *buddy);
@@ -86,7 +86,7 @@ skype_handle_received_message(char *message)
 	int i;
 	static int chat_count = 0;
 	PurpleGroup *temp_group;
-	PurpleStatusPrimitive primitive;
+	//PurpleStatusPrimitive primitive;
 	SkypeMessage *skypemessage;
 	
 	sscanf(message, "%s ", command);
@@ -120,30 +120,11 @@ skype_handle_received_message(char *message)
 			sbuddy = buddy->proto_data;
 			if (g_str_equal(string_parts[2], "ONLINESTATUS"))
 			{
-				if (g_str_equal(string_parts[3], "OFFLINE"))
+				//the status 'id' is in string_parts[3]
+				
+				//special cases:
+				if (g_str_equal(string_parts[3], "SKYPEOUT"))
 				{
-					primitive = PURPLE_STATUS_OFFLINE;
-				} else if (g_str_equal(string_parts[3], "ONLINE") ||
-						g_str_equal(string_parts[3], "SKYPEME"))
-				{
-					primitive = PURPLE_STATUS_AVAILABLE;
-				} else if (g_str_equal(string_parts[3], "AWAY"))
-				{
-					primitive = PURPLE_STATUS_AWAY;
-				} else if (g_str_equal(string_parts[3], "NA"))
-				{
-					primitive = PURPLE_STATUS_EXTENDED_AWAY;
-				} else if (g_str_equal(string_parts[3], "DND"))
-				{
-					primitive = PURPLE_STATUS_UNAVAILABLE;
-				} else if (g_str_equal(string_parts[3], "SKYPEOUT"))
-				{
-					if (purple_account_get_bool(buddy->account, "skypeout_online", TRUE))
-					{
-						primitive = PURPLE_STATUS_AVAILABLE;
-					} else {
-						primitive = PURPLE_STATUS_OFFLINE;
-					}
 					set_skype_buddy_attribute(sbuddy, "MOOD_TEXT", _("SkypeOut"));
 				} else if (g_str_equal(string_parts[3], "UNKNOWN"))
 				{
@@ -152,20 +133,15 @@ skype_handle_received_message(char *message)
 					purple_notify_error(gc, "Error", "User does not exist", "The user does not exist in Skype");
 					buddy = NULL;
 				} else {
-					primitive = PURPLE_STATUS_UNSET;
-				}
-				
-				if (buddy)
-				{
 					//Dont say we got their status unless its changed
-					if (!g_str_equal(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), purple_primitive_get_id_from_type(primitive)))
-						purple_prpl_got_user_status(this_account, buddy->name, purple_primitive_get_id_from_type(primitive), NULL);
-
-					//Grab the buddy's mood and avatar
+					if (!purple_presence_get_active_status(purple_buddy_get_presence(buddy)) || !g_str_equal(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), string_parts[3]))
+					{
+						purple_prpl_got_user_status(this_account, string_parts[1], string_parts[3], NULL);
+					}
 					skype_send_message_nowait("GET USER %s MOOD_TEXT", string_parts[1]);
-					if (primitive != PURPLE_STATUS_OFFLINE && 
-						primitive != PURPLE_STATUS_UNSET);
-					skype_update_buddy_icon(buddy);
+					//dont update buddy icon for offline users
+					if (!g_str_equal(string_parts[3], "OFFLINE"))
+						skype_update_buddy_icon(buddy);
 				}
 			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 			{
@@ -180,6 +156,12 @@ skype_handle_received_message(char *message)
 					(g_str_equal(string_parts[3], "1")))
 			{
 				purple_blist_remove_buddy(buddy);
+			} else if (g_str_equal(string_parts[2], "MOOD_TEXT"))
+			{
+				if (sbuddy && (!sbuddy->mood || !g_str_equal(sbuddy->mood, string_parts[3])))
+				{
+					set_skype_buddy_attribute(sbuddy, string_parts[2], string_parts[3]);
+				}
 			} else {
 				set_skype_buddy_attribute(sbuddy, string_parts[2], string_parts[3]);
 			}
@@ -344,6 +326,7 @@ skype_handle_received_message(char *message)
 			{
 				skypemessage->chatname = g_strdup(string_parts[3]);
 			}
+			glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[3], (GCompareFunc)skype_find_chat);
 		} else if (g_str_equal(string_parts[2], "BODY"))
 		{
 			skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(atoi(string_parts[1])));
@@ -390,7 +373,15 @@ skype_handle_received_message(char *message)
 		if (glist_temp == NULL || glist_temp->data == NULL)
 		{
 			//printf("No conversation\n");
-			if (g_str_equal(string_parts[2], "DIALOG_PARTNER"))
+			if (g_str_equal(string_parts[2], "TYPE") &&!g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
+			{
+				//most likely a chat
+				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
+				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
+				skype_send_message_nowait("GET CHAT %s MEMBERS", string_parts[1]);
+				skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", string_parts[1]);
+				skype_send_message_nowait("GET CHAT %s TOPIC", string_parts[1]);
+			} else if (g_str_equal(string_parts[2], "DIALOG_PARTNER"))
 			{
 				//most likely an IM
 				//if they have an IM window open, assign it the chatname
@@ -401,11 +392,6 @@ skype_handle_received_message(char *message)
 					//serv_got_im(gc, string_parts[3], ".", PURPLE_MESSAGE_RECV, time(NULL));
 					//conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
 				}
-				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
-			} else if (g_str_equal(string_parts[2], "TYPE") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
-			{
-				//most likely a chat
-				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			}
 			//printf("Conv %d\n", (int)conv);
@@ -861,7 +847,7 @@ skype_sync_skype_close(PurpleConnection *gc)
 
 
 
-void
+gboolean
 handle_complete_message(int messagenumber)
 {
 	SkypeMessage *skypemessage = NULL;
@@ -871,28 +857,37 @@ handle_complete_message(int messagenumber)
 	int i;
 
 	if (messages_table == NULL)
-		return;
+		return FALSE;
 	
 	skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(messagenumber));
 	if (skypemessage == NULL)
-		return;
+		return FALSE;
 	
 	if (!skypemessage->chatname || !skypemessage->type)
-		return;
+		return FALSE;
 		
 	glist_temp = g_list_find_custom(purple_get_conversations(), skypemessage->chatname, (GCompareFunc)skype_find_chat);
 	if (glist_temp && glist_temp->data)
 	{
 		conv = glist_temp->data;
 	}
+	if (!conv)
+	{
+		//dont know where to put this message
+		//check for existing IM's/chats
+		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
+		skype_send_message_nowait("GET CHAT %s DIALOG_PARTNER", skypemessage->chatname);
+		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
+		return FALSE;
+	}
 	
 	switch(skypemessage->type)
 	{
 		case SKYPE_MESSAGE_OTHER:
-			return;
+			return FALSE;
 		case SKYPE_MESSAGE_EMOTE:
 			if (!skypemessage->body)
-				return;
+				return FALSE;
 			body_html = g_strdup_printf("/me %s", skypemessage->body);
 			g_free(skypemessage->body);
 			skypemessage->body = body_html;
@@ -900,7 +895,7 @@ handle_complete_message(int messagenumber)
 			//fallthrough
 		case SKYPE_MESSAGE_TEXT:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
-				return;
+				return FALSE;
 			body_html = skype_strdup_withhtml(skypemessage->body);
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
@@ -969,7 +964,7 @@ handle_complete_message(int messagenumber)
 			break;
 		case SKYPE_MESSAGE_LEFT:
 			if (!skypemessage->from_handle || !skypemessage->leavereason)
-				return;
+				return FALSE;
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				if (g_str_equal(skypemessage->from_handle, conv->account->username))
@@ -979,26 +974,31 @@ handle_complete_message(int messagenumber)
 			break;
 		case SKYPE_MESSAGE_ADD:
 			if (!skypemessage->users)
-				return;
+				return FALSE;
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
 					if (!purple_conv_chat_find_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i]))
-						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);	
+						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], NULL, PURPLE_CBFLAGS_NONE, TRUE);	
 			}
 			break;
 		case SKYPE_MESSAGE_KICKED:
 			if (!skypemessage->users)
-				return;
+				return FALSE;
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
-					purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup("Kicked"));
+				{
+					if (skypemessage->from_handle)
+						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup_printf("Kicked by %s", skypemessage->from_handle));
+					else
+						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup("Kicked"));
+				}
 			}
 			break;
 		case SKYPE_MESSAGE_TOPIC:
 			if (!skypemessage->body || !skypemessage->from_handle)
-				return;
+				return FALSE;
 			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, skypemessage->body);
@@ -1042,5 +1042,8 @@ handle_complete_message(int messagenumber)
 		
 		g_free(skypemessage);
 	}
+	
+	//can be used in eventloop
+	return FALSE;
 }
 

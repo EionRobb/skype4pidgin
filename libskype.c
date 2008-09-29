@@ -747,12 +747,12 @@ skype_status_types(PurpleAccount *acct)
 	types = NULL;
 
     /* Statuses are almost all the same. Define a macro to reduce code repetition. */
-#define _SKYPE_ADD_NEW_STATUS(prim,name) status =                    \
+#define _SKYPE_ADD_NEW_STATUS(prim,id,name) status =            \
 	purple_status_type_new_with_attrs(                          \
 	prim,   /* PurpleStatusPrimitive */                         \
-	NULL,   /* id - use default */                              \
-	_(name),/* name */                            \
-	TRUE,   /* savable */                                       \
+	id,   /* id  */                                             \
+	_(name),/* name */                                          \
+	FALSE,   /* savable */                                      \
 	TRUE,   /* user_settable */                                 \
 	FALSE,  /* not independent */                               \
 	                                                            \
@@ -766,16 +766,24 @@ skype_status_types(PurpleAccount *acct)
 	types = g_list_append(types, status)
 
 
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "Online");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "SkypeMe");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AWAY, "Away");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_EXTENDED_AWAY, "Not Available");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_UNAVAILABLE, "Do Not Disturb");
-	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_INVISIBLE, "Invisible");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "ONLINE", "Online");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AVAILABLE, "SKYPEME", "SkypeMe");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_AWAY, "AWAY", "Away");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_EXTENDED_AWAY, "NA", "Not Available");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_UNAVAILABLE, "DND", "Do Not Disturb");
+	_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_INVISIBLE, "INVISIBLE", "Invisible");
 	//_SKYPE_ADD_NEW_STATUS(PURPLE_STATUS_OFFLINE, "Offline");
 	
+	//User status could be 'logged out' - make not settable
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "LOGGEDOUT", _("Logged out"), FALSE, FALSE, FALSE);
+	types = g_list_append(types, status);
+	
+	//User could be a SkypeOut contact
+	status = purple_status_type_new_full(PURPLE_STATUS_MOBILE, "SKYPEOUT", _("SkypeOut"), FALSE, FALSE, FALSE);
+	types = g_list_append(types, status);
+	
 	//Offline people shouldn't have status messages
-	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, NULL, _("Offline"), TRUE, TRUE, FALSE);
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "OFFLINE", _("Offline"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
 	return types;
@@ -1420,11 +1428,15 @@ skype_send_typing(PurpleConnection *gc, const gchar *name, PurpleTypingState sta
 	
 	temp = g_strconcat("stream-", name, NULL);
 	
-	//lets be dumb and try to connect without getting a stream
-	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
-	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing CONNECT %s", name);
-	skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:%s %s", name, 
+	if (purple_account_get_string(account, temp, NULL))
+	{
+		skype_send_message_nowait( "ALTER APPLICATION libpurple_typing DATAGRAM %s:%s %s", name, 
 					purple_account_get_string(account, temp, "1"), string_state);
+	} else {
+		//lets be dumb and try to connect without getting a stream
+		skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
+		skype_send_message_nowait( "ALTER APPLICATION libpurple_typing CONNECT %s", name);
+	}
 	
 	g_free(temp);
 	
@@ -1646,10 +1658,10 @@ skype_buddy_new(PurpleBuddy *buddy)
 	skype_send_message_nowait("GET USER %s FULLNAME", buddy->name);
 	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 	skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
-	skype_send_message_nowait("GET USER %s SEX", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+	/*skype_send_message_nowait("GET USER %s SEX", buddy->name);
 	skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
 	skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
-	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
 	skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
 	skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
 	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
@@ -1666,7 +1678,7 @@ skype_buddy_new(PurpleBuddy *buddy)
 	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
 	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
 	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
-	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);
+	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);*/
 	
 	buddy->proto_data = newbuddy;
 	return newbuddy;
@@ -1676,6 +1688,7 @@ void
 skype_buddy_free(PurpleBuddy *buddy)
 {
 	SkypeBuddy *sbuddy;
+	gchar *temp;
 	
 	if (buddy->proto_data)
 	{
@@ -1699,6 +1712,11 @@ skype_buddy_free(PurpleBuddy *buddy)
 		
 		g_free(sbuddy);
 	}
+	
+	temp = g_strconcat("stream-", buddy->name, NULL);
+	if (purple_account_get_string(buddy->account, temp, NULL))
+		purple_account_set_string(buddy->account, temp, NULL);
+	g_free(temp);
 }
 
 void 
@@ -1824,6 +1842,7 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 	const char *message;
 	
 	type = purple_status_get_type(status);
+	/*
 	switch (purple_status_type_get_primitive(type)) {
 		case PURPLE_STATUS_AVAILABLE:
 			skype_send_message_nowait("SET USERSTATUS ONLINE");
@@ -1845,7 +1864,8 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 			break;
 		default:
 			skype_send_message_nowait("SET USERSTATUS UNKNOWN");
-	}
+	}*/
+	skype_send_message_nowait("SET USERSTATUS %s", purple_status_type_get_id(type));
 	
 	message = purple_status_get_attr_string(status, "message");
 	if (message == NULL)
@@ -2089,8 +2109,7 @@ skype_status_text(PurpleBuddy *buddy)
 	if (status == NULL)
 		return NULL;
 	type = purple_status_get_type(status);
-	if (type == NULL || 
-		purple_status_type_get_primitive(type) == PURPLE_STATUS_AVAILABLE ||
+	if (type == NULL || g_str_equal(purple_status_type_get_id(type), "ONLINE") ||
 		purple_status_type_get_primitive(type) == PURPLE_STATUS_OFFLINE)
 			return NULL;
 	mood_text = (char *)purple_status_type_get_name(type);
@@ -2167,6 +2186,7 @@ skype_initiate_chat(PurpleBlistNode *node, gpointer data)
 	{
 		buddy = (PurpleBuddy *) node;
 		msg = skype_send_message("CHAT CREATE");
+		printf("Chat create response: '%s'\n", msg);
 		sscanf(msg, "CHAT %s ", chat_id);
 		g_free(msg);
 		
@@ -2257,9 +2277,9 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 
 	skype_send_message_nowait("ALTER CHAT %s SETTOPIC %s", chat_id, topic);
 
-	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SYSTEM,
-					skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), purple_account_get_username(purple_connection_get_account(gc)), topic)), time(NULL));
-	purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
+	//serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SYSTEM,
+	//				skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), purple_account_get_username(purple_connection_get_account(gc)), topic)), time(NULL));
+	//purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
 void
@@ -2284,12 +2304,12 @@ skype_get_chat_name(GHashTable *data)
 	gchar *temp;
 
 	if (data == NULL)
-		return NULL;
+		return g_strdup("");
 	
 	temp = g_hash_table_lookup(data, "chat_id");
 
 	if (temp == NULL)
-		return NULL;
+		return g_strdup("");
 
 	return g_strdup(temp);
 }
