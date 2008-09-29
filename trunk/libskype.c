@@ -1827,13 +1827,6 @@ skype_set_idle(PurpleConnection *gc, int time)
 {
 	skype_send_message_nowait("SET AUTOAWAY OFF");
 	skype_send_message_nowait("RESETIDLETIMER");
-	if (time <= 0) {
-		skype_send_message_nowait("SET USERSTATUS ONLINE");
-	} else if ((time >= 300) && (time < 1200)) {
-		skype_send_message_nowait("SET USERSTATUS AWAY");
-	} else if (time >= 1200) {
-		skype_send_message_nowait("SET USERSTATUS NA");
-	}
 }
 
 
