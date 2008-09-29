@@ -1356,14 +1356,14 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 	char *chat_id;
 	PurpleConversation *conv;
 	
-	stripped = purple_markup_strip_html(message);
-	
 	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, who, purple_connection_get_account(gc));
 	
 	if (who[0] == '+' && conv && purple_conversation_get_data(conv, "sms_msg"))
 	{
 		return skype_send_sms(gc, who, message, flags);
 	}
+
+	stripped = purple_markup_strip_html(message);
 	
 	if (conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
 	{
@@ -2524,16 +2524,31 @@ int
 skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags)
 {
 	gchar *sms_reply;
+	PurpleConversation *conv;
+	guint sms_number;
+	gchar *stripped;
 
 	if (who[0] != '+')
 		return -1;
 
+	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, who, purple_connection_get_account(gc));
+	if (purple_conversation_get_data(conv, "sms_msg") == NULL)
+		return -1;
+
+	stripped = purple_markup_strip_html(message);
+
 	//CREATE SMS OUTGOING +number
 	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
+	sscanf(sms_reply, "SMS %d ", &sms_number);
+	g_free(sms_reply);
+	skype_debug_info("skype", "SMS number: %d\n", sms_number);
 	//if the sms price is > 0, output that to the window
 	//SET SMS {sms number} BODY {body}
+	skype_send_message_nowait("SET SMS %d BODY %s", sms_number, stripped);
 	//ALTER SMS {sms number} SEND
+	skype_send_message_nowait("ALTER SMS %d SEND", sms_number);
 	//delete the sms number from the conversation
+	return 1;
 }
 
 
