@@ -2535,7 +2535,10 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 	if (conv == NULL)
 	{
 		conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, mobile_number);
+	} else {
+		purple_conversation_present(conv);
 	}
+	purple_conversation_write(conv, NULL, _("This is an SMS message and will cost you money"), PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
 	//store the fact that it's an SMS convo in the conversation
 	purple_conversation_set_data(conv, "sms_msg", "TRUE");
 }
