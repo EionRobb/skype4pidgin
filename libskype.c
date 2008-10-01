@@ -2095,7 +2095,8 @@ skype_status_text(PurpleBuddy *buddy)
 		
 	if (sbuddy == NULL || sbuddy->mood == NULL)
 	{
-		skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+		if (buddy->name[0] != '+')
+			skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 		return NULL;
 	}
 
