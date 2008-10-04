@@ -98,6 +98,9 @@ typedef struct _SkypeBuddy {
 	guint typing_stream;
 } SkypeBuddy;
 
+//This is used for incomming SMS status messages to be associated with a particular phone number
+static GHashTable *sms_convo_link_table = NULL;
+
 #include "debug.c"
 #include "skype_messaging.c"
 
@@ -2510,6 +2513,35 @@ skype_display_skype_credit(PurplePluginAction *action)
 	g_free(currency);
 }
 
+gchar *
+skype_set_next_sms_number_for_conversation(PurpleConversation *conv, gchar *who)
+{
+	gchar *last_sms_number;
+	gchar *sms_reply;
+	gchar skype_sms_number[10];
+	
+	last_sms_number = purple_conversation_get_data(conv, "skype_next_sms_number");
+	if (last_sms_number != NULL)
+	{
+		g_free(last_sms_number);
+	}
+	
+	if (sms_convo_link_table == NULL)
+	{
+		sms_convo_link_table = g_hash_table_new(g_str_hash, g_str_equal);
+	}
+	
+	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
+	sscanf(sms_reply, "SMS %d ", &skype_sms_number);
+	g_free(sms_reply);
+	
+	sms_reply = g_strdup(skype_sms_number);
+	g_hash_table_insert(sms_convo_link_table, sms_reply, who);
+	purple_conversation_set_data(conv, "skype_next_sms_number", sms_reply);
+	
+	return sms_reply;
+}
+
 static void
 skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 {
@@ -2529,6 +2561,8 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 	else if (sbuddy && sbuddy->phone_mobile)
 		mobile_number = sbuddy->phone_mobile;
 	
+	if (mobile_number == NULL)
+		return;
 	
 	//Open a conversation window
 	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, mobile_number, buddy->account);
@@ -2538,17 +2572,19 @@ skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 	} else {
 		purple_conversation_present(conv);
 	}
+	
 	purple_conversation_write(conv, NULL, _("This is an SMS message and will cost you money"), PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
 	//store the fact that it's an SMS convo in the conversation
 	purple_conversation_set_data(conv, "sms_msg", "TRUE");
+	
+	skype_set_next_sms_number_for_conversation(conv, mobile_number);
 }
 
 int
 skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, PurpleMessageFlags flags)
 {
-	gchar *sms_reply;
 	PurpleConversation *conv;
-	guint sms_number;
+	gchar *sms_number;
 	gchar *stripped;
 
 	if (who[0] != '+')
@@ -2560,17 +2596,18 @@ skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, Pur
 
 	stripped = purple_markup_strip_html(message);
 
-	//CREATE SMS OUTGOING +number
-	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
-	sscanf(sms_reply, "SMS %d ", &sms_number);
-	g_free(sms_reply);
-	skype_debug_info("skype", "SMS number: %d\n", sms_number);
-	//if the sms price is > 0, output that to the window
-	//SET SMS {sms number} BODY {body}
-	skype_send_message_nowait("SET SMS %d BODY %s", sms_number, stripped);
-	//ALTER SMS {sms number} SEND
-	skype_send_message_nowait("ALTER SMS %d SEND", sms_number);
+	sms_number = purple_conversation_get_data(conv, "skype_next_sms_number");
+	if (sms_number != NULL)
+	{
+		sms_number = skype_set_next_sms_number_for_conversation(conv, who);
+	}
+	
+	skype_send_message_nowait("SET SMS %s BODY %s", sms_number, stripped);
+	skype_send_message_nowait("ALTER SMS %s SEND", sms_number);
+	
 	//delete the sms number from the conversation
+	skype_set_next_sms_number_for_conversation(conv, who);
+	
 	return 1;
 }
 

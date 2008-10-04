@@ -719,6 +719,53 @@ skype_handle_received_message(char *message)
 			g_free(type);
 		}
 #endif	
+	} else if (g_str_equal(command, "SMS"))
+	{
+		if (sms_convo_link_table != NULL)
+		{
+			temp = g_hash_table_lookup(sms_convo_link_table, string_parts[1]);
+			conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, temp, this_account);
+			if (conv)
+			{
+				if (g_str_equal(string_parts[2], "STATUS"))
+				{
+					temp = g_strconcat(_("Status: "), string_parts[3], NULL);
+					purple_conversation_write(conv, NULL, temp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
+					g_free(temp);
+				} else if (g_str_equal(string_parts[2], "FAILUREREASON"))
+				{
+					temp = g_strconcat(_("Failure Reason: "), string_parts[3], NULL);
+					purple_conversation_write(conv, NULL, temp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
+					g_free(temp);
+					skype_send_message_nowait("SET SMS %s SEEN", string_parts[1]);
+				} else if (g_str_equal(string_parts[2], "PRICE"))
+				{
+					if (atoi(string_parts[3]) > 0 &&
+						purple_conversation_get_data(conv, "price_precision") &&
+						purple_conversation_get_data(conv, "price_currency"))
+					{
+						int exponenet = 1;
+						for (i = atoi(purple_conversation_get_data(conv, "price_precision"));
+							i > 0; i--)
+						{
+							exponenet *= 10;
+						}
+						double d = atof(string_parts[3]) / exponenet;
+						temp = g_strdup_printf("%s %s %f", _("Price: "),
+											purple_conversation_get_data(conv, "price_currency"),
+											d);
+						purple_conversation_write(conv, NULL, temp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
+						g_free(temp);
+					}
+				} else if (g_str_equal(string_parts[2], "PRICE_PRECISION"))
+				{
+					purple_conversation_set_data(conv, "price_precision", g_strdup(string_parts[3]));
+				} else if (g_str_equal(string_parts[2], "PRICE_CURRENCY"))
+				{
+					purple_conversation_set_data(conv, "price_currency", g_strdup(string_parts[3]));
+				}
+			}
+		}
 	}
 	if (string_parts)
 	{
