@@ -2597,7 +2597,7 @@ skype_send_sms(PurpleConnection *gc, const gchar *who, const gchar *message, Pur
 	stripped = purple_markup_strip_html(message);
 
 	sms_number = purple_conversation_get_data(conv, "skype_next_sms_number");
-	if (sms_number != NULL)
+	if (sms_number == NULL)
 	{
 		sms_number = skype_set_next_sms_number_for_conversation(conv, who);
 	}
