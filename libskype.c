@@ -2532,7 +2532,7 @@ skype_set_next_sms_number_for_conversation(PurpleConversation *conv, gchar *who)
 	}
 	
 	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
-	sscanf(sms_reply, "SMS %d ", &skype_sms_number);
+	sscanf(sms_reply, "SMS %s ", skype_sms_number);
 	g_free(sms_reply);
 	
 	sms_reply = g_strdup(skype_sms_number);

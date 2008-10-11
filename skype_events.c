@@ -752,7 +752,7 @@ skype_handle_received_message(char *message)
 						}
 						double d = atof(string_parts[3]) / exponenet;
 						temp = g_strdup_printf("%s %s %f", _("Price: "),
-											purple_conversation_get_data(conv, "price_currency"),
+											(char*)purple_conversation_get_data(conv, "price_currency"),
 											d);
 						purple_conversation_write(conv, NULL, temp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
 						g_free(temp);
