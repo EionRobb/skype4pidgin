@@ -2514,29 +2514,25 @@ skype_display_skype_credit(PurplePluginAction *action)
 }
 
 gchar *
-skype_set_next_sms_number_for_conversation(PurpleConversation *conv, gchar *who)
+skype_set_next_sms_number_for_conversation(PurpleConversation *conv, const gchar *who)
 {
 	gchar *last_sms_number;
 	gchar *sms_reply;
 	gchar skype_sms_number[10];
 	
-	last_sms_number = purple_conversation_get_data(conv, "skype_next_sms_number");
-	if (last_sms_number != NULL)
-	{
-		g_free(last_sms_number);
-	}
-	
 	if (sms_convo_link_table == NULL)
 	{
+		skype_debug_info("skype", "Creating convo_link_table\n");
 		sms_convo_link_table = g_hash_table_new(g_str_hash, g_str_equal);
 	}
 	
 	sms_reply = skype_send_message("CREATE SMS OUTGOING %s", who);
-	sscanf(sms_reply, "SMS %s ", skype_sms_number);
+	sscanf(sms_reply, "SMS %10s ", skype_sms_number);
 	g_free(sms_reply);
 	
 	sms_reply = g_strdup(skype_sms_number);
-	g_hash_table_insert(sms_convo_link_table, sms_reply, who);
+	skype_debug_info("skype", "putting SMS number %s mobile number %s into the table\n", sms_reply, who);
+	g_hash_table_insert(sms_convo_link_table, sms_reply, g_strdup(who));
 	purple_conversation_set_data(conv, "skype_next_sms_number", sms_reply);
 	
 	return sms_reply;
