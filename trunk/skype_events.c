@@ -721,10 +721,13 @@ skype_handle_received_message(char *message)
 #endif	
 	} else if (g_str_equal(command, "SMS"))
 	{
+		skype_debug_info("skype", "SMS lookup table %x\n", sms_convo_link_table);
 		if (sms_convo_link_table != NULL)
 		{
 			temp = g_hash_table_lookup(sms_convo_link_table, string_parts[1]);
+			skype_debug_info("skype", "Found mobile %s from SMS number %s\n", temp?temp:"null", string_parts[1]);
 			conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, temp, this_account);
+			skype_debug_info("skype", "Found conv %d\n", conv);
 			if (conv)
 			{
 				if (g_str_equal(string_parts[2], "STATUS"))
