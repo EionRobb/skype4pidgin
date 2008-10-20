@@ -1,6 +1,19 @@
 Changelog
 =========
 
+20 October 2008
+---------------
+* Fix for chats coming through as IM's
+* SMS sending, right-click on a SkypeOut buddy/buddy with a mobile to Send SMS
+* Mobile phone authorisation
+* SkypeMe status shows better in buddy list
+* Some file transfer fixes for Windows
+
+25 September 2008
+-----------------
+* Update for Adium 1.3
+* New location for files
+
 24 July 2008
 ------------
 * Lots of speed improvements
