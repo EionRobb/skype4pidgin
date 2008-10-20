@@ -1,8 +1,6 @@
 Todo:
 
-SMS messages
 Show in multiuser chats if someone is offline with, eg "Eion Robb (offline)", or show a message saying when they went offline?
 show a window of currently active chats/latest chats
 show joining messages on new chat window creation
-Allow leaving of conversations from the conversation menu
-Don't show info pages for crap data, eg birthdays that are unknown, or last online times of 0
+Enter profile info, similar to how XMPP does it
