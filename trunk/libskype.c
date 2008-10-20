@@ -178,6 +178,13 @@ SkypeBuddy *skype_buddy_new(PurpleBuddy *buddy);
 static void skype_open_sms_im(PurpleBlistNode *node, gpointer data);
 void skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 gboolean skype_check_keepalive(PurpleConnection *gc);
+void skype_open_verify_mobile_number_step2(gpointer ignore, gchar *mobile_number);
+static void skype_open_verify_mobile_number(PurplePlugin *plugin, gpointer data);
+void skype_open_verify_mobile_number_step3(gpointer mobile_number, gchar *verification_code);
+gchar *skype_set_next_sms_number_for_conversation(PurpleConversation *conv, const gchar *who);
+gboolean skype_login_cb(gpointer acct);
+void skype_put_buddies_in_groups(void);
+gboolean groups_table_find_group(gpointer key, gpointer value, gpointer user_data);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -263,6 +270,9 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* unregister_user */
 	NULL,                /* send_attention */
 	NULL,                /* attention_types */
+#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION == 1
+	(gpointer)
+#endif
 	sizeof(PurplePluginProtocolInfo) /* struct_size */
 #ifdef USE_FARSIGHT
 	, skype_media_initiate /* initiate_media */
@@ -292,7 +302,7 @@ static PurplePluginInfo info = {
 	"Skype", /* name */
 #endif
 #endif
-	"1.2", /* version */
+	"2.0", /* version */
 	"Allows using Skype IM functions from within Pidgin", /* summary */
 	"Allows using Skype IM functions from within Pidgin", /* description */
 	"Eion Robb <eion@robbmob.com>", /* author */
@@ -603,6 +613,12 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 	m = g_list_append(m, act);
 #endif
 #endif
+
+	act = purple_menu_action_new(_("Verify mobile number..."),
+									PURPLE_CALLBACK(skype_open_verify_mobile_number),
+									NULL, NULL);
+	m = g_list_append(m, act);
+
 	return m;
 }
 
@@ -620,6 +636,29 @@ skype_silence(PurplePlugin *plugin, gpointer data)
 	skype_send_message_nowait("SET SILENT_MODE ON");
 	skype_send_message_nowait("MINIMIZE");
 	hide_skype();
+}
+
+static void
+skype_open_verify_mobile_number(PurplePlugin *plugin, gpointer data)
+{
+	purple_request_input(plugin, _("Verify mobile number..."), _("Enter the mobile phone number to send verification SMS to"), NULL,
+					NULL, FALSE, FALSE, NULL, _("OK"), G_CALLBACK(skype_open_verify_mobile_number_step2), _("_Cancel"),
+					NULL, NULL, NULL, NULL, plugin);
+}
+
+void
+skype_open_verify_mobile_number_step2(gpointer plugin, gchar *mobile_number)
+{
+	skype_send_message_nowait("CREATE SMS CONFIRMATION_CODE_REQUEST %s", mobile_number);
+	purple_request_input(plugin, _("Verify mobile number..."), _("Enter the verification code which was sent to your mobile"), NULL,
+					NULL, FALSE, FALSE, NULL, _("OK"), G_CALLBACK(skype_open_verify_mobile_number_step3), _("_Cancel"),
+					NULL, NULL, NULL, NULL, mobile_number);
+}
+
+void
+skype_open_verify_mobile_number_step3(gpointer mobile_number, gchar *verification_code)
+{
+	skype_send_message_nowait("CREATE SMS CONFIRMATION_CODE_SUBMIT %s", mobile_number);
 }
 
 static void
@@ -948,6 +987,8 @@ skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_p
 
 #undef memmem
 
+void *memmem (const void *, size_t, const void *, size_t);
+
 /* Return the first occurrence of NEEDLE in HAYSTACK.  */
 void *
 memmem (haystack, haystack_len, needle, needle_len)
@@ -1073,8 +1114,8 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 #endif
 			if (g_file_get_contents(filename, &image_data, &image_data_len, NULL))
 			{
-				api_supports_avatar = 2;
 				char *start = (char *)memmem(image_data, image_data_len, username, strlen(username)+1);
+				api_supports_avatar = 2;
 				if (start != NULL)
 				{
 					char *next = image_data;
@@ -1087,12 +1128,13 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 					start = last;
 					if (start != NULL)
 					{
+						char *img_start;
 						//find end of l33l block
 						char *end = (char *)memmem(start+4, image_data+image_data_len-start-4, "l33l", 4);
 						if (!end) end = image_data+image_data_len;
 						
 						//look for start of JPEG block
-						char *img_start = (char *)memmem(start, end-start, "\xFF\xD8", 2);
+						img_start = (char *)memmem(start, end-start, "\xFF\xD8", 2);
 						if (img_start)
 						{
 							//look for end of JPEG block
@@ -1941,6 +1983,8 @@ struct _cheat_skype_group_buddy_struct {
 	const char *new_group;
 };
 
+gboolean skype_group_buddy_timeout(struct _cheat_skype_group_buddy_struct *cheat);
+
 gboolean
 skype_group_buddy_timeout(struct _cheat_skype_group_buddy_struct *cheat)
 {
@@ -1961,8 +2005,8 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 	group_number = skype_find_group_with_name(new_group);
 	if (!group_number)
 	{
-		skype_send_message_nowait("CREATE GROUP %s", new_group);
 		struct _cheat_skype_group_buddy_struct *cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
+		skype_send_message_nowait("CREATE GROUP %s", new_group);
 		cheat->gc = gc;
 		cheat->who = who;
 		cheat->old_group = old_group;
@@ -2516,7 +2560,6 @@ skype_display_skype_credit(PurplePluginAction *action)
 gchar *
 skype_set_next_sms_number_for_conversation(PurpleConversation *conv, const gchar *who)
 {
-	gchar *last_sms_number;
 	gchar *sms_reply;
 	gchar skype_sms_number[10];
 	
