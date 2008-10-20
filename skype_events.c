@@ -748,12 +748,13 @@ skype_handle_received_message(char *message)
 						purple_conversation_get_data(conv, "price_currency"))
 					{
 						int exponenet = 1;
+						double d;
 						for (i = atoi(purple_conversation_get_data(conv, "price_precision"));
 							i > 0; i--)
 						{
 							exponenet *= 10;
 						}
-						double d = atof(string_parts[3]) / exponenet;
+						d = atof(string_parts[3]) / exponenet;
 						temp = g_strdup_printf("%s %s %f", _("Price: "),
 											(char*)purple_conversation_get_data(conv, "price_currency"),
 											d);

@@ -11,6 +11,7 @@ static void send_message(char* message);
 static void hide_skype();
 static gboolean exec_skype();
 
+gpointer send_messages_thread_func(gpointer data);
 void skype_send_message_nowait(char *message, ...);
 char *skype_send_message(char *message, ...);
 
