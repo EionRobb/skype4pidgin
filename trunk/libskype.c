@@ -185,6 +185,7 @@ gchar *skype_set_next_sms_number_for_conversation(PurpleConversation *conv, cons
 gboolean skype_login_cb(gpointer acct);
 void skype_put_buddies_in_groups(void);
 gboolean groups_table_find_group(gpointer key, gpointer value, gpointer user_data);
+PurpleChat *skype_find_blist_chat(PurpleAccount *account, const char *name);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -254,9 +255,9 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
 	skype_remove_group,  /* remove_group */
-	skype_cb_real_name,  /* get_cb_real_name */
+	/*skype_cb_real_name*/NULL,  /* get_cb_real_name */
 	skype_set_chat_topic,/* set_chat_topic */
-	NULL,                /* find_blist_chat */
+	NULL,				 /* find_blist_chat */
 	NULL,                /* roomlist_get_list */
 	NULL,                /* roomlist_cancel */
 	NULL,                /* roomlist_expand_category */
@@ -1187,7 +1188,11 @@ skype_list_emblem(PurpleBuddy *buddy)
 			{
 				return "birthday";
 			}
-		} 
+		}
+		if (sbuddy->is_video_capable)
+		{
+			return "video";	
+		}
 	}
 	return NULL;
 }
@@ -2329,6 +2334,23 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	//purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
+PurpleChat *
+skype_find_blist_chat(PurpleAccount *account, const char *name)
+{
+	GList *glist_temp = NULL;
+	PurpleConversation *conv = NULL;
+	PurpleChat *chat = NULL;
+	
+	glist_temp = g_list_find_custom(purple_get_conversations(), name, (GCompareFunc)skype_find_chat);
+	if (glist_temp && glist_temp->data)
+	{
+		conv = glist_temp->data;
+		chat = PURPLE_CONV_CHAT(conv);
+	}
+	
+	return chat;
+}
+
 void
 skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
@@ -2342,6 +2364,7 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 	}
 	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
 	conv = serv_got_joined_chat(gc, chat_number++, chat_id);
+	skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
 	purple_conversation_set_data(conv, "chat_id", g_strdup(chat_id));
 }
 
