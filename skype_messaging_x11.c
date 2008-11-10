@@ -214,7 +214,11 @@ receive_message_loop(void)
 		{
 			skype_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
 			if (disp)
+			{
+				XLockDisplay(disp);
 				XFlush(disp);
+				XUnlockDisplay(disp);
+			}
 			continue;
 		}
 
@@ -222,7 +226,11 @@ receive_message_loop(void)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			if (disp)
+			{
+				XLockDisplay(disp);
 				XFlush(disp);
+				XUnlockDisplay(disp);
+			}
 		}
 	}
 }
