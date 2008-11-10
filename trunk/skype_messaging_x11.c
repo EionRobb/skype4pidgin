@@ -142,7 +142,9 @@ send_message(char* message)
 	{
 		for( i = 0; i < 20 && i + pos <= len; ++i )
 			e.xclient.data.b[ i ] = message[ i + pos ];
+		XLockDisplay(disp);
 		XSendEvent( disp, skype_win, False, 0, &e );
+		XUnlockDisplay(disp);
 
 		e.xclient.message_type = message_continue; /* 2nd or greater message */
 		pos += i;
@@ -186,7 +188,9 @@ receive_message_loop(void)
 		
 		
 		Bool event_bool;
+		XLockDisplay(disp);
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
+		XUnlockDisplay(disp);
 		if (!event_bool)
 		{
 			g_thread_yield();
