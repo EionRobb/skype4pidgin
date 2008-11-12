@@ -143,9 +143,9 @@ send_message(char* message)
 	{
 		for( i = 0; i < 20 && i + pos <= len; ++i )
 			e.xclient.data.b[ i ] = message[ i + pos ];
-		g_static_mutex_lock2(&x11_mutex);
+		g_static_mutex_lock(&x11_mutex);
 		XSendEvent( disp, skype_win, False, 0, &e );
-		g_static_mutex_unlock2(&x11_mutex);
+		g_static_mutex_unlock(&x11_mutex);
 
 		e.xclient.message_type = message_continue; /* 2nd or greater message */
 		pos += i;
@@ -189,9 +189,9 @@ receive_message_loop(void)
 		
 		
 		Bool event_bool;
-		g_static_mutex_lock2(&x11_mutex);
+		g_static_mutex_lock(&x11_mutex);
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
-		g_static_mutex_unlock2(&x11_mutex);
+		g_static_mutex_unlock(&x11_mutex);
 		if (!event_bool)
 		{
 			g_thread_yield();
@@ -216,9 +216,9 @@ receive_message_loop(void)
 			skype_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
 			if (disp)
 			{
-				g_static_mutex_lock2(&x11_mutex);
+				g_static_mutex_lock(&x11_mutex);
 				XFlush(disp);
-				g_static_mutex_unlock2(&x11_mutex);
+				g_static_mutex_unlock(&x11_mutex);
 			}
 			continue;
 		}
@@ -228,9 +228,9 @@ receive_message_loop(void)
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			if (disp)
 			{
-				g_static_mutex_lock2(&x11_mutex);
+				g_static_mutex_lock(&x11_mutex);
 				XFlush(disp);
-				g_static_mutex_unlock2(&x11_mutex);
+				g_static_mutex_unlock(&x11_mutex);
 			}
 		}
 	}
