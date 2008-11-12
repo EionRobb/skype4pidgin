@@ -1,8 +1,7 @@
 ; Script based on Off-the-Record Messaging NSI file
 
 
-SetCompress auto
-SetCompressor lzma
+SetCompress off
 
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
