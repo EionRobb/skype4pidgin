@@ -8,6 +8,7 @@ static GThread *receiving_thread = NULL;
 Atom message_start, message_continue;
 static gboolean run_loop = FALSE;
 static unsigned char x11_error_code = 0;
+static GStaticMutex x11_mutex = G_STATIC_MUTEX_INIT;
 
 static void receive_message_loop(void);
 int x11_error_handler(Display *disp, XErrorEvent *error);
@@ -142,9 +143,9 @@ send_message(char* message)
 	{
 		for( i = 0; i < 20 && i + pos <= len; ++i )
 			e.xclient.data.b[ i ] = message[ i + pos ];
-		XLockDisplay(disp);
+		g_static_mutex_lock2(&x11_mutex);
 		XSendEvent( disp, skype_win, False, 0, &e );
-		XUnlockDisplay(disp);
+		g_static_mutex_unlock2(&x11_mutex);
 
 		e.xclient.message_type = message_continue; /* 2nd or greater message */
 		pos += i;
@@ -188,9 +189,9 @@ receive_message_loop(void)
 		
 		
 		Bool event_bool;
-		XLockDisplay(disp);
+		g_static_mutex_lock2(&x11_mutex);
 		event_bool = XCheckTypedEvent(disp, ClientMessage, &e);
-		XUnlockDisplay(disp);
+		g_static_mutex_unlock2(&x11_mutex);
 		if (!event_bool)
 		{
 			g_thread_yield();
@@ -215,9 +216,9 @@ receive_message_loop(void)
 			skype_debug_info("skype_x11", "unknown message type: %d\n", e.xclient.message_type);
 			if (disp)
 			{
-				XLockDisplay(disp);
+				g_static_mutex_lock2(&x11_mutex);
 				XFlush(disp);
-				XUnlockDisplay(disp);
+				g_static_mutex_unlock2(&x11_mutex);
 			}
 			continue;
 		}
@@ -227,9 +228,9 @@ receive_message_loop(void)
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
 			if (disp)
 			{
-				XLockDisplay(disp);
+				g_static_mutex_lock2(&x11_mutex);
 				XFlush(disp);
-				XUnlockDisplay(disp);
+				g_static_mutex_unlock2(&x11_mutex);
 			}
 		}
 	}
