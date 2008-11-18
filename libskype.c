@@ -1510,6 +1510,8 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 	if (skype_buddy_property == NULL)
 		return;
 
+	skype_debug_info("skype", "Setting buddy '%s' property '%s' to '%s'\n", sbuddy->handle, skype_buddy_property, value);
+
 	if (g_str_equal(skype_buddy_property, "FULLNAME"))
 	{
 		if (sbuddy->fullname)
@@ -1560,19 +1562,19 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 			sbuddy->country = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "IS_VIDEO_CAPABLE"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->is_video_capable = TRUE;
 		else
 			sbuddy->is_video_capable = FALSE;
 	} else if (g_str_equal(skype_buddy_property, "ISAUTHORIZED"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->is_authorized = TRUE;
 		else
 			sbuddy->is_authorized = FALSE;
 	} else if (g_str_equal(skype_buddy_property, "ISBLOCKED"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->is_blocked = TRUE;
 		else
 			sbuddy->is_blocked = FALSE;
@@ -1621,21 +1623,21 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		if (sbuddy->phone_home)
 			g_free(sbuddy->phone_home);
 		sbuddy->phone_home = NULL;
-		if (value && strlen(value))
+		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_home = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "PHONE_OFFICE"))
 	{
 		if (sbuddy->phone_office)
 			g_free(sbuddy->phone_office);
 		sbuddy->phone_office = NULL;
-		if (value && strlen(value))
+		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_office = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "PHONE_MOBILE"))
 	{
 		if (sbuddy->phone_mobile)
 			g_free(sbuddy->phone_mobile);
 		sbuddy->phone_mobile = NULL;
-		if (value && strlen(value))
+		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_mobile = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "HOMEPAGE"))
 	{
@@ -1646,25 +1648,19 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 			sbuddy->homepage = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "HASCALLEQUIPMENT"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->has_call_equipment = TRUE;
 		else
 			sbuddy->has_call_equipment = FALSE;
-	} else if (g_str_equal(skype_buddy_property, "IS_VIDEO_CAPABLE"))
-	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
-			sbuddy->is_video_capable = TRUE;
-		else
-			sbuddy->is_video_capable = FALSE;
 	} else if (g_str_equal(skype_buddy_property, "IS_VOICEMAIL_CAPABLE"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->is_voicemail_capable = TRUE;
 		else
 			sbuddy->is_voicemail_capable = FALSE;
 	} else if (g_str_equal(skype_buddy_property, "CAN_LEAVE_VM"))
 	{
-		if (value && strlen(value) && g_ascii_strcasecmp(value, "TRUE"))
+		if (value && strlen(value) && g_str_equal(value, "TRUE"))
 			sbuddy->can_leave_voicemail = TRUE;
 		else
 			sbuddy->can_leave_voicemail = FALSE;
