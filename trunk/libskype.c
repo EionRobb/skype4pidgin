@@ -1175,6 +1175,10 @@ skype_list_emblem(PurpleBuddy *buddy)
 	time_t now;
 	struct tm *today_tm;
 	
+	if (buddy->name[0] == '+')
+	{
+		return "mobile";
+	}
 	if (buddy && buddy->proto_data)
 	{
 		sbuddy = buddy->proto_data;
@@ -1670,44 +1674,19 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 SkypeBuddy *
 skype_buddy_new(PurpleBuddy *buddy)
 {
-	SkypeBuddy *newbuddy = g_new(SkypeBuddy, 1);
+	SkypeBuddy *newbuddy = g_new0(SkypeBuddy, 1);
 	newbuddy->buddy = buddy;
+	buddy->proto_data = newbuddy;
 	
 	//this bit used in Get Info
 	newbuddy->handle = g_strdup(buddy->name);
-	newbuddy->fullname = NULL;
-	newbuddy->mood = NULL;
-	newbuddy->birthday = NULL;
-	newbuddy->gender = NULL;
-	newbuddy->language = NULL;
-	newbuddy->country = NULL;
-	newbuddy->is_video_capable = FALSE;
-	newbuddy->is_authorized = FALSE;
-	newbuddy->is_blocked = FALSE;
-	newbuddy->last_online = 0;
-	newbuddy->timezone_offset = 0;
-	newbuddy->number_of_buddies = 0;
-	newbuddy->about = NULL;
-	
-	//this bit not used yet
-	newbuddy->province = NULL;
-	newbuddy->city = NULL;
-	newbuddy->phone_home = NULL;
-	newbuddy->phone_office = NULL;
-	newbuddy->phone_mobile = NULL;
-	newbuddy->homepage = NULL;
-	newbuddy->has_call_equipment = FALSE;
-	newbuddy->is_voicemail_capable = FALSE;
-	newbuddy->is_callforward_active = FALSE;
-	newbuddy->can_leave_voicemail = FALSE;
-	
-	//libpurple buddy stuff
-	newbuddy->typing_stream = 0;
-	
+		
 	skype_send_message_nowait("GET USER %s FULLNAME", buddy->name);
 	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 	skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
 	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+
 	/*skype_send_message_nowait("GET USER %s SEX", buddy->name);
 	skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
 	skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
@@ -1729,7 +1708,6 @@ skype_buddy_new(PurpleBuddy *buddy)
 	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
 	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);*/
 	
-	buddy->proto_data = newbuddy;
 	return newbuddy;
 }
 
@@ -2334,7 +2312,7 @@ skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic)
 	//purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 }
 
-PurpleChat *
+/*PurpleChat *
 skype_find_blist_chat(PurpleAccount *account, const char *name)
 {
 	GList *glist_temp = NULL;
@@ -2349,7 +2327,7 @@ skype_find_blist_chat(PurpleAccount *account, const char *name)
 	}
 	
 	return chat;
-}
+}*/
 
 void
 skype_join_chat(PurpleConnection *gc, GHashTable *data)
