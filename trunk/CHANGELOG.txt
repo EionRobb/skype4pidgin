@@ -1,6 +1,13 @@
 Changelog
 =========
 
+19 November 2008
+----------------
+* Fixed that really annoying assert crash on X11 systems
+* Some icons on buddys on buddylist
+* Improvements to chats which are saved on buddy list
+* No update to Adium plugin yet
+
 20 October 2008
 ---------------
 * Fix for chats coming through as IM's
