@@ -23,7 +23,7 @@ skype_notify_handler(DBusConnection *connection, DBusMessage *message, gpointer 
 	do
 	{
 		dbus_message_iter_get_basic(&iterator, &message_temp);
-		g_thread_create((GThreadFunc)skype_message_received, g_strdup(message_temp), FALSE, NULL);
+		skype_message_received(g_strdup(message_temp));
 	} while(dbus_message_iter_has_next(&iterator) && dbus_message_iter_next(&iterator));
 	
 	dbus_message_unref(message);
@@ -97,14 +97,16 @@ send_message(char* message)
 	    		//We're expecting a response
 				sscanf(message, "#%d ", &message_num);
 				sprintf(error_return, "#%d ERROR", message_num);
-				g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(error_return), FALSE, NULL);
+				skype_message_received(g_strdup(error_return));
 	    	}
 	    }
 	    else
 	    	skype_debug_info("skype_dbus", "no response\n");
 	}
 	if (str != NULL)
-		g_thread_create((GThreadFunc)skype_message_received, (void *)str, FALSE, NULL);
+	{
+		skype_message_received(str);
+	}
 	
 	g_free(message);
 }
@@ -151,7 +153,9 @@ is_skype_running()
 	g_dir_close(procdir);
 	g_free(statobj);
 	return FALSE;
-} static void
+}
+
+static void
 hide_skype()
 {
 	
