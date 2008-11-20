@@ -36,6 +36,9 @@ skype_connect()
 {
 	GError *error = NULL;
 	DBusObjectPathVTable vtable;
+
+	//Initialise threading
+	dbus_threads_init_default();
 	
 	if (connection == NULL)
 	{
