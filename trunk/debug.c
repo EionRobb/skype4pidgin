@@ -67,6 +67,7 @@ skype_debug_vargs(PurpleDebugLevel level, const char *category,
 				 const char *format, va_list args)
 {
 	SkypeDebugWrapper *wrapper;
+	gchar *message;
 	
 	if (purple_eventloop_get_ui_ops() == NULL)
 	{
@@ -76,7 +77,9 @@ skype_debug_vargs(PurpleDebugLevel level, const char *category,
 	wrapper = g_new(SkypeDebugWrapper, 1);
 	wrapper->level = level;
 	wrapper->category = g_strdup(category);
-	wrapper->message = g_strdup_vprintf(format, args);
+	message = g_strdup_vprintf(format, args);
+	wrapper->message = purple_strreplace(message, "%", "%%");
+	g_free(message);
 	
 	purple_timeout_add(1, (GSourceFunc) skype_debug_cb, (gpointer)wrapper);
 }
