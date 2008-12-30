@@ -6,8 +6,8 @@ WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
 LINUX_ARM_COMPILER = arm-none-linux-gnueabi-gcc
 
 LIBPURPLE_CFLAGS = -I/usr/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS
-GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include
-DBUS_CFLAGS = -DSKYPE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include
+GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib64/glib-2.0/include -I/usr/include
+DBUS_CFLAGS = -DSKYPE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/lib64/dbus-1.0/include
 WIN32_DEV_DIR = /root/pidgin/win32-dev
 WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.1.1_win32
 WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
@@ -18,14 +18,43 @@ DEB_PACKAGE_DIR = /root/skypeplugin
 LOCALES = $(patsubst %.po, %.mo, $(wildcard po/*.po))
 
 #Standard stuff here
-.PHONY:	all clean
+.PHONY:	all clean allarch install locales uninstall
 
 .DEPENDS: libskype.c skype_messaging.c skype_events.c debug.c
 
-all:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so libskypearm.so
+allarch:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_dbus64.so libskypearm.so
+
+#By default, 'make' compiles X11 version on local platform
+all: .DEPENDS skype_messaging_x11.c skype_messaging_dbus.c
+	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
+	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
+
+install: locales
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/emotes/skype
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/protocols
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/16
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/22
+	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/48
+	mkdir -p $(DESTDIR)/usr/lib/purple-2
+	install -m 664 theme $(DESTDIR)/usr/share/pixmaps/pidgin/emotes/skype/
+	install -m 664 icons/16/skypeout.png icons/16/skype.png $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/16
+	install -m 664 icons/22/skypeout.png icons/22/skype.png $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/22
+	install -m 664 icons/48/skypeout.png icons/48/skype.png $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/48
+	install -m 664 libskype_dbus.so libskype.so $(DESTDIR)/usr/lib/purple-2/
+
+uninstall:
+	rm -rf $(DESTDIR)/usr/share/pixmaps/pidgin/emotes/skype
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/16/skypeout.png
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/16/skype.png
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/22/skypeout.png
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/22/skype.png
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/48/skypeout.png
+	rm -rf  $(DESTDIR)/usr/share/pixmaps/pidgin/protocols/48/skype.png
+	rm -rf $(DESTDIR)/usr/lib/purple-2/libskype.so
+	rm -rf $(DESTDIR)/usr/lib/purple-2/libskype_dbus.so
 
 clean:
-	rm -f libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so libskype.dll skype4pidgin.deb skype4pidgin-installer.exe
+	rm -f libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so libskype.dll skype4pidgin.deb skype4pidgin-installer.exe po/*.mo
 
 libskypenet.so:  .DEPENDS skype_messaging_network.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskypenet.so -shared -fPIC -DPIC -DSKYPENET
