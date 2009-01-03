@@ -88,7 +88,7 @@ skype_handle_received_message(char *message)
 	PurpleGroup *temp_group;
 	//PurpleStatusPrimitive primitive;
 	SkypeMessage *skypemessage;
-	
+
 	sscanf(message, "%s ", command);
 	this_account = skype_get_account(NULL);
 	if (this_account == NULL)
@@ -126,22 +126,26 @@ skype_handle_received_message(char *message)
 				if (g_str_equal(string_parts[3], "SKYPEOUT"))
 				{
 					set_skype_buddy_attribute(sbuddy, "MOOD_TEXT", _("SkypeOut"));
-				} else if (g_str_equal(string_parts[3], "UNKNOWN"))
+				}
+				if (g_str_equal(string_parts[3], "UNKNOWN"))
 				{
 					//user doesn't exist
 					purple_blist_remove_buddy(buddy);
 					purple_notify_error(gc, "Error", "User does not exist", "The user does not exist in Skype");
 					buddy = NULL;
 				} else {
+					PurpleStatus *status = purple_presence_get_active_status(purple_buddy_get_presence(buddy));
 					//Dont say we got their status unless its changed
-					if (!purple_presence_get_active_status(purple_buddy_get_presence(buddy)) || !g_str_equal(purple_status_get_id(purple_presence_get_active_status(purple_buddy_get_presence(buddy))), string_parts[3]))
+					if (!status || !g_str_equal(purple_status_get_id(status), string_parts[3]))
 					{
 						purple_prpl_got_user_status(this_account, string_parts[1], string_parts[3], NULL);
 					}
-					skype_send_message_nowait("GET USER %s MOOD_TEXT", string_parts[1]);
-					//dont update buddy icon for offline users
-					if (!g_str_equal(string_parts[3], "OFFLINE"))
+					//dont update buddy icon/mood for offline/skypeout users
+					if (!g_str_equal(string_parts[3], "OFFLINE") && !g_str_equal(string_parts[3], "SKYPEOUT"))
+					{
+						skype_send_message_nowait("GET USER %s MOOD_TEXT", string_parts[1]);
 						skype_update_buddy_icon(buddy);
+					}
 				}
 			} else if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 			{

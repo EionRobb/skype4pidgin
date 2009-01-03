@@ -17,9 +17,6 @@
  */
 
 #define PURPLE_PLUGIN
-#ifndef PURPLE_PLUGINS
-#define PURPLE_PLUGINS
-#endif
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define _GNU_SOURCE
 #define GETTEXT_PACKAGE "skype4pidgin"

@@ -23,14 +23,13 @@ SkypeNotificationReceived(CFStringRef input)
 	void *pool = initAutoreleasePool();
 	int strlen = CFStringGetMaximumSizeForEncoding(CFStringGetLength(input), kCFStringEncodingUTF8);
 	
-	printf("Message received");
 	output = (char *)CFStringGetCStringPtr(input, kCFStringEncodingUTF8);
 	if (!output)
 	{
 		output = NewPtr(strlen+1);
 		CFStringGetCString(input, output, strlen+1, kCFStringEncodingUTF8);
 	}
-	printf(" %s\n", output);
+	printf("Message received %s\n", output);
 	//g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, &error);
 	skype_message_received(output);
 	if (error)
@@ -169,7 +168,6 @@ send_message(char* message)
 
 	//gpointer pool = initAutoreleasePool();
 	CFStringRef messageString = CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8);
-	printf("Skype send message ");
 #if SENDSKYPERETURNS
 	CFStringRef returnString = NULL;
 	returnString = SendSkypeCommand(messageString);
@@ -179,7 +177,7 @@ send_message(char* message)
 	SendSkypeCommand(messageString);
 #endif
 	//destroyAutoreleasePool(pool);
-	printf("%s\n", message);
+	printf("Skype send message  %s\n", message);
 	CFRelease(messageString);
 }
 
