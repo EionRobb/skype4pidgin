@@ -138,7 +138,7 @@ skype_handle_received_message(char *message)
 					//Dont say we got their status unless its changed
 					if (!status || !g_str_equal(purple_status_get_id(status), string_parts[3]))
 					{
-						purple_prpl_got_user_status(this_account, string_parts[1], string_parts[3], "");
+						purple_prpl_got_user_status(this_account, string_parts[1], string_parts[3], NULL);
 					}
 					//dont update buddy icon/mood for offline/skypeout users
 					if (!g_str_equal(string_parts[3], "OFFLINE") && !g_str_equal(string_parts[3], "SKYPEOUT"))
