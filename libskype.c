@@ -55,9 +55,10 @@
 #include <cmds.h>
 #include <status.h>
 
-#ifdef USE_FARSIGHT
+#ifdef USE_VV
 #include <mediamanager.h>
 PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
+gboolean skype_can_do_media(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
 #endif
 
 typedef struct _SkypeBuddy {
@@ -271,9 +272,14 @@ PurplePluginProtocolInfo prpl_info = {
 #if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION == 1
 	(gpointer)
 #endif
-	sizeof(PurplePluginProtocolInfo) /* struct_size */
-#ifdef USE_FARSIGHT
-	, skype_media_initiate /* initiate_media */
+	sizeof(PurplePluginProtocolInfo), /* struct_size */
+	NULL,                /* get_account_text_table */
+#ifdef USE_VV
+	skype_media_initiate,/* initiate_media */
+	skype_can_do_media   /* can_do_media */
+#else
+	NULL,				 /* initiate_media */
+	NULL				 /* can_do_media */
 #endif
 };
 
@@ -2758,7 +2764,7 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	return FALSE;
 }
 
-#ifdef USE_FARSIGHT
+#ifdef USE_VV
 /*
 Skype info from developer.skype.com and forum.skype.com:
 Audio:
@@ -2830,6 +2836,20 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamTyp
 	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(google_send_call_end), callnumber_string);	
 	
 	return media;
+}
+
+gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
+                             PurpleMediaSessionType type)
+{
+	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
+		
+	} else if (type == (PURPLE_MEDIA_AUDIO)) {
+		
+	} else if (type == (PURPLE_MEDIA_VIDEO)) {
+		
+	}
+	
+	return FALSE;
 }
 
 //called when the user accepts an incomming call from the ui
