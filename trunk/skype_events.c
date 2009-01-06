@@ -498,9 +498,7 @@ skype_handle_received_message(char *message)
 					if (purple_xfer_get_type(transfer) == PURPLE_XFER_RECEIVE)
 					{
 #						ifndef __APPLE__
-							skype_send_message_nowait("SET SILENT_MODE OFF");
 							skype_send_message_nowait("OPEN FILETRANSFER");
-							skype_send_message_nowait("SET SILENT_MODE ON");
 #						else
 							purple_notify_info(this_account, _("File Transfers"), g_strdup_printf(_("%s wants to send you a file"), purple_xfer_get_remote_user(transfer)), NULL);
 #						endif
@@ -685,7 +683,7 @@ skype_handle_received_message(char *message)
 			}
 			g_strfreev(chatusers);
 		}
-#ifdef USE_FARSIGHT
+#ifdef USE_VV
 	} else if (g_str_equal(command, "CALL"))
 	{
 		if (g_str_equal(string_parts[2], "STATUS"))
