@@ -13,6 +13,8 @@ WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.1.1_win32
 WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0/lib -L${WIN32_PIDGIN_DIR}/libpurple -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lintl -lpurple
 
+VV_CFLAGS = -I/usr/include/gstreamer-0.10 -DUSE_VV -I/usr/include/libxml2
+
 DEB_PACKAGE_DIR = /root/skypeplugin
 
 LOCALES = $(patsubst %.po, %.mo, $(wildcard po/*.po))
@@ -61,6 +63,9 @@ libskypenet.so:  .DEPENDS skype_messaging_network.c
 
 libskype.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
+
+libskype-vv.so: .DEPENDS skype_messaging_x11.c
+	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC ${VV_CFLAGS}
 
 libskype64.so: .DEPENDS skype_messaging_x11.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC
