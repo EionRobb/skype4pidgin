@@ -277,9 +277,6 @@ PurplePluginProtocolInfo prpl_info = {
 #ifdef USE_VV
 	skype_media_initiate,/* initiate_media */
 	skype_can_do_media   /* can_do_media */
-#else
-	NULL,				 /* initiate_media */
-	NULL				 /* can_do_media */
 #endif
 };
 
@@ -1402,19 +1399,24 @@ skype_get_account_alias(PurpleAccount *acct)
 void 
 skype_close(PurpleConnection *gc)
 {
-	//GSList *buddies;
+	GSList *buddies;
 
 	skype_debug_info("skype", "logging out\n");
 	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message_nowait("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
 	skype_disconnect();
-	/*if (gc)
+	if (gc)
 	{
-		buddies = purple_find_buddies(gc->account, NULL);
-		if (buddies != NULL && g_slist_length(buddies) > 0)
-			g_slist_foreach(buddies, skype_slist_remove_messages, NULL);
-	}*/
+		//make all buddies offline
+		for(buddies = purple_find_buddies(gc->account, NULL);
+			buddies != NULL;
+			buddies = buddies->next)
+		{
+			PurpleBuddy *buddy = buddies->data;
+			purple_prpl_got_user_status(buddy->account, buddy->name, "OFFLINE", NULL);
+		}
+	}
 }
 
 int 
