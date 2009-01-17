@@ -1055,7 +1055,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 #	ifdef _WIN32
 		1;
 #	else
-		2;
+		2; //OSX only supports GET AVATAR in beta
 #	endif
 #else
 	3;
@@ -1101,8 +1101,8 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 	}
 	if (api_supports_avatar == 2 || api_supports_avatar == -1)
 	{
-		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", "user32768",
-									"profile256", "profile1024", "profile4096", "profile16384", 
+		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", "user32768", "user65536",
+									"profile256", "profile1024", "profile4096", "profile16384", "profile32768", 
 									NULL};
 		char *username = g_strdup_printf("\x03\x10%s", buddy->name);
 		for (fh = 0; userfiles[fh]; fh++)
@@ -1216,6 +1216,11 @@ gboolean
 skype_update_buddy_status(PurpleBuddy *buddy)
 {
 	PurpleAccount *acct;
+	
+	if (buddy->name[0] == '+')
+	{
+		return FALSE;
+	}
 	
 	acct = purple_buddy_get_account(buddy);
 	if (purple_account_is_connected(acct) == FALSE)
@@ -1513,8 +1518,6 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 	if (skype_buddy_property == NULL)
 		return;
 
-	skype_debug_info("skype", "Setting buddy '%s' property '%s' to '%s'\n", sbuddy->handle, skype_buddy_property, value);
-
 	if (g_str_equal(skype_buddy_property, "FULLNAME"))
 	{
 		if (sbuddy->fullname)
@@ -1681,31 +1684,34 @@ skype_buddy_new(PurpleBuddy *buddy)
 	newbuddy->handle = g_strdup(buddy->name);
 		
 	skype_send_message_nowait("GET USER %s FULLNAME", buddy->name);
-	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
-	skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
-	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
-	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+	if (buddy->name[0] != '+')
+	{
+		skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+		skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
+		skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+		skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
 
-	/*skype_send_message_nowait("GET USER %s SEX", buddy->name);
-	skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
-	skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
-	skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
-	skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
-	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
-	skype_send_message_nowait("GET USER %s TIMEZONE", buddy->name);
-	skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES", buddy->name);
-	skype_send_message_nowait("GET USER %s ABOUT", buddy->name);
-	
-	skype_send_message_nowait("GET USER %s PROVINCE", buddy->name);
-	skype_send_message_nowait("GET USER %s CITY", buddy->name);
-	skype_send_message_nowait("GET USER %s PHONE_HOME", buddy->name);
-	skype_send_message_nowait("GET USER %s PHONE_OFFICE", buddy->name);
-	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
-	skype_send_message_nowait("GET USER %s HOMEPAGE", buddy->name);
-	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
-	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
-	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
-	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);*/
+		/*skype_send_message_nowait("GET USER %s SEX", buddy->name);
+		skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
+		skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
+		skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
+		skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
+		skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
+		skype_send_message_nowait("GET USER %s TIMEZONE", buddy->name);
+		skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES", buddy->name);
+		skype_send_message_nowait("GET USER %s ABOUT", buddy->name);
+		
+		skype_send_message_nowait("GET USER %s PROVINCE", buddy->name);
+		skype_send_message_nowait("GET USER %s CITY", buddy->name);
+		skype_send_message_nowait("GET USER %s PHONE_HOME", buddy->name);
+		skype_send_message_nowait("GET USER %s PHONE_OFFICE", buddy->name);
+		skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+		skype_send_message_nowait("GET USER %s HOMEPAGE", buddy->name);
+		skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
+		skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+		skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
+		skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);*/
+	}
 	
 	return newbuddy;
 }
@@ -2832,8 +2838,8 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamTyp
 	callnumber_string = g_new(gchar, 10+1);
 	sscanf(temp, "CALL %s ", &callnumber_string);
 	
-	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(google_send_call_end), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(google_send_call_end), callnumber_string);	
+	//g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(google_send_call_end), callnumber_string);
+	//g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(google_send_call_end), callnumber_string);	
 	
 	return media;
 }
