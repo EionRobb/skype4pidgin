@@ -1,12 +1,17 @@
 Changelog
 =========
 
+4 January 2009
+--------------
+* Fixed buddies not showing after suspend/disconnect in Adium plugin
+* Fixed SkypeOut buddies not showing as online in Adium & Pidgin plugins
+
 19 November 2008
 ----------------
 * Fixed that really annoying assert crash on X11 systems
 * Some icons on buddys on buddylist
 * Improvements to chats which are saved on buddy list
-* No update to Adium plugin yet
+* Adium plugin brought up to date with the changes from Windows/Linux plugins
 
 20 October 2008
 ---------------
@@ -335,6 +340,13 @@ Changelog
 * Requests for contact authorisation should appear now
 * Changing the display name of a buddy in libpurple updates it in Skype
 * Multi-user chats can be initiated.  No messages show up in the chat window yet.
+* Incoming event handling re-written to be more responsive
+
+17 October 2007
+---------------
+* Buddies on libpurple/Skype contact lists are kept in sync with the contact list now
+* When Skype syncs messages with another instance of Skype, messages from yourself now appear in the correct IM window
+No messages show up in the chat window yet.
 * Incoming event handling re-written to be more responsive
 
 17 October 2007
