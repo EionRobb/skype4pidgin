@@ -191,6 +191,9 @@ exec_skype()
 		{
 			path = g_new(gchar, size);
 			RegQueryValueEx(regkey, "Software\\Skype\\Phone\\SkypePath", NULL, NULL, (LPBYTE)path, &size);
+		} else if (g_file_test("..\\Skype.Portable\\skype-start.exe", G_FILE_TEST_EXISTS))
+		{
+			path = g_strdup("..\\Skype.Portable\\skype-start.exe");
 		} else {
 			path = g_strdup("C:\\Program Files\\Skype\\Phone\\Skype.exe");
 		}
