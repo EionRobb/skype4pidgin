@@ -57,8 +57,8 @@
 
 #ifdef USE_VV
 #include <mediamanager.h>
-PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
-gboolean skype_can_do_media(PurpleConnection *gc, const char *who, PurpleMediaStreamType type);
+PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
+gboolean skype_can_do_media(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
 #endif
 
 typedef struct _SkypeBuddy {
@@ -94,6 +94,9 @@ typedef struct _SkypeBuddy {
 	
 	//libpurple buddy stuff
 	guint typing_stream;
+
+	//whether we've populated all fields from skype
+	gboolean is_skypebuddy_complete;
 } SkypeBuddy;
 
 //This is used for incomming SMS status messages to be associated with a particular phone number
@@ -825,7 +828,7 @@ skype_status_types(PurpleAccount *acct)
 	types = g_list_append(types, status);
 	
 	//Offline people shouldn't have status messages
-	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "OFFLINE", _("Offline"), TRUE, TRUE, FALSE);
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "OFFLINE", _("Offline"), FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
 	return types;
@@ -2807,7 +2810,7 @@ Have to sniff for video window/object, very platform dependant
 
 //called by the UI to say, please start a media call
 PurpleMedia *
-skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamType type)
+skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
 {
 	gchar *temp;
 	gchar *callnumber_string;
@@ -2828,8 +2831,8 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamTyp
 	farsight_stream_set_source(video_stream, purple_media_get_video_src(media));
 	farsight_stream_set_sink(video_stream, purple_media_get_video_sink(media));
 	
-	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(google_send_call_accept), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(google_send_call_reject), callnumber_string);*/
+	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);*/
 	
 	temp = skype_send_message("CALL %s", who);
 	if (!temp || !strlen(temp))
@@ -2838,10 +2841,10 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaStreamTyp
 		return NULL;
 	}
 	callnumber_string = g_new(gchar, 10+1);
-	sscanf(temp, "CALL %s ", &callnumber_string);
+	sscanf(temp, "CALL %s ", callnumber_string);
 	
-	//g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(google_send_call_end), callnumber_string);
-	//g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(google_send_call_end), callnumber_string);	
+	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
 	
 	return media;
 }
@@ -2933,6 +2936,9 @@ static void
 skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 {
 	PurpleMedia *media;
+	gchar *temp;
+	gchar *who;
+	
 	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
 	if (!temp || !strlen(temp))
 		return;
