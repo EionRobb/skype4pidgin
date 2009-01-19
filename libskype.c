@@ -59,6 +59,9 @@
 #include <mediamanager.h>
 PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
 gboolean skype_can_do_media(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
+static void skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string);
+static void skype_handle_call_got_ended(char *callnumber_string);
+static void skype_send_call_end(char *callnumber_string);
 #endif
 
 typedef struct _SkypeBuddy {
@@ -197,6 +200,8 @@ static void skype_program_update_check(void);
 static void skype_send_file_from_blist(PurpleBlistNode *node, gpointer data);
 static void skype_call_user_from_blist(PurpleBlistNode *node, gpointer data);
 #endif
+
+
 
 
 PurplePluginProtocolInfo prpl_info = {
@@ -2824,7 +2829,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
 	
 	//Use skype's own audio/video stuff for now
-	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, who, NULL, NULL);
+	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, NULL, who, TRUE);
 	
 	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
 	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
@@ -2852,12 +2857,20 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
                              PurpleMediaSessionType type)
 {
-	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
+	PurpleBuddy *buddy = NULL;
+	SkypeBuddy *sbuddy = NULL;
+	
+	buddy = purple_find_buddy(gc->account, who);
+	if (buddy != NULL)
+		sbuddy = buddy->proto_data;
 		
+	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO) ||
+		type == (PURPLE_MEDIA_VIDEO)) {
+		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
+			return FALSE;
+		return TRUE;
 	} else if (type == (PURPLE_MEDIA_AUDIO)) {
-		
-	} else if (type == (PURPLE_MEDIA_VIDEO)) {
-		
+		return TRUE;
 	}
 	
 	return FALSE;
@@ -2946,7 +2959,7 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	who = g_strdup(&temp[21+strlen(callnumber_string)]);
 	g_free(temp);
 	
-	media = purple_media_manager_create_media(purple_media_manager_get(), gc, who, NULL, NULL);
+	media = purple_media_manager_create_media(purple_media_manager_get(), gc, NULL, who, FALSE);
 	
 	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
 	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
