@@ -2834,7 +2834,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
 	
 	//Use skype's own audio/video stuff for now
-	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, NULL, who, TRUE);
+	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, "", who, TRUE);
 	
 	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
 	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
@@ -2946,7 +2946,7 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	who = g_strdup(&temp[21+strlen(callnumber_string)]);
 	g_free(temp);
 	
-	media = purple_media_manager_create_media(purple_media_manager_get(), gc, NULL, who, FALSE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "", who, FALSE);
 	
 	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
 	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
