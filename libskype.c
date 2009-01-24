@@ -2864,13 +2864,15 @@ gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
 	if (buddy != NULL)
 		sbuddy = buddy->proto_data;
 		
-	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO) ||
-		type == (PURPLE_MEDIA_VIDEO)) {
+	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO) {
 		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
 			return FALSE;
 		return TRUE;
 	} else if (type == (PURPLE_MEDIA_AUDIO)) {
 		return TRUE;
+	} else if (type == (PURPLE_MEDIA_VIDEO)) {
+		//can't have a video only call
+		return FALSE;	
 	}
 	
 	return FALSE;
