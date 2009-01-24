@@ -2813,12 +2813,17 @@ Have to sniff for video window/object, very platform dependant
 
 */
 
+static GHashTable *call_media_hash = NULL;
+
 //called by the UI to say, please start a media call
 PurpleMedia *
 skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
 {
 	gchar *temp;
 	gchar *callnumber_string;
+	
+	if (call_media_hash == NULL)
+		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
 	//FarsightSession *fs = farsight_session_factory_make("rtp");
 	//if (!fs) {
@@ -2847,6 +2852,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	}
 	callnumber_string = g_new(gchar, 10+1);
 	sscanf(temp, "CALL %s ", callnumber_string);
+	g_hash_table_insert(call_media_hash, callnumber_string, media);
 	
 	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
 	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
@@ -2912,13 +2918,6 @@ skype_send_call_end(char *callnumber_string)
 	skype_send_message_nowait("ALTER CALL %s HANGUP", callnumber_string);
 }
 
-int
-skype_find_media(PurpleMedia *media, const char *who)
-{
-	const char *screenname = purple_media_get_screenname(media);
-	return strcmp(screenname, who);
-}
-
 //our call to someone else got ended
 static void
 skype_handle_call_got_ended(char *callnumber_string)
@@ -2929,20 +2928,10 @@ skype_handle_call_got_ended(char *callnumber_string)
 	PurpleMedia *media;
 	GList glist_temp;
 	
-	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
-	if (!temp || !strlen(temp))
+	if (call_media_hash == NULL)
 		return;
 	
-	who = g_strdup(&temp[21+strlen(callnumber_string)]);
-	g_free(temp);
-	
-	manager = purple_media_manager_get();
-	
-	glist_temp = g_list_find_custom(manager->priv->medias, who, skype_find_media);
-	if (!glist_temp || !glist_temp->data)
-		return;
-	
-	media = glist_temp->data;
+	media = g_hash_table_lookup(call_media_hash, callnumber_string);
 	purple_media_got_hangup(media);
 }
 
@@ -2967,6 +2956,10 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
 	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
 	
+	if (call_media_hash == NULL)
+		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+	
+	g_hash_table_insert(call_media_hash, callnumber_string, media);
 	purple_media_ready(media);
 }
 #endif
