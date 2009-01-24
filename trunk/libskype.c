@@ -2956,7 +2956,7 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	
 	g_hash_table_insert(call_media_hash, callnumber_string, media);
-	purple_media_ready(media);
+	//purple_media_ready(media);
 }
 #endif
 
