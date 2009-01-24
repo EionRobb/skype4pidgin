@@ -2870,7 +2870,7 @@ gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
 	if (buddy != NULL)
 		sbuddy = buddy->proto_data;
 		
-	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO) {
+	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
 		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
 			return FALSE;
 		return TRUE;
@@ -2922,11 +2922,7 @@ skype_send_call_end(char *callnumber_string)
 static void
 skype_handle_call_got_ended(char *callnumber_string)
 {
-	char *temp;
-	char *who;
-	PurpleMediaManager *manager;
 	PurpleMedia *media;
-	GList glist_temp;
 	
 	if (call_media_hash == NULL)
 		return;
