@@ -2852,11 +2852,16 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	}
 	callnumber_string = g_new(gchar, 10+1);
 	sscanf(temp, "CALL %s ", callnumber_string);
-	g_hash_table_insert(call_media_hash, callnumber_string, media);
 	
-	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
-	
+	if (media != NULL)
+	{
+		g_hash_table_insert(call_media_hash, callnumber_string, media);
+		
+		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+		g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
+	} else {
+		skype_debug_info("skype_media", "media is NULL\n");
+	}
 	return media;
 }
 
@@ -2925,10 +2930,15 @@ skype_handle_call_got_ended(char *callnumber_string)
 	PurpleMedia *media;
 	
 	if (call_media_hash == NULL)
+	{
 		return;
+	}
 	
 	media = g_hash_table_lookup(call_media_hash, callnumber_string);
-	purple_media_got_hangup(media);
+	if (media != NULL)
+	{
+		purple_media_got_hangup(media);
+	}
 }
 
 //there's an incoming call... deal with it
@@ -2938,6 +2948,18 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	PurpleMedia *media;
 	gchar *temp;
 	gchar *who;
+
+	if (call_media_hash == NULL)
+	{
+		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+	} else {
+		media = g_hash_table_lookup(call_media_hash, callnumber_string);
+		if (media != NULL)
+		{
+			//we've already dealt with this
+			return;
+		}
+	}
 	
 	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
 	if (!temp || !strlen(temp))
@@ -2948,15 +2970,20 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	
 	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "", who, FALSE);
 	
-	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+	if (media != NULL)
+	{
+		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
+		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
 	
-	if (call_media_hash == NULL)
-		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-	
-	g_hash_table_insert(call_media_hash, callnumber_string, media);
-	//purple_media_ready(media);
+		if (call_media_hash == NULL)
+			call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+		
+		g_hash_table_insert(call_media_hash, callnumber_string, media);
+		//purple_media_ready(media);
+	} else {
+		skype_debug_info("skype_media", "purple_mmcm returned NULL\n");
+	}
 }
 #endif
 
