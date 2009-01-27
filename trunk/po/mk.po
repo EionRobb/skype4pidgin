@@ -1,0 +1,239 @@
+# MACEDONIAN translation of skype4pidgin plugin
+# Translated by Damjan Dimitrioski <damjandimitrioski@gmail.com>
+# This file is put in the public domain.
+#
+# Damjan Dimitrioski, 2009.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: skype4pidgin-mk\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2009-01-27 00:48+0100\n"
+"Last-Translator: Damjan Dimitrioski <damjandimitrioski@gmail.com>\n"
+"Language-Team: Macedonian <ufo@linux.net.mk>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Macedonian\n"
+"X-Poedit-Country: MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Пронајдов надградба за додатоков"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Пронајдов понов Скајп"
+
+msgid "No updates found"
+msgstr "Нема надградби"
+
+msgid "You have the latest version of Skype"
+msgstr "Ја користиш најновата верзија на Скајп"
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Ја користиш најновата верзија на Додатоков"
+
+msgid "Your version:"
+msgstr "Твоја верзија:"
+
+msgid "Latest version:"
+msgstr "Најнова верзија"
+
+msgid "Download from:"
+msgstr "Симни од:"
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr "Твојот Скајп кредит е:"
+
+msgid "Skype Balance"
+msgstr "Скајп Биланс"
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Прикажи SkypeOut контакти како 'Онлајн' "
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Синхронизирај го Скајп со статусот при онлајн/офлајн"
+
+msgid "Automatically check for updates"
+msgstr "Автоматски проверувај за надградби"
+
+msgid "Auto-start Skype if not running"
+msgstr "Автоматски приклучи Скајп ако не работи"
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr "Офлајн со Звучна Секретарка"
+
+msgid "Offline with Call Forwarding"
+msgstr "Офлајн со Префрлување на повик"
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr "Само една Скајп сметка е дозволена"
+
+msgid "Skype not responding"
+msgstr "Скајпи не реагира"
+
+msgid ""
+"Could not connect to Skype process.\n"
+"Skype not running?"
+msgstr ""
+"Неможам да се поврзам со процесот на Скајп.\n"
+"Скајп не е вклучен?"
+
+msgid "Skype client not ready"
+msgstr "Скајп клиентот не подготвен"
+
+msgid "Connected to Skype"
+msgstr "Приклучен кон Скајп"
+
+msgid "Skype program closed"
+msgstr "Скајп програмот исклучен"
+
+# Skype calling stuff
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Внеси го телефонскиот број од Скајп другарот кој му ѕвониш"
+
+msgid "%s is calling you."
+msgstr "%s ти ѕвони."
+
+msgid "Do you want to accept their call?"
+msgstr "Дали сакаш да го прифатиш нивниот повик?"
+
+# Buddy information
+msgid "Last online"
+msgstr "Последнот онлајн"
+
+msgid "Number of buddies"
+msgstr "Број на другари"
+
+msgid "Is Video Capable"
+msgstr "Со камера"
+
+# Plugin menu options
+msgid "Hide Skype"
+msgstr "Скриј Скајп"
+
+msgid "Check for Skype updates..."
+msgstr "Провери за Скајп надградби..."
+
+msgid "Check for plugin updates..."
+msgstr "Провери за надградба на додатоци..."
+
+msgid "Search for buddies..."
+msgstr "Барај другари..."
+
+msgid "Check Skype balance..."
+msgstr "Провери Скајп баланс"
+
+msgid "Call..."
+msgstr "Повикај..."
+
+msgid "Open Skype Options..."
+msgstr "Отвори Скајп Подесувања..."
+
+# User searching:
+msgid "Search for Skype Users"
+msgstr "Барај Скајп Корисници"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Пиши го Скајп името, целосно име или е-мејл адреса од другарот кој го бараш."
+
+msgid "The user does not exist in Skype"
+msgstr "Корисникот не постои во Скајп"
+
+msgid "Skype Name"
+msgstr "Скајп Име"
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+msgid "_Search"
+msgstr "_Барај"
+
+msgid "_Cancel"
+msgstr "_Откажи"
+
+msgid "_Send File"
+msgstr "_Прати Датотека"
+
+msgid "Initiate _Chat"
+msgstr "Започни _Разговор"
+
+msgid "_Close"
+msgstr "_Затвори"
+
+msgid "Full Name"
+msgstr "Целосно име"
+
+msgid "Country/Region"
+msgstr "Земја/Регион"
+
+msgid "_Add"
+msgstr "_Додади"
+
+msgid "Full name"
+msgstr "Цело име"
+
+msgid "Personal Information"
+msgstr "Лични Податоци"
+
+msgid "Birthday"
+msgstr "Роденден"
+
+msgid "Gender"
+msgstr "Пол"
+
+msgid "Preferred Language"
+msgstr "Зборува на"
+
+msgid "Country"
+msgstr "Земја"
+
+msgid "Authorization Granted"
+msgstr "Авторизиран"
+
+msgid "Blocked"
+msgstr "Блокиран"
+
+msgid "Timezone"
+msgstr "Временска зона"
+
+msgid "_Accept"
+msgstr "П_рифати"
+
+msgid "_Reject"
+msgstr "_Одбиј"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Неможам да пратам датотека кај %s, корисникот не поддржува пренос на датотеки"
+
+msgid "Recipient Unavailable"
+msgstr "Претплатникот е Недостапен"
+
+msgid "Read Error"
+msgstr "Грешка во читање"
+
+msgid "Write error"
+msgstr "Грешка во пишување"
+
+msgid "Not Authorized"
+msgstr "Не Авторизиран"
+
+msgid "%s wants to send you a file"
+msgstr "%s сака да ти прати датотека"
+
+msgid "File Transfers"
+msgstr "Датотечен Пренос"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s ја промени темата во: %s"
+
+msgid "Contact Info"
+msgstr "Контакт Податоци"
+
