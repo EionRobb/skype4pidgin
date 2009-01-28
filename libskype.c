@@ -2815,78 +2815,22 @@ Have to sniff for video window/object, very platform dependant
 
 static GHashTable *call_media_hash = NULL;
 
-//called by the UI to say, please start a media call
-PurpleMedia *
-skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
+//our call to someone else got ended
+static void
+skype_handle_call_got_ended(char *callnumber_string)
 {
-	gchar *temp;
-	gchar *callnumber_string;
+	PurpleMedia *media;
 	
 	if (call_media_hash == NULL)
-		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-
-	//FarsightSession *fs = farsight_session_factory_make("rtp");
-	//if (!fs) {
-	//	skype_debug_error("jabber", "Farsight's rtp plugin not installed");
-	//	return NULL;
-	//}
-	//FarsightStream *audio_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_AUDIO, FARSIGHT_STREAM_DIRECTION_BOTH);
-	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
-	
-	//Use skype's own audio/video stuff for now
-	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, "", who, TRUE);
-	
-	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
-	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
-	farsight_stream_set_source(video_stream, purple_media_get_video_src(media));
-	farsight_stream_set_sink(video_stream, purple_media_get_video_sink(media));
-	
-	g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
-	g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);*/
-	
-	temp = skype_send_message("CALL %s", who);
-	if (!temp || !strlen(temp))
 	{
-		g_free(temp);
-		return NULL;
+		return;
 	}
-	callnumber_string = g_new(gchar, 10+1);
-	sscanf(temp, "CALL %s ", callnumber_string);
 	
+	media = g_hash_table_lookup(call_media_hash, callnumber_string);
 	if (media != NULL)
 	{
-		g_hash_table_insert(call_media_hash, callnumber_string, media);
-		
-		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
-		g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
-	} else {
-		skype_debug_info("skype_media", "media is NULL\n");
+		purple_media_got_hangup(media);
 	}
-	return media;
-}
-
-gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
-                             PurpleMediaSessionType type)
-{
-	PurpleBuddy *buddy = NULL;
-	SkypeBuddy *sbuddy = NULL;
-	
-	buddy = purple_find_buddy(gc->account, who);
-	if (buddy != NULL)
-		sbuddy = buddy->proto_data;
-		
-	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
-		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
-			return FALSE;
-		return TRUE;
-	} else if (type == (PURPLE_MEDIA_AUDIO)) {
-		return TRUE;
-	} else if (type == (PURPLE_MEDIA_VIDEO)) {
-		//can't have a video only call
-		return FALSE;	
-	}
-	
-	return FALSE;
 }
 
 //called when the user accepts an incomming call from the ui
@@ -2923,22 +2867,99 @@ skype_send_call_end(char *callnumber_string)
 	skype_send_message_nowait("ALTER CALL %s HANGUP", callnumber_string);
 }
 
-//our call to someone else got ended
+//purple_smarshal_VOID__ENUM_STRING_STRING
 static void
-skype_handle_call_got_ended(char *callnumber_string)
+skype_media_state_changed(PurpleMedia *media, PurpleMediaStateChangedType type, gchar *session_id, gchar *participant, gchar *callnumber_string)
 {
-	PurpleMedia *media;
+	if (type == PURPLE_MEDIA_STATE_CHANGED_REJECTED)
+	{
+		skype_send_call_reject(callnumber_string);
+	} else if (type == PURPLE_MEDIA_STATE_CHANGED_HANGUP)
+	{
+		skype_send_call_end(callnumber_string);
+	} else if (type == PURPLE_MEDIA_STATE_CHANGED_ACCEPTED)
+	{
+		skype_send_call_accept(callnumber_string);
+	}
+}
+
+//called by the UI to say, please start a media call
+PurpleMedia *
+skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
+{
+	gchar *temp;
+	gchar *callnumber_string;
 	
 	if (call_media_hash == NULL)
-	{
-		return;
-	}
+		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+
+	//FarsightSession *fs = farsight_session_factory_make("rtp");
+	//if (!fs) {
+	//	skype_debug_error("jabber", "Farsight's rtp plugin not installed");
+	//	return NULL;
+	//}
+	//FarsightStream *audio_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_AUDIO, FARSIGHT_STREAM_DIRECTION_BOTH);
+	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
 	
-	media = g_hash_table_lookup(call_media_hash, callnumber_string);
+	//Use skype's own audio/video stuff for now
+	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, TRUE);
+	
+	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
+	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
+	farsight_stream_set_source(video_stream, purple_media_get_video_src(media));
+	farsight_stream_set_sink(video_stream, purple_media_get_video_sink(media));
+	
 	if (media != NULL)
 	{
-		purple_media_got_hangup(media);
+		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
+	}*/
+	
+	temp = skype_send_message("CALL %s", who);
+	if (!temp || !strlen(temp))
+	{
+		g_free(temp);
+		return NULL;
 	}
+	callnumber_string = g_new(gchar, 10+1);
+	sscanf(temp, "CALL %s ", callnumber_string);
+	
+	if (media != NULL)
+	{
+		g_hash_table_insert(call_media_hash, callnumber_string, media);
+
+		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
+		
+//		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+//		g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
+	} else {
+		skype_debug_info("skype_media", "media is NULL\n");
+	}
+	return media;
+}
+
+gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
+                             PurpleMediaSessionType type)
+{
+	PurpleBuddy *buddy = NULL;
+	SkypeBuddy *sbuddy = NULL;
+	
+	buddy = purple_find_buddy(gc->account, who);
+	if (buddy != NULL)
+		sbuddy = buddy->proto_data;
+		
+	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
+		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
+			return FALSE;
+		return TRUE;
+	} else if (type == (PURPLE_MEDIA_AUDIO)) {
+		return TRUE;
+	} else if (type == (PURPLE_MEDIA_VIDEO)) {
+		//can't have a video only call
+		return FALSE;	
+	}
+	
+	return FALSE;
 }
 
 //there's an incoming call... deal with it
@@ -2968,13 +2989,14 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	who = g_strdup(&temp[21+strlen(callnumber_string)]);
 	g_free(temp);
 	
-	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "", who, FALSE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, FALSE);
 	
 	if (media != NULL)
 	{
-		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
-		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
-		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+//		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+//		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
+//		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
+		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
 	
 		if (call_media_hash == NULL)
 			call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
