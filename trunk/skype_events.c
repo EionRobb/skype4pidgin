@@ -371,64 +371,60 @@ skype_handle_received_message(char *message)
 		handle_complete_message(atoi(string_parts[1]));
 	} else if (g_str_equal(command, "CHAT"))
 	{
-		//printf("Looking for conv %s\n", string_parts[1]);
 		//find the matching chat to update
 		glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[1], (GCompareFunc)skype_find_chat);
 		if (glist_temp == NULL || glist_temp->data == NULL)
 		{
-			//printf("No conversation\n");
-			if (g_str_equal(string_parts[2], "TYPE") &&!g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
+			if (g_str_equal(string_parts[2], "TYPE") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
 			{
 				//most likely a chat
 				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
 				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
-				skype_send_message_nowait("GET CHAT %s MEMBERS", string_parts[1]);
 				skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", string_parts[1]);
 				skype_send_message_nowait("GET CHAT %s TOPIC", string_parts[1]);
-			} else if (g_str_equal(string_parts[2], "DIALOG_PARTNER"))
-			{
-				//most likely an IM
-				//if they have an IM window open, assign it the chatname
-				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
-				if (conv == NULL)
-				{
-					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, string_parts[3]);
-					//serv_got_im(gc, string_parts[3], ".", PURPLE_MESSAGE_RECV, time(NULL));
-					//conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, string_parts[3], this_account);
-				}
-				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			}
-			//printf("Conv %d\n", (int)conv);
+			if (!g_str_equal(string_parts[2], "MEMBERS"))
+				skype_send_message_nowait("GET CHAT %s MEMBERS", string_parts[1]);
 		} else {
 			conv = glist_temp->data;
 		}
-		if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+		
+		if (g_str_equal(string_parts[2], "MEMBERS"))
 		{
-			if (g_str_equal(string_parts[2], "MEMBERS"))
+			chatusers = g_strsplit(string_parts[3], " ", 0);
+			printf("skype: chatusers0 %s chatusers1 %s\n", chatusers[0], chatusers[1]);
+			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				if (conv->type == PURPLE_CONV_TYPE_CHAT)
+				purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
+				for (i=0; chatusers[i]; i++)
 				{
-					purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
-					chatusers = g_strsplit(string_parts[3], " ", 0);
-					for (i=0; chatusers[i]; i++)
-					{
-						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
-					}
-					g_strfreev(chatusers);
+					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				}
-			} else if (g_str_equal(string_parts[2], "FRIENDLYNAME"))
+			} else if (conv && conv->type == PURPLE_CONV_TYPE_IM)
 			{
-				if (conv->type == PURPLE_CONV_TYPE_CHAT)
+				for (i=0; chatusers[i]; i++)
 				{
-					purple_conversation_set_title(conv, g_strdup(string_parts[3]));
-					purple_conversation_update(conv, PURPLE_CONV_UPDATE_TITLE);
+					if (!g_str_equal(chatusers[i], my_username))
+						purple_conversation_set_name (conv, chatusers[i]);
 				}
-			} else if (g_str_equal(string_parts[2], "TOPIC"))
+			} else if (!conv && chatusers[0] && (!chatusers[1] || !strlen(chatusers[1])) && !g_str_equal(chatusers[0], my_username))
 			{
-				if (conv->type == PURPLE_CONV_TYPE_CHAT)
-				{
-					purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), my_username, g_strdup(string_parts[3]));
-				}
+				conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, chatusers[0]);
+				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
+			}
+			g_strfreev(chatusers);
+		} else if (conv && g_str_equal(string_parts[2], "FRIENDLYNAME"))
+		{
+			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				purple_conversation_set_title(conv, g_strdup(string_parts[3]));
+				purple_conversation_update(conv, PURPLE_CONV_UPDATE_TITLE);
+			}
+		} else if (conv && g_str_equal(string_parts[2], "TOPIC"))
+		{
+			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), my_username, g_strdup(string_parts[3]));
 			}
 		}
 	} else if (g_str_equal(command, "FILETRANSFER"))
@@ -929,7 +925,6 @@ handle_complete_message(int messagenumber)
 		//dont know where to put this message
 		//check for existing IM's/chats
 		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
-		skype_send_message_nowait("GET CHAT %s DIALOG_PARTNER", skypemessage->chatname);
 		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
 		return FALSE;
 	}

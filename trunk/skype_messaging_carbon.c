@@ -3,8 +3,6 @@
 #include <glib.h>
 #include <CoreFoundation/CoreFoundation.h>
 
-#include "AutoreleasePoolInit.h"
-
 //change this to 0 if using an old version of the Skype.framework
 #define SENDSKYPERETURNS 0
 
@@ -20,7 +18,6 @@ SkypeNotificationReceived(CFStringRef input)
 {
 	char *output = NULL;
 	GError *error = NULL;
-	void *pool = initAutoreleasePool();
 	int strlen = CFStringGetMaximumSizeForEncoding(CFStringGetLength(input), kCFStringEncodingUTF8);
 	
 	output = (char *)CFStringGetCStringPtr(input, kCFStringEncodingUTF8);
@@ -29,16 +26,13 @@ SkypeNotificationReceived(CFStringRef input)
 		output = NewPtr(strlen+1);
 		CFStringGetCString(input, output, strlen+1, kCFStringEncodingUTF8);
 	}
-	printf("Message received %s\n", output);
-	//g_thread_create((GThreadFunc)skype_message_received, (void *)output, FALSE, &error);
+	//printf("Message received  %s\n", output);
 	skype_message_received(output);
 	if (error)
 	{
-		printf("Could not create new thread!!! %s\n", error->message);
+		skype_debug_error("skype_osx", "Could not create new thread!!! %s\n", error->message);
 		g_error_free(error);
 	}
-	
-	destroyAutoreleasePool(pool);
 }
 
 void
@@ -46,12 +40,12 @@ SkypeAttachResponse(unsigned int aAttachResponseCode)
 {
 	if (aAttachResponseCode)
 	{
-		printf("Skype attached successfully :)\n");
+		skype_debug_info("skype_osx", "Skype attached successfully :)\n");
 		connected_to_skype = TRUE;
 	}
 	else
 	{
-		printf("Skype couldn't connect :(\n");
+		skype_debug_info("skype_osx", "Skype couldn't connect :(\n");
 		connected_to_skype = FALSE;
 	}
 }
@@ -59,7 +53,7 @@ SkypeAttachResponse(unsigned int aAttachResponseCode)
 void
 SkypeBecameAvailable(CFPropertyListRef aNotification)
 {
-	printf("Skype became available\n");
+	skype_debug_info("skype_osx", "Skype became available\n");
 	//connected_to_skype = TRUE;
 	allow_app_in_skype_api();
 }
@@ -67,7 +61,7 @@ SkypeBecameAvailable(CFPropertyListRef aNotification)
 void
 SkypeBecameUnavailable(CFPropertyListRef aNotification)
 {
-	printf("Skype became unavailable\n");
+	skype_debug_info("skype_osx", "Skype became unavailable\n");
 	connected_to_skype = FALSE;
 	g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL);
 }
@@ -80,45 +74,15 @@ static struct SkypeDelegate skypeDelegate = {
 	SkypeBecameUnavailable
 };
 
-/*static gboolean
-skype_connect_thread(gpointer data)
-{
-	static gboolean started = FALSE;
-	if (started)
-		return FALSE;
-	started = TRUE;
-	
-	void *pool = initAutoreleasePool();
-
-	printf("Start inner event loop\n");
-	while(true)
-	{
-		//RunApplicationEventLoop();
-		RunCurrentEventLoop(1);
-	}
-	printf("End of event loop\n");
-	started = FALSE;
-	
-	destroyAutoreleasePool(pool);
-	
-	//don't loop this thread
-	return FALSE;
-}*/
-
-static gpointer static_pool;
-
 static gboolean
 skype_connect()
 {
 	gboolean is_skype_running = FALSE;
 	int timeout_count = 0;
 	
-	if (!static_pool)
-		static_pool = initAutoreleasePool();
-	
 	is_skype_running = IsSkypeRunning();
 	
-	printf("Is Skype running? '%s'\n", (is_skype_running?"Yes":"No"));
+	skype_debug_info("skype_osx", "Is Skype running? '%s'\n", (is_skype_running?"Yes":"No"));
 	if (!is_skype_running)
 		return FALSE;
 	
@@ -129,7 +93,6 @@ skype_connect()
 	RunCurrentEventLoop(1);
 	ConnectToSkype();
 	
-	//g_thread_create((GThreadFunc)skype_connect_thread, NULL, FALSE, NULL);
 	while(connected_to_skype == FALSE)
 	{
 		RunCurrentEventLoop(1);
@@ -137,7 +100,7 @@ skype_connect()
 		if (timeout_count++ == 8)
 			return FALSE;
 	}
-	printf("Connected to skype\n");
+	skype_debug_info("skype_osx", "Connected to skype\n");
 	return TRUE;
 }
 
@@ -166,7 +129,6 @@ send_message(char* message)
 		return;
 	}
 
-	//gpointer pool = initAutoreleasePool();
 	CFStringRef messageString = CFStringCreateWithCString(NULL, message, kCFStringEncodingUTF8);
 #if SENDSKYPERETURNS
 	CFStringRef returnString = NULL;
@@ -176,8 +138,7 @@ send_message(char* message)
 #else
 	SendSkypeCommand(messageString);
 #endif
-	//destroyAutoreleasePool(pool);
-	printf("Skype send message  %s\n", message);
+	//printf("Skype send message %s\n", message);
 	CFRelease(messageString);
 }
 
@@ -244,7 +205,7 @@ allow_app_in_skype_api()
 	OSAError err;
 	FILE *access_file = NULL;
 	
-	printf("Enabling universal access\n");
+	skype_debug_info("skype_osx", "Enabling universal access\n");
 	access_file = fopen("/private/var/db/.AccessibilityAPIEnabled", "w");
 	if (access_file != NULL)
 	{
@@ -255,14 +216,14 @@ allow_app_in_skype_api()
 	ComponentInstance script = OpenDefaultComponent(kOSAComponentType, typeAppleScript);
 	AECreateDesc(typeChar, script_string, strlen(script_string), &script_data);
 	OSACompile(script, &script_data, kOSAModeNull, &script_id);
-	printf("Trying to run AppleScript code\n");
+	skype_debug_info("skype_osx", "Trying to run AppleScript code\n");
 	err = OSAExecute(script, script_id, kOSANullScript, kOSAModeNull, &script_id);
 	if (err == -1753)
 	{
-		printf("Error: 'Access assistive devices' isn't enabled\n"
+		skype_debug_error("skype_osx", "Error: 'Access assistive devices' isn't enabled\n"
 				"see http://images.apple.com/applescript/uiscripting/gfx/gui.03.jpg for details.\n");
 	} else {
-		printf("Error number %d\n", err);
+		skype_debug_info("skype_osx", "Error number %d\n", err);
 	}
 }	
 
