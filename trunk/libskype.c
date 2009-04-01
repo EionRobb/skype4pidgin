@@ -159,7 +159,7 @@ static GList *skype_node_menu(PurpleBlistNode *node);
 static void skype_silence(PurplePlugin *plugin, gpointer data);
 void skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer);
 int skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_pointer);
-static void skype_check_missedmessages(PurpleAccount *account);
+static gboolean skype_check_missedmessages(PurpleAccount *account);
 static int skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags);
 static void skype_chat_leave(PurpleConnection *gc, int id);
 static void skype_chat_invite(PurpleConnection *gc, int id, const char *msg, const char *who);
@@ -2210,21 +2210,31 @@ skype_send_raw(PurpleConnection *gc, const char *buf, int len)
 	return newlen;
 }
 
-static void
+static gboolean
 skype_check_missedmessages(PurpleAccount *account)
 {
 	int i;
 	gchar **messages;
 	gchar *message;
+	gchar *messages_start;
 	
 	message = skype_send_message("SEARCH MISSEDCHATMESSAGES");
-	messages = g_strsplit(strchr(message, ' ')+1, ", ", 0);
-	for (i = 0; messages[i]; i++)
+	if (!message || *message == '\0')
+		return FALSE; //there was an error
+	messages_start = strchr(message, ' ');
+	if (messages_start != NULL)
 	{
-		skype_send_message_nowait("GET CHATMESSAGE %s STATUS", messages[i]);
+		messages = g_strsplit(messages_start + 1, ", ", 0);
+		for (i = 0; messages[i]; i++)
+		{
+			skype_send_message_nowait("GET CHATMESSAGE %s STATUS", messages[i]);
+		}
+		g_strfreev(messages);
 	}
-	g_strfreev(messages);
 	g_free(message);
+	
+	return FALSE; //dont keep looking for missed messages
+	//return TRUE; //keep looking for missed messages
 }
 
 static void
