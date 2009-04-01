@@ -102,6 +102,20 @@ typedef struct _SkypeBuddy {
 	gboolean is_skypebuddy_complete;
 } SkypeBuddy;
 
+typedef struct _SkypeChat {
+	PurpleAccount *account;
+	PurpleConversation *conv;
+	
+	gchar *name;
+	gchar **members;
+	gchar *partner_handle;
+	PurpleConversationType type;
+	gchar *topic;
+	gchar *friendlyname;
+} SkypeChat;
+
+static GHashTable *chat_link_table = NULL;
+
 //This is used for incomming SMS status messages to be associated with a particular phone number
 static GHashTable *sms_convo_link_table = NULL;
 
@@ -261,7 +275,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
 	skype_remove_group,  /* remove_group */
-	/*skype_cb_real_name*/NULL,  /* get_cb_real_name */
+	skype_cb_real_name,  /* get_cb_real_name */
 	skype_set_chat_topic,/* set_chat_topic */
 	NULL,				 /* find_blist_chat */
 	NULL,                /* roomlist_get_list */
@@ -2383,16 +2397,23 @@ skype_cb_real_name(PurpleConnection *gc, int id, const char *who)
 	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
 	
+	printf("CB Real name for %s in %d\n", who, id);
+	
 	buddy = purple_find_buddy(gc->account, who);
-	if (buddy && buddy->proto_data)
+	if (buddy && buddy->alias)
+	{
+		return g_strdup(buddy->alias);
+	} else if (buddy && buddy->server_alias)
+	{
+		return g_strdup(buddy->server_alias);
+	} else if (buddy && buddy->proto_data)
 	{
 		sbuddy = buddy->proto_data;
 		if (sbuddy->fullname)
 			return g_strdup(sbuddy->fullname);
-	} else if (buddy && buddy->server_alias)
-		return g_strdup(buddy->server_alias);
+	}
 	
-	return skype_get_user_info(who, "FULLNAME");
+	return NULL;
 }
 
 GList *
