@@ -6,7 +6,8 @@ static gboolean skype_handle_received_message(char *message);
 gint skype_find_filetransfer(PurpleXfer *transfer, char *skypeid);
 void skype_accept_transfer(PurpleXfer *transfer);
 void skype_decline_transfer(PurpleXfer *transfer);
-gint skype_find_chat(PurpleConversation *conv, char *chat_id);
+SkypeChat *skype_find_chat(const gchar *chat_id, PurpleAccount *this_account);
+gint skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 void skype_call_accept_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
@@ -45,6 +46,7 @@ typedef enum _SkypeMessageType {
 
 typedef struct _SkypeMessage {
 	//Required properties
+	PurpleAccount *account;
 	SkypeMessageType type;
 	PurpleMessageFlags flags;  //send or recv
 	gchar *chatname;
@@ -70,6 +72,7 @@ skype_handle_received_message(char *message)
 	const char *my_username;
 	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
+	SkypeChat *chat;
 	char *body;
 	char *body_html;
 	char *msg_num;
@@ -84,7 +87,6 @@ skype_handle_received_message(char *message)
 	PurpleConversation *conv = NULL;
 	GList *glist_temp = NULL;
 	int i;
-	static int chat_count = 0;
 	PurpleGroup *temp_group;
 	//PurpleStatusPrimitive primitive;
 	SkypeMessage *skypemessage;
@@ -288,6 +290,7 @@ skype_handle_received_message(char *message)
 				messages_table = g_hash_table_new(NULL, NULL);
 			}
 			skypemessage = g_new0(SkypeMessage, 1);
+			skypemessage->account = this_account;
 			if (g_str_equal(string_parts[3], "RECEIVED"))
 				skypemessage->flags = PURPLE_MESSAGE_RECV;
 			else if (g_str_equal(string_parts[3], "SENT"))
@@ -330,7 +333,6 @@ skype_handle_received_message(char *message)
 			{
 				skypemessage->chatname = g_strdup(string_parts[3]);
 			}
-			glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[3], (GCompareFunc)skype_find_chat);
 		} else if (g_str_equal(string_parts[2], "BODY"))
 		{
 			skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(atoi(string_parts[1])));
@@ -372,61 +374,44 @@ skype_handle_received_message(char *message)
 	} else if (g_str_equal(command, "CHAT"))
 	{
 		//find the matching chat to update
-		glist_temp = g_list_find_custom(purple_get_conversations(), string_parts[1], (GCompareFunc)skype_find_chat);
-		if (glist_temp == NULL || glist_temp->data == NULL)
+		chat = skype_find_chat(string_parts[1], this_account);
+		if (g_str_equal(string_parts[2], "TYPE"))
 		{
-			if (g_str_equal(string_parts[2], "TYPE") && !g_str_equal(string_parts[3], "DIALOG") && !g_str_equal(string_parts[3], "LEGACY_DIALOG"))
+			if (g_str_equal(string_parts[3], "DIALOG") || g_str_equal(string_parts[3], "LEGACY_DIALOG"))
 			{
-				//most likely a chat
-				conv = serv_got_joined_chat(gc, chat_count++, string_parts[1]);
-				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
-				skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", string_parts[1]);
-				skype_send_message_nowait("GET CHAT %s TOPIC", string_parts[1]);
+				chat->type = PURPLE_CONV_TYPE_IM;
+			} else {
+				chat->type = PURPLE_CONV_TYPE_CHAT;
 			}
-			if (!g_str_equal(string_parts[2], "MEMBERS"))
-				skype_send_message_nowait("GET CHAT %s MEMBERS", string_parts[1]);
-		} else {
-			conv = glist_temp->data;
-		}
-		
-		if (g_str_equal(string_parts[2], "MEMBERS"))
+		} else if (g_str_equal(string_parts[2], "MEMBERS"))
 		{
 			chatusers = g_strsplit(string_parts[3], " ", 0);
-			printf("skype: chatusers0 %s chatusers1 %s\n", chatusers[0], chatusers[1]);
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->members)
+				g_strfreev(chat->members);
+			chat->members = chatusers;
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
 				for (i=0; chatusers[i]; i++)
 				{
 					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				}
-			} else if (conv && conv->type == PURPLE_CONV_TYPE_IM)
-			{
-				for (i=0; chatusers[i]; i++)
-				{
-					if (!g_str_equal(chatusers[i], my_username))
-						purple_conversation_set_name (conv, chatusers[i]);
-				}
-			} else if (!conv && chatusers[0] && (!chatusers[1] || !strlen(chatusers[1])) && !g_str_equal(chatusers[0], my_username))
-			{
-				conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, this_account, chatusers[0]);
-				purple_conversation_set_data(conv, "chat_id", g_strdup(string_parts[1]));
 			}
-			g_strfreev(chatusers);
-		} else if (conv && g_str_equal(string_parts[2], "FRIENDLYNAME"))
+		} else if (chat->conv && g_str_equal(string_parts[2], "FRIENDLYNAME"))
 		{
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conversation_set_title(conv, g_strdup(string_parts[3]));
-				purple_conversation_update(conv, PURPLE_CONV_UPDATE_TITLE);
+				purple_conversation_set_title(chat->conv, g_strdup(string_parts[3]));
+				purple_conversation_update(chat->conv, PURPLE_CONV_UPDATE_TITLE);
 			}
-		} else if (conv && g_str_equal(string_parts[2], "TOPIC"))
+		} else if (chat->conv && g_str_equal(string_parts[2], "TOPIC"))
 		{
-			if (conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), my_username, g_strdup(string_parts[3]));
+				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), my_username, g_strdup(string_parts[3]));
 			}
 		}
+		chat = skype_find_chat(string_parts[1], this_account);
 	} else if (g_str_equal(command, "FILETRANSFER"))
 	{
 		//lookup current file transfers to see if there's already one there
@@ -826,13 +811,96 @@ skype_decline_transfer(PurpleXfer *transfer)
 	//can't reject transfers
 }
 
+SkypeChat*
+skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
+{
+	SkypeChat *chat;
+	static int chat_count = 0;
+	int i;
+	
+	if (chat_id == NULL)
+		return NULL;
+	
+	if(chat_link_table == NULL)
+	{
+		chat_link_table = g_hash_table_new(g_str_hash, g_str_equal);
+	}
+	
+	chat = g_hash_table_lookup(chat_link_table, chat_id);
+	if (chat == NULL)
+	{
+		chat = g_new0(SkypeChat, 1);
+		chat->name = g_strdup(chat_id);
+		chat->account = this_account;
+		g_hash_table_insert(chat_link_table, (char*)chat_id, chat);
+		
+		skype_send_message_nowait("GET CHAT %s TYPE", chat_id);
+		skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
+		skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", chat_id);
+		skype_send_message_nowait("GET CHAT %s TOPIC", chat_id);
+	}
+	
+	if (!chat->conv)
+	{
+		GList *glist_temp = NULL;
+		glist_temp = g_list_find_custom(purple_get_conversations(), chat_id, (GCompareFunc)skype_find_chat_compare_func);
+		if (glist_temp != NULL && glist_temp->data != NULL)
+		{
+			chat->conv = glist_temp->data;
+		}
+	}
+	
+	if (chat->conv && chat->conv->type)
+	{
+		if (chat->type != chat->conv->type)
+		{
+			//oh crap, changed from an IM to a CHAT or vice versa :S
+		}
+	} else {
+		if (chat->type)
+		{
+			if (!chat->conv)
+			{
+				if (chat->type == PURPLE_CONV_TYPE_CHAT)
+				{
+					chat->conv = purple_find_conversation_with_account(chat->type, chat_id, this_account);
+					if (!chat->conv)
+						chat->conv = serv_got_joined_chat(this_account->gc, chat_count++, chat_id);
+				} else if (chat->type == PURPLE_CONV_TYPE_IM)
+				{
+					if (!chat->partner_handle && chat->members)
+					{
+						for (i=0; chat->members[i]; i++)
+						{
+							if (*chat->members[i] != '\0' && !g_str_equal(chat->members[i], skype_get_account_username(chat->account)))
+							{
+								chat->partner_handle = g_strdup(chat->members[i]);
+								break;
+							}
+						}
+					}
+					if (chat->partner_handle)
+					{
+						chat->conv = purple_find_conversation_with_account(chat->type, chat->partner_handle, chat->account);
+						if (!chat->conv)
+							chat->conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, chat->account, chat->partner_handle);
+					}
+				}
+			}
+			if (chat->conv)
+				purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
+		}
+	}
+	
+	return chat;
+}
+
 gint
-skype_find_chat(PurpleConversation *conv, char *chat_id)
+skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id)
 {
 	char *lookup;
 	if (chat_id == NULL || conv == NULL || conv->data == NULL)
 		return -1;
-	//lookup = g_hash_table_lookup(conv->data, "chat_id");
 	lookup = purple_conversation_get_data(conv, "chat_id");
 	if (lookup == NULL)
 		return -1;
@@ -900,9 +968,8 @@ gboolean
 handle_complete_message(int messagenumber)
 {
 	SkypeMessage *skypemessage = NULL;
-	GList *glist_temp = NULL;
+	SkypeChat *chat = NULL;
 	gchar *body_html = NULL;
-	PurpleConversation *conv = NULL;
 	int i;
 
 	if (messages_table == NULL)
@@ -910,21 +977,16 @@ handle_complete_message(int messagenumber)
 	
 	skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(messagenumber));
 	if (skypemessage == NULL)
-		return FALSE;
+		return FALSE; //Message no longer exists, must have delt with it already
 	
-	if (!skypemessage->chatname || !skypemessage->type)
-		return FALSE;
-		
-	glist_temp = g_list_find_custom(purple_get_conversations(), skypemessage->chatname, (GCompareFunc)skype_find_chat);
-	if (glist_temp && glist_temp->data)
-	{
-		conv = glist_temp->data;
-	}
-	if (!conv)
+	if (!skypemessage->chatname || !skypemessage->type || !skypemessage->account)
+		return FALSE; //Haven't finished filling in all the required details
+	
+	chat = skype_find_chat(skypemessage->chatname, skypemessage->account);
+	if (!chat->type)
 	{
 		//dont know where to put this message
-		//check for existing IM's/chats
-		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
+		//just wait for a second for the chat to be updated
 		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
 		return FALSE;
 	}
@@ -940,28 +1002,27 @@ handle_complete_message(int messagenumber)
 			g_free(skypemessage->body);
 			skypemessage->body = body_html;
 			skypemessage->type = SKYPE_MESSAGE_TEXT;
-			//fallthrough
+			//fallthrough intentional
 		case SKYPE_MESSAGE_TEXT:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return FALSE;
 			body_html = skype_strdup_withhtml(skypemessage->body);
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				serv_got_chat_in(conv->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
-			} else
+				serv_got_chat_in(skypemessage->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(chat->conv)), skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
+			} else if (chat->type == PURPLE_CONV_TYPE_IM)
 			{
 				if (skypemessage->flags != PURPLE_MESSAGE_SEND)
 				{
-					PurpleAccount *acct;
-					if (!conv)
-						acct = skype_get_account(NULL);
-					else
-						acct = conv->account;
+					PurpleAccount *acct = skypemessage->account;
 					if (!g_str_equal(skypemessage->from_handle, skype_get_account_username(acct)))
 					{
 						serv_got_im(acct->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
-					} else {
+					} else if (chat->partner_handle)
+					{
 						//if we're here, then we're receiving a message that we sent from a different computer
+						serv_got_im(acct->gc, chat->partner_handle, body_html, PURPLE_MESSAGE_SEND, skypemessage->timestamp);
+					} else {
 						//use the chat name to work out who it came from
 						//in format #username1/$username2;junktext for IM's
 						char *start, *end;
@@ -1013,44 +1074,44 @@ handle_complete_message(int messagenumber)
 		case SKYPE_MESSAGE_LEFT:
 			if (!skypemessage->from_handle || !skypemessage->leavereason)
 				return FALSE;
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				if (g_str_equal(skypemessage->from_handle, conv->account->username))
-					purple_conv_chat_left(PURPLE_CONV_CHAT(conv));
-				purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->from_handle, skypemessage->leavereason);
+				if (g_str_equal(skypemessage->from_handle, skype_get_account_username(skypemessage->account)))
+					purple_conv_chat_left(PURPLE_CONV_CHAT(chat->conv));
+				purple_conv_chat_remove_user(PURPLE_CONV_CHAT(chat->conv), skypemessage->from_handle, skypemessage->leavereason);
 			}
 			break;
 		case SKYPE_MESSAGE_ADD:
 			if (!skypemessage->users)
 				return FALSE;
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
-					if (!purple_conv_chat_find_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i]))
-						purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], NULL, PURPLE_CBFLAGS_NONE, TRUE);	
+					if (!purple_conv_chat_find_user(PURPLE_CONV_CHAT(chat->conv), skypemessage->users[i]))
+						purple_conv_chat_add_user(PURPLE_CONV_CHAT(chat->conv), skypemessage->users[i], NULL, PURPLE_CBFLAGS_NONE, TRUE);	
 			}
 			break;
 		case SKYPE_MESSAGE_KICKED:
 			if (!skypemessage->users)
 				return FALSE;
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
 				for (i=0; skypemessage->users[i]; i++)
 				{
 					if (skypemessage->from_handle)
-						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup_printf("Kicked by %s", skypemessage->from_handle));
+						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(chat->conv), skypemessage->users[i], g_strdup_printf("Kicked by %s", skypemessage->from_handle));
 					else
-						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(conv), skypemessage->users[i], g_strdup("Kicked"));
+						purple_conv_chat_remove_user(PURPLE_CONV_CHAT(chat->conv), skypemessage->users[i], g_strdup("Kicked"));
 				}
 			}
 			break;
 		case SKYPE_MESSAGE_TOPIC:
 			if (!skypemessage->body || !skypemessage->from_handle)
 				return FALSE;
-			if (conv && conv->type == PURPLE_CONV_TYPE_CHAT)
+			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, skypemessage->body);
-				serv_got_chat_in(conv->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv)), skypemessage->from_handle, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), skypemessage->from_handle, skypemessage->body)), time(NULL));
+				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), NULL, skypemessage->body);
+				serv_got_chat_in(skypemessage->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(chat->conv)), skypemessage->from_handle, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), skypemessage->from_handle, skypemessage->body)), time(NULL));
 			} 
 			break;
 	}
