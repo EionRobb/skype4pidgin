@@ -159,6 +159,7 @@ static GList *skype_node_menu(PurpleBlistNode *node);
 static void skype_silence(PurplePlugin *plugin, gpointer data);
 void skype_slist_friend_check(gpointer buddy_pointer, gpointer friends_pointer);
 int skype_slist_friend_search(gconstpointer buddy_pointer, gconstpointer buddyname_pointer);
+static void skype_check_missedmessages(PurpleAccount *account);
 static int skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags);
 static void skype_chat_leave(PurpleConnection *gc, int id);
 static void skype_chat_invite(PurpleConnection *gc, int id, const char *msg, const char *who);
@@ -1369,6 +1370,7 @@ skype_login(PurpleAccount *acct)
 	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
 	
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
+	purple_timeout_add_seconds(30, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
 }
 
 const char *
@@ -1898,29 +1900,6 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 	const char *message;
 	
 	type = purple_status_get_type(status);
-	/*
-	switch (purple_status_type_get_primitive(type)) {
-		case PURPLE_STATUS_AVAILABLE:
-			skype_send_message_nowait("SET USERSTATUS ONLINE");
-			break;
-		case PURPLE_STATUS_AWAY:
-			skype_send_message_nowait("SET USERSTATUS AWAY");
-			break;
-		case PURPLE_STATUS_EXTENDED_AWAY:
-			skype_send_message_nowait("SET USERSTATUS NA");
-			break;
-		case PURPLE_STATUS_UNAVAILABLE:
-			skype_send_message_nowait("SET USERSTATUS DND");
-			break;
-		case PURPLE_STATUS_INVISIBLE:
-			skype_send_message_nowait("SET USERSTATUS INVISIBLE");
-			break;
-		case PURPLE_STATUS_OFFLINE:
-			skype_send_message_nowait("SET USERSTATUS OFFLINE");
-			break;
-		default:
-			skype_send_message_nowait("SET USERSTATUS UNKNOWN");
-	}*/
 	skype_send_message_nowait("SET USERSTATUS %s", purple_status_type_get_id(type));
 	
 	message = purple_status_get_attr_string(status, "message");
@@ -2229,6 +2208,23 @@ skype_send_raw(PurpleConnection *gc, const char *buf, int len)
 	}
 	
 	return newlen;
+}
+
+static void
+skype_check_missedmessages(PurpleAccount *account)
+{
+	int i;
+	gchar **messages;
+	gchar *message;
+	
+	message = skype_send_message("SEARCH MISSEDCHATMESSAGES");
+	messages = g_strsplit(strchr(message, ' ')+1, ", ", 0);
+	for (i = 0; messages[i]; i++)
+	{
+		skype_send_message_nowait("GET CHATMESSAGE %s STATUS", messages[i]);
+	}
+	g_strfreev(messages);
+	g_free(message);
 }
 
 static void
