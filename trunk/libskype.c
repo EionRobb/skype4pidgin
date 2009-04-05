@@ -21,6 +21,10 @@
 #define _GNU_SOURCE
 #define GETTEXT_PACKAGE "skype4pidgin"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <unistd.h>
@@ -58,7 +62,7 @@
 #ifdef USE_VV
 #include <mediamanager.h>
 PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
-gboolean skype_can_do_media(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
+PurpleMediaCaps skype_get_media_caps(PurpleConnection *gc, const char *who);
 static void skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string);
 static void skype_handle_call_got_ended(char *callnumber_string);
 static void skype_send_call_end(char *callnumber_string);
@@ -299,7 +303,7 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                /* get_account_text_table */
 #ifdef USE_VV
 	skype_media_initiate,/* initiate_media */
-	skype_can_do_media   /* can_do_media */
+	skype_get_media_caps /* can_do_media */
 #endif
 };
 
@@ -488,11 +492,34 @@ skype_get_account(PurpleAccount *newaccount)
 	return account;
 }
 
+#if 0
+void skype_ft_debug(PurpleXfer *xfer) {printf("%s\n", xfer->account->protocol_id);}
+void skype_ft_new_xfer(PurpleXfer *xfer) {printf("skype_ft_new_xfer\n");skype_ft_debug(xfer);}
+void skype_ft_destroy(PurpleXfer *xfer) {printf("skype_ft_destroy\n");skype_ft_debug(xfer);}
+void skype_ft_add_xfer(PurpleXfer *xfer) {printf("skype_ft_add_xfer\n");skype_ft_debug(xfer);}
+void skype_ft_update_progress(PurpleXfer *xfer, double percent) {printf("skype_ft_update_progress\n");skype_ft_debug(xfer);}
+void skype_ft_cancel_local(PurpleXfer *xfer) {printf("skype_ft_cancel_local\n");skype_ft_debug(xfer);}
+void skype_ft_cancel_remote(PurpleXfer *xfer) {printf("skype_ft_cancel_remote\n");skype_ft_debug(xfer);}
+
+gboolean
+plugin_load(PurplePlugin *plugin)
+{
+	PurpleXferUiOps *ops = purple_xfers_get_ui_ops();
+	ops->new_xfer = skype_ft_new_xfer;
+	ops->destroy = skype_ft_destroy;
+	ops->add_xfer = skype_ft_add_xfer;
+	ops->update_progress = skype_ft_update_progress;
+	ops->cancel_local = skype_ft_cancel_local;
+	ops->cancel_remote = skype_ft_cancel_remote;
+	return TRUE;
+}
+#else
 gboolean
 plugin_load(PurplePlugin *plugin)
 {
 	return TRUE;
 }
+#endif
 
 gboolean
 plugin_unload(PurplePlugin *plugin)
@@ -2856,7 +2883,7 @@ skype_handle_call_got_ended(char *callnumber_string)
 	media = g_hash_table_lookup(call_media_hash, callnumber_string);
 	if (media != NULL)
 	{
-		purple_media_got_hangup(media);
+		purple_media_end(media, NULL, NULL);
 	}
 }
 
@@ -2896,17 +2923,30 @@ skype_send_call_end(char *callnumber_string)
 
 //purple_smarshal_VOID__ENUM_STRING_STRING
 static void
-skype_media_state_changed(PurpleMedia *media, PurpleMediaStateChangedType type, gchar *session_id, gchar *participant, gchar *callnumber_string)
+skype_media_state_changed(PurpleMedia *media, PurpleMediaState state, gchar *session_id, gchar *participant, gchar *callnumber_string)
 {
-	if (type == PURPLE_MEDIA_STATE_CHANGED_REJECTED)
+	if (state == PURPLE_MEDIA_STATE_END)
 	{
-		skype_send_call_reject(callnumber_string);
-	} else if (type == PURPLE_MEDIA_STATE_CHANGED_HANGUP)
+		g_hash_table_remove(call_media_hash, callnumber_string);
+		g_free(callnumber_string);
+		/*skype_send_call_reject(callnumber_string);
+	} else if (state == PURPLE_MEDIA_STATE_HANGUP)
 	{
 		skype_send_call_end(callnumber_string);
-	} else if (type == PURPLE_MEDIA_STATE_CHANGED_ACCEPTED)
+	} else if (state == PURPLE_MEDIA_STATE_ACCEPTED)
 	{
-		skype_send_call_accept(callnumber_string);
+		skype_send_call_accept(callnumber_string);*/
+	}
+}
+
+static void
+skype_stream_info_changed(PurpleMedia *media, PurpleMediaInfoType type, gchar *session_id, gchar *participant, gboolean local,
+		gchar *callnumber_string)
+{
+	if (type == PURPLE_MEDIA_INFO_HANGUP) {
+		skype_send_call_end(callnumber_string);
+	} else if (type == PURPLE_MEDIA_INFO_REJECT) {
+		skype_send_call_reject(callnumber_string);
 	}
 }
 
@@ -2953,9 +2993,12 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	
 	if (media != NULL)
 	{
+		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
 
+		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
 		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
+		g_signal_connect(G_OBJECT(media), "stream-info", G_CALLBACK(skype_stream_info_changed), callnumber_string);
 		
 //		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
 //		g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
@@ -2965,28 +3008,22 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	return media;
 }
 
-gboolean skype_can_do_media(PurpleConnection *gc, const char *who,
-                             PurpleMediaSessionType type)
+PurpleMediaCaps
+skype_get_media_caps(PurpleConnection *gc, const char *who)
 {
+	PurpleMediaCaps caps = PURPLE_MEDIA_CAPS_NONE;
 	PurpleBuddy *buddy = NULL;
 	SkypeBuddy *sbuddy = NULL;
 	
 	buddy = purple_find_buddy(gc->account, who);
 	if (buddy != NULL)
 		sbuddy = buddy->proto_data;
-		
-	if (type == (PURPLE_MEDIA_AUDIO | PURPLE_MEDIA_VIDEO)) {
-		if (!buddy || !sbuddy || !sbuddy->is_video_capable)
-			return FALSE;
-		return TRUE;
-	} else if (type == (PURPLE_MEDIA_AUDIO)) {
-		return TRUE;
-	} else if (type == (PURPLE_MEDIA_VIDEO)) {
-		//can't have a video only call
-		return FALSE;	
-	}
 	
-	return FALSE;
+	caps |= PURPLE_MEDIA_CAPS_AUDIO;
+	if (buddy && sbuddy && sbuddy->is_video_capable)
+		caps |= PURPLE_MEDIA_CAPS_AUDIO_VIDEO;
+
+	return caps;
 }
 
 //there's an incoming call... deal with it
