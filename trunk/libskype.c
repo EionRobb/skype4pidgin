@@ -543,11 +543,13 @@ skype_node_menu(PurpleBlistNode *node)
 										PURPLE_CALLBACK(skype_send_file_from_blist),
 										NULL, NULL);
 		m = g_list_append(m, act);
-#endif		
+#endif
+#ifndef USE_VV
 		act = purple_menu_action_new(_("Call..."),
 										PURPLE_CALLBACK(skype_call_user_from_blist),
 										NULL, NULL);
 		m = g_list_append(m, act);
+#endif
 #endif
 		act = purple_menu_action_new(_("Initiate _Chat"),
 							PURPLE_CALLBACK(skype_initiate_chat),
