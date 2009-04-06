@@ -587,17 +587,6 @@ skype_handle_received_message(char *message)
 		{
 			skype_send_message_nowait("GET GROUP %s DISPLAYNAME", chatusers[i]);
 			skype_send_message_nowait("GET GROUP %s USERS", chatusers[i]);
-			//temp = skype_send_message("GET GROUP %s DISPLAYNAME", chatusers[i]);
-			//body = g_strdup(&temp[19+strlen(chatusers[i])]);
-			//g_free(temp);
-			//if (!purple_find_group(body))
-			//	purple_blist_add_group(purple_group_new(body), NULL);
-			//
-			//temp = skype_send_message("GET GROUP %s USERS", chatusers[i]);
-			//g_strfreev(string_parts);
-			//string_parts = g_strsplit(&temp[13+strlen(chatusers[i])], ", ", -1);
-			//for (j = 0; string_parts[j]; j++)
-			//	purple_blist_add_buddy(purple_find_buddy(this_account, string_parts[j]), NULL, purple_find_group(body), NULL);
 		}
 		g_strfreev(chatusers);
 	} else if (g_str_equal(command, "GROUP"))
@@ -618,7 +607,7 @@ skype_handle_received_message(char *message)
 					purple_blist_add_group(temp_group, NULL);
 				}
 				purple_blist_node_set_int(&temp_group->node, "skype_group_number", atoi(string_parts[1]));
-				g_hash_table_insert(groups_table, GINT_TO_POINTER(string_parts[1]), temp_group);
+				g_hash_table_insert(groups_table, GINT_TO_POINTER(atoi(string_parts[1])), temp_group);
 			}
 		} else if (g_str_equal(string_parts[2], "USERS"))
 		{
@@ -627,7 +616,11 @@ skype_handle_received_message(char *message)
 			{
 				chatusers = g_strsplit(string_parts[3], ", ", -1);
 				for (i = 0; chatusers[i]; i++)
-					purple_blist_add_buddy(purple_find_buddy(this_account, chatusers[i]), NULL, temp_group, NULL);
+				{
+					buddy = purple_find_buddy(this_account, chatusers[i]);
+					if (buddy)
+						purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
+				}
 				g_strfreev(chatusers);	
 			}		
 		}
