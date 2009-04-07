@@ -2930,14 +2930,6 @@ skype_media_state_changed(PurpleMedia *media, PurpleMediaState state, gchar *ses
 	if (state == PURPLE_MEDIA_STATE_END)
 	{
 		g_hash_table_remove(call_media_hash, callnumber_string);
-		g_free(callnumber_string);
-		/*skype_send_call_reject(callnumber_string);
-	} else if (state == PURPLE_MEDIA_STATE_HANGUP)
-	{
-		skype_send_call_end(callnumber_string);
-	} else if (state == PURPLE_MEDIA_STATE_ACCEPTED)
-	{
-		skype_send_call_accept(callnumber_string);*/
 	}
 }
 
@@ -2961,28 +2953,9 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	
 	if (call_media_hash == NULL)
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-
-	//FarsightSession *fs = farsight_session_factory_make("rtp");
-	//if (!fs) {
-	//	skype_debug_error("jabber", "Farsight's rtp plugin not installed");
-	//	return NULL;
-	//}
-	//FarsightStream *audio_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_AUDIO, FARSIGHT_STREAM_DIRECTION_BOTH);
-	//FarsightStream *video_stream = farsight_session_create_stream(fs, FARSIGHT_MEDIA_TYPE_VIDEO, FARSIGHT_STREAM_DIRECTION_BOTH);
 	
 	//Use skype's own audio/video stuff for now
 	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, TRUE);
-	
-	/*farsight_stream_set_source(audio_stream, purple_media_get_audio_src(media));
-	farsight_stream_set_sink(audio_stream, purple_media_get_audio_sink(media));
-	farsight_stream_set_source(video_stream, purple_media_get_video_src(media));
-	farsight_stream_set_sink(video_stream, purple_media_get_video_sink(media));
-	
-	if (media != NULL)
-	{
-		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
-		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
-	}*/
 	
 	temp = skype_send_message("CALL %s", who);
 	if (!temp || !strlen(temp))
@@ -3001,9 +2974,6 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
 		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
 		g_signal_connect(G_OBJECT(media), "stream-info", G_CALLBACK(skype_stream_info_changed), callnumber_string);
-		
-//		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
-//		g_signal_connect_swapped(G_OBJECT(media), "got-hangup", G_CALLBACK(skype_send_call_end), callnumber_string);	
 	} else {
 		skype_debug_info("skype_media", "media is NULL\n");
 	}
@@ -3059,16 +3029,12 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	
 	if (media != NULL)
 	{
-//		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
-//		g_signal_connect_swapped(G_OBJECT(media), "reject", G_CALLBACK(skype_send_call_reject), callnumber_string);
-//		g_signal_connect_swapped(G_OBJECT(media), "hangup", G_CALLBACK(skype_send_call_end), callnumber_string);
-		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
-	
-		if (call_media_hash == NULL)
-			call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-		
+		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
-		//purple_media_ready(media);
+		
+		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
+		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
+		g_signal_connect(G_OBJECT(media), "stream-info", G_CALLBACK(skype_stream_info_changed), callnumber_string);
 	} else {
 		skype_debug_info("skype_media", "purple_mmcm returned NULL\n");
 	}
