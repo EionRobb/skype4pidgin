@@ -171,6 +171,7 @@ static void skype_initiate_chat(PurpleBlistNode *node, gpointer data);
 static void skype_set_chat_topic(PurpleConnection *gc, int id, const char *topic);
 gchar *skype_cb_real_name(PurpleConnection *gc, int id, const char *who);
 GList *skype_join_chat_info(PurpleConnection *gc);
+GHashTable *skype_join_chat_info_defaults(PurpleConnection *gc, const char *chat_name);
 void skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias);
 gboolean skype_offline_msg(const PurpleBuddy *buddy);
 //void skype_slist_remove_messages(gpointer buddy_pointer, gpointer unused);
@@ -242,7 +243,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_status_types,  /* status_types */
 	skype_node_menu,     /* blist_node_menu */
 	skype_join_chat_info,/* chat_info */
-	NULL,                /* chat_info_defaults */
+	skype_join_chat_info_defaults,/* chat_info_defaults */
 	skype_login,         /* login */
 	skype_close,         /* close */
 	skype_send_im,       /* send_im */
@@ -280,7 +281,7 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_normalize,     /* normalize */
 	skype_set_buddy_icon,/* set_buddy_icon */
 	skype_remove_group,  /* remove_group */
-	skype_cb_real_name,  /* get_cb_real_name */
+	/*skype_cb_real_name*/NULL,  /* get_cb_real_name */
 	skype_set_chat_topic,/* set_chat_topic */
 	NULL,				 /* find_blist_chat */
 	NULL,                /* roomlist_get_list */
@@ -2466,6 +2467,19 @@ skype_join_chat_info(PurpleConnection *gc)
 	return m;
 }
 
+GHashTable *
+skype_join_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
+{
+	GHashTable *defaults;
+	defaults = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+	if (chat_name != NULL)
+	{
+		g_hash_table_insert(defaults, "chat_id", g_strdup(chat_name));
+	}
+	return defaults;
+}
+
+
 void
 skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias)
 {
@@ -2948,6 +2962,7 @@ skype_stream_info_changed(PurpleMedia *media, PurpleMediaInfoType type, gchar *s
 PurpleMedia *
 skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
 {
+	PurpleMedia *media;
 	gchar *temp;
 	gchar *callnumber_string;
 	
@@ -2955,7 +2970,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	
 	//Use skype's own audio/video stuff for now
-	PurpleMedia *media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, TRUE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, TRUE);
 	
 	temp = skype_send_message("CALL %s", who);
 	if (!temp || !strlen(temp))
