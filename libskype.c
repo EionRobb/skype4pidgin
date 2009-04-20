@@ -2402,6 +2402,7 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
 	static int chat_number = 2000;
 	SkypeChat *chat;
+	PurpleConvChat *convchat;
 	
 	gchar *chat_id = (gchar *)g_hash_table_lookup(data, "chat_id");
 	if (chat_id == NULL)
@@ -2414,8 +2415,17 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 	{
 		chat->conv = serv_got_joined_chat(gc, chat_number++, chat_id);
 		purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
+	} else {
+		convchat = purple_conversation_get_chat_data(chat->conv);
+		//chat->conv = serv_got_joined_chat(gc, purple_conv_chat_get_id(convchat), chat_id);
+		convchat->left = FALSE;
 	}
-	//skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
+	skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
+	
+	if (purple_blist_find_chat(gc->account, chat_id) != NULL)
+	{
+		skype_send_message_nowait("ALTER CHAT %s BOOKMARK", chat_id);
+	}
 }
 
 gchar *
