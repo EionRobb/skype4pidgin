@@ -324,6 +324,8 @@ skype_handle_received_message(char *message)
 				} else if (g_str_equal(string_parts[3], "SETTOPIC"))
 				{
 					skypemessage->type = SKYPE_MESSAGE_TOPIC;
+				} else {
+					skypemessage->type = SKYPE_MESSAGE_OTHER;	
 				}
 			}
 		} else if (g_str_equal(string_parts[2], "CHATNAME"))
@@ -391,10 +393,10 @@ skype_handle_received_message(char *message)
 			chat->members = chatusers;
 			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
+				purple_conv_chat_clear_users(PURPLE_CONV_CHAT(chat->conv));
 				for (i=0; chatusers[i]; i++)
 				{
-					purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
+					purple_conv_chat_add_user(PURPLE_CONV_CHAT(chat->conv), chatusers[i], NULL, PURPLE_CBFLAGS_NONE, FALSE);
 				}
 			}
 		} else if (chat->conv && g_str_equal(string_parts[2], "FRIENDLYNAME"))
@@ -1002,7 +1004,10 @@ handle_complete_message(int messagenumber)
 			body_html = skype_strdup_withhtml(skypemessage->body);
 			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				serv_got_chat_in(skypemessage->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(chat->conv)), skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
+				if (skypemessage->flags != PURPLE_MESSAGE_SEND)
+				{
+					serv_got_chat_in(skypemessage->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(chat->conv)), skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
+				}
 			} else if (chat->type == PURPLE_CONV_TYPE_IM)
 			{
 				if (skypemessage->flags != PURPLE_MESSAGE_SEND)
