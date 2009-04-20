@@ -2337,6 +2337,9 @@ skype_chat_leave(PurpleConnection *gc, int id)
 	chat_id = (gchar *)g_hash_table_lookup(conv->data, "chat_id");
 
 	skype_send_message_nowait("ALTER CHAT %s LEAVE", chat_id);
+	
+	//once you leave a chat, you can't go back
+	//TODO delete chat from buddy-list, if it's not a public chat
 }
 
 static int
@@ -2354,10 +2357,10 @@ skype_chat_send(PurpleConnection *gc, int id, const char *message, PurpleMessage
 	skype_debug_info("skype", "chat_id: %s\n", chat_id);
 
 	skype_send_message_nowait("CHATMESSAGE %s %s", chat_id, stripped);
-/*#ifndef USE_SKYPE_SENT
+
 	serv_got_chat_in(gc, id, purple_account_get_username(purple_connection_get_account(gc)), PURPLE_MESSAGE_SEND,
 					message, time(NULL));
-#endif*/
+
 	return 1;
 }
 
@@ -2412,6 +2415,7 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 		chat->conv = serv_got_joined_chat(gc, chat_number++, chat_id);
 		purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
 	}
+	//skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
 }
 
 gchar *
