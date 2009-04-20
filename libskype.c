@@ -591,9 +591,7 @@ skype_send_file_from_blist(PurpleBlistNode *node, gpointer data)
 		buddy = (PurpleBuddy *) node;
 		if (PURPLE_BUDDY_IS_ONLINE(buddy))
 		{
-			skype_send_message_nowait("SET SILENT_MODE OFF");
 			skype_send_message_nowait("OPEN FILETRANSFER %s", buddy->name);
-			skype_send_message_nowait("SET SILENT_MODE ON");
 		}
 	}
 }
@@ -3061,6 +3059,7 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	
 	if (media != NULL)
 	{
+		g_signal_emit(media, purple_media_signals[STATE_CHANGE], 0, PURPLE_MEDIA_STATE_CHANGED_NEW, "skype-audio", who);
 		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
 		
