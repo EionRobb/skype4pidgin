@@ -327,6 +327,8 @@ skype_handle_received_message(char *message)
 				} else {
 					skypemessage->type = SKYPE_MESSAGE_OTHER;	
 				}
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "CHATNAME"))
 		{
@@ -334,6 +336,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->chatname = g_strdup(string_parts[3]);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "BODY"))
 		{
@@ -341,6 +345,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->body = g_strdup(string_parts[3]);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "FROM_HANDLE"))
 		{
@@ -348,6 +354,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->from_handle = g_strdup(string_parts[3]);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "USERS"))
 		{
@@ -355,6 +363,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->users = g_strsplit(string_parts[3], " ", -1);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "LEAVEREASON"))
 		{
@@ -362,6 +372,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->leavereason = g_strdup(string_parts[3]);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "TIMESTAMP"))
 		{
@@ -369,6 +381,8 @@ skype_handle_received_message(char *message)
 			if (skypemessage != NULL)
 			{
 				skypemessage->timestamp = atoi(string_parts[3]);
+			} else {
+				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
 			}
 		}
 		
@@ -620,7 +634,7 @@ skype_handle_received_message(char *message)
 				for (i = 0; chatusers[i]; i++)
 				{
 					buddy = purple_find_buddy(this_account, chatusers[i]);
-					if (buddy)
+					if (buddy && temp_group != purple_buddy_get_group(buddy))
 						purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
 				}
 				g_strfreev(chatusers);	
@@ -763,14 +777,16 @@ skype_handle_received_message(char *message)
 void
 skype_call_accept_cb(gchar *call)
 {
-	skype_send_message("ALTER CALL %s ANSWER", call);
+	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
+	skype_send_message_nowait("SET CALL %s SEEN", call);
 	g_free(call);
 }
 
 void
 skype_call_reject_cb(gchar *call)
 {
-	skype_send_message("ALTER CALL %s HANGUP", call);
+	skype_send_message_nowait("ALTER CALL %s HANGUP", call);
+	skype_send_message_nowait("SET CALL %s SEEN", call);
 	g_free(call);
 }
 
@@ -980,6 +996,7 @@ handle_complete_message(int messagenumber)
 	chat = skype_find_chat(skypemessage->chatname, skypemessage->account);
 	if (!chat->type)
 	{
+		skype_debug_info("skype", "Chat %s has no type\n", skypemessage->chatname);
 		//dont know where to put this message
 		//just wait for a second for the chat to be updated
 		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
