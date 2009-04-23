@@ -998,6 +998,7 @@ handle_complete_message(int messagenumber)
 	{
 		skype_debug_info("skype", "Chat %s has no type\n", skypemessage->chatname);
 		//dont know where to put this message
+		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
 		//just wait for a second for the chat to be updated
 		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
 		return FALSE;
