@@ -866,42 +866,45 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 		if (chat->type != chat->conv->type)
 		{
 			//oh crap, changed from an IM to a CHAT or vice versa :S
-		}
-	} else {
-		if (chat->type)
-		{
-			if (!chat->conv)
-			{
-				if (chat->type == PURPLE_CONV_TYPE_CHAT)
-				{
-					chat->conv = purple_find_conversation_with_account(chat->type, chat_id, this_account);
-					if (!chat->conv)
-						chat->conv = serv_got_joined_chat(this_account->gc, chat_count++, chat_id);
-				} else if (chat->type == PURPLE_CONV_TYPE_IM)
-				{
-					if (!chat->partner_handle && chat->members)
-					{
-						for (i=0; chat->members[i]; i++)
-						{
-							if (*chat->members[i] != '\0' && !g_str_equal(chat->members[i], skype_get_account_username(chat->account)))
-							{
-								chat->partner_handle = g_strdup(chat->members[i]);
-								break;
-							}
-						}
-					}
-					if (chat->partner_handle)
-					{
-						chat->conv = purple_find_conversation_with_account(chat->type, chat->partner_handle, chat->account);
-						if (!chat->conv)
-							chat->conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, chat->account, chat->partner_handle);
-					}
-				}
-			}
-			if (chat->conv)
-				purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
+			//see if making it null works
+			purple_conversation_set_data(chat->conv, "chat_id", NULL);
+			chat->conv = NULL;
 		}
 	}
+	if (chat->type)
+	{
+		if (!chat->conv)
+		{
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				chat->conv = purple_find_conversation_with_account(chat->type, chat_id, this_account);
+				if (!chat->conv)
+					chat->conv = serv_got_joined_chat(this_account->gc, chat_count++, chat_id);
+			} else if (chat->type == PURPLE_CONV_TYPE_IM)
+			{
+				if (!chat->partner_handle && chat->members)
+				{
+					for (i=0; chat->members[i]; i++)
+					{
+						if (*chat->members[i] != '\0' && !g_str_equal(chat->members[i], skype_get_account_username(chat->account)))
+						{
+							chat->partner_handle = g_strdup(chat->members[i]);
+							break;
+						}
+					}
+				}
+				if (chat->partner_handle)
+				{
+					chat->conv = purple_find_conversation_with_account(chat->type, chat->partner_handle, chat->account);
+					if (!chat->conv)
+						chat->conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, chat->account, chat->partner_handle);
+				}
+			}
+		}
+		if (chat->conv)
+			purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
+	}
+	
 	
 	return chat;
 }
