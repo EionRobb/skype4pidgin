@@ -1467,6 +1467,10 @@ skype_close(PurpleConnection *gc)
 	GSList *buddies;
 
 	skype_debug_info("skype", "logging out\n");
+	
+	//Close notification boxes (if any)
+	purple_request_close_with_handle(gc);
+	
 	if (gc && purple_account_get_bool(gc->account, "skype_sync", TRUE))
 		skype_send_message_nowait("SET USERSTATUS OFFLINE");
 	skype_send_message_nowait("SET SILENT_MODE OFF");
