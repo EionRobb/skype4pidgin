@@ -1,6 +1,23 @@
 Changelog
 =========
 
+4 April 2009
+------------
+* Fix buddy grouping and setting of status in Adium.
+
+1 April 2009
+------------
+* Last Adium version didn't work without Skype 2.8beta installed, has been fixed.
+
+27 March 2009
+-------------
+* Important update for OSX users, workaround for bug in Skype which increased CPU load and missed messages
+* Removes debug info from system.log on OSX
+
+21 January 2009
+---------------
+* Fixes statuses in Adium, can set your status to Invisible/DND/SkypeMe through Adium status menu
+
 4 January 2009
 --------------
 * Fixed buddies not showing after suspend/disconnect in Adium plugin
