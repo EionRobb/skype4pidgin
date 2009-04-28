@@ -1,18 +1,31 @@
 /*
  * Skype plugin for libpurple/Pidgin/Adium
- * Written by: Eion Robb <bigbrownchunx@sf.net>
+ * Written by: Eion Robb <eionrobb@gmail.com>
  *
  * This plugin uses the Skype API to show your contacts in libpurple, and send/receive
  * chat messages.
- * It requires the Skype program to be running. 
+ * It requires the Skype program to be running.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Skype API Terms of Use:
  * The following statement must be displayed in the documentation of this appliction:
  * This plugin "uses Skype Software" to display contacts, and chat to Skype users from within Pidgin
  * "This product uses the Skype API but is not endorsed, certified or otherwise approved in any way by Skype"
-
+ *
  * The use of this plugin requries your acceptance of the Skype EULA (http://www.skype.com/intl/en/company/legal/eula/index.html)
-
+ *
  * Skype is the trademark of Skype Limited
  */
 
