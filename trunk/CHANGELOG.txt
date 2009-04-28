@@ -1,6 +1,10 @@
 Changelog
 =========
 
+28 April 2009
+-------------
+* Multi-user chat TLC, both Adium and Pidgin plugins
+
 4 April 2009
 ------------
 * Fix buddy grouping and setting of status in Adium.
