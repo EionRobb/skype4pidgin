@@ -4,6 +4,8 @@ Changelog
 28 April 2009
 -------------
 * Multi-user chat TLC, both Adium and Pidgin plugins
+* IM's turning into Multi-user chats don't mess up any more
+* 'Missed' messages downloaded
 
 4 April 2009
 ------------
