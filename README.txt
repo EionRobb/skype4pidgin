@@ -25,7 +25,6 @@ To compile from source, the easiest way is extract libskype.zip into the ${PIDGI
 Known Issues
 ============
 
-* Pidgin crashes at startup if Skype not running (Linux)
 * No notification popup on file being received/notificaitons (Windows)
 
 * Skype sounds still play even when it's hidden
@@ -34,7 +33,6 @@ Known Issues
 * Unable to send file from within Adium (API Limitation)
 * Send file doesn't use the built in libpurple methods. (API Limitation)
 * Linux version still opens up Skype message windows. (API Limitation)
-* Linux/OSX version doesn't show buddy icons. (API Limitation)
 * No typing notifications with official Skype clients. (API Limitation)
 
 
@@ -88,14 +86,5 @@ If you've got any questions/problems/comments with this plugin, feel free to fli
 
 Legal
 =====
-Although none of this is necessary in my country, it may apply in yours.  New Zealand law permits reverse-engineering for purposes of interoperability, so the following legal notices are just a courtesy.
-
-Skype API Terms of Use:
-The following statement must be displayed in the documentation of this appliction:
-This plugin "uses Skype Software" to display contacts, and chat to Skype users from within Pidgin
-"This product uses the Skype API but is not endorsed, certified or otherwise approved in any way by Skype"
-
-The use of this plugin requries your acceptance of the Skype EULA (http://www.skype.com/intl/en/company/legal/eula/index.html) which you already accepted when you installed Skype.
-
 Skype is the trademark of Skype Limited
 
