@@ -446,7 +446,7 @@ skype_handle_received_message(char *message)
 		{
 			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), my_username, g_strdup(string_parts[3]));
+				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), my_username, string_parts[3]);
 			}
 		}
 		chat = skype_find_chat(string_parts[1], this_account);
@@ -1151,7 +1151,7 @@ handle_complete_message(int messagenumber)
 				return FALSE;
 			if (chat->conv && chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
-				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), NULL, skypemessage->body);
+				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), skypemessage->from_handle, skypemessage->body);
 				serv_got_chat_in(skypemessage->account->gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(chat->conv)), skypemessage->from_handle, PURPLE_MESSAGE_SYSTEM, skype_strdup_withhtml(g_strdup_printf(_("%s has changed the topic to: %s"), skypemessage->from_handle, skypemessage->body)), time(NULL));
 			} 
 			break;
