@@ -1486,6 +1486,21 @@ skype_close(PurpleConnection *gc)
 			purple_prpl_got_user_status(buddy->account, buddy->name, "OFFLINE", NULL);
 		}
 	}
+
+
+	g_hash_table_destroy(messages_table);
+	messages_table = NULL;
+	g_hash_table_destroy(groups_table);
+	groups_table = NULL;
+	g_hash_table_destroy(chat_link_table);
+	chat_link_table = NULL;
+	g_hash_table_destroy(sms_convo_link_table);
+	sms_convo_link_table = NULL;
+	
+#ifdef USE_VV
+	g_hash_table_destroy(call_media_hash);
+	call_media_hash = NULL;
+#endif
 }
 
 int 
