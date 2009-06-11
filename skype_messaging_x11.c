@@ -49,11 +49,9 @@ skype_connect()
 	
 	x11_error_code = 0;
 	XSetErrorHandler(x11_error_handler);
-#ifdef USE_XVFB_SERVER	
 	if (getenv("SKYPEDISPLAY"))
 		disp = XOpenDisplay(getenv("SKYPEDISPLAY"));
 	else
-#endif
 		disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
