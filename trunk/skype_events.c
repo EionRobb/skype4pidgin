@@ -1034,7 +1034,7 @@ handle_complete_message(int messagenumber)
 					if (chat->prpl_chat_id)
 						i = chat->prpl_chat_id;
 					else
-						i = g_str_hash(chat_id);
+						i = g_str_hash(chat->chat_id);
 					serv_got_chat_in(skypemessage->account->gc, i, skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
 				}
 			} else if (chat->type == PURPLE_CONV_TYPE_IM)
