@@ -902,7 +902,7 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 			{
 				chat->conv = purple_find_conversation_with_account(chat->type, chat->partner_handle, chat->account);
 				if (!chat->conv)
-					chat->conv = purple_conversation_new(chat->conv, chat->account, chat->partner_handle);
+					chat->conv = purple_conversation_new(chat->type, chat->account, chat->partner_handle);
 			}
 		}
 		if (chat->conv)
@@ -1034,7 +1034,7 @@ handle_complete_message(int messagenumber)
 					if (chat->prpl_chat_id)
 						i = chat->prpl_chat_id;
 					else
-						i = g_str_hash(chat->chat_id);
+						i = g_str_hash(chat->name);
 					serv_got_chat_in(skypemessage->account->gc, i, skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
 				}
 			} else if (chat->type == PURPLE_CONV_TYPE_IM)
