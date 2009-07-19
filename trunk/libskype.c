@@ -122,6 +122,7 @@ typedef struct _SkypeBuddy {
 typedef struct _SkypeChat {
 	PurpleAccount *account;
 	PurpleConversation *conv;
+	gint prpl_chat_id;
 	
 	gchar *name;
 	gchar **members;
@@ -2516,7 +2517,6 @@ skype_find_blist_chat(PurpleAccount *account, const char *name)
 void
 skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
-	static int chat_number = 2000;
 	SkypeChat *chat;
 	PurpleConvChat *convchat;
 	
@@ -2529,11 +2529,11 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
 	if (!chat->conv)
 	{
-		chat->conv = serv_got_joined_chat(gc, chat_number++, chat_id);
+		chat->prpl_chat_id = g_str_hash(chat_id);
+		chat->conv = serv_got_joined_chat(gc, chat->prpl_chat_id, chat_id);
 		purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
 	} else {
 		convchat = purple_conversation_get_chat_data(chat->conv);
-		//chat->conv = serv_got_joined_chat(gc, purple_conv_chat_get_id(convchat), chat_id);
 		convchat->left = FALSE;
 	}
 	skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
