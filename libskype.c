@@ -946,7 +946,7 @@ skype_set_buddies(PurpleAccount *acct)
 					
 					//find out what group this buddy is in
 					//for now, dump them into a default group, until skype tells us where they belong
-					if (friends[i][0] == '+')
+					if (full_friends_list[i][0] == '+')
 					{
 						if (skypeout_group == NULL)
 						{
