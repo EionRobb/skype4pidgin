@@ -900,12 +900,98 @@ skype_set_buddies(PurpleAccount *acct)
 {
 	char *friends_text;
 	char **friends;
+	char **full_friends_list;
 	GSList *existing_friends;
 	GSList *found_buddy;
 	PurpleBuddy *buddy;
+	SkypeBuddy *sbuddy;
 	PurpleGroup *skype_group = NULL;
 	PurpleGroup *skypeout_group = NULL;
 	int i;
+	
+	friends_text = skype_send_message("GET AUTH_CONTACTS_PROFILES");
+	if (!friends_text || friends_text[0] == '\0')
+	{
+		g_free(friends_text);
+	} else {
+		full_friends_list = g_strsplit((strchr(friends_text, ' ')+1), ";", 0);
+		g_free(friends_text);
+		if (full_friends_list && full_friends_list[0])
+		{
+			//in the format of: username;full name;phone;office phone;mobile phone;
+			//					online status;friendly name;voicemail;mood
+			
+			existing_friends = purple_find_buddies(acct, NULL);
+	
+			for (i=0; full_friends_list[i]; i+=9)
+			{
+				found_buddy = g_slist_find_custom(existing_friends,
+													full_friends_list[i],
+													skype_slist_friend_search);
+				if (found_buddy != NULL)
+				{
+					//the buddy was already in the list
+					buddy = (PurpleBuddy *)found_buddy->data;
+					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1)
+					sbuddy->handle = buddy->name;
+					sbuddy->buddy = buddy;
+					skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
+				} else {
+					skype_debug_info("skype","Buddy not in list %s\n", friends[i]);
+					buddy = purple_buddy_new(acct, full_friends_list[i], NULL);
+					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1)
+					sbuddy->handle = buddy->name;
+					sbuddy->buddy = buddy;
+					
+					//find out what group this buddy is in
+					//for now, dump them into a default group, until skype tells us where they belong
+					if (friends[i][0] == '+')
+					{
+						if (skypeout_group == NULL)
+						{
+							skypeout_group = purple_find_group("SkypeOut");
+							if (skypeout_group == NULL)
+							{
+								skypeout_group = purple_group_new("SkypeOut");
+								purple_blist_add_group(skypeout_group, NULL);
+							}
+						}
+						purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
+					}
+					else
+					{
+						if (skype_group == NULL)
+						{
+							skype_group = purple_find_group("Skype");
+							if (skype_group == NULL)
+							{
+								skype_group = purple_group_new("Skype");
+								purple_blist_add_group(skype_group, NULL);
+							}
+						}
+						purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
+					}
+				}
+				
+				//in the format of: username;full name;phone;office phone;mobile phone;
+				//					online status;friendly name;voicemail;mood
+				sbuddy->fullname = g_strdup(full_friends_list[i+1]);
+				if (!purple_buddy_get_server_alias(buddy))
+					purple_blist_server_alias_buddy(buddy, sbuddy->fullname);
+				sbuddy->phone_home = g_strdup(full_friends_list[i+2]);
+				sbuddy->phone_office = g_strdup(full_friends_list[i+3]);
+				sbuddy->phone_mobile = g_strdup(full_friends_list[i+4]);
+				
+				purple_blist_server_alias_buddy(buddy, full_friends_list[i+6]);
+				sbuddy->is_voicemail_capable = g_str_equal(full_friends_list[i+7], "TRUE")?TRUE:FALSE;
+				sbuddy->mood = g_strdup(full_friends_list[i+8]);
+				
+				//Do this one last to update buddy list
+				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
+			}
+			return FALSE;
+		}
+	}
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
 	if (strlen(friends_text) == 0)
