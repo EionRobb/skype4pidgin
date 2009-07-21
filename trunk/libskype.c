@@ -900,6 +900,7 @@ gboolean
 skype_set_buddies(PurpleAccount *acct)
 {
 	char *friends_text;
+	gchar **mood_buddyname;
 	char **friends;
 	char **full_friends_list;
 	GSList *existing_friends;
@@ -920,12 +921,13 @@ skype_set_buddies(PurpleAccount *acct)
 		if (full_friends_list && full_friends_list[0])
 		{
 			//in the format of: username;full name;phone;office phone;mobile phone;
-			//					online status;friendly name;voicemail;mood
+			//                  online status;friendly name;voicemail;mood
 			
 			existing_friends = purple_find_buddies(acct, NULL);
 	
-			for (i=0; full_friends_list[i]; i+=9)
+			for (i=0; full_friends_list[i]; i+=8)
 			{
+				purple_debug_info("skype","Search buddy %s\n", full_friends_list[i]);
 				found_buddy = g_slist_find_custom(existing_friends,
 													full_friends_list[i],
 													skype_slist_friend_search);
@@ -985,11 +987,16 @@ skype_set_buddies(PurpleAccount *acct)
 				
 				purple_blist_server_alias_buddy(buddy, full_friends_list[i+6]);
 				sbuddy->is_voicemail_capable = g_str_equal(full_friends_list[i+7], "TRUE")?TRUE:FALSE;
-				sbuddy->mood = g_strdup(full_friends_list[i+8]);
+				mood_buddyname = g_strsplit(full_friends_list[i+8], ",", 2);
+				sbuddy->mood = g_strdup(mood_buddyname[0]);
+				g_free(full_friends_list[i+8]);
+				full_friends_list[i+8] = g_strdup(mood_buddyname[1]);
+				g_strfreev(mood_buddyname);
 				
 				//Do this one last to update buddy list
 				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
 			}
+			g_strfreev(full_friends_list);
 			return FALSE;
 		}
 	}
