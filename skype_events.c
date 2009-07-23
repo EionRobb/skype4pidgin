@@ -971,6 +971,8 @@ purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 
 	xfer->status = status;
 }
+
+
 gboolean
 skype_sync_skype_close(PurpleConnection *gc)
 {
@@ -978,9 +980,6 @@ skype_sync_skype_close(PurpleConnection *gc)
 		purple_connection_error(gc, _("\nSkype program closed"));
 	return FALSE;
 }
-
-
-
 
 gboolean
 handle_complete_message(int messagenumber)
@@ -1006,8 +1005,13 @@ handle_complete_message(int messagenumber)
 		skype_debug_info("skype", "Chat %s has no type\n", skypemessage->chatname);
 		//dont know where to put this message
 		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
-		//just wait for a second for the chat to be updated
-		purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
+		chat->type_request_count++;
+		//Only try a maximum of 100 times to prevent an infinite loop (in case the chat name is unknown)
+		if (chat->type_request_count < 100)
+		{
+			//just wait for a second for the chat to be updated
+			purple_timeout_add_seconds(1, (GSourceFunc)handle_complete_message, GINT_TO_POINTER(messagenumber));
+		}
 		return FALSE;
 	}
 	
