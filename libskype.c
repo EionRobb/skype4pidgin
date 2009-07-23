@@ -991,8 +991,11 @@ skype_set_buddies(PurpleAccount *acct)
 				sbuddy->is_voicemail_capable = g_str_equal(full_friends_list[i+7], "TRUE")?TRUE:FALSE;
 				mood_buddyname = g_strsplit(full_friends_list[i+8], ",", 2);
 				sbuddy->mood = g_strdup(mood_buddyname[0]);
-				g_free(full_friends_list[i+8]);
-				full_friends_list[i+8] = g_strdup(mood_buddyname[1]);
+				if (mood_buddyname[1] && mood_buddyname[1][0] != '\0' && full_friends_list[i+8])
+				{
+					g_free(full_friends_list[i+8]);
+					full_friends_list[i+8] = g_strdup(mood_buddyname[1]);
+				}
 				g_strfreev(mood_buddyname);
 				
 				//Do this one last to update buddy list
