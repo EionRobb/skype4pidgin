@@ -995,6 +995,8 @@ skype_set_buddies(PurpleAccount *acct)
 				{
 					g_free(full_friends_list[i+8]);
 					full_friends_list[i+8] = g_strdup(mood_buddyname[1]);
+				} else {
+					full_friends_list[i+8] = NULL;
 				}
 				g_strfreev(mood_buddyname);
 				
