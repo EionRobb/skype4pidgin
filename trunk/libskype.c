@@ -130,6 +130,8 @@ typedef struct _SkypeChat {
 	PurpleConversationType type;
 	gchar *topic;
 	gchar *friendlyname;
+	
+	int type_request_count; //count the number of times we request the chat type
 } SkypeChat;
 
 static GHashTable *chat_link_table = NULL;
