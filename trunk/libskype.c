@@ -1566,6 +1566,13 @@ skype_get_account_alias(PurpleAccount *acct)
 {
 	char *ret;
 	char *alias;
+	
+	alias = purple_account_get_alias(acct)
+	if (alias != NULL && alias[0] != '\0')
+	{
+		return;
+	}
+
 	ret = skype_send_message("GET PROFILE FULLNAME");
 	alias = g_strdup(&ret[17]);
 	g_free(ret);
