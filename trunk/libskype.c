@@ -1012,7 +1012,10 @@ skype_set_buddies(PurpleAccount *acct)
 				}
 				
 				//Do this one last to update buddy list
-				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
+				if (buddy->name[0] == '+')
+					purple_prpl_got_user_status(acct, buddy->name, "SKYPEOUT", NULL);
+				else
+					purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
 			}
 			g_strfreev(full_friends_list);
 			return FALSE;
@@ -1567,9 +1570,10 @@ skype_get_account_alias(PurpleAccount *acct)
 	char *ret;
 	char *alias;
 	
-	alias = purple_account_get_alias(acct)
+	alias = (gchar *)purple_account_get_alias(acct);
 	if (alias != NULL && alias[0] != '\0')
 	{
+		//Alias already set, dont do anything
 		return;
 	}
 
