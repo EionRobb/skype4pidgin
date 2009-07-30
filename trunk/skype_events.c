@@ -33,6 +33,9 @@ gint skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 void skype_call_accept_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
+void skype_call_ignore_cb(gchar *call);
+void skype_call_voicemail_cb(gchar *call);
+void skype_call_forward_cb(gchar *call);
 gboolean skype_sync_skype_close(PurpleConnection *gc);
 gboolean handle_complete_message(int messagenumber);
 
@@ -726,9 +729,16 @@ skype_handle_received_message(char *message)
 			g_free(temp);
 			if (g_str_equal(type, "INCOMING"))
 			{
-				purple_request_action(gc, _("Incoming Call"), g_strdup_printf(_("%s is calling you."), sender), _("Do you want to accept their call?"),
-								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, _("_Accept"), 
-								G_CALLBACK(skype_call_accept_cb), _("_Reject"), G_CALLBACK(skype_call_reject_cb));
+				temp = g_strdup_printf(_("%s is calling you."), sender);
+				purple_request_action(gc, _("Incoming Call"), temp, 
+									  _("Do you want to accept their call?"),
+								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, 
+								_("_Accept"), G_CALLBACK(skype_call_accept_cb), 
+									  _("_Reject"), G_CALLBACK(skype_call_reject_cb),
+									  _("_Ignore"), G_CALLBACK(skype_call_ignore_cb),
+									  _("Send to _Voicemail"), G_CALLBACK(skype_call_voicemail_cb),
+									  _("_Forward"), G_CALLBACK(skype_call_forward_cb));
+				g_free(temp);
 			}
 			g_free(sender);
 			g_free(type);
@@ -808,7 +818,30 @@ skype_call_accept_cb(gchar *call)
 void
 skype_call_reject_cb(gchar *call)
 {
-	skype_send_message_nowait("ALTER CALL %s HANGUP", call);
+	skype_send_message_nowait("ALTER CALL %s END HANGUP", call);
+	skype_send_message_nowait("SET CALL %s SEEN", call);
+	g_free(call);
+}
+
+void
+skype_call_ignore_cb(gchar *call)
+{
+	skype_send_message_nowait("SET CALL %s SEEN", call);
+	g_free(call);
+}
+
+void
+skype_call_voicemail_cb(gchar *call)
+{
+	skype_send_message_nowait("ALTER CALL %s END REDIRECT_TO_VOICEMAIL", call);
+	skype_send_message_nowait("SET CALL %s SEEN", call);
+	g_free(call);
+}
+
+void
+skype_call_forward_cb(gchar *call)
+{
+	skype_send_message_nowait("ALTER CALL %s END FORWARD_CALL", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	g_free(call);
 }
