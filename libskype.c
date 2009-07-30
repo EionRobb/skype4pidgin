@@ -79,6 +79,9 @@ PurpleMediaCaps skype_get_media_caps(PurpleConnection *gc, const char *who);
 static void skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string);
 static void skype_handle_call_got_ended(char *callnumber_string);
 static void skype_send_call_end(char *callnumber_string);
+
+static GHashTable *call_media_hash = NULL;
+
 #endif
 
 typedef struct _SkypeBuddy {
@@ -3055,8 +3058,6 @@ Have to sniff for video window/object, very platform dependant
 
 */
 
-static GHashTable *call_media_hash = NULL;
-
 //our call to someone else got ended
 static void
 skype_handle_call_got_ended(char *callnumber_string)
@@ -3142,7 +3143,7 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	
 	//Use skype's own audio/video stuff for now
-	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, TRUE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), purple_connection_get_account(gc), "fsrtpconference", who, TRUE);
 	
 	temp = skype_send_message("CALL %s", who);
 	if (!temp || !strlen(temp))
@@ -3212,11 +3213,11 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	who = g_strdup(&temp[21+strlen(callnumber_string)]);
 	g_free(temp);
 	
-	media = purple_media_manager_create_media(purple_media_manager_get(), gc, "fsrtpconference", who, FALSE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), purple_connection_get_account(gc), "fsrtpconference", who, FALSE);
 	
 	if (media != NULL)
 	{
-		g_signal_emit(media, purple_media_signals[STATE_CHANGE], 0, PURPLE_MEDIA_STATE_CHANGED_NEW, "skype-audio", who);
+		//g_signal_emit(media, purple_media_signals[STATE_CHANGE], 0, PURPLE_MEDIA_STATE_CHANGED_NEW, "skype-audio", who);
 		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
 		
