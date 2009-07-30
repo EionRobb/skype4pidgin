@@ -906,7 +906,6 @@ skype_set_buddies(PurpleAccount *acct)
 	char **friends;
 	char **full_friends_list;
 	GSList *existing_friends;
-	GSList *found_buddy;
 	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
 	PurpleGroup *skype_group = NULL;
@@ -924,19 +923,15 @@ skype_set_buddies(PurpleAccount *acct)
 		{
 			//in the format of: username;full name;phone;office phone;mobile phone;
 			//                  online status;friendly name;voicemail;mood
-			
-			existing_friends = purple_find_buddies(acct, NULL);
+			// (comma-seperated lines, usernames can have comma's)
 	
 			for (i=0; full_friends_list[i]; i+=8)
 			{
-				purple_debug_info("skype","Search buddy %s\n", full_friends_list[i]);
-				found_buddy = g_slist_find_custom(existing_friends,
-													full_friends_list[i],
-													skype_slist_friend_search);
-				if (found_buddy != NULL)
+				skype_debug_info("skype","Search buddy %s\n", full_friends_list[i]);
+				buddy = purple_find_buddy(acct, full_friends_list[i]);
+				if (buddy != NULL)
 				{
 					//the buddy was already in the list
-					buddy = (PurpleBuddy *)found_buddy->data;
 					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1);
 					sbuddy->handle = buddy->name;
 					sbuddy->buddy = buddy;
@@ -1047,13 +1042,11 @@ skype_set_buddies(PurpleAccount *acct)
 	{
 		//If already in list, dont recreate, reuse
 		skype_debug_info("skype", "Searching for friend %s\n", friends[i]);
-		found_buddy = g_slist_find_custom(existing_friends,
-											friends[i],
-											skype_slist_friend_search);
-		if (found_buddy != NULL)
+		buddy = purple_find_buddy(acct, friends[i]);
+		
+		if (buddy != NULL)
 		{
 			//the buddy was already in the list
-			buddy = (PurpleBuddy *)found_buddy->data;
 			buddy->proto_data = skype_buddy_new(buddy);
 			skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, friends[i]);
 		} else {
@@ -1098,9 +1091,8 @@ skype_set_buddies(PurpleAccount *acct)
 	}
 	
 	//special case, if we're on our own buddy list
-	if ((found_buddy = g_slist_find_custom(existing_friends, skype_get_account_username(acct), skype_slist_friend_search)))
+	if ((buddy = purple_find_buddy(acct, skype_get_account_username(acct))))
 	{
-		buddy = (PurpleBuddy *)found_buddy->data;
 		skype_update_buddy_status(buddy);
 		skype_update_buddy_alias(buddy);
 		purple_prpl_got_user_idle(acct, buddy->name, FALSE, 0);
@@ -1414,6 +1406,11 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 gboolean
 skype_login_cb(gpointer acct)
 {
+	if (!is_skype_running())
+	{
+		purple_timeout_add_seconds(1, skype_login_cb, acct);
+		return FALSE;
+	}
 	skype_login(acct);
 	return FALSE;
 }
@@ -1466,11 +1463,15 @@ skype_login(PurpleAccount *acct)
 			if (!is_skype_running())
 			{
 				skype_debug_info("skype", "Yes, start Skype\n");
-				exec_skype();
+				if (!exec_skype())
+				{
+					purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
+					return;
+				}
 				purple_timeout_add_seconds(10, skype_login_cb, acct);
 				return;
-				gc->wants_to_die = FALSE;
 			}
+			gc->wants_to_die = FALSE;
 		} else {
 			gc->wants_to_die = TRUE;
 		}
@@ -1521,11 +1522,12 @@ skype_login(PurpleAccount *acct)
 	skype_get_account_username(acct);
 	if (purple_account_get_bool(acct, "skype_sync", TRUE))
 		skype_set_status(acct, purple_account_get_active_status(acct));
-	//sync buddies after everything else has finished loading
-	purple_timeout_add(10, (GSourceFunc)skype_set_buddies, (gpointer)acct);
 	skype_send_message_nowait("CREATE APPLICATION libpurple_typing");
 	
 	purple_connection_set_state(gc, PURPLE_CONNECTED);
+	
+	//sync buddies after everything else has finished loading
+	purple_timeout_add_seconds(1, (GSourceFunc)skype_set_buddies, (gpointer)acct);
 	purple_timeout_add_seconds(30, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
 }
 

@@ -197,7 +197,11 @@ hide_skype()
 static gboolean
 exec_skype()
 {
-	return g_spawn_command_line_async("/Applications/Skype.app/Contents/MacOS/Skype", NULL);
+	gboolean success;
+	
+	success = g_spawn_command_line_async("/Applications/Skype.app/Contents/MacOS/Skype", NULL);
+	
+	return success;
 }
 
 static gboolean
