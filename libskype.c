@@ -74,8 +74,8 @@
 
 #ifdef USE_VV
 #include <mediamanager.h>
-PurpleMedia *skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type);
-PurpleMediaCaps skype_get_media_caps(PurpleConnection *gc, const char *who);
+gboolean skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSessionType type);
+PurpleMediaCaps skype_get_media_caps(PurpleAccount *account, const char *who);
 static void skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string);
 static void skype_handle_call_got_ended(char *callnumber_string);
 static void skype_send_call_end(char *callnumber_string);
@@ -3124,7 +3124,9 @@ static void
 skype_stream_info_changed(PurpleMedia *media, PurpleMediaInfoType type, gchar *session_id, gchar *participant, gboolean local,
 		gchar *callnumber_string)
 {
-	if (type == PURPLE_MEDIA_INFO_HANGUP) {
+	if (type == PURPLE_MEDIA_INFO_ACCEPT) {
+		skype_send_call_accept(callnumber_string);
+	} else if (type == PURPLE_MEDIA_INFO_HANGUP) {
 		skype_send_call_end(callnumber_string);
 	} else if (type == PURPLE_MEDIA_INFO_REJECT) {
 		skype_send_call_reject(callnumber_string);
@@ -3132,8 +3134,8 @@ skype_stream_info_changed(PurpleMedia *media, PurpleMediaInfoType type, gchar *s
 }
 
 //called by the UI to say, please start a media call
-PurpleMedia *
-skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionType type)
+gboolean
+skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSessionType type)
 {
 	PurpleMedia *media;
 	gchar *temp;
@@ -3143,13 +3145,13 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	
 	//Use skype's own audio/video stuff for now
-	media = purple_media_manager_create_media(purple_media_manager_get(), purple_connection_get_account(gc), "fsrtpconference", who, TRUE);
+	media = purple_media_manager_create_media(purple_media_manager_get(), account, "fsrtpconference", who, TRUE);
 	
 	temp = skype_send_message("CALL %s", who);
 	if (!temp || !strlen(temp))
 	{
 		g_free(temp);
-		return NULL;
+		return FALSE;
 	}
 	callnumber_string = g_new(gchar, 10+1);
 	sscanf(temp, "CALL %s ", callnumber_string);
@@ -3165,17 +3167,17 @@ skype_media_initiate(PurpleConnection *gc, const char *who, PurpleMediaSessionTy
 	} else {
 		skype_debug_info("skype_media", "media is NULL\n");
 	}
-	return media;
+	return TRUE;
 }
 
 PurpleMediaCaps
-skype_get_media_caps(PurpleConnection *gc, const char *who)
+skype_get_media_caps(PurpleAccount *account, const char *who)
 {
 	PurpleMediaCaps caps = PURPLE_MEDIA_CAPS_NONE;
 	PurpleBuddy *buddy = NULL;
 	SkypeBuddy *sbuddy = NULL;
 	
-	buddy = purple_find_buddy(gc->account, who);
+	buddy = purple_find_buddy(account, who);
 	if (buddy != NULL)
 		sbuddy = buddy->proto_data;
 	

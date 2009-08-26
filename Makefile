@@ -9,12 +9,12 @@ LIBPURPLE_CFLAGS = -I/usr/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib64/glib-2.0/include -I/usr/include
 DBUS_CFLAGS = -DSKYPE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/lib64/dbus-1.0/include
 WIN32_DEV_DIR = /root/pidgin/win32-dev
-WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.1.1
-WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
+WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.6.1
+WIN32_CFLAGS = -DPURPLE_PLUGINS -DENABLE_NLS -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_PIDGIN_DIR}/libpurple -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0/lib -L${WIN32_PIDGIN_DIR}/libpurple -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lintl -lpurple
 
 VV_CFLAGS = -I/usr/include/gstreamer-0.10 -DUSE_VV -I/usr/include/libxml2
-WIN32_VV_CFLAGS = -I${WIN32_DEV_DIR}/gstreamer-0.10/include
+WIN32_VV_CFLAGS = -I${WIN32_DEV_DIR}/libxml2/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include/gstreamer-0.10 
 
 DEB_PACKAGE_DIR = /root/skypeplugin
 
@@ -84,21 +84,21 @@ libskype_dbus64.so: .DEPENDS skype_messaging_dbus.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
 libskype-vv.dll: .DEPENDS skype_messaging_win32.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype-vv.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all -DUSE_VV ${WIN32_VV_CFLAGS}
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype-vv.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all -DUSE_VV ${WIN32_VV_CFLAGS}
 
 libskype.dll: .DEPENDS skype_messaging_win32.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all
 	upx libskype.dll
 
 libskypenet.dll: .DEPENDS skype_messaging_network.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET -Wl,--strip-all
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET -Wl,--strip-all
 	upx libskypenet.dll
 
 libskype-debug.dll: .DEPENDS skype_messaging_win32.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskype-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
 
 libskypenet-debug.dll: .DEPENDS skype_messaging_network.c
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET
 
 po/%.mo: po/%.po
 	msgfmt -cf -o $@ $<
