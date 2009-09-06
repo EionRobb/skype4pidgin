@@ -891,7 +891,12 @@ skype_status_types(PurpleAccount *acct)
 	types = g_list_append(types, status);
 	
 	//User could be a SkypeOut contact
-	status = purple_status_type_new_full(PURPLE_STATUS_MOBILE, "SKYPEOUT", _("SkypeOut"), FALSE, FALSE, FALSE);
+	if (purple_account_get_bool(acct, "skypeout_online", TRUE))
+	{
+		status = purple_status_type_new_full(PURPLE_STATUS_MOBILE, "SKYPEOUT", _("SkypeOut"), FALSE, FALSE, FALSE);
+	} else {
+		status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "SKYPEOUT", _("SkypeOut"), FALSE, FALSE, FALSE);
+	}
 	types = g_list_append(types, status);
 	
 	//Offline people shouldn't have status messages
@@ -1010,10 +1015,7 @@ skype_set_buddies(PurpleAccount *acct)
 				}
 				
 				//Do this one last to update buddy list
-				if (buddy->name[0] == '+')
-					purple_prpl_got_user_status(acct, buddy->name, "SKYPEOUT", NULL);
-				else
-					purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
+				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
 			}
 			g_strfreev(full_friends_list);
 			return FALSE;
