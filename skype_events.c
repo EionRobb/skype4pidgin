@@ -654,7 +654,7 @@ skype_handle_received_message(char *message)
 		} else if (g_str_equal(string_parts[2], "USERS"))
 		{
 			temp_group = g_hash_table_lookup(groups_table, GINT_TO_POINTER(atoi(string_parts[1])));
-			if (temp_group)
+			if (temp_group && string_parts[3])
 			{
 				chatusers = g_strsplit(string_parts[3], ", ", -1);
 				for (i = 0; chatusers[i]; i++)
