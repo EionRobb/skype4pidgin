@@ -60,7 +60,8 @@ static GHashTable *messages_table = NULL;
 static GHashTable *groups_table = NULL;
 
 typedef enum _SkypeMessageType {
-	SKYPE_MESSAGE_OTHER = 0,
+	SKYPE_MESSAGE_UNSET = 0,
+	SKYPE_MESSAGE_OTHER,
 	SKYPE_MESSAGE_TEXT,
 	SKYPE_MESSAGE_EMOTE,
 	SKYPE_MESSAGE_ADD,
@@ -233,16 +234,21 @@ skype_handle_received_message(char *message)
 			}
 		} else if (g_str_equal(string_parts[2], "RECEIVEDAUTHREQUEST"))
 		{
-			//this event can be fired directly after authorising someone
-			temp = skype_get_user_info(string_parts[1], "ISAUTHORIZED");
-			if (!g_str_equal(temp, "TRUE"))
+			if (purple_account_get_bool(acct, "reject_all_auths", FALSE))
 			{
-				skype_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
-				purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
-													string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
-													skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
+				skype_auth_deny(g_strdup(string_parts[1]));
+			} else {
+				//this event can be fired directly after authorising someone
+				temp = skype_get_user_info(string_parts[1], "ISAUTHORIZED");
+				if (!g_str_equal(temp, "TRUE") && string_parts[3])
+				{
+					skype_debug_info("skype", "User %s requested authorisation\n", string_parts[1]);
+					purple_account_request_authorization(this_account, string_parts[1], NULL, skype_get_user_info(string_parts[1], "FULLNAME"),
+														string_parts[3], (purple_find_buddy(this_account, string_parts[1]) != NULL),
+														skype_auth_allow, skype_auth_deny, (gpointer)g_strdup(string_parts[1]));
+				}
+				g_free(temp);
 			}
-			g_free(temp);
 		}
 	} else if (g_str_equal(command, "MESSAGE"))
 	{
@@ -850,12 +856,14 @@ void
 skype_auth_allow(gpointer sender)
 {
 	skype_send_message("SET USER %s ISAUTHORIZED TRUE", sender);
+	g_free(sender);
 }
 
 void
 skype_auth_deny(gpointer sender)
 {
 	skype_send_message("SET USER %s ISAUTHORIZED FALSE", sender);
+	g_free(sender);
 }
 
 gint
@@ -1050,16 +1058,17 @@ handle_complete_message(int messagenumber)
 	
 	switch(skypemessage->type)
 	{
-		case SKYPE_MESSAGE_OTHER:
-			return FALSE;
 		case SKYPE_MESSAGE_EMOTE:
 			if (!skypemessage->body)
 				return FALSE;
 			body_html = g_strdup_printf("/me %s", skypemessage->body);
 			g_free(skypemessage->body);
 			skypemessage->body = body_html;
+			//set it to be text so that we dont do it again
 			skypemessage->type = SKYPE_MESSAGE_TEXT;
 			//fallthrough intentional
+		case SKYPE_MESSAGE_OTHER:
+			//'other' type of message is generally an auth request
 		case SKYPE_MESSAGE_TEXT:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return FALSE;
