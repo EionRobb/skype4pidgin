@@ -234,7 +234,7 @@ skype_handle_received_message(char *message)
 			}
 		} else if (g_str_equal(string_parts[2], "RECEIVEDAUTHREQUEST"))
 		{
-			if (purple_account_get_bool(acct, "reject_all_auths", FALSE))
+			if (purple_account_get_bool(this_account, "reject_all_auths", FALSE))
 			{
 				skype_auth_deny(g_strdup(string_parts[1]));
 			} else {
@@ -1058,6 +1058,8 @@ handle_complete_message(int messagenumber)
 	
 	switch(skypemessage->type)
 	{
+		case SKYPE_MESSAGE_UNSET:
+			return FALSE;
 		case SKYPE_MESSAGE_EMOTE:
 			if (!skypemessage->body)
 				return FALSE;
