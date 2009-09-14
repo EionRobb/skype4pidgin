@@ -399,6 +399,8 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Automatically reject all authorization requests"), "reject_all_auths", FALSE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #ifndef SKYPENET
 	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
