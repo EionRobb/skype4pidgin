@@ -308,7 +308,11 @@ IsSkypeRunning(void)
 	ProcessInfoRec info;
 	info.processInfoLength = sizeof(ProcessInfoRec);
 	info.processName = procName;
+#if __LP64__
+	info.processAppRef = NULL;
+#else
 	info.processAppSpec = NULL;
+#endif
 	pid_t pid = 0;
 	
 	while(status == noErr)
