@@ -920,7 +920,58 @@ skype_set_buddies(PurpleAccount *acct)
 	SkypeBuddy *sbuddy;
 	PurpleGroup *skype_group = NULL;
 	PurpleGroup *skypeout_group = NULL;
-	int i;
+	int i, j;
+	GHashTable *group_of_user_table = NULL;
+	gchar **group_names_separated;
+	gchar **user_names_temp;
+	gchar *skype_request_raw;
+	gchar *group_name;
+	PurpleGroup *temp_group;
+	
+	
+	friends_text = skype_send_message("SEARCH GROUPS CUSTOM");
+	if(!friends_text || friends_text[0] == '\0')
+	{
+		g_free(friends_text);
+	}
+	else
+	{
+		if (groups_table == NULL)
+			groups_table = g_hash_table_new(NULL, NULL);
+		group_of_user_table = g_hash_table_new(g_str_hash, g_str_equal);
+		
+		group_names_separated = g_strsplit(strchr(friends_text, ' ')+1, ", ", 0);
+		for(i=0; group_names_separated[i]; i++)
+		{
+			skype_request_raw = skype_send_message("GET GROUP %s DISPLAYNAME", group_names_separated[i]);
+			group_name = g_strsplit(skype_request_raw, " ", 0)[3];
+			temp_group = g_hash_table_lookup(groups_table, GINT_TO_POINTER(atoi(group_names_separated[i])));
+			
+			if (!temp_group)
+			{
+				temp_group = purple_find_group(group_name);
+				if (!temp_group)
+				{
+					temp_group = purple_group_new(group_name);
+					purple_blist_add_group(temp_group, NULL);
+				}
+				purple_blist_node_set_int(&temp_group->node, "skype_group_number", atoi(group_names_separated[i]));
+				g_hash_table_insert(groups_table, GINT_TO_POINTER(atoi(group_names_separated[i])), temp_group);
+			}
+			
+			skype_request_raw = skype_send_message("GET GROUP %s USERS", group_names_separated[i]);
+			user_names_temp = g_strsplit(strchr(strchr(strchr(skype_request_raw, ' ')+1, ' ')+1, ' ')+1, ", ", 0);
+			
+			for(j=0; user_names_temp[j]; j++)
+			{
+				if( !g_hash_table_lookup(group_of_user_table, user_names_temp[j]) )
+					g_hash_table_insert(group_of_user_table, g_strdup(user_names_temp[j]), group_name);
+			}
+		}
+		
+		g_strfreev(group_names_separated);		
+		g_free(friends_text);
+	}
 	
 	friends_text = skype_send_message("GET AUTH_CONTACTS_PROFILES");
 	if (!friends_text || friends_text[0] == '\0')
@@ -970,16 +1021,28 @@ skype_set_buddies(PurpleAccount *acct)
 					}
 					else
 					{
-						if (skype_group == NULL)
+						group_name = g_hash_table_lookup(group_of_user_table, full_friends_list[i]);
+						if (group_name != NULL)
 						{
-							skype_group = purple_find_group("Skype");
+							temp_group = purple_find_group(group_name);
+							if (temp_group == NULL)
+							{
+								temp_group = purple_group_new(group_name);
+								purple_blist_add_group(temp_group, NULL);
+							}
+							purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
+						} else {
 							if (skype_group == NULL)
 							{
-								skype_group = purple_group_new("Skype");
-								purple_blist_add_group(skype_group, NULL);
+								skype_group = purple_find_group("Skype");
+								if (skype_group == NULL)
+								{
+									skype_group = purple_group_new("Skype");
+									purple_blist_add_group(skype_group, NULL);
+								}
 							}
+							purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 						}
-						purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 					}
 				}
 				
@@ -1020,6 +1083,7 @@ skype_set_buddies(PurpleAccount *acct)
 				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
 			}
 			g_strfreev(full_friends_list);
+			g_hash_table_destroy(group_of_user_table);
 			return FALSE;
 		}
 	}
@@ -1028,6 +1092,7 @@ skype_set_buddies(PurpleAccount *acct)
 	if (strlen(friends_text) == 0)
 	{
 		g_free(friends_text);
+		g_hash_table_destroy(group_of_user_table);
 		return FALSE;
 	}
 	//skip first word (should be USERS) and seperate by comma-space
@@ -1035,6 +1100,7 @@ skype_set_buddies(PurpleAccount *acct)
 	g_free(friends_text);
 	if (friends == NULL || friends[0] == NULL)
 	{
+		g_hash_table_destroy(group_of_user_table);
 		return FALSE;
 	}
 	
@@ -1078,16 +1144,28 @@ skype_set_buddies(PurpleAccount *acct)
 			}
 			else
 			{
-				if (skype_group == NULL)
+				group_name = g_hash_table_lookup(group_of_user_table, friends[i]);
+				if (group_name != NULL)
 				{
-					skype_group = purple_find_group("Skype");
+					temp_group = purple_find_group(group_name);
+					if (temp_group == NULL)
+					{
+						temp_group = purple_group_new(group_name);
+						purple_blist_add_group(temp_group, NULL);
+					}
+					purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
+				} else {
 					if (skype_group == NULL)
 					{
-						skype_group = purple_group_new("Skype");
-						purple_blist_add_group(skype_group, NULL);
+						skype_group = purple_find_group("Skype");
+						if (skype_group == NULL)
+						{
+							skype_group = purple_group_new("Skype");
+							purple_blist_add_group(skype_group, NULL);
+						}
 					}
+					purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 				}
-				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 			}
 		}
 		skype_update_buddy_status(buddy);
@@ -1108,8 +1186,7 @@ skype_set_buddies(PurpleAccount *acct)
 
 	skype_debug_info("skype", "Friends Count: %d\n", i);
 	g_strfreev(friends);
-	
-	skype_put_buddies_in_groups();
+	g_hash_table_destroy(group_of_user_table);
 	
 	return FALSE;
 }
