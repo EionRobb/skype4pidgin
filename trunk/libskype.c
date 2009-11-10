@@ -479,7 +479,7 @@ skype_cmd_kick(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar *
 	temp = skype_send_message("ALTER CHAT %s KICK %s", chat_id, args[0]);
 	if (!temp || !strlen(temp))
 	{
-		if(temp) g_free(temp);
+		g_free(temp);
 		return PURPLE_CMD_RET_FAILED;
 	}
 	return PURPLE_CMD_RET_OK;	
@@ -495,7 +495,7 @@ skype_cmd_kickban(PurpleConversation *conv, const gchar *cmd, gchar **args, gcha
 	temp = skype_send_message("ALTER CHAT %s KICKBAN %s", chat_id, args[0]);
 	if (!temp || !strlen(temp))
 	{
-		if(temp) g_free(temp);
+		g_free(temp);
 		return PURPLE_CMD_RET_FAILED;
 	}
 	return PURPLE_CMD_RET_OK;	
@@ -634,8 +634,7 @@ const char *
 skype_normalize(const PurpleAccount *acct, const char *who)
 {
 	static gchar *last_normalize = NULL;
-	if (last_normalize)
-		g_free(last_normalize);
+	g_free(last_normalize);
 	last_normalize = g_utf8_strdown(who, -1);
 	return last_normalize;
 }
@@ -1816,15 +1815,13 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 
 	if (g_str_equal(skype_buddy_property, "FULLNAME"))
 	{
-		if (sbuddy->fullname)
-			g_free(sbuddy->fullname);
+		g_free(sbuddy->fullname);
 		sbuddy->fullname = NULL;
 		if (value && strlen(value))
 			sbuddy->fullname = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "MOOD_TEXT"))
 	{
-		if (sbuddy->mood)
-			g_free(sbuddy->mood);
+		g_free(sbuddy->mood);
 		sbuddy->mood = NULL;
 		if (value)
 		{
@@ -1833,8 +1830,7 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		}
 	} else if (g_str_equal(skype_buddy_property, "BIRTHDAY"))
 	{
-		if (sbuddy->birthday)
-			g_free(sbuddy->birthday);
+		g_free(sbuddy->birthday);
 		sbuddy->birthday = NULL;
 		if (value && strlen(value) && !g_str_equal(value, "0"))
 		{
@@ -1843,22 +1839,19 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		}
 	} else if (g_str_equal(skype_buddy_property, "SEX"))
 	{
-		if (sbuddy->gender)
-			g_free(sbuddy->gender);
+		g_free(sbuddy->gender);
 		sbuddy->gender = NULL;
 		if (value && strlen(value) && !g_str_equal(value, "UNKNOWN"))
 			sbuddy->gender = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "LANGUAGE"))
 	{
-		if (sbuddy->language)
-			g_free(sbuddy->language);
+		g_free(sbuddy->language);
 		sbuddy->language = NULL;
 		if (value && strlen(value))
 			sbuddy->language = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "COUNTRY"))
 	{
-		if (sbuddy->country)
-			g_free(sbuddy->country);
+		g_free(sbuddy->country);
 		sbuddy->country = NULL;
 		if (value && strlen(value))
 			sbuddy->country = g_strdup(value);
@@ -1897,8 +1890,7 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 			sbuddy->number_of_buddies = g_ascii_strtoull(value, NULL, 10);
 	} else if (g_str_equal(skype_buddy_property, "ABOUT"))
 	{
-		if (sbuddy->about)
-			g_free(sbuddy->about);
+		g_free(sbuddy->about);
 		sbuddy->about = NULL;
 		if (value && strlen(value))
 		{
@@ -1906,8 +1898,7 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		}
 	} else if (g_str_equal(skype_buddy_property, "PROVINCE"))
 	{
-		if (sbuddy->province)
-			g_free(sbuddy->province);
+		g_free(sbuddy->province);
 		sbuddy->province = NULL;
 		if (value && strlen(value))
 		{
@@ -1915,36 +1906,31 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 		}
 	} else if (g_str_equal(skype_buddy_property, "CITY"))
 	{
-		if (sbuddy->city)
-			g_free(sbuddy->city);
+		g_free(sbuddy->city);
 		sbuddy->city = NULL;
 		if (value && strlen(value))
 			sbuddy->city = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "PHONE_HOME"))
 	{
-		if (sbuddy->phone_home)
-			g_free(sbuddy->phone_home);
+		g_free(sbuddy->phone_home);
 		sbuddy->phone_home = NULL;
 		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_home = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "PHONE_OFFICE"))
 	{
-		if (sbuddy->phone_office)
-			g_free(sbuddy->phone_office);
+		g_free(sbuddy->phone_office);
 		sbuddy->phone_office = NULL;
 		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_office = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "PHONE_MOBILE"))
 	{
-		if (sbuddy->phone_mobile)
-			g_free(sbuddy->phone_mobile);
+		g_free(sbuddy->phone_mobile);
 		sbuddy->phone_mobile = NULL;
 		if (value && strlen(value) && !g_str_equal(value, "N/A"))
 			sbuddy->phone_mobile = g_strdup(value);
 	} else if (g_str_equal(skype_buddy_property, "HOMEPAGE"))
 	{
-		if (sbuddy->homepage)
-			g_free(sbuddy->homepage);
+		g_free(sbuddy->homepage);
 		sbuddy->homepage = NULL;
 		if (value && strlen(value))
 			sbuddy->homepage = g_strdup(value);
@@ -2023,20 +2009,20 @@ skype_buddy_free(PurpleBuddy *buddy)
 		sbuddy = buddy->proto_data;
 		buddy->proto_data = NULL;
 		
-		if (sbuddy->handle) g_free(sbuddy->handle);
-		if (sbuddy->fullname) g_free(sbuddy->fullname);
-		if (sbuddy->mood) g_free(sbuddy->mood);
-		if (sbuddy->birthday) g_free(sbuddy->birthday);
-		if (sbuddy->gender) g_free(sbuddy->gender);
-		if (sbuddy->language) g_free(sbuddy->language);
-		if (sbuddy->country) g_free(sbuddy->country);
-		if (sbuddy->about) g_free(sbuddy->about);
-		if (sbuddy->province) g_free(sbuddy->province);
-		if (sbuddy->city) g_free(sbuddy->city);
-		if (sbuddy->phone_home) g_free(sbuddy->phone_home);
-		if (sbuddy->phone_office) g_free(sbuddy->phone_office);
-		if (sbuddy->phone_mobile) g_free(sbuddy->phone_mobile);
-		if (sbuddy->homepage) g_free(sbuddy->homepage);
+		g_free(sbuddy->handle);
+		g_free(sbuddy->fullname);
+		g_free(sbuddy->mood);
+		g_free(sbuddy->birthday);
+		g_free(sbuddy->gender);
+		g_free(sbuddy->language);
+		g_free(sbuddy->country);
+		g_free(sbuddy->about);
+		g_free(sbuddy->province);
+		g_free(sbuddy->city);
+		g_free(sbuddy->phone_home);
+		g_free(sbuddy->phone_office);
+		g_free(sbuddy->phone_mobile);
+		g_free(sbuddy->homepage);
 		
 		g_free(sbuddy);
 	}
@@ -2253,6 +2239,9 @@ skype_group_buddy_timeout(struct _cheat_skype_group_buddy_struct *cheat)
 		return FALSE;
 	
 	skype_group_buddy(cheat->gc, cheat->who, cheat->old_group, cheat->new_group);
+	g_free(cheat->who);
+	g_free(cheat->old_group);
+	g_free(cheat->new_group);
 	g_free(cheat);
 	return FALSE;
 }
@@ -2269,9 +2258,9 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 		struct _cheat_skype_group_buddy_struct *cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
 		skype_send_message_nowait("CREATE GROUP %s", new_group);
 		cheat->gc = gc;
-		cheat->who = who;
-		cheat->old_group = old_group;
-		cheat->new_group = new_group;
+		cheat->who = g_strdup(who);
+		cheat->old_group = old_group?g_strdup(old_group):NULL;
+		cheat->new_group = new_group?g_strdup(new_group):NULL;
 		purple_timeout_add_seconds(5, (GSourceFunc)skype_group_buddy_timeout, cheat);
 		return;
 	}
@@ -3065,7 +3054,7 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 			if ((temp = g_hash_table_lookup(params, "blob")))
 			{
 				temp = skype_send_message("CHAT CREATEUSINGBLOB %s", temp);
-				if (strlen(temp))
+				if (!strlen(temp))
 				{
 					g_free(temp);
 					return FALSE;
