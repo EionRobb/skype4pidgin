@@ -2225,9 +2225,9 @@ skype_find_group_with_name(const char *group_name_in)
 //use this to try and regroup a buddy after a few seconds
 struct _cheat_skype_group_buddy_struct {
 	PurpleConnection *gc;
-	const char *who;
-	const char *old_group;
-	const char *new_group;
+	gchar *who;
+	gchar *old_group;
+	gchar *new_group;
 };
 
 gboolean skype_group_buddy_timeout(struct _cheat_skype_group_buddy_struct *cheat);
