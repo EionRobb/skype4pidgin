@@ -605,8 +605,8 @@ skype_handle_received_message(char *message)
 				if (temp && strlen(temp))
 				{
 					purple_xfer_error(transfer->type, this_account, transfer->who, temp);
-					g_free(temp);
 				}
+				g_free(temp);
 			}
 		}
 	} else if (g_str_equal(command, "WINDOWSTATE"))
@@ -806,10 +806,7 @@ skype_handle_received_message(char *message)
 	{
 		g_strfreev(string_parts);
 	}
-	if (message)
-	{
-		g_free(message);
-	}
+	g_free(message);
 	return FALSE;
 }
 
@@ -1199,31 +1196,11 @@ handle_complete_message(int messagenumber)
 		//free the message here
 		skypemessage->type = 0;
 		skypemessage->timestamp = 0;
-		if (skypemessage->chatname)
-		{
-			g_free(skypemessage->chatname);
-			skypemessage->chatname = NULL;
-		}
-		if (skypemessage->body)
-		{
-			g_free(skypemessage->body);
-			skypemessage->body = NULL;
-		}
-		if (skypemessage->from_handle)
-		{
-			g_free(skypemessage->from_handle);
-			skypemessage->from_handle = NULL;
-		}
-		if (skypemessage->users)
-		{
-			g_strfreev(skypemessage->users);
-			skypemessage->users = NULL;
-		}
-		if (skypemessage->leavereason)
-		{
-			g_free(skypemessage->leavereason);
-			skypemessage->leavereason = NULL;
-		}
+		g_free(skypemessage->chatname);
+		g_free(skypemessage->body);
+		g_free(skypemessage->from_handle);
+		g_strfreev(skypemessage->users);
+		g_free(skypemessage->leavereason);
 		
 		g_free(skypemessage);
 	}
