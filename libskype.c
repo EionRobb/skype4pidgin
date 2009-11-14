@@ -1306,7 +1306,11 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 #	ifdef _WIN32
 		1;
 #	else
-		2; //OSX only supports GET AVATAR in beta
+#		ifdef __APPLE__
+			-1; //OSX only supports GET AVATAR in beta
+#		else
+			2;
+#		endif
 #	endif
 #else
 	3;
