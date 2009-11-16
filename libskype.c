@@ -1928,6 +1928,8 @@ skype_buddy_free(PurpleBuddy *buddy)
 {
 	SkypeBuddy *sbuddy;
 	gchar *temp;
+
+	g_return_if_fail(buddy != NULL);
 	
 	if (buddy->proto_data)
 	{
@@ -1952,10 +1954,13 @@ skype_buddy_free(PurpleBuddy *buddy)
 		g_free(sbuddy);
 	}
 	
-	temp = g_strconcat("stream-", buddy->name, NULL);
-	if (purple_account_get_string(buddy->account, temp, NULL))
-		purple_account_set_string(buddy->account, temp, NULL);
-	g_free(temp);
+	if (buddy->name && buddy->account)
+	{
+		temp = g_strdup_printf("stream-%s", buddy->name);
+		if (purple_account_get_string(buddy->account, temp, NULL))
+			purple_account_set_string(buddy->account, temp, NULL);
+		g_free(temp);
+	}
 }
 
 void 
