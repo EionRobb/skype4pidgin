@@ -2658,6 +2658,12 @@ skype_join_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
 void
 skype_alias_buddy(PurpleConnection *gc, const char *who, const char *alias)
 {
+	if (who == NULL)
+		return;
+	
+	if (alias == NULL)
+		alias = "";
+		
 	skype_send_message_nowait("SET USER %s DISPLAYNAME %s", who, alias);
 }
 
