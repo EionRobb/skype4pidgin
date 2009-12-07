@@ -1004,6 +1004,7 @@ skype_set_buddies(PurpleAccount *acct)
 						full_friends_list[i+8] = NULL;
 					} else {
 						sbuddy->mood = g_strdup(mood_buddyname[0]);
+						purple_util_chrreplace(sbuddy->mood, '\n', ' ');
 						if (mood_buddyname[1] && mood_buddyname[1][0] != '\0' && full_friends_list[i+8])
 						{
 							g_free(full_friends_list[i+8]);
