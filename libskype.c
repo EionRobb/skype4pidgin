@@ -942,14 +942,14 @@ skype_set_buddies(PurpleAccount *acct)
 				{
 					//the buddy was already in the list
 					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1);
-					sbuddy->handle = buddy->name;
+					sbuddy->handle = g_strdup(buddy->name);
 					sbuddy->buddy = buddy;
 					skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, full_friends_list[i]);
 				} else {
 					skype_debug_info("skype","Buddy not in list %s\n", full_friends_list[i]);
 					buddy = purple_buddy_new(acct, full_friends_list[i], NULL);
 					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1);
-					sbuddy->handle = buddy->name;
+					sbuddy->handle = g_strdup(buddy->name);
 					sbuddy->buddy = buddy;
 					
 					//find out what group this buddy is in
