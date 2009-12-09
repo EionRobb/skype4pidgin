@@ -332,6 +332,11 @@ is_skype_running()
 		// /proc/{pid}/stat contains lots of juicy info
 		stat_path = g_strdup_printf("/proc/%d/stat", pid);
 		fh = fopen(stat_path, "r");
+		if (!fh)
+		{
+			g_free(stat_path);
+			continue;
+		}
 		pid = fscanf(fh, "%*d (%15[^)]", exec_name);
 		fclose(fh);
 		if (!g_str_equal(exec_name, "skype"))
