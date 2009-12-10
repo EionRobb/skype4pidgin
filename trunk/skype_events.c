@@ -1025,6 +1025,7 @@ handle_complete_message(int messagenumber)
 	SkypeMessage *skypemessage = NULL;
 	SkypeChat *chat = NULL;
 	gchar *body_html = NULL;
+	xmlnode *xmlblob;
 	int i;
 
 	if (messages_table == NULL)
@@ -1068,6 +1069,35 @@ handle_complete_message(int messagenumber)
 			//fallthrough intentional
 		case SKYPE_MESSAGE_OTHER:
 			//'other' type of message is generally an auth request
+			//Check that it's not an xml blob
+			if (!skypemessage->body)
+				return FALSE;
+			xmlblob = xmlnode_from_str(skypemessage->body, -1);
+			if (xmlblob)
+			{
+				if (g_str_equal(xmlblob->name, "partlist"))
+				{
+					for(xmlnode *nodi = xmlnode_get_child(xmlblob, "part");
+						nodi;
+						nodi = xmlnode_get_next_twin(nodi))
+					{
+						if (g_str_equal(xmlnode_get_attrib(nodi, "identity"), skype_get_account_username(skypemessage->account)))
+						{
+							nodi = xmlnode_get_child(nodi, "duration");
+							body_html = xmlnode_get_data(nodi);
+							if (body_html)
+							{
+								g_free(skypemessage->body);
+								skypemessage->body = g_strdup_printf(_("Call ended after %s seconds"), body_html);
+								g_free(body_html);
+								skypemessage->type = SKYPE_MESSAGE_TEXT;
+							}
+							break;
+						}
+					}
+				}
+				xmlnode_free(xmlblob);
+			}
 		case SKYPE_MESSAGE_TEXT:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return FALSE;
