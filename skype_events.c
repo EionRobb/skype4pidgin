@@ -1025,7 +1025,7 @@ handle_complete_message(int messagenumber)
 	SkypeMessage *skypemessage = NULL;
 	SkypeChat *chat = NULL;
 	gchar *body_html = NULL;
-	xmlnode *xmlblob;
+	xmlnode *xmlblob, *nodi;
 	int i;
 
 	if (messages_table == NULL)
@@ -1077,7 +1077,7 @@ handle_complete_message(int messagenumber)
 			{
 				if (g_str_equal(xmlblob->name, "partlist"))
 				{
-					for(xmlnode *nodi = xmlnode_get_child(xmlblob, "part");
+					for(nodi = xmlnode_get_child(xmlblob, "part");
 						nodi;
 						nodi = xmlnode_get_next_twin(nodi))
 					{
@@ -1094,6 +1094,13 @@ handle_complete_message(int messagenumber)
 							}
 							break;
 						}
+					}
+					if (skypemessage->type == SKYPE_MESSAGE_OTHER)
+					{
+						//Haven't found any 'duration'
+						g_free(skypemessage->body);
+						skypemessage->body = g_strdup(_("Call ended"));
+						skypemessage->type = SKYPE_MESSAGE_TEXT;
 					}
 				}
 				xmlnode_free(xmlblob);
