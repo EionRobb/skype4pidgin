@@ -1017,7 +1017,13 @@ skype_set_buddies(PurpleAccount *acct)
 				}
 				
 				//Do this one last to update buddy list
-				purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
+				if (g_str_equal(full_friends_list[i+5], "SKYPEOUT") &&
+					(!purple_account_get_bool(acct, "skypeout_online", TRUE)))
+				{
+					purple_prpl_got_user_status(acct, buddy->name, "OFFLINE", NULL);
+				} else {
+					purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
+				}
 			}
 			g_strfreev(full_friends_list);
 			return FALSE;
