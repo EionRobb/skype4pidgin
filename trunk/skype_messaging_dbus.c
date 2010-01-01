@@ -73,18 +73,18 @@ skype_connect()
 		}
 	}
     
-    if (proxy == NULL)
-    {
+	if (proxy == NULL)
+	{
 		proxy = dbus_g_proxy_new_for_name (connection,
 	                                     "com.Skype.API",
 	                                     "/com/Skype",
 	                                     "com.Skype.API");
-	    if (proxy == NULL)
-	    	return FALSE;
+		if (proxy == NULL)
+			return FALSE;
 	    
-	    vtable.message_function = &skype_notify_handler;
-		dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
-    }
+		vtable.message_function = &skype_notify_handler;
+			dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
+	}
     
 	return TRUE;
 }
@@ -111,19 +111,19 @@ send_message(char* message)
 	if (!dbus_g_proxy_call (proxy, "Invoke", &error, G_TYPE_STRING, message, G_TYPE_INVALID,
                           G_TYPE_STRING, &str, G_TYPE_INVALID))
 	{
-    	if (error && error->message)
-    	{
-	    	skype_debug_info("skype_dbus", "Error sending message: %s\n", error->message);
-	    	if (message[0] == '#')
-	    	{
-	    		//We're expecting a response
+    		if (error && error->message)
+    		{
+			skype_debug_info("skype_dbus", "Error sending message: %s\n", error->message);
+			if (message[0] == '#')
+			{
+				//We're expecting a response
 				sscanf(message, "#%d ", &message_num);
 				sprintf(error_return, "#%d ERROR", message_num);
 				skype_message_received(g_strdup(error_return));
-	    	}
-	    }
-	    else
-	    	skype_debug_info("skype_dbus", "no response\n");
+			}
+		} else {
+			skype_debug_info("skype_dbus", "no response\n");
+		}
 	}
 	if (str != NULL)
 	{
