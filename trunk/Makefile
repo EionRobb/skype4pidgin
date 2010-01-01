@@ -29,8 +29,8 @@ allarch:	skype4pidgin.deb skype4pidgin-installer.exe libskype_dbus.so libskype_d
 
 #By default, 'make' compiles X11 version on local platform
 all: .DEPENDS skype_messaging_x11.c skype_messaging_dbus.c
-	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
-	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
+	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
+	gcc ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
 install: locales
 	mkdir -p $(DESTDIR)/usr/share/pixmaps/pidgin/emotes/skype
@@ -63,7 +63,7 @@ libskypenet.so:  .DEPENDS skype_messaging_network.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskypenet.so -shared -fPIC -DPIC -DSKYPENET
 
 libskype.so: .DEPENDS skype_messaging_x11.c
-	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
+	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
 
 libskype-vv.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype-vv.so -shared -fPIC -DPIC ${VV_CFLAGS}
