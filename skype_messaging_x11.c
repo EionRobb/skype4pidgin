@@ -49,6 +49,10 @@ skype_connect()
 	
 	x11_error_code = 0;
 	XSetErrorHandler(x11_error_handler);
+#ifdef USE_XVFB_SERVER	
+	if (!getenv("SKYPEDISPLAY"))
+		setenv("SKYPEDISPLAY", ":25", 0);
+#endif
 	if (getenv("SKYPEDISPLAY"))
 		disp = XOpenDisplay(getenv("SKYPEDISPLAY"));
 	else
@@ -271,21 +275,29 @@ exec_skype()
 	PurpleAccount *acct = NULL;
 	int skype_stdin;
 	gchar **skype_list;
+	gchar *command;
 	
+	if (!getenv("SKYPEDISPLAY"))
+		setenv("SKYPEDISPLAY", ":25", 0);
 	unsetenv("DBUS_SESSION_BUS_ADDRESS");
-	if (g_spawn_command_line_async("Xvfb :25 -ac -terminate -tst -xinerama -render -shmem -screen 0 640x480x16", NULL))
-	//if (g_spawn_command_line_async("Xnest :25 -ac -terminate -tst -xinerama", NULL))
+	command = g_strconcat("Xvfb ",
+				//"Xnest ", //Uncomment if using Xnest
+				getenv("SKYPEDISPLAY"),
+				" -ac -terminate -tst -xinerama",
+				" -render -shmem -screen 0 320x240x16", //Dont use me if using Xnest
+				NULL);
+	if (g_spawn_command_line_async(command, NULL))
 	{
 		acct = skype_get_account(NULL);
 		skype_debug_info("skype_x11", "acct: %d\n", acct);
-		if (acct)
+		if (acct && acct->username && acct->username[0] != '\0' &&
+			acct->password && acct->password[0] != '\0')
 		{
-			skype_debug_info("skype_x11", "login: %s %s\n", acct->username, acct->password);
-		}
-		if (acct && acct->username && strlen(acct->username) &&
-			acct->password && strlen(acct->password))
-		{
-			g_shell_parse_argv("skype --pipelogin -display :25", NULL, &skype_list, NULL);
+			g_free(command);
+			command = g_strconcat("skype --pipelogin -display ",
+						getenv("SKYPEDISPLAY"),
+						NULL);
+			g_shell_parse_argv(command, NULL, &skype_list, NULL);
 			if (g_spawn_async_with_pipes(NULL, skype_list, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &skype_stdin, NULL, NULL, NULL))
 			{
 				g_strfreev(skype_list);
@@ -295,12 +307,13 @@ exec_skype()
 				write(skype_stdin, "\n", 1);
 				fsync(skype_stdin);
 				skype_debug_info("skype_x11", "pipelogin worked\n");
-				setenv("SKYPEDISPLAY", ":25", TRUE);
+				g_free(command);
 				return TRUE;
 			}
 			g_strfreev(skype_list);
 		}
 	}
+	g_free(command);
 #endif
 	
 	if (g_spawn_command_line_async("skype", &error))
