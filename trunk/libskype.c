@@ -2299,7 +2299,7 @@ skype_keepalive(PurpleConnection *gc)
 {
 	last_ping = time(NULL);
 	skype_send_message_nowait("PING");
-	purple_timeout_add_seconds(30, (GSourceFunc)skype_check_keepalive, gc);
+	purple_timeout_add_seconds(20, (GSourceFunc)skype_check_keepalive, gc);
 }
 
 void
