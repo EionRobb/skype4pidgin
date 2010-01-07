@@ -316,7 +316,7 @@ exec_skype()
 	g_free(command);
 #endif
 	
-	if (g_spawn_command_line_async("skype", &error))
+	if (g_spawn_command_line_async("skype --disable-cleanlooks", &error))
 	{
 		return TRUE;
 	} else {
