@@ -192,7 +192,7 @@ static gboolean
 exec_skype()
 {
 	GError *error;
-	if (g_spawn_command_line_async("skype --enable-dbus --use-session-dbus", &error))
+	if (g_spawn_command_line_async("skype --enable-dbus --use-session-dbus --disable-cleanlooks", &error))
 	{
 		return TRUE;
 	} else {
