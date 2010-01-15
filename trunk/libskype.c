@@ -941,16 +941,18 @@ skype_set_buddies(PurpleAccount *acct)
 				if (buddy != NULL)
 				{
 					//the buddy was already in the list
-					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1);
+					sbuddy = g_new0(SkypeBuddy, 1);
 					sbuddy->handle = g_strdup(buddy->name);
 					sbuddy->buddy = buddy;
+					buddy->proto_data = sbuddy;
 					skype_debug_info("skype","Buddy already in list: %s (%s)\n", buddy->name, full_friends_list[i]);
 				} else {
 					skype_debug_info("skype","Buddy not in list %s\n", full_friends_list[i]);
 					buddy = purple_buddy_new(acct, full_friends_list[i], NULL);
-					sbuddy = buddy->proto_data = g_new0(SkypeBuddy, 1);
+					sbuddy = g_new0(SkypeBuddy, 1);
 					sbuddy->handle = g_strdup(buddy->name);
 					sbuddy->buddy = buddy;
+					buddy->proto_data = sbuddy;
 					
 					//find out what group this buddy is in
 					//for now, dump them into a default group, until skype tells us where they belong
@@ -1028,6 +1030,7 @@ skype_set_buddies(PurpleAccount *acct)
 			g_strfreev(full_friends_list);
 			return FALSE;
 		}
+		g_strfreev(full_friends_list);
 	}
 
 	friends_text = skype_send_message("SEARCH FRIENDS");
@@ -1604,7 +1607,7 @@ skype_get_account_alias(PurpleAccount *acct)
 void 
 skype_close(PurpleConnection *gc)
 {
-	GSList *buddies;
+	GSList *buddies, buddieslist;
 
 	skype_debug_info("skype", "logging out\n");
 	
@@ -1618,14 +1621,16 @@ skype_close(PurpleConnection *gc)
 	skype_disconnect();
 	if (gc)
 	{
+		buddieslist = purple_find_buddies(gc->account, NULL);
 		//make all buddies offline
-		for(buddies = purple_find_buddies(gc->account, NULL);
+		for(buddies = buddieslist;
 			buddies != NULL;
 			buddies = buddies->next)
 		{
 			PurpleBuddy *buddy = buddies->data;
 			purple_prpl_got_user_status(buddy->account, buddy->name, "OFFLINE", NULL);
 		}
+		g_slist_free(buddieslist);
 	}
 
 
@@ -2310,6 +2315,7 @@ skype_set_buddy_icon(PurpleConnection *gc, PurpleStoredImage *img)
 	{
 		path = g_build_filename(purple_buddy_icons_get_cache_dir(), purple_imgstore_get_filename(img), NULL);
 		skype_send_message_nowait("SET AVATAR 1 %s:1", path);
+		g_free(path);
 	}
 	else
 		skype_send_message_nowait("SET AVATAR 1");
