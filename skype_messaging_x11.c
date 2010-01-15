@@ -117,6 +117,8 @@ skype_disconnect()
 			
 			//wait here for the event to be handled
 			XDestroyWindow(disp, win);
+			
+			XFree(e);
 		}
 		XCloseDisplay(disp);
 	}
