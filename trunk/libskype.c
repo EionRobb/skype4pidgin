@@ -1607,7 +1607,7 @@ skype_get_account_alias(PurpleAccount *acct)
 void 
 skype_close(PurpleConnection *gc)
 {
-	GSList *buddies, buddieslist;
+	GSList *buddies, *buddieslist;
 
 	skype_debug_info("skype", "logging out\n");
 	
