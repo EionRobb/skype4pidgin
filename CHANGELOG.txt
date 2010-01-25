@@ -1,6 +1,45 @@
 Changelog
 =========
 
+21 January 2010
+---------------
+* Fixed memory leaks
+* New voice/video version for testing on Linux 32-bit (libskype-vv.so)
+* Fixed crash on connect bugs
+* Fixed users with newline characters in status looking weird in buddy list
+* Fix ping timeouts to improve DBus version support
+* Disable cleanlooks on Skype startup on Linux to reduce memory usage
+* Workaround for SkypeOut buddies showing as online
+* Fixes for the XML blob stuff in chats during calls
+* Allow reuse of Xvfb session using the SKYPEDISPLAY env var on Linux
+
+15 November 2009
+----------------
+* Finally fixed grouping on Adium plugin
+
+20 September 2009
+-----------------
+* Fixes the crash-on-startup problem in Linux
+* Authorisation messages no longer show as missed messages (working towards blocking auth spam)
+* 64-bit universal builds on OSX
+
+24 July 2009
+------------
+* Another crash-on-startup fixed on Win & OSX.  And thoroughly tested this time :)
+
+23 July 2009
+------------
+* Fix for crash-on-startup in newest versions of Skype for Windows and OSX
+
+20 July 2009
+------------
+* Fixes for a crash when message received in a closed conversation
+
+22 June 2009
+------------
+* Fixes some annoying crashes
+* Shows buddy names in multi-user chats
+
 28 April 2009
 -------------
 * Multi-user chat TLC, both Adium and Pidgin plugins
