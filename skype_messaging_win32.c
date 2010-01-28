@@ -131,7 +131,7 @@ skype_disconnect()
 }
 
 static void
-send_message(char* message)
+send_message(const char* message)
 {
 	int message_num;
 	char *error_return;

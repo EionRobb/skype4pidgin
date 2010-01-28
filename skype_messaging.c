@@ -29,7 +29,7 @@ static gboolean skype_handle_received_message(char *message);
 static void skype_message_received(char *message);
 static gboolean skype_connect();
 static void skype_disconnect();
-static void send_message(char* message);
+static void send_message(const char* message);
 static void hide_skype();
 static gboolean exec_skype();
 
