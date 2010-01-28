@@ -136,7 +136,7 @@ x11_error_handler(Display *disp, XErrorEvent *error)
 
 
 static void
-send_message(char* message)
+send_message(const char* message)
 {
 	unsigned int pos = 0;
 	unsigned int len = strlen( message );

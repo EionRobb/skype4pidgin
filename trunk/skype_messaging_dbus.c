@@ -101,7 +101,7 @@ skype_disconnect()
 }
 
 static void
-send_message(char* message)
+send_message(const char* message)
 {
 	GError *error = NULL;
 	gchar *str = NULL;
@@ -130,7 +130,6 @@ send_message(char* message)
 		skype_message_received(str);
 	}
 	
-	g_free(message);
 }
 
 static gboolean

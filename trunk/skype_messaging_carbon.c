@@ -136,7 +136,7 @@ skype_disconnect()
 }
 
 static void
-send_message(char* message)
+send_message(const char* message)
 {
 	if (!connected_to_skype)
 	{

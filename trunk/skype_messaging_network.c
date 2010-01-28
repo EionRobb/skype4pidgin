@@ -130,8 +130,7 @@ connect_function(gpointer data, gint source, const gchar *error_message)
 	loginmsg = g_strdup_printf("LOGIN %s %s", acct->username, acct->password);
 	send_message(loginmsg);
 	skype_debug_info("skype", "Sending: 'LOGIN {username} {password}'\n");
-	//send_message frees this
-	//g_free(loginmsg);
+	g_free(loginmsg);
 	
 	g_thread_create((GThreadFunc)skype_read_thread, NULL, FALSE, NULL);
 }
@@ -148,7 +147,7 @@ skype_disconnect()
 	if (!connected)
 		return;
 	
-	send_message(g_strdup("QUIT"));
+	send_message("QUIT");
 
 	connected = FALSE;
 	close(source_sock);
@@ -158,7 +157,7 @@ skype_disconnect()
 }
 
 static void
-send_message(char* message)
+send_message(const char* message)
 {
 	int message_num;
 	char *error_return;
@@ -186,8 +185,6 @@ send_message(char* message)
 			g_thread_create((GThreadFunc)skype_message_received, (void *)error_return, FALSE, NULL);
 		}
 	}
-	
-	g_free(message);
 }
 
 static void
