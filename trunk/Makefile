@@ -69,10 +69,10 @@ libskype-vv.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype-vv.so -shared -fPIC -DPIC ${VV_CFLAGS}
 
 libskype64.so: .DEPENDS skype_messaging_x11.c
-	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
 libskypenet64.so: .DEPENDS skype_messaging_network.c
-	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskypenet64.so -shared -fPIC -DPIC -DSKYPENET
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskypenet64.so -shared -fPIC -DPIC -DSKYPENET -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
 libskypearm.so: .DEPENDS skype_messaging_x11.c
 	${LINUX_ARM_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskypearm.so -shared -fPIC -DPIC
@@ -81,7 +81,7 @@ libskype_dbus.so: .DEPENDS skype_messaging_dbus.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
 libskype_dbus64.so: .DEPENDS skype_messaging_dbus.c
-	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
 libskype-vv.dll: .DEPENDS skype_messaging_win32.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype-vv.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all -DUSE_VV ${WIN32_VV_CFLAGS}
