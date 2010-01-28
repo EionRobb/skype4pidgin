@@ -75,12 +75,16 @@ skype_connect()
     
 	if (proxy == NULL)
 	{
-		proxy = dbus_g_proxy_new_for_name (connection,
+		proxy = dbus_g_proxy_new_for_name_owner (connection,
 	                                     "com.Skype.API",
 	                                     "/com/Skype",
-	                                     "com.Skype.API");
-		if (proxy == NULL)
+	                                     "com.Skype.API",
+	                                     &error);
+		if (proxy == NULL && error != NULL)
+		{
+			skype_debug_warning("skype_dbus", "%s\n", error->message);
 			return FALSE;
+		}
 	    
 		vtable.message_function = &skype_notify_handler;
 			dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
