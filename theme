@@ -132,7 +132,7 @@ Author=Eion Robb and Hylke Bons
 ! ../default/monkey.png        :-(|)  :(|)
 
 # Hidden MSN emotes
-../default/sigarette.png      	(ci)    (CI)
+../default/cigarette.png      	(ci)    (CI)
 ../default/handcuffs.png       (%)
 ../default/console.png			(xx)    (XX)
 ../default/fingers-crossed.png	(yn)    (YN)
@@ -463,7 +463,7 @@ Author=Eion Robb and Hylke Bons
 ../default/dance.png			(dance) \o/ \:D/ \:d/
 ../default/star.png			(*) (star)
 ../default/bulgy-eyes.png		(drunk)
-../default/sigarette.png		(smoking) (smoke) (ci)
+../default/cigarette.png		(smoking) (smoke) (ci)
 ../default/male-fighter1.png	(ninja)
 ../default/dazed.png			(tmi)
 ../default/goat.png		(emo)
