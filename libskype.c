@@ -1028,6 +1028,7 @@ skype_set_buddies(PurpleAccount *acct)
 				}
 			}
 			g_strfreev(full_friends_list);
+			skype_put_buddies_in_groups();
 			return FALSE;
 		}
 		g_strfreev(full_friends_list);
@@ -1117,7 +1118,9 @@ skype_set_buddies(PurpleAccount *acct)
 
 	skype_debug_info("skype", "Friends Count: %d\n", i);
 	g_strfreev(friends);
-	
+
+	skype_put_buddies_in_groups();
+
 	return FALSE;
 }
 
