@@ -2262,6 +2262,37 @@ skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 void 
 skype_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
+	// Check that the buddy doesn't exist in other groups (ie, is the UI being weird)
+	GSList *buddies, *current;
+	PurpleBuddy *otherbuddy;
+	PurpleGroup *othergroup;
+	int group_number;
+	
+	buddies = purple_find_buddies(buddy->account, buddy->name);
+	if (buddies == NULL)
+		return;
+	
+	for(current = buddies; current; current = g_slist_next(current))
+	{
+		otherbuddy = current->data;
+		if (otherbuddy == NULL)
+			continue;
+		othergroup = purple_buddy_get_group(otherbuddy);
+		if (othergroup == NULL)
+			continue;
+		if (!g_str_equal(othergroup->name, group->name))
+		{
+			//If we're here, we've found the buddy in another group, just remove them from this group for now
+			group_number = skype_find_group_with_name(group->name);
+			if (group_number)
+				skype_send_message_nowait("ALTER GROUP %d REMOVEUSER %s", group_number, buddy->name);
+			g_slist_free(buddies);
+			return;
+		}
+	}
+	g_slist_free(buddies);
+	
+	//If we're here, the buddy was only in that one group, so remove them completely
 	skype_send_message_nowait("SET USER %s BUDDYSTATUS 1", buddy->name);
 }
 
