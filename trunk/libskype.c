@@ -2247,7 +2247,11 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 void 
 skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
+	//Check that the buddy isn't already on the buddy list
+	if (!purple_find_buddy(buddy->account, buddy->name))
+	{
+		skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
+	}
 	if (buddy->alias == NULL || strlen(buddy->alias) == 0)
 		skype_update_buddy_alias(buddy);
 	else
@@ -2615,6 +2619,7 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 {
 	SkypeChat *chat;
 	PurpleConvChat *convchat;
+	gchar *password;
 	
 	gchar *chat_id = (gchar *)g_hash_table_lookup(data, "chat_id");
 	if (chat_id == NULL)
@@ -2623,11 +2628,20 @@ skype_join_chat(PurpleConnection *gc, GHashTable *data)
 	}
 	chat = skype_find_chat(chat_id, gc->account);
 	skype_send_message_nowait("ALTER CHAT %s JOIN", chat_id);
+	
+	password = (gchar *)g_hash_table_lookup(data, "password");
+	if (password != NULL)
+	{
+		skype_send_message_nowait("ALTER CHAT %s ENTERPASSWORD %s", chat_id, password);
+	}
+	
 	if (!chat->conv)
 	{
 		chat->prpl_chat_id = g_str_hash(chat_id);
 		chat->conv = serv_got_joined_chat(gc, chat->prpl_chat_id, chat_id);
 		purple_conversation_set_data(chat->conv, "chat_id", g_strdup(chat_id));
+		if (password != NULL)
+			purple_conversation_set_data(chat->conv, "password", g_strdup(password));
 	} else {
 		convchat = purple_conversation_get_chat_data(chat->conv);
 		convchat->left = FALSE;
@@ -2691,6 +2705,12 @@ skype_join_chat_info(PurpleConnection *gc)
 	pce->label = _("Skype Name");
 	pce->identifier = "chat_id";
 	pce->required = TRUE;
+	m = g_list_append(m, pce);
+	
+	pce = g_new0(struct proto_chat_entry, 1);
+	pce->label = _("Password");
+	pce->identifier = "password";
+	pce->required = FALSE;
 	m = g_list_append(m, pce);
 	
 	return m;
