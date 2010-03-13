@@ -1,0 +1,234 @@
+# Czech translation of skype4pidgin plugin
+# Translated by Ondřej Vodáček
+# Ondřej Vodáček, 2010.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: skype4pidgin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-22 10:53+1200\n"
+"PO-Revision-Date: 2010-03-07 20:28+0100\n"
+"Last-Translator: Ondřej Vodáček <ondra.vodacek@email.cz>\n"
+"MIME-Version: 1.0\n"
+"Language-Team: Czech\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+# Checking for updates:
+msgid "There is a newer version of the Skype plugin available for download"
+msgstr "Pro stažení existuje novější verze Skype pluginu"
+
+msgid "There is a newer version of Skype available for download"
+msgstr "Pro stažení existuje novější verze programu Skype"
+
+msgid "No updates found"
+msgstr "Žádné aktualizace nebyly nalezeny"
+
+msgid "You have the latest version of Skype"
+msgstr "Máte nejnovější verzi programu Skype."
+
+msgid "You have the latest version of the Skype plugin"
+msgstr "Máte nejnovější verzi Skype pluginu.."
+
+msgid "Your version:"
+msgstr "Vaše verze:"
+
+msgid "Latest version:"
+msgstr "Poslední verze:"
+
+msgid "Download from:"
+msgstr "Stáhnout z:"
+
+# Skype account balance stuff:
+msgid "Your current Skype credit balance is:"
+msgstr "Dostupný Skype kredit:"
+
+msgid "Skype Balance"
+msgstr "Skype kredit"
+
+# Plugin options:
+msgid "Show SkypeOut contacts as 'Online'"
+msgstr "Ukazuj SkypeOut kontakty 'Online'"
+
+msgid "Make Skype online/offline when going online/offline"
+msgstr "Přepni Skype online/offline při změně online/offline"
+
+msgid "Automatically check for updates"
+msgstr "Automaticky kontrolovat aktualizace"
+
+msgid "Auto-start Skype if not running"
+msgstr "Automaticky spustit Skype pokud neběží"
+
+# Buddy status:
+msgid "Offline with Voicemail"
+msgstr "Nepřítomen při hlasové schránce"
+
+msgid "Offline with Call Forwarding"
+msgstr "Nepřítomen při přesměrování hovorů"
+
+# Connection messages:
+msgid "Only one Skype account allowed"
+msgstr "Je povolen pouze jeden Skype účet"
+
+msgid "Skype not responding"
+msgstr "Skype neodpovídá"
+
+msgid ""
+"Could not connect to Skype process.\n"
+"Skype not running?"
+msgstr ""
+"Nepodařilo se připojit ke Skype procesu.\n"
+"Je Skype spuštěn?"
+
+msgid "Skype client not ready"
+msgstr "Skype klient není připraven"
+
+msgid "Connected to Skype"
+msgstr "Připojen ke Skypu"
+
+msgid "Skype program closed"
+msgstr "Skype program byl ukončen"
+
+# Skype calling stuff
+msgid "Enter the phone number or Skype buddy name to call"
+msgstr "Zadejte telefonní číslo nebo Skype jméno kamaráda, kterému chcete volat"
+
+msgid "%s is calling you."
+msgstr "%s vám volá."
+
+msgid "Do you want to accept their call?"
+msgstr "Chcete přijmout jejich hovor?"
+
+# Buddy information
+msgid "Last online"
+msgstr "Naposledy viděn(a)"
+
+msgid "Number of buddies"
+msgstr "Počet kontaktů"
+
+msgid "Is Video Capable"
+msgstr "Umí video"
+
+# Plugin menu options
+msgid "Hide Skype"
+msgstr "Schovat Skype"
+
+msgid "Check for Skype updates..."
+msgstr "Zkontrolovat aktualizace Skypu"
+
+msgid "Check for plugin updates..."
+msgstr "Zkontrolovat aktualizace pluginu"
+
+msgid "Search for buddies..."
+msgstr "Vyhledat kamarády"
+
+msgid "Check Skype balance..."
+msgstr "Zkontrolovat Skype kredit"
+
+msgid "Call..."
+msgstr "Zahájit hovor"
+
+msgid "Open Skype Options..."
+msgstr "Otevřít nastavení Skypu"
+
+# User searching:
+msgid "Search for Skype Users"
+msgstr "Vyhledat Skype uživatele"
+
+msgid "Type the Skype Name, full name or e-mail address of the buddy you are searching for."
+msgstr "Zadejte Skype jméno, celé jméno nebo e-mailovou adresu hledaného kamaráda."
+
+msgid "The user does not exist in Skype"
+msgstr "Uživatel neexistuje v síti Skype"
+
+msgid "Skype Name"
+msgstr "Skype jméno"
+
+# Duplicate stuff from Pidgin
+# Copy from {pidginsource}/po/{languagecode}.po
+msgid "_Search"
+msgstr "_Hledat"
+
+msgid "_Cancel"
+msgstr "_Zrušit"
+
+msgid "_Send File"
+msgstr "_Poslat soubor"
+
+msgid "Initiate _Chat"
+msgstr "Zahájit _pokec"
+
+msgid "_Close"
+msgstr "_Zavřít"
+
+msgid "Full Name"
+msgstr "Celé jméno"
+
+msgid "Country/Region"
+msgstr "Země"
+
+msgid "_Add"
+msgstr "_Přidat"
+
+msgid "Full name"
+msgstr "Celé jméno"
+
+msgid "Personal Information"
+msgstr "Osobní informace"
+
+msgid "Birthday"
+msgstr "Narozeniny"
+
+msgid "Gender"
+msgstr "Pohlaví"
+
+msgid "Preferred Language"
+msgstr "Preferovaný jazyk"
+
+msgid "Country"
+msgstr "Země"
+
+msgid "Authorization Granted"
+msgstr "Autorizace udělena"
+
+msgid "Blocked"
+msgstr "Blokováno"
+
+msgid "Timezone"
+msgstr "Časové pásmo"
+
+msgid "_Accept"
+msgstr "_Přijmout"
+
+msgid "_Reject"
+msgstr "_Odmítnout"
+
+msgid "Unable to send file to %s, user does not support file transfers"
+msgstr "Nelze zaslat soubor uživateli %s, uživatel nepodporuje přenosy souborů"
+
+msgid "Recipient Unavailable"
+msgstr "Příjemce je nedostupný"
+
+msgid "Read Error"
+msgstr "Chyba čtení"
+
+msgid "Write error"
+msgstr "Chyba zápisu"
+
+msgid "Not Authorized"
+msgstr "Neautorizováno"
+
+msgid "%s wants to send you a file"
+msgstr "%s vám chce zaslat soubor"
+
+msgid "File Transfers"
+msgstr "Přenosy souborů"
+
+msgid "%s has changed the topic to: %s"
+msgstr "%s změnil(a) téma pokecu na %s"
+
+msgid "Contact Info"
+msgstr "Informace o uživateli"
+
