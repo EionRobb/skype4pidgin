@@ -31,6 +31,7 @@ void skype_decline_transfer(PurpleXfer *transfer);
 SkypeChat *skype_find_chat(const gchar *chat_id, PurpleAccount *this_account);
 gint skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
+void skype_chat_password_cb(SkypeChat *chat, const gchar *entry);
 void skype_call_accept_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
 void skype_call_ignore_cb(gchar *call);
@@ -458,6 +459,11 @@ skype_handle_received_message(char *message)
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), my_username, string_parts[3]);
 				purple_conversation_update(chat->conv, PURPLE_CONV_UPDATE_TOPIC);
 			}
+		} else if (chat->name && g_str_equal(string_parts[2], "MYSTATUS") && g_str_equal(string_parts[3], "PASSWORD_REQUIRED"))
+		{
+			purple_request_input(gc, _("Incorrect password"), _("Password"), chat->name, "", FALSE,
+				TRUE, NULL, _("OK"), G_CALLBACK(skype_chat_password_cb), _("Cancel"), NULL, 
+				this_account, NULL, chat->conv, chat);
 		}
 		chat = skype_find_chat(string_parts[1], this_account);
 	} else if (g_str_equal(command, "FILETRANSFER"))
@@ -808,6 +814,13 @@ skype_handle_received_message(char *message)
 	}
 	g_free(message);
 	return FALSE;
+}
+
+void
+skype_chat_password_cb(SkypeChat *chat, const gchar *entry)
+{
+	if (chat && chat->name)
+		skype_send_message_nowait("ALTER CHAT %s ENTERPASSWORD %s", chat->name, entry);
 }
 
 void
