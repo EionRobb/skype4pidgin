@@ -44,7 +44,7 @@
 #include <string.h>
 
 //#include <internal.h>
-
+#undef ENABLE_NLS
 #ifdef ENABLE_NLS
 #	ifdef _WIN32
 #		include <win32dep.h>
@@ -1419,6 +1419,7 @@ skype_update_buddy_status(PurpleBuddy *buddy)
 	skype_send_message_nowait("GET USER %s ONLINESTATUS", buddy->name);
 	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
 	skype_send_message_nowait("GET USER %s RICH_MOOD_TEXT", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
 	
 	/* if this function was called from another thread, don't loop over it */
 	return FALSE;
