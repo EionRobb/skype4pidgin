@@ -6,7 +6,7 @@ SetCompress off
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "21-Jan-2010"
+!define PRODUCT_VERSION "02-Mar-2010"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -25,11 +25,12 @@ SetCompress off
 ; License page
 !insertmacro MUI_PAGE_LICENSE "COPYING.txt"
 ; Directory page
+;!define MUI_PAGE_CUSTOMFUNCTION_PRE dir_pre
 ;!insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "http://myjobspace.co.nz/images/pidgin/README.txt"
+!define MUI_FINISHPAGE_SHOWREADME "http://eion.robbmob.com/README.txt"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "Run Pidgin"
@@ -46,9 +47,7 @@ SetCompress off
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "${PRODUCT_NAME}-installer.exe"
-;InstallDir "$PROGRAMFILES\skype4pidgin"
-;InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\skype4pidgin "Install_Dir"
-;WriteRegStr HKLM "SOFTWARE\skype4pidgin" "pidgindir" ""
+InstallDir "$PROGRAMFILES\Pidgin"
 
 Var "PidginDir"
 
@@ -56,13 +55,9 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 Section "MainSection" SEC01
-    ;InstallDir "$PROGRAMFILES\Pidgin\plugins"
 
-    ; uninstall previous install if found.
-    ;Call UnInstOld
     ;Check for pidgin installation
     Call GetPidginInstPath
-    ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "SOFTWARE\skype4pidgin" "pidgindir" "$PidginDir"
     
     SetOverwrite try
     
@@ -96,7 +91,7 @@ Section "MainSection" SEC01
 		Delete "$PidginDir\plugins\libskype.dll"
 		IfErrors dllbusy
 		SetOutPath "$PidginDir\plugins"
-	    File "libskype.dll"
+	        File "libskype.dll"
 		Goto after_copy
 	dllbusy:
 		MessageBox MB_RETRYCANCEL "libskype.dll is busy. Please close Pidgin (including tray icon) and try again" IDCANCEL cancel
@@ -134,19 +129,3 @@ Function RunPidgin
 	ExecShell "" "$PidginDir\pidgin.exe"
 FunctionEnd
 
-Function UnInstOld
-	  Push $0
-	  ReadRegStr $0 ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString"
-		IfFileExists "$0" deinst cont
-	deinst:
-		  ClearErrors
-			;ExecWait '"$0" _?=$INSTDIR'
-			ExecWait '"$0" _?="$PROGRAMFILES\skype4pidgin"'
-			;IfErrors 0 cont
-			;	MessageBox MB_OK|MB_ICONEXCLAMATION  "Uninstall failed or aborted"
-			;	Abort "Uninstalling of the previous version gave an error. Install aborted."
-			
-	cont:
-	  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
-		
-FunctionEnd
