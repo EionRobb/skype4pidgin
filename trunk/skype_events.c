@@ -33,6 +33,7 @@ gint skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 void skype_chat_password_cb(SkypeChat *chat, const gchar *entry);
 void skype_call_accept_cb(gchar *call);
+void skype_call_accept_video_cb(gchar *call);
 void skype_call_reject_cb(gchar *call);
 void skype_call_ignore_cb(gchar *call);
 void skype_call_voicemail_cb(gchar *call);
@@ -739,19 +740,32 @@ skype_handle_received_message(char *message)
 			temp = skype_send_message("GET CALL %s PARTNER_HANDLE", string_parts[1]);
 			sender = g_strdup(&temp[21+strlen(string_parts[1])]);
 			g_free(temp);
+			temp = skype_send_message("GET CALL %S PARTNER_DISPNAME", string_parts[1]);
+			chatname = g_strdup(&temp[23+strlen(string_parts[1])]);
+			g_free(temp);
 			if (g_str_equal(type, "INCOMING"))
 			{
-				temp = g_strdup_printf(_("%s is calling you."), sender);
+				if (chatname && *chatname)
+				{
+					temp = g_strdup_printf("%s (%s)", chatname, sender);
+					g_free(chatname);
+					chatname = temp;
+					temp = g_strdup_printf(_("%s is calling you."), chatname);
+				} else {
+					temp = g_strdup_printf(_("%s is calling you."), sender);
+				}
 				purple_request_action(gc, _("Incoming Call"), temp, 
 									  _("Do you want to accept their call?"),
-								0, this_account, sender, NULL, g_strdup(string_parts[1]), 2, 
+								0, this_account, sender, NULL, g_strdup(string_parts[1]), 3, 
 								_("_Accept"), G_CALLBACK(skype_call_accept_cb), 
+									_("Accept with Video"), G_CALLBACK(skype_call_accept_video_cb),
 									  _("_Reject"), G_CALLBACK(skype_call_reject_cb),
 									  _("_Ignore"), G_CALLBACK(skype_call_ignore_cb),
 									  _("Send to _Voicemail"), G_CALLBACK(skype_call_voicemail_cb),
 									  _("_Forward"), G_CALLBACK(skype_call_forward_cb));
 				g_free(temp);
 			}
+			g_free(chatname);
 			g_free(sender);
 			g_free(type);
 		}
@@ -828,6 +842,16 @@ skype_call_accept_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	g_free(call);
+}
+
+void
+skype_call_accept_video_cb(gchar *call)
+{
+	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
+	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("ALTER CALL %s START_VIDEO_SEND", call);
+	skype_send_message_nowait("ALTER CALL %s START_VIDEO_RECEIVE", call);
 	g_free(call);
 }
 
@@ -981,6 +1005,11 @@ static void
 purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 {
 	g_return_if_fail(xfer != NULL);
+	
+	if (xfer->status == status)
+		return;
+
+	xfer->status = status;	
 
 	if(xfer->type == PURPLE_XFER_SEND) {
 		switch(status) {
@@ -1019,8 +1048,6 @@ purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status)
 				break;
 		}
 	}
-
-	xfer->status = status;
 }
 
 
