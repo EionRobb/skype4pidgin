@@ -72,7 +72,8 @@
 #include <cmds.h>
 #include <status.h>
 
-#ifdef USE_VV
+//#ifdef USE_VV
+#if 1
 #include <mediamanager.h>
 gboolean skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSessionType type);
 PurpleMediaCaps skype_get_media_caps(PurpleAccount *account, const char *who);
@@ -218,6 +219,7 @@ static gboolean skype_uri_handler(const char *proto, const char *cmd, GHashTable
 void skype_buddy_free(PurpleBuddy *buddy);
 const char *skype_list_emblem(PurpleBuddy *buddy);
 SkypeBuddy *skype_buddy_new(PurpleBuddy *buddy);
+static void skype_request_auth_from_blist(PurpleBlistNode *node, gpointer data);
 static void skype_open_sms_im(PurpleBlistNode *node, gpointer data);
 void skype_got_buddy_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
 gboolean skype_check_keepalive(PurpleConnection *gc);
@@ -321,7 +323,8 @@ PurplePluginProtocolInfo prpl_info = {
 #endif
 	sizeof(PurplePluginProtocolInfo), /* struct_size */
 	NULL,                /* get_account_text_table */
-#ifdef USE_VV
+//#ifdef USE_VV
+#if 1
 	skype_media_initiate,/* initiate_media */
 	skype_get_media_caps /* can_do_media */
 #endif
@@ -556,6 +559,7 @@ skype_node_menu(PurpleBlistNode *node)
 	PurpleMenuAction *act;
 	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
+	gchar *temp;
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
@@ -566,11 +570,15 @@ skype_node_menu(PurpleBlistNode *node)
 										NULL, NULL);
 		m = g_list_append(m, act);
 #endif
-#ifndef USE_VV
-		act = purple_menu_action_new(_("Call..."),
-										PURPLE_CALLBACK(skype_call_user_from_blist),
-										NULL, NULL);
-		m = g_list_append(m, act);
+//#ifndef USE_VV
+#if 1
+		if (!purple_media_manager_get())
+		{
+			act = purple_menu_action_new(_("Call..."),
+											PURPLE_CALLBACK(skype_call_user_from_blist),
+											NULL, NULL);
+			m = g_list_append(m, act);
+		}
 #endif
 #endif
 		act = purple_menu_action_new(_("Initiate _Chat"),
@@ -587,6 +595,19 @@ skype_node_menu(PurpleBlistNode *node)
 								PURPLE_CALLBACK(skype_open_sms_im),
 								NULL, NULL);
 			m = g_list_append(m, act);
+		}
+		
+		if (!PURPLE_BUDDY_IS_ONLINE(buddy))
+		{
+			temp = skype_send_message("GET USER %s BUDDYSTATUS", buddy->name);
+			purple_debug_info("skype", "Offline buddy's status is %c\n", temp[18+strlen(buddy->name)]);
+			if (temp[18+strlen(buddy->name)] == '2')
+			{
+				act = purple_menu_action_new(_("Re-request authorization"),
+								PURPLE_CALLBACK(skype_request_auth_from_blist),
+								NULL, NULL);
+				m = g_list_append(m, act);
+			}
 		}
 	} else if (PURPLE_BLIST_NODE_IS_CHAT(node))
 	{
@@ -1647,7 +1668,8 @@ skype_close(PurpleConnection *gc)
 	g_hash_table_destroy(sms_convo_link_table);
 	sms_convo_link_table = NULL;
 	
-#ifdef USE_VV
+//#ifdef USE_VV
+#if 1
 	g_hash_table_destroy(call_media_hash);
 	call_media_hash = NULL;
 #endif
@@ -2924,6 +2946,19 @@ skype_set_next_sms_number_for_conversation(PurpleConversation *conv, const gchar
 }
 
 static void
+skype_request_auth_from_blist(PurpleBlistNode *node, gpointer data)
+{
+	PurpleBuddy *buddy;
+
+	if (!PURPLE_BLIST_NODE_IS_BUDDY(node))
+		return;
+	
+	buddy = (PurpleBuddy *)node;
+
+	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2", buddy->name);
+}
+
+static void
 skype_open_sms_im(PurpleBlistNode *node, gpointer data)
 {
 	PurpleBuddy *buddy;
@@ -3106,7 +3141,8 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	return FALSE;
 }
 
-#ifdef USE_VV
+//#ifdef USE_VV
+#if 1
 /*
 Skype info from developer.skype.com and forum.skype.com:
 Audio:
@@ -3300,9 +3336,13 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	
 	if (media != NULL)
 	{
-		//g_signal_emit(media, purple_media_signals[STATE_CHANGE], 0, PURPLE_MEDIA_STATE_CHANGED_NEW, "skype-audio", who);
 		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
+		
+		purple_media_add_stream(media, "skype-audio1", who, PURPLE_MEDIA_AUDIO, FALSE, "nice", 0, NULL);
+		purple_media_add_stream(media, "skype-audio2", who, PURPLE_MEDIA_AUDIO, FALSE, "rawudp", 0, NULL);
+		//g_signal_emit(media, purple_media_signals[STATE_CHANGED], 0, PURPLE_MEDIA_STATE_NEW, "skype-audio", who);
+		//g_signal_emit_by_name(media, "state-changed", 0, PURPLE_MEDIA_STATE_NEW, "skype-audio", who);
 		
 		g_signal_connect_swapped(G_OBJECT(media), "accepted", G_CALLBACK(skype_send_call_accept), callnumber_string);
 		g_signal_connect(G_OBJECT(media), "state-changed", G_CALLBACK(skype_media_state_changed), callnumber_string);
