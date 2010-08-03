@@ -311,6 +311,13 @@ skype_handle_received_message(char *message)
 			
 			/* dont async this -> infinite loop */
 			skype_send_message("SET MESSAGE %s SEEN", string_parts[1]);
+			
+			temp = skype_send_message("GET MESSAGE %s PARTNER_HANDLE", string_parts[1]);
+			sender = g_strdup(&temp[24+strlen(string_parts[1])]);
+			g_free(temp);
+			purple_signal_emit(purple_conversations_get_handle(), "received-im-ack",
+						this_account, sender, string_parts[1]);
+			g_free(sender);
 		}
 	} else if (g_str_equal(command, "CHATMESSAGE"))
 	{
@@ -712,8 +719,9 @@ skype_handle_received_message(char *message)
 			}
 			g_strfreev(chatusers);
 		}
-#ifdef USE_VV
-	} else if (g_str_equal(command, "CALL"))
+//#ifdef USE_VV
+#if 1
+	} else if (purple_media_manager_get() && g_str_equal(command, "CALL"))
 	{
 		if (g_str_equal(string_parts[2], "STATUS"))
 		{ 
@@ -727,24 +735,27 @@ skype_handle_received_message(char *message)
 				skype_handle_call_got_ended(string_parts[1]);
 			}
 		}
-#else
-	} else if (g_str_equal(command, "CALL"))
+//#else
+	} else if (!purple_media_manager_get() && g_str_equal(command, "CALL"))
 	{
-		if (g_str_equal(string_parts[2], "STATUS") &&
-			g_str_equal(string_parts[3], "RINGING"))
+		if (g_str_equal(string_parts[2], "STATUS"))
+		{
+		if (g_str_equal(string_parts[3], "RINGING"))
 		{
 			temp = skype_send_message("GET CALL %s TYPE", string_parts[1]);
 			type = g_new0(gchar, 9);
 			sscanf(temp, "CALL %*s TYPE %[^_]", type);
 			g_free(temp);
-			temp = skype_send_message("GET CALL %s PARTNER_HANDLE", string_parts[1]);
-			sender = g_strdup(&temp[21+strlen(string_parts[1])]);
-			g_free(temp);
-			temp = skype_send_message("GET CALL %S PARTNER_DISPNAME", string_parts[1]);
-			chatname = g_strdup(&temp[23+strlen(string_parts[1])]);
-			g_free(temp);
 			if (g_str_equal(type, "INCOMING"))
 			{
+				temp = skype_send_message("GET CALL %s PARTNER_HANDLE", string_parts[1]);
+				sender = g_strdup(&temp[21+strlen(string_parts[1])]);
+				g_free(temp);
+				temp = skype_send_message("GET CALL %s PARTNER_DISPNAME", string_parts[1]);
+				chatname = g_strdup(&temp[23+strlen(string_parts[1])]);
+				g_free(temp);
+				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, sender, this_account);
+
 				if (chatname && *chatname)
 				{
 					temp = g_strdup_printf("%s (%s)", chatname, sender);
@@ -754,20 +765,25 @@ skype_handle_received_message(char *message)
 				} else {
 					temp = g_strdup_printf(_("%s is calling you."), sender);
 				}
+				
 				purple_request_action(gc, _("Incoming Call"), temp, 
-									  _("Do you want to accept their call?"),
-								0, this_account, sender, NULL, g_strdup(string_parts[1]), 3, 
+								_("Do you want to accept their call?"),
+								0, this_account, sender, conv, g_strdup(string_parts[1]), 3, 
 								_("_Accept"), G_CALLBACK(skype_call_accept_cb), 
-									_("Accept with Video"), G_CALLBACK(skype_call_accept_video_cb),
-									  _("_Reject"), G_CALLBACK(skype_call_reject_cb),
-									  _("_Ignore"), G_CALLBACK(skype_call_ignore_cb),
-									  _("Send to _Voicemail"), G_CALLBACK(skype_call_voicemail_cb),
-									  _("_Forward"), G_CALLBACK(skype_call_forward_cb));
+								_("Accept with Video"), G_CALLBACK(skype_call_accept_video_cb),
+								_("_Reject"), G_CALLBACK(skype_call_reject_cb),
+								_("_Ignore"), G_CALLBACK(skype_call_ignore_cb),
+								_("Send to _Voicemail"), G_CALLBACK(skype_call_voicemail_cb),
+								_("_Forward"), G_CALLBACK(skype_call_forward_cb));
 				g_free(temp);
 			}
 			g_free(chatname);
 			g_free(sender);
 			g_free(type);
+		} else if (g_str_equal(string_parts[3], "INPROGRESS"))
+		{
+			purple_request_close_with_handle(gc);
+		}
 		}
 #endif	
 	} else if (g_str_equal(command, "SMS"))
@@ -1217,6 +1233,11 @@ handle_complete_message(int messagenumber)
 							}
 						}
 					}
+				} else {
+					gchar *msg_num = g_strdup_printf("%d", messagenumber);
+					purple_signal_emit(purple_conversations_get_handle(), "received-im-ack",
+						skypemessage->account, skypemessage->from_handle, msg_num);
+					g_free(msg_num);
 				}
 			}
 			break;
