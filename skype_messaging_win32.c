@@ -166,10 +166,13 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 		g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(poCopyData->lpData), FALSE, NULL);
 		return 1;
 	} else if (uiMessage == uiGlobal_MsgID_SkypeControlAPIAttach) {
-		hGlobal_SkypeAPIWindowHandle = (HWND)uiParam;
 		skype_debug_info("skype_win32", "Attached process %d %d\n", uiParam, ulParam);
 		if (ulParam == 0)
+		{
 			skype_debug_info("skype_win32", "Attach success\n");
+			hGlobal_SkypeAPIWindowHandle = (HWND)uiParam;
+			//TODO send a message asking what the skype username is, to work with multiple skypes
+		}
 		else if (ulParam == 1)
 			skype_debug_info("skype_win32", "Pending auth\n");
 		else if (ulParam == 2)
