@@ -2336,6 +2336,7 @@ void
 skype_rem_deny(PurpleConnection *gc, const char *who)
 {
 	skype_send_message_nowait("SET USER %s ISBLOCKED FALSE", who);
+	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2", who);
 }
 
 void
@@ -2505,6 +2506,44 @@ skype_check_missedmessages(PurpleAccount *account)
 	
 	return FALSE; //dont keep looking for missed messages
 	//return TRUE; //keep looking for missed messages
+}
+
+static gboolean
+skype_check_missedvoicemails(PurpleAccount *account)
+{
+	int i;
+	gchar **messages;
+	gchar *message;
+	gchar *messages_start;
+	gchar *subject, *from, *to, *url;
+	gchar *temp;
+	
+	message = skype_send_message("SEARCH MISSEDVOICEMAILS");
+	if (!message || *message == '\0')
+		return FALSE; //there was an error
+	messages_start = strchr(message, ' ');
+	if (messages_start != NULL)
+	{
+		messages = g_strsplit(messages_start + 1, ", ", 0);
+		for (i = 0; messages[i]; i++)
+		{
+			temp = skype_send_message("GET VOICEMAIL %s PARTNER_DISPNAME", messages[i]);
+			g_free(temp);
+			
+			temp = skype_send_message("GET VOICEMAIL %s PARTNER_HANDLE", messages[i]);
+			g_free(temp);
+			
+			//url = g_strdup_printf("skype:%s?voicemailplay", messages[i]);
+			//ALTER VOICEMAIL %s STARTPLAYBACK
+			
+			//purple_notify_email(purple_account_get_connection(account),
+			//	subject, from, to, url, NULL, NULL);
+		}
+		g_strfreev(messages);
+	}
+	g_free(message);
+	
+	return FALSE;
 }
 
 static void
@@ -3065,11 +3104,11 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 {
 	PurpleAccount *acct;
 	gchar *temp;
-	
+
 	//only deal with skype: uri's
-	if (!g_str_equal(proto, "skype"))
+	if (!g_str_equal(proto, "skype") && !(g_str_equal(proto, "\"skype")))
 		return FALSE;
-		
+
 	/*uri's:
 	
 		skype:						//does nothing
