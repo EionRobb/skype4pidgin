@@ -49,6 +49,7 @@ skype_connect()
 	
 	x11_error_code = 0;
 	XSetErrorHandler(x11_error_handler);
+	skype_debug_info("skype_x11", "Set the XErrorHandler\n");
 #ifdef USE_XVFB_SERVER	
 	if (!getenv("SKYPEDISPLAY"))
 		setenv("SKYPEDISPLAY", ":25", 0);
@@ -59,9 +60,10 @@ skype_connect()
 		disp = XOpenDisplay(getenv("DISPLAY"));
 	if (disp == NULL)
 	{
-		skype_debug_info("skype", "Couldn't open display\n");
+		skype_debug_info("skype_x11", "Couldn't open display\n");
 		return FALSE;
 	}
+	skype_debug_info("skype_x11", "Opened display\n");
 	message_start = XInternAtom( disp, "SKYPECONTROLAPI_MESSAGE_BEGIN", False );
 	message_continue = XInternAtom( disp, "SKYPECONTROLAPI_MESSAGE", False );
 	root = DefaultRootWindow( disp );
@@ -71,9 +73,10 @@ skype_connect()
 	XFlush(disp);
 	if (win == -1)
 	{
-		skype_debug_info("skype", "Could not create X11 messaging window\n");
+		skype_debug_info("skype_x11", "Could not create X11 messaging window\n");
 		return FALSE;
 	}
+	skype_debug_info("skype_x11", "Created X11 messaging window\n");
 	skype_inst = XInternAtom(disp, "_SKYPE_INSTANCE", True);
 	if (skype_inst == None)
 	{
@@ -81,6 +84,7 @@ skype_connect()
 		skype_debug_info("skype_x11", "Could not create skype Atom\n");
 		return FALSE;
 	}
+	skype_debug_info("skype_x11", "Created skype Atom\n");
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret < 1)
 	{
@@ -89,10 +93,12 @@ skype_connect()
 		skype_debug_info("skype", "Skype instance not found\n");
 		return FALSE;
 	}
+	skype_debug_info("skype_x11", "Skype instance found\n");
 	skype_win = * (const unsigned long *) prop & 0xffffffff;
 	XFree(prop);
 	run_loop = TRUE;
 	
+	skype_debug_info("skype_x11", "Charging lasers...\n");
 	receiving_thread = g_thread_create((GThreadFunc)receive_message_loop, NULL, FALSE, NULL);
 	
 	return TRUE;
@@ -201,6 +207,8 @@ receive_message_loop(void)
 	GString *msg = NULL;
 	char msg_temp[21];
 	size_t len;
+
+	skype_debug_info("skype_x11", "receive_message_loop started\n");
 	
 	msg_temp[20] = '\0';
 	XSetErrorHandler(x11_error_handler);
@@ -212,7 +220,7 @@ receive_message_loop(void)
 			g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL);
 			break;
 		}
-		
+		skype_debug_info("skype_x11", "display still around\n");
 		
 		Bool event_bool;
 		g_static_mutex_lock(&x11_mutex);
@@ -224,6 +232,7 @@ receive_message_loop(void)
 			usleep(1000);
 			//XPeekEvent(disp, &e);
 			//sleep(1);
+			skype_debug_info("skype_x11", "no event to process\n");
 			continue;
 		}/*
 		XNextEvent(disp, &e);
@@ -248,7 +257,7 @@ receive_message_loop(void)
 			}
 			continue;
 		}
-
+		skype_debug_info("skype_x11", "got a message of length %d\n", len);
 		if (len < 20)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
