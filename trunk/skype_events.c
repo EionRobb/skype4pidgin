@@ -776,11 +776,13 @@ skype_handle_received_message(char *message)
 								_("Send to _Voicemail"), G_CALLBACK(skype_call_voicemail_cb),
 								_("_Forward"), G_CALLBACK(skype_call_forward_cb));
 				g_free(temp);
+				g_free(chatname);
+				g_free(sender);
 			}
-			g_free(chatname);
-			g_free(sender);
 			g_free(type);
-		} else if (g_str_equal(string_parts[3], "INPROGRESS"))
+		} else if (g_str_equal(string_parts[3], "INPROGRESS") ||
+			g_str_equal(string_parts[3], "MISSED"))
+
 		{
 			purple_request_close_with_handle(gc);
 		}
@@ -864,8 +866,8 @@ skype_call_accept_cb(gchar *call)
 void
 skype_call_accept_video_cb(gchar *call)
 {
-	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
-	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message("ALTER CALL %s ANSWER", call);
+	skype_send_message("SET CALL %s SEEN", call);
 	skype_send_message_nowait("ALTER CALL %s START_VIDEO_SEND", call);
 	skype_send_message_nowait("ALTER CALL %s START_VIDEO_RECEIVE", call);
 	g_free(call);
