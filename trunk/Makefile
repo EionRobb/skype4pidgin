@@ -12,6 +12,7 @@ WIN32_DEV_DIR = /root/pidgin/win32-dev
 WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.6.1
 WIN32_CFLAGS = -DPURPLE_PLUGINS -DENABLE_NLS -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_PIDGIN_DIR}/libpurple -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0/lib -L${WIN32_PIDGIN_DIR}/libpurple -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lintl -lpurple
+XUL_LIBS = -I/usr/lib/xulrunner/include xpcomModule.cpp -I/usr/include/nspr
 
 VV_CFLAGS = -I/usr/include/gstreamer-0.10 -DUSE_VV -I/usr/include/libxml2
 WIN32_VV_CFLAGS = -I${WIN32_DEV_DIR}/libxml2/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include/gstreamer-0.10 
@@ -68,6 +69,9 @@ libskype.so: .DEPENDS skype_messaging_x11.c
 libskype-vv.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype-vv.so -shared -fPIC -DPIC ${VV_CFLAGS}
 
+libskype-vv64.so: .DEPENDS skype_messaging_x11.c
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m64 -pipe libskype.c -o libskype-vv64.so -shared -fPIC -DPIC ${VV_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
+
 libskype64.so: .DEPENDS skype_messaging_x11.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
@@ -78,10 +82,10 @@ libskypearm.so: .DEPENDS skype_messaging_x11.c
 	${LINUX_ARM_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -O2 -pipe libskype.c -o libskypearm.so -shared -fPIC -DPIC
 
 libskype_dbus.so: .DEPENDS skype_messaging_dbus.c
-	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
+	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -pipe libskype.c -o libskype_dbus.so -shared -fPIC -DPIC ${DBUS_CFLAGS}
 
 libskype_dbus64.so: .DEPENDS skype_messaging_dbus.c
-	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
+	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m64 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
 libskype-vv.dll: .DEPENDS skype_messaging_win32.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype-vv.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all -DUSE_VV ${WIN32_VV_CFLAGS}
@@ -89,6 +93,9 @@ libskype-vv.dll: .DEPENDS skype_messaging_win32.c
 libskype.dll: .DEPENDS skype_messaging_win32.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all
 	upx libskype.dll
+
+libskype-xul.dll: .DEPENDS skype_messaging_win32.c
+	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c ${XUL_LIBS} -o libskype-xul.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all
 
 libskypenet.dll: .DEPENDS skype_messaging_network.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET -Wl,--strip-all
@@ -105,12 +112,12 @@ po/%.mo: po/%.po
 
 locales:	${LOCALES}
 
-skype4pidgin-installer.exe: libskype.dll
+skype4pidgin-installer.exe: libskype.dll locales
 	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i skype4pidgin.nsi
 	echo "Making .exe package"
 	makensis skype4pidgin.nsi > /dev/null
 
-skype4pidgin.deb: libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so
+skype4pidgin.deb: locales libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so
 	rm ${DEB_PACKAGE_DIR}/usr/lib/purple-2/libskype*.so
 	cp libskype.so libskype64.so libskype_dbus.so libskype_dbus64.so libskypearm.so ${DEB_PACKAGE_DIR}/usr/lib/purple-2/
 	date=`date +%F` && sed "s/Version: [-a-z0-9A-Z]*/Version: $$date/" -i ${DEB_PACKAGE_DIR}/DEBIAN/control
