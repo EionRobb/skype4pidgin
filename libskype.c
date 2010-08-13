@@ -240,6 +240,7 @@ void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer us
 static void skype_program_update_check(void);
 static void skype_send_file_from_blist(PurpleBlistNode *node, gpointer data);
 static void skype_call_user_from_blist(PurpleBlistNode *node, gpointer data);
+static void skype_end_call_from_blist(PurpleBlistNode *node, gpointer data);
 #endif
 
 
@@ -572,12 +573,48 @@ skype_node_menu(PurpleBlistNode *node)
 #endif
 //#ifndef USE_VV
 #if 1
+		buddy = (PurpleBuddy *)node;
+		sbuddy = (SkypeBuddy *)buddy->proto_data;
+		
 		if (!purple_media_manager_get())
 		{
-			act = purple_menu_action_new(_("Call..."),
+			gint call_id = 0, i, j;
+			temp = skype_send_message("SEARCH ACTIVECALLS %s");
+			if (temp && *temp && temp[6])
+			{
+				gchar **ids = g_strsplit(&temp[6], ", ", 0);
+				g_free(temp);
+				temp = skype_send_message("SEARCH CALLS %s", buddy->name);
+				gchar **buddy_calls = g_strsplit(&temp[6], ", ", 0);
+				for (i = 0; ids[i]; i++)
+				{
+					for (j = 0; buddy_calls[j]; j++)
+					{
+						if (g_str_equal(ids[i], buddy_calls[j]))
+						{
+							call_id = atoi(ids[i]);
+							break;
+						}
+					}
+					if (call_id)
+						break;
+				}
+				g_strfreev(ids);
+				g_strfreev(buddy_calls);
+			}
+			
+			if (call_id)
+			{
+				act = purple_menu_action_new(_("End Call"),
+								PURPLE_CALLBACK(skype_end_call_from_blist),
+								GINT_TO_POINTER(call_id), NULL);
+				m = g_list_append(m, act);
+			} else {
+				act = purple_menu_action_new(_("Call..."),
 											PURPLE_CALLBACK(skype_call_user_from_blist),
 											NULL, NULL);
-			m = g_list_append(m, act);
+				m = g_list_append(m, act);
+			}
 		}
 #endif
 #endif
@@ -585,9 +622,6 @@ skype_node_menu(PurpleBlistNode *node)
 							PURPLE_CALLBACK(skype_initiate_chat),
 							NULL, NULL);
 		m = g_list_append(m, act);
-
-		buddy = (PurpleBuddy *)node;
-		sbuddy = (SkypeBuddy *)buddy->proto_data;
 
 		if (buddy->name[0] == '+' || (sbuddy && sbuddy->phone_mobile))
 		{
@@ -608,6 +642,7 @@ skype_node_menu(PurpleBlistNode *node)
 								NULL, NULL);
 				m = g_list_append(m, act);
 			}
+			g_free(temp);
 		}
 	} else if (PURPLE_BLIST_NODE_IS_CHAT(node))
 	{
@@ -647,6 +682,18 @@ skype_call_user_from_blist(PurpleBlistNode *node, gpointer data)
 	{
 		buddy = (PurpleBuddy *) node;
 		skype_send_message_nowait("CALL %s", buddy->name);
+	}
+}
+
+static void
+skype_end_call_from_blist(PurpleBlistNode *node, gpointer data)
+{
+	gint call_id;
+	
+	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
+	{
+		call_id = GPOINTER_TO_INT(data);
+		skype_send_message_nowait("ALTER CALL %d HANGUP", call_id);
 	}
 }
 #endif

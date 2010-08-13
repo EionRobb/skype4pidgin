@@ -860,6 +860,7 @@ skype_call_accept_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
 }
 
@@ -868,6 +869,7 @@ skype_call_accept_video_cb(gchar *call)
 {
 	skype_send_message("ALTER CALL %s ANSWER", call);
 	skype_send_message("SET CALL %s SEEN", call);
+	skype_send_message("CLEAR CALLHISTORY INCOMING");
 	skype_send_message_nowait("ALTER CALL %s START_VIDEO_SEND", call);
 	skype_send_message_nowait("ALTER CALL %s START_VIDEO_RECEIVE", call);
 	g_free(call);
@@ -878,6 +880,7 @@ skype_call_reject_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s END HANGUP", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
 }
 
@@ -885,6 +888,7 @@ void
 skype_call_ignore_cb(gchar *call)
 {
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
 }
 
@@ -893,6 +897,7 @@ skype_call_voicemail_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s END REDIRECT_TO_VOICEMAIL", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
 }
 
@@ -901,6 +906,7 @@ skype_call_forward_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s END FORWARD_CALL", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
+	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
 }
 
