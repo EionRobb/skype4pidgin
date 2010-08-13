@@ -579,7 +579,7 @@ skype_node_menu(PurpleBlistNode *node)
 		if (!purple_media_manager_get())
 		{
 			gint call_id = 0, i, j;
-			temp = skype_send_message("SEARCH ACTIVECALLS %s");
+			temp = skype_send_message("SEARCH ACTIVECALLS");
 			if (temp && *temp && temp[6])
 			{
 				gchar **ids = g_strsplit(&temp[6], ", ", 0);
