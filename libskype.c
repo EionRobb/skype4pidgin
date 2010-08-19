@@ -231,6 +231,8 @@ gboolean skype_login_cb(gpointer acct);
 void skype_put_buddies_in_groups(void);
 gboolean groups_table_find_group(gpointer key, gpointer value, gpointer user_data);
 PurpleChat *skype_find_blist_chat(PurpleAccount *account, const char *name);
+gboolean skype_login_retry(PurpleAccount *acct);
+gboolean skype_login_part2(PurpleAccount *acct);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -379,7 +381,7 @@ plugin_init(PurplePlugin *plugin)
 {
 	PurpleAccountOption *option;
 
-#if _WIN32 && ENABLE_NLS
+#if ( _WIN32 || __APPLE__ ) && ENABLE_NLS
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
@@ -401,12 +403,15 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Make Skype online/offline when going online/offline"), "skype_sync", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
-	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	//option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
+	//prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Automatically reject all authorization requests"), "reject_all_auths", FALSE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #ifndef SKYPENET
 	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_new(PURPLE_PREF_PATH, _("Skype Path"), "skype_path");
+	purple_account_option_set_default_string(option, "");
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #endif	
 	
@@ -437,6 +442,32 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 						
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skype_uri_handler), NULL);
+}
+
+/* copied from oscar.c to be libpurple 2.1 compatible */
+static PurpleAccount *
+find_acct(const char *prpl, const char *acct_id)
+{
+	PurpleAccount *acct = NULL;
+	
+	/* If we have a specific acct, use it */
+	if (acct_id) {
+		acct = purple_accounts_find(acct_id, prpl);
+		if (acct && !purple_account_is_connected(acct))
+			acct = NULL;
+	} else { /* Otherwise find an active account for the protocol */
+		GList *l = purple_accounts_get_all();
+		while (l) {
+			if (!strcmp(prpl, purple_account_get_protocol_id(l->data))
+				&& purple_account_is_connected(l->data)) {
+				acct = l->data;
+				break;
+			}
+			l = l->next;
+		}
+	}
+	
+	return acct;
 }
 
 static PurpleCmdRet
@@ -580,27 +611,32 @@ skype_node_menu(PurpleBlistNode *node)
 		{
 			gint call_id = 0, i, j;
 			temp = skype_send_message("SEARCH ACTIVECALLS");
-			if (temp && *temp && temp[6])
+			if (temp && *temp && temp[5] && temp[6])
 			{
 				gchar **ids = g_strsplit(&temp[6], ", ", 0);
 				g_free(temp);
+				gchar **buddy_calls = NULL;
 				temp = skype_send_message("SEARCH CALLS %s", buddy->name);
-				gchar **buddy_calls = g_strsplit(&temp[6], ", ", 0);
-				for (i = 0; ids[i]; i++)
+				if (temp && *temp && temp[5] && temp[6])
 				{
-					for (j = 0; buddy_calls[j]; j++)
+					buddy_calls = g_strsplit(&temp[6], ", ", 0);
+					for (i = 0; ids[i]; i++)
 					{
-						if (g_str_equal(ids[i], buddy_calls[j]))
+						for (j = 0; buddy_calls[j]; j++)
 						{
-							call_id = atoi(ids[i]);
-							break;
+							if (g_str_equal(ids[i], buddy_calls[j]))
+							{
+								call_id = atoi(ids[i]);
+								break;
+							}
 						}
+						if (call_id)
+							break;
 					}
-					if (call_id)
-						break;
 				}
-				g_strfreev(ids);
+				g_free(temp);
 				g_strfreev(buddy_calls);
+				g_strfreev(ids);
 			}
 			
 			if (call_id)
@@ -1032,6 +1068,8 @@ skype_set_buddies(PurpleAccount *acct)
 							if (skypeout_group == NULL)
 							{
 								skypeout_group = purple_group_new("SkypeOut");
+								if (skypeout_group == NULL)
+									skype_debug_error("skype", "SkypeOut group is NULL!\n");
 								purple_blist_add_group(skypeout_group, NULL);
 							}
 						}
@@ -1045,6 +1083,8 @@ skype_set_buddies(PurpleAccount *acct)
 							if (skype_group == NULL)
 							{
 								skype_group = purple_group_new("Skype");
+								if (skype_group == NULL)
+									skype_debug_error("skype", "Skype group is NULL!\n");
 								purple_blist_add_group(skype_group, NULL);
 							}
 						}
@@ -1061,7 +1101,8 @@ skype_set_buddies(PurpleAccount *acct)
 				sbuddy->phone_office = g_strdup(full_friends_list[i+3]);
 				sbuddy->phone_mobile = g_strdup(full_friends_list[i+4]);
 				
-				purple_blist_server_alias_buddy(buddy, full_friends_list[i+6]);
+				if (full_friends_list[i+6] && *full_friends_list[i+6])
+					purple_blist_server_alias_buddy(buddy, full_friends_list[i+6]);
 				sbuddy->is_voicemail_capable = g_str_equal(full_friends_list[i+7], "TRUE")?TRUE:FALSE;
 				if (full_friends_list[i+8] == NULL)
 				{
@@ -1505,11 +1546,16 @@ skype_login_cb(gpointer acct)
 	return FALSE;
 }
 
+static guint retry_count = 0;
+
 void 
 skype_login(PurpleAccount *acct)
 {
 	PurpleConnection *gc;
-	gchar *reply;
+	const gchar *skype_path;
+	gboolean skype_started = FALSE;
+	gchar *errormsg;
+	PurpleAccount *test_account;
 	
 	if (acct == NULL)
 	{
@@ -1535,13 +1581,17 @@ skype_login(PurpleAccount *acct)
 				PURPLE_CONNECTION_NO_IMAGES;
 
 	/* 1. connect to server */
-	/* TODO: Work out if a skype connection is already running */
+	// Work out if a skype connection is already running
 	//purple_account_is_connected(acct)
-	if (FALSE)
+	test_account = find_acct(purple_plugin_get_id(this_plugin), NULL);
+	if (test_account && test_account != acct)
 	{
-		purple_connection_error(gc, g_strconcat("\n",_("Only one Skype account allowed"), NULL));
+		purple_connection_error(gc, errormsg = g_strconcat("\n",_("Only one Skype account allowed"), NULL));
+		g_free(errormsg);
 		return;
 	}
+	
+	retry_count = 0;
 	
 	purple_connection_update_progress(gc, _("Connecting"), 0, 5);
 	
@@ -1553,21 +1603,57 @@ skype_login(PurpleAccount *acct)
 			if (!is_skype_running())
 			{
 				skype_debug_info("skype", "Yes, start Skype\n");
-				if (!exec_skype())
+				if ((skype_path = purple_account_get_string(acct, "skype_path", NULL)) && *skype_path)
 				{
-					purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
+					skype_started = g_spawn_command_line_async(skype_path, NULL);
+				} else {
+					skype_started = exec_skype();
+				}
+
+				if (skype_started)
+				{
+					purple_timeout_add_seconds(10, skype_login_cb, acct);
 					return;
 				}
-				purple_timeout_add_seconds(10, skype_login_cb, acct);
 				return;
 			}
-			gc->wants_to_die = FALSE;
-		} else {
-			gc->wants_to_die = TRUE;
 		}
-		purple_connection_error(gc, g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
+		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
 		return;
 	}
+	
+	purple_timeout_add(1, (GSourceFunc) skype_login_part2, acct);
+}
+
+gboolean
+skype_login_retry(PurpleAccount *acct)
+{
+	gchar *errormsg;
+	PurpleConnection *gc;
+	
+	gc = purple_account_get_connection(acct);
+	
+	if (retry_count++ == 3)
+	{
+		gc->wants_to_die = TRUE;
+		purple_connection_error(gc, errormsg = g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
+		g_free(errormsg);
+		return FALSE;
+	}
+	
+	if (!skype_connect())
+		return TRUE;
+	
+	purple_timeout_add(1, (GSourceFunc) skype_login_part2, acct);
+	return FALSE;
+}
+
+gboolean
+skype_login_part2(PurpleAccount *acct)
+{
+	gchar *reply;
+	PurpleConnection *gc;
+	gc = purple_account_get_connection(acct);
 	
 	purple_connection_update_progress(gc, _("Authorizing"),
 								  1,   /* which connection step this is */
@@ -1583,15 +1669,16 @@ skype_login(PurpleAccount *acct)
 #endif
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
-		return;
+		//purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
+		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
+		return FALSE;
 	}
 	if (g_str_equal(reply, "CONNSTATUS OFFLINE"))
 	{
 		//this happens if we connect before skype has connected to the network
 		purple_timeout_add_seconds(1, skype_login_cb, acct);
 		g_free(reply);
-		return;
+		return FALSE;
 	}
 	g_free(reply);
 #endif
@@ -1599,8 +1686,9 @@ skype_login(PurpleAccount *acct)
 	reply = skype_send_message("PROTOCOL 7");
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
-		return;
+		//purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
+		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
+		return FALSE;
 	}
 	g_free(reply);
 	
@@ -1619,6 +1707,8 @@ skype_login(PurpleAccount *acct)
 	//sync buddies after everything else has finished loading
 	purple_timeout_add_seconds(1, (GSourceFunc)skype_set_buddies, (gpointer)acct);
 	purple_timeout_add_seconds(30, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
+	
+	return FALSE;
 }
 
 const char *
@@ -2226,7 +2316,7 @@ skype_find_group_with_name(const char *group_name_in)
 	if (groups_table == NULL)
 	{
 		skype_send_message_nowait("SEARCH GROUPS CUSTOM");
-		return 0;
+		return -1;
 	}
 	
 	purple_group = g_hash_table_find(groups_table, groups_table_find_group, (gpointer)group_name_in);
@@ -2268,10 +2358,11 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 
 	//add to new group
 	group_number = skype_find_group_with_name(new_group);
-	if (!group_number)
+	if (group_number <= 0)
 	{
+		if (group_number == 0)
+			skype_send_message_nowait("CREATE GROUP %s", new_group);
 		struct _cheat_skype_group_buddy_struct *cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
-		skype_send_message_nowait("CREATE GROUP %s", new_group);
 		cheat->gc = gc;
 		cheat->who = g_strdup(who);
 		cheat->old_group = old_group?g_strdup(old_group):NULL;
@@ -2298,9 +2389,9 @@ skype_rename_group(PurpleConnection *gc, const char *old_name, PurpleGroup *grou
 	int group_number = 0;
 	
 	group_number = skype_find_group_with_name(old_name);
-	if (!group_number)
+	if (group_number <= 0)
 	{
-		group->name = g_strdup(old_name);
+		//TODO Safely rename group back to the old group name to indicate failure
 		return;
 	}
 	skype_send_message_nowait("SET GROUP %d DISPLAYNAME %s", group_number, group->name);
@@ -2311,6 +2402,8 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 	int group_number = 0;
 	
 	group_number = skype_find_group_with_name(group->name);
+	if (group_number <= 0)
+		return;
 	skype_send_message_nowait("DELETE GROUP %d", group_number);
 }
 
@@ -2562,7 +2655,7 @@ skype_check_missedvoicemails(PurpleAccount *account)
 	gchar **messages;
 	gchar *message;
 	gchar *messages_start;
-	gchar *subject, *from, *to, *url;
+	//gchar *subject, *from, *to, *url;
 	gchar *temp;
 	
 	message = skype_send_message("SEARCH MISSEDVOICEMAILS");
@@ -3120,32 +3213,6 @@ dump_hash_table(gchar *key, gchar *value, gpointer data)
 	printf("'%s' = '%s'\n", key, value);
 }
 
-/* copied from oscar.c to be libpurple 2.1 compatible */
-static PurpleAccount *
-find_acct(const char *prpl, const char *acct_id)
-{
-	PurpleAccount *acct = NULL;
-
-	/* If we have a specific acct, use it */
-	if (acct_id) {
-		acct = purple_accounts_find(acct_id, prpl);
-		if (acct && !purple_account_is_connected(acct))
-			acct = NULL;
-	} else { /* Otherwise find an active account for the protocol */
-		GList *l = purple_accounts_get_all();
-		while (l) {
-			if (!strcmp(prpl, purple_account_get_protocol_id(l->data))
-					&& purple_account_is_connected(l->data)) {
-				acct = l->data;
-				break;
-			}
-			l = l->next;
-		}
-	}
-
-	return acct;
-}
-
 static gboolean
 skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 {
@@ -3204,7 +3271,7 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 		}
 	} else if (g_hash_table_lookup(params, "add"))
 	{
-		purple_blist_request_add_buddy(skype_get_account(NULL), cmd, NULL, g_hash_table_lookup(params, "displayname"));
+		purple_blist_request_add_buddy(acct, cmd, NULL, g_hash_table_lookup(params, "displayname"));
 		return TRUE;
 	} else if (g_hash_table_lookup(params, "call"))
 	{
