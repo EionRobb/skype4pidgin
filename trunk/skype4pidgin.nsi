@@ -6,7 +6,7 @@ SetCompress off
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "skype4pidgin"
-!define PRODUCT_VERSION "02-Mar-2010"
+!define PRODUCT_VERSION "26-Aug-2010"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://skype4pidgin.googlecode.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"

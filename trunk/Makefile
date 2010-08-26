@@ -66,12 +66,6 @@ libskypenet.so:  .DEPENDS skype_messaging_network.c
 libskype.so: .DEPENDS skype_messaging_x11.c
 	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -pipe libskype.c -o libskype.so -shared -fPIC -DPIC
 
-libskype-vv.so: .DEPENDS skype_messaging_x11.c
-	${LINUX32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -march=athlon-xp -O2 -pipe libskype.c -o libskype-vv.so -shared -fPIC -DPIC ${VV_CFLAGS}
-
-libskype-vv64.so: .DEPENDS skype_messaging_x11.c
-	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m64 -pipe libskype.c -o libskype-vv64.so -shared -fPIC -DPIC ${VV_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
-
 libskype64.so: .DEPENDS skype_messaging_x11.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m32 -m64 -O2 -pipe libskype.c -o libskype64.so -shared -fPIC -DPIC -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
 
@@ -86,9 +80,6 @@ libskype_dbus.so: .DEPENDS skype_messaging_dbus.c
 
 libskype_dbus64.so: .DEPENDS skype_messaging_dbus.c
 	${LINUX64_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -pthread ${GLIB_CFLAGS} -I. -g -m64 -pipe libskype.c -o libskype_dbus64.so -shared -fPIC -DPIC ${DBUS_CFLAGS} -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast
-
-libskype-vv.dll: .DEPENDS skype_messaging_win32.c
-	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype-vv.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all -DUSE_VV ${WIN32_VV_CFLAGS}
 
 libskype.dll: .DEPENDS skype_messaging_win32.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskype.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -Wl,--strip-all
