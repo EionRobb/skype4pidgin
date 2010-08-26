@@ -410,8 +410,7 @@ plugin_init(PurplePlugin *plugin)
 #ifndef SKYPENET
 	option = purple_account_option_bool_new(_("Auto-start Skype if not running"), "skype_autostart", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
-	option = purple_account_option_new(PURPLE_PREF_PATH, _("Skype Path"), "skype_path");
-	purple_account_option_set_default_string(option, "");
+	option = purple_account_option_string_new(_("Skype Path"), "skype_path", "");
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 #endif	
 	
@@ -969,7 +968,7 @@ skype_status_types(PurpleAccount *acct)
 	prim,   /* PurpleStatusPrimitive */                         \
 	id,   /* id  */                                             \
 	_(name),/* name */                                          \
-	FALSE,   /* savable */                                      \
+	TRUE,   /* savable */                                       \
 	TRUE,   /* user_settable */                                 \
 	FALSE,  /* not independent */                               \
 	                                                            \
@@ -1005,7 +1004,7 @@ skype_status_types(PurpleAccount *acct)
 	types = g_list_append(types, status);
 	
 	//Offline people shouldn't have status messages
-	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "OFFLINE", _("Offline"), FALSE, TRUE, FALSE);
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, "OFFLINE", _("Offline"), TRUE, TRUE, FALSE);
 	types = g_list_append(types, status);
 
 	return types;
