@@ -658,22 +658,28 @@ skype_handle_received_message(char *message)
 		//  Messages from skype to move users in to/out of a group
 		if (g_str_equal(string_parts[2], "DISPLAYNAME"))
 		{
-			temp_group = purple_find_group(string_parts[3]);
-			if (!temp_group)
+			if (string_parts[3] && *string_parts[3])
 			{
-				temp_group = purple_group_new(string_parts[3]);
-				skype_debug_info("skype", "Creating group %s\n", string_parts[3]);
-				purple_blist_add_group(temp_group, NULL);
+				temp_group = purple_find_group(string_parts[3]);
+				if (!temp_group)
+				{
+					temp_group = purple_group_new(string_parts[3]);
+					skype_debug_info("skype", "Creating group %s\n", string_parts[3]);
+					purple_blist_add_group(temp_group, NULL);
+				}
+				purple_blist_node_set_int(&temp_group->node, "skype_group_number", atoi(string_parts[1]));
+				g_hash_table_insert(groups_table, GINT_TO_POINTER(atoi(string_parts[1])), temp_group);
+				skype_send_message_nowait("GET GROUP %s USERS", string_parts[1]);
+			} else {
+				// Remove blank groups
+				skype_send_message_nowait("DELETE GROUP %s", string_parts[1]);
 			}
-			purple_blist_node_set_int(&temp_group->node, "skype_group_number", atoi(string_parts[1]));
-			g_hash_table_insert(groups_table, GINT_TO_POINTER(atoi(string_parts[1])), temp_group);
-			skype_send_message_nowait("GET GROUP %s USERS", string_parts[1]);
 		} else if (g_str_equal(string_parts[2], "USERS"))
 		{
 			temp_group = g_hash_table_lookup(groups_table, GINT_TO_POINTER(atoi(string_parts[1])));
 			if (temp_group)
 			{
-				if (string_parts[3])
+				if (string_parts[3] && *string_parts[3])
 				{
 					chatusers = g_strsplit(string_parts[3], ", ", -1);
 					for (i = 0; chatusers[i]; i++)
@@ -683,6 +689,9 @@ skype_handle_received_message(char *message)
 							purple_blist_add_buddy(buddy, NULL, temp_group, NULL);
 					}
 					g_strfreev(chatusers);
+				} else {
+					// Remove empty groups
+					skype_send_message_nowait("DELETE GROUP %s", string_parts[1]);
 				}
 			} else {
 				skype_send_message_nowait("GET GROUP %s DISPLAYNAME", string_parts[1]);
