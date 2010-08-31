@@ -108,23 +108,15 @@ skype_connect()
 static void
 skype_disconnect()
 {
-	XEvent *e;
-	
 	run_loop = FALSE;
 	skype_win = (Window)-1;
 	
 	if (disp != NULL)
 	{
 		if (win != -1)
-		{
-			e = g_new0(XEvent, 1);
-			e->xclient.type = DestroyNotify;
-			XSendEvent(disp, win, False, 0, e);
-			
+		{			
 			//wait here for the event to be handled
 			XDestroyWindow(disp, win);
-			
-			XFree(e);
 		}
 		XCloseDisplay(disp);
 	}
@@ -220,7 +212,6 @@ receive_message_loop(void)
 			g_thread_create((GThreadFunc)skype_message_received, g_strdup("CONNSTATUS LOGGEDOUT"), FALSE, NULL);
 			break;
 		}
-		skype_debug_info("skype_x11", "display still around\n");
 		
 		Bool event_bool;
 		g_static_mutex_lock(&x11_mutex);
@@ -232,7 +223,6 @@ receive_message_loop(void)
 			usleep(1000);
 			//XPeekEvent(disp, &e);
 			//sleep(1);
-			skype_debug_info("skype_x11", "no event to process\n");
 			continue;
 		}/*
 		XNextEvent(disp, &e);
@@ -257,7 +247,6 @@ receive_message_loop(void)
 			}
 			continue;
 		}
-		skype_debug_info("skype_x11", "got a message of length %d\n", len);
 		if (len < 20)
 		{
 			g_thread_create((GThreadFunc)skype_message_received, (void *)g_string_free(msg, FALSE), FALSE, NULL);
