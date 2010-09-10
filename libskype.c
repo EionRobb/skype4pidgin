@@ -233,6 +233,9 @@ gboolean groups_table_find_group(gpointer key, gpointer value, gpointer user_dat
 PurpleChat *skype_find_blist_chat(PurpleAccount *account, const char *name);
 gboolean skype_login_retry(PurpleAccount *acct);
 gboolean skype_login_part2(PurpleAccount *acct);
+typedef void (*_account_char_fn)(PurpleAccount *, const char *);
+void skype_set_public_alias(PurpleConnection *gc, const char *alias, _account_char_fn success_cb, _account_char_fn failure_cb);
+void skype_get_public_alias(PurpleConnection *gc, _account_char_fn success_cb, _account_char_fn failure_cb);
 
 #ifndef SKYPENET
 static void skype_open_skype_options(void);
@@ -329,8 +332,11 @@ PurplePluginProtocolInfo prpl_info = {
 //#ifdef USE_VV
 #if 1
 	skype_media_initiate,/* initiate_media */
-	skype_get_media_caps /* can_do_media */
+	skype_get_media_caps,/* can_do_media */
 #endif
+	NULL,                 /* get_moods */
+	skype_set_public_alias, /* set_public_alias */
+	skype_get_public_alias /* get_public_alias */
 };
 
 static PurplePluginInfo info = {
@@ -3505,3 +3511,70 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 }
 #endif
 
+struct _skype_account_alias_cb {
+	PurpleAccount *account;
+	gchar *message;
+	_account_char_fn callback;
+};
+
+gboolean
+skype_account_alias_cb(gpointer data)
+{
+	struct _skype_account_alias_cb *info = data;
+	
+	info->callback(info->account, info->message);
+	
+	g_free(info->message);
+	g_free(info);
+	
+	return FALSE;
+}
+
+void
+skype_set_public_alias(PurpleConnection *gc, const char *alias, _account_char_fn success_cb, _account_char_fn failure_cb)
+{
+	struct _skype_account_alias_cb *info;
+	
+	if (alias && *alias)
+	{
+		skype_send_message_nowait("SET PROFILE FULLNAME %s", alias);
+		if (success_cb)
+		{
+			info = g_new0(struct _skype_account_alias_cb, 1);
+			info->callback = success_cb;
+			info->account = gc->account;
+			info->message = g_strdup(alias);
+			
+			purple_timeout_add(0, skype_account_alias_cb, info);
+		}
+	} else {
+		if (failure_cb)
+		{
+			info = g_new0(struct _skype_account_alias_cb, 1);
+			info->callback = failure_cb;
+			info->account = gc->account;
+			info->message = g_strdup("Cannot be blank");
+			
+			purple_timeout_add(0, skype_account_alias_cb, info);
+		}
+	}
+}
+
+void
+skype_get_public_alias(PurpleConnection *gc, _account_char_fn success_cb, _account_char_fn failure_cb)
+{
+	struct _skype_account_alias_cb *info;
+	gchar *alias;
+	
+	info = g_new0(struct _skype_account_alias_cb, 1);
+	alias = skype_send_message("GET PROFILE FULLNAME");
+		
+	info = g_new0(struct _skype_account_alias_cb, 1);
+	info->callback = success_cb;
+	info->account = gc->account;
+	info->message = g_strdup(&alias[16]);
+
+	purple_timeout_add(0, skype_account_alias_cb, info);
+	
+	g_free(alias);
+}
