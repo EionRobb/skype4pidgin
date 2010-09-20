@@ -738,7 +738,12 @@ skype_handle_received_message(char *message)
 		{ 
 			if (g_str_equal(string_parts[3], "RINGING"))
 			{
-				skype_handle_incoming_call(gc, string_parts[1]);
+				temp = skype_send_message("GET CALL %s TYPE", string_parts[1]);
+				type = g_new0(gchar, 9);
+				sscanf(temp, "CALL %*s TYPE %[^_]", type);
+				g_free(temp);
+				if (g_str_equal(type, "INCOMING"))
+					skype_handle_incoming_call(gc, string_parts[1]);
 			} else if (g_str_equal(string_parts[3], "FINISHED") ||
 						g_str_equal(string_parts[3], "CANCELLED") ||
 						g_str_equal(string_parts[3], "FAILED"))
