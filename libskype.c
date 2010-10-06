@@ -787,7 +787,7 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 									NULL, NULL);
 	m = g_list_append(m, act);
 	
-#ifndef __APPLE__
+#ifdef _WIN32
 	act = purple_menu_action_new(_("Open Skype Options..."),
 									PURPLE_CALLBACK(skype_open_skype_options),
 									NULL, NULL);
