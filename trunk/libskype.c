@@ -2415,11 +2415,8 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 void 
 skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	//Check that the buddy isn't already on the buddy list
-	if (!purple_find_buddy(buddy->account, buddy->name))
-	{
-		skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
-	}
+	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
+
 	if (buddy->alias == NULL || strlen(buddy->alias) == 0)
 		skype_update_buddy_alias(buddy);
 	else
