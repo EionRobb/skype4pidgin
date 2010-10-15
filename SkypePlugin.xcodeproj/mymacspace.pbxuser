@@ -1,0 +1,1685 @@
+// !$*UTF8*$!
+{
+	089C1669FE841209C02AAC07 /* Project object */ = {
+		activeBuildConfigurationName = Release;
+		activeTarget = 8D5B49AC048680CD000E48DA /* SkypePlugin */;
+		addToTargets = (
+			8D5B49AC048680CD000E48DA /* SkypePlugin */,
+		);
+		breakpoints = (
+			7A26AF130CE2AC880011676B /* skype_messaging_carbon.c:75 */,
+			7A26AF150CE2AC8B0011676B /* skype_messaging_carbon.c:97 */,
+			7A2912690D94AFDD006AF606 /* skype_messaging_carbon.c:227 */,
+			7A9654AF0F0F79D800B44F05 /* skype_events.c:139 */,
+			7AC7F3DB0F21F42A0013E7C0 /* PurpleSkypeService.m:127 */,
+		);
+		codeSenseManager = 7A6296310CC1B38C0064C5C6 /* Code sense */;
+		perUserDictionary = {
+			"PBXConfiguration.PBXBreakpointsDataSource.v1:1CA1AED706398EBD00589147" = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXBreakpointsDataSource_BreakpointID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					198,
+					20,
+					99,
+					99,
+					29,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXBreakpointsDataSource_ActionID,
+					PBXBreakpointsDataSource_TypeID,
+					PBXBreakpointsDataSource_BreakpointID,
+					PBXBreakpointsDataSource_UseID,
+					PBXBreakpointsDataSource_LocationID,
+					PBXBreakpointsDataSource_ConditionID,
+					PBXBreakpointsDataSource_IgnoreCountID,
+					PBXBreakpointsDataSource_ContinueID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXBookmarksDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXBookmarksDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					200,
+					588.58349609375,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXBookmarksDataSource_LocationID,
+					PBXBookmarksDataSource_NameID,
+					PBXBookmarksDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXErrorsWarningsDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					300,
+					259.20849609375,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXErrorsWarningsDataSource_TypeID,
+					PBXErrorsWarningsDataSource_MessageID,
+					PBXErrorsWarningsDataSource_LocationID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					403,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = 1;
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					614,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFindDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFindDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					529.20849609375,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFindDataSource_MessageID,
+					PBXFindDataSource_LocationID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXSymbolsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXSymbolsDataSource_SymbolNameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					16,
+					200,
+					50,
+					531.20849609375,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXSymbolsDataSource_SymbolTypeIconID,
+					PBXSymbolsDataSource_SymbolNameID,
+					PBXSymbolsDataSource_SymbolTypeID,
+					PBXSymbolsDataSource_ReferenceNameID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					567,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					574,
+					60,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 306591009;
+			PBXWorkspaceStateSaveDate = 306591009;
+		};
+		perUserProjectItems = {
+			7A0282431246341400601D8E /* PBXTextBookmark */ = 7A0282431246341400601D8E /* PBXTextBookmark */;
+			7A0282441246341400601D8E /* PBXTextBookmark */ = 7A0282441246341400601D8E /* PBXTextBookmark */;
+			7A0282451246341400601D8E /* PBXTextBookmark */ = 7A0282451246341400601D8E /* PBXTextBookmark */;
+			7A02826E1246353100601D8E /* PBXTextBookmark */ = 7A02826E1246353100601D8E /* PBXTextBookmark */;
+			7A02826F1246353100601D8E /* PBXBookmark */ = 7A02826F1246353100601D8E /* PBXBookmark */;
+			7A028279124CC2A900601D8E /* PBXTextBookmark */ = 7A028279124CC2A900601D8E /* PBXTextBookmark */;
+			7A02827A124CC2A900601D8E /* PBXBookmark */ = 7A02827A124CC2A900601D8E /* PBXBookmark */;
+			7A04D9A210622142003A1D13 /* PBXTextBookmark */ = 7A04D9A210622142003A1D13 /* PBXTextBookmark */;
+			7A04D9A710622142003A1D13 /* PBXTextBookmark */ = 7A04D9A710622142003A1D13 /* PBXTextBookmark */;
+			7A04D9A810622142003A1D13 /* PBXTextBookmark */ = 7A04D9A810622142003A1D13 /* PBXTextBookmark */;
+			7A04D9A910622142003A1D13 /* PBXTextBookmark */ = 7A04D9A910622142003A1D13 /* PBXTextBookmark */;
+			7A04DA111062259B003A1D13 /* PBXTextBookmark */ = 7A04DA111062259B003A1D13 /* PBXTextBookmark */;
+			7A04DA55106232DE003A1D13 /* PBXTextBookmark */ = 7A04DA55106232DE003A1D13 /* PBXTextBookmark */;
+			7A04DA58106232DE003A1D13 /* PBXTextBookmark */ = 7A04DA58106232DE003A1D13 /* PBXTextBookmark */;
+			7A04DA5B106232DE003A1D13 /* PBXTextBookmark */ = 7A04DA5B106232DE003A1D13 /* PBXTextBookmark */;
+			7A04DA7010623771003A1D13 /* PBXTextBookmark */ = 7A04DA7010623771003A1D13 /* PBXTextBookmark */;
+			7A0A7A3A0D4852FC0003B3EA /* PBXTextBookmark */ = 7A0A7A3A0D4852FC0003B3EA /* PBXTextBookmark */;
+			7A1F47F41108102A0057D2EC /* PBXTextBookmark */ = 7A1F47F41108102A0057D2EC /* PBXTextBookmark */;
+			7A3BAFE40CD7DEF900B7D754 /* PBXTextBookmark */ = 7A3BAFE40CD7DEF900B7D754 /* PBXTextBookmark */;
+			7A3C9A8B113D001C00C35C57 /* PBXTextBookmark */ = 7A3C9A8B113D001C00C35C57 /* PBXTextBookmark */;
+			7A3C9A8C113D001C00C35C57 /* PBXTextBookmark */ = 7A3C9A8C113D001C00C35C57 /* PBXTextBookmark */;
+			7A3C9A8D113D001C00C35C57 /* PBXTextBookmark */ = 7A3C9A8D113D001C00C35C57 /* PBXTextBookmark */;
+			7A3C9A94113D001C00C35C57 /* PBXTextBookmark */ = 7A3C9A94113D001C00C35C57 /* PBXTextBookmark */;
+			7A48DDFC0F7B8D6100144F0F /* PBXTextBookmark */ = 7A48DDFC0F7B8D6100144F0F /* PBXTextBookmark */;
+			7A48DE370F808D2600144F0F /* PBXTextBookmark */ = 7A48DE370F808D2600144F0F /* PBXTextBookmark */;
+			7A48DE380F808D2600144F0F /* PBXTextBookmark */ = 7A48DE380F808D2600144F0F /* PBXTextBookmark */;
+			7A48DE490F80916400144F0F /* PBXTextBookmark */ = 7A48DE490F80916400144F0F /* PBXTextBookmark */;
+			7A48DE5E0F8092F100144F0F /* PBXTextBookmark */ = 7A48DE5E0F8092F100144F0F /* PBXTextBookmark */;
+			7A48DE750F80A0FE00144F0F /* PBXTextBookmark */ = 7A48DE750F80A0FE00144F0F /* PBXTextBookmark */;
+			7A48DE9B0F81D0BD00144F0F /* PBXTextBookmark */ = 7A48DE9B0F81D0BD00144F0F /* PBXTextBookmark */;
+			7A48DED10F81EB9E00144F0F /* PBXTextBookmark */ = 7A48DED10F81EB9E00144F0F /* PBXTextBookmark */;
+			7A48DED30F81EB9E00144F0F /* PBXTextBookmark */ = 7A48DED30F81EB9E00144F0F /* PBXTextBookmark */;
+			7A48E0160F8A25EF00144F0F /* PBXTextBookmark */ = 7A48E0160F8A25EF00144F0F /* PBXTextBookmark */;
+			7A48E1EF0FB3168E00144F0F /* PBXTextBookmark */ = 7A48E1EF0FB3168E00144F0F /* PBXTextBookmark */;
+			7A48E2780FB31F6E00144F0F /* PBXTextBookmark */ = 7A48E2780FB31F6E00144F0F /* PBXTextBookmark */;
+			7A48E2940FB3209600144F0F /* PBXTextBookmark */ = 7A48E2940FB3209600144F0F /* PBXTextBookmark */;
+			7A48E2EB1014728D00144F0F /* PBXTextBookmark */ = 7A48E2EB1014728D00144F0F /* PBXTextBookmark */;
+			7A48E2F01014728D00144F0F /* PBXTextBookmark */ = 7A48E2F01014728D00144F0F /* PBXTextBookmark */;
+			7A48E2F11014728D00144F0F /* PBXTextBookmark */ = 7A48E2F11014728D00144F0F /* PBXTextBookmark */;
+			7A48E2F41014728D00144F0F /* PBXTextBookmark */ = 7A48E2F41014728D00144F0F /* PBXTextBookmark */;
+			7A48E2F61014728D00144F0F /* PBXTextBookmark */ = 7A48E2F61014728D00144F0F /* PBXTextBookmark */;
+			7A48E2FB1014728D00144F0F /* PBXTextBookmark */ = 7A48E2FB1014728D00144F0F /* PBXTextBookmark */;
+			7A48E2FC1014728D00144F0F /* PBXTextBookmark */ = 7A48E2FC1014728D00144F0F /* PBXTextBookmark */;
+			7A48E2FD1014728D00144F0F /* PBXTextBookmark */ = 7A48E2FD1014728D00144F0F /* PBXTextBookmark */;
+			7A553B58121D650100635123 /* PBXTextBookmark */ = 7A553B58121D650100635123 /* PBXTextBookmark */;
+			7A553B59121D650100635123 /* PBXTextBookmark */ = 7A553B59121D650100635123 /* PBXTextBookmark */;
+			7A553B5C121D650100635123 /* PBXTextBookmark */ = 7A553B5C121D650100635123 /* PBXTextBookmark */;
+			7A553B7B121D6C6F00635123 /* PBXTextBookmark */ = 7A553B7B121D6C6F00635123 /* PBXTextBookmark */;
+			7A637E340E1AEF6E00290ECE /* PBXTextBookmark */ = 7A637E340E1AEF6E00290ECE /* PBXTextBookmark */;
+			7A637ED80E1B048F00290ECE /* PBXTextBookmark */ = 7A637ED80E1B048F00290ECE /* PBXTextBookmark */;
+			7A637EDA0E1B048F00290ECE /* PBXTextBookmark */ = 7A637EDA0E1B048F00290ECE /* PBXTextBookmark */;
+			7A637EDD0E1B048F00290ECE /* PBXTextBookmark */ = 7A637EDD0E1B048F00290ECE /* PBXTextBookmark */;
+			7A637EDE0E1B048F00290ECE /* PBXTextBookmark */ = 7A637EDE0E1B048F00290ECE /* PBXTextBookmark */;
+			7A637F330E1B0B0C00290ECE /* PBXTextBookmark */ = 7A637F330E1B0B0C00290ECE /* PBXTextBookmark */;
+			7A637F340E1B0B0C00290ECE /* PBXTextBookmark */ = 7A637F340E1B0B0C00290ECE /* PBXTextBookmark */;
+			7A637F360E1B0B0C00290ECE /* PBXTextBookmark */ = 7A637F360E1B0B0C00290ECE /* PBXTextBookmark */;
+			7A6381330E37FC1700290ECE /* PBXTextBookmark */ = 7A6381330E37FC1700290ECE /* PBXTextBookmark */;
+			7A65016D1021B36600CA0257 /* PBXTextBookmark */ = 7A65016D1021B36600CA0257 /* PBXTextBookmark */;
+			7A6501831021B9B700CA0257 /* PBXTextBookmark */ = 7A6501831021B9B700CA0257 /* PBXTextBookmark */;
+			7A6880DF117C9E7F00172604 /* PBXTextBookmark */ = 7A6880DF117C9E7F00172604 /* PBXTextBookmark */;
+			7A6880E6117C9E7F00172604 /* PBXTextBookmark */ = 7A6880E6117C9E7F00172604 /* PBXTextBookmark */;
+			7A6FCC97103D5C9000D8926C /* PBXTextBookmark */ = 7A6FCC97103D5C9000D8926C /* PBXTextBookmark */;
+			7A6FCC99103D5C9000D8926C /* PBXTextBookmark */ = 7A6FCC99103D5C9000D8926C /* PBXTextBookmark */;
+			7A6FCC9B103D5C9000D8926C /* PBXBookmark */ = 7A6FCC9B103D5C9000D8926C /* PBXBookmark */;
+			7A6FCC9C103D5C9000D8926C /* PBXBookmark */ = 7A6FCC9C103D5C9000D8926C /* PBXBookmark */;
+			7A6FCC9D103D5C9000D8926C /* PBXTextBookmark */ = 7A6FCC9D103D5C9000D8926C /* PBXTextBookmark */;
+			7A95A3130CF2E5DE0047ECA1 /* PBXTextBookmark */ = 7A95A3130CF2E5DE0047ECA1 /* PBXTextBookmark */;
+			7A95A3350CF2EA5C0047ECA1 /* PBXTextBookmark */ = 7A95A3350CF2EA5C0047ECA1 /* PBXTextBookmark */;
+			7A9654D50F0F7B7300B44F05 /* PBXTextBookmark */ = 7A9654D50F0F7B7300B44F05 /* PBXTextBookmark */;
+			7A9654D70F0F7B7300B44F05 /* PBXTextBookmark */ = 7A9654D70F0F7B7300B44F05 /* PBXTextBookmark */;
+			7A9654D80F0F7B7300B44F05 /* PBXTextBookmark */ = 7A9654D80F0F7B7300B44F05 /* PBXTextBookmark */;
+			7A9654DA0F0F7B7300B44F05 /* PBXTextBookmark */ = 7A9654DA0F0F7B7300B44F05 /* PBXTextBookmark */;
+			7A9654DE0F0F7B7300B44F05 /* PBXTextBookmark */ = 7A9654DE0F0F7B7300B44F05 /* PBXTextBookmark */;
+			7A9A688F0E7BD5AB00A443F1 /* PBXTextBookmark */ = 7A9A688F0E7BD5AB00A443F1 /* PBXTextBookmark */;
+			7AB5A8900E51246F0097BFB4 /* PBXTextBookmark */ = 7AB5A8900E51246F0097BFB4 /* PBXTextBookmark */;
+			7AB5A8BC0E52D2920097BFB4 /* PBXTextBookmark */ = 7AB5A8BC0E52D2920097BFB4 /* PBXTextBookmark */;
+			7AC7F46F0F25B5A40013E7C0 /* PBXTextBookmark */ = 7AC7F46F0F25B5A40013E7C0 /* PBXTextBookmark */;
+			7AC7F4920F25B6F40013E7C0 /* PBXTextBookmark */ = 7AC7F4920F25B6F40013E7C0 /* PBXTextBookmark */;
+			7AC7F51D0F44A21C0013E7C0 /* PBXTextBookmark */ = 7AC7F51D0F44A21C0013E7C0 /* PBXTextBookmark */;
+			7AD402061228F08500A40EBA /* PBXTextBookmark */ = 7AD402061228F08500A40EBA /* PBXTextBookmark */;
+			7AD402071228F08500A40EBA /* PBXTextBookmark */ = 7AD402071228F08500A40EBA /* PBXTextBookmark */;
+			7AD404B3122A4BA600A40EBA /* PBXTextBookmark */ = 7AD404B3122A4BA600A40EBA /* PBXTextBookmark */;
+			7AD404E7122A7D3F00A40EBA /* PlistBookmark */ = 7AD404E7122A7D3F00A40EBA /* PlistBookmark */;
+			7AD404E8122A7D3F00A40EBA /* PBXTextBookmark */ = 7AD404E8122A7D3F00A40EBA /* PBXTextBookmark */;
+			7AD404EA122A7D3F00A40EBA /* PBXTextBookmark */ = 7AD404EA122A7D3F00A40EBA /* PBXTextBookmark */;
+			7AE0BBAE120E108F00992317 /* PBXTextBookmark */ = 7AE0BBAE120E108F00992317 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 7A6296300CC1B38C0064C5C6 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	32DBCF630370AF2F00C91783 /* SkypePlugin_Prefix.pch */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1169, 221}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 154}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+			sepNavWindowFrame = "{{82, 111}, {770, 762}}";
+		};
+	};
+	7A0282431246341400601D8E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */;
+		name = "PurpleSkypeAccount.m: 48";
+		rLen = 0;
+		rLoc = 977;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	7A0282441246341400601D8E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */;
+		name = "SkypePlugin.m: 74";
+		rLen = 43;
+		rLoc = 2550;
+		rType = 0;
+		vrLen = 1072;
+		vrLoc = 1842;
+	};
+	7A0282451246341400601D8E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */;
+		name = "PurpleSkypeService.m: 123";
+		rLen = 0;
+		rLoc = 2206;
+		rType = 0;
+		vrLen = 691;
+		vrLoc = 145;
+	};
+	7A02826E1246353100601D8E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */;
+		name = "PurpleSkypeAccount.m: 308";
+		rLen = 0;
+		rLoc = 9149;
+		rType = 0;
+		vrLen = 1288;
+		vrLoc = 7868;
+	};
+	7A02826F1246353100601D8E /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 7A0A781A0D46A1EA0003B3EA /* skype-small.png */;
+	};
+	7A028279124CC2A900601D8E /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */;
+		name = "PurpleSkypeAccount.m: 48";
+		rLen = 0;
+		rLoc = 977;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	7A02827A124CC2A900601D8E /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 7A3654E60D0273270075FBB5 /* skype-small.png */;
+	};
+	7A04D8B810621C3E003A1D13 /* AIInterfaceControllerProtocol.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = AIInterfaceControllerProtocol.h;
+		path = /Users/mymacspace/adium/Build/Release/Adium.framework/Headers/AIInterfaceControllerProtocol.h;
+		sourceTree = "<absolute>";
+	};
+	7A04D9A210622142003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 32DBCF630370AF2F00C91783 /* SkypePlugin_Prefix.pch */;
+		name = "SkypePlugin_Prefix.pch: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 154;
+		vrLoc = 0;
+	};
+	7A04D9A710622142003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A04D8B810621C3E003A1D13 /* AIInterfaceControllerProtocol.h */;
+		name = "AIInterfaceControllerProtocol.h: 466";
+		rLen = 55;
+		rLoc = 17424;
+		rType = 0;
+		vrLen = 790;
+		vrLoc = 17031;
+	};
+	7A04D9A810622142003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */;
+		name = "PurpleSkypeAccountViewController.m: 32";
+		rLen = 23;
+		rLoc = 575;
+		rType = 0;
+		vrLen = 367;
+		vrLoc = 0;
+	};
+	7A04D9A910622142003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */;
+		name = "PurpleSkypeService.m: 20";
+		rLen = 62;
+		rLoc = 447;
+		rType = 0;
+		vrLen = 687;
+		vrLoc = 3645;
+	};
+	7A04DA111062259B003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7AB5A8B60E512DDC0097BFB4 /* skype_messaging_network.c */;
+		name = "skype_messaging_network.c: 9";
+		rLen = 72;
+		rLoc = 310;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 4023;
+	};
+	7A04DA55106232DE003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A04DA56106232DE003A1D13 /* Processes.h */;
+		name = "Processes.h: 142";
+		rLen = 523;
+		rLoc = 5030;
+		rType = 0;
+		vrLen = 1356;
+		vrLoc = 4546;
+	};
+	7A04DA56106232DE003A1D13 /* Processes.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = Processes.h;
+		path = /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Headers/Processes.h;
+		sourceTree = "<absolute>";
+	};
+	7A04DA58106232DE003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A04DA59106232DE003A1D13 /* Processes.h */;
+		name = "Processes.h: 220";
+		rLen = 13;
+		rLoc = 8153;
+		rType = 0;
+		vrLen = 1181;
+		vrLoc = 8575;
+	};
+	7A04DA59106232DE003A1D13 /* Processes.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = Processes.h;
+		path = /Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Headers/Processes.h;
+		sourceTree = "<absolute>";
+	};
+	7A04DA5B106232DE003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A7FDA300CF28363002A673A /* skype_messaging_carbon2.c */;
+		name = "skype_messaging_carbon2.c: 310";
+		rLen = 83;
+		rLoc = 7308;
+		rType = 0;
+		vrLen = 708;
+		vrLoc = 9106;
+	};
+	7A04DA7010623771003A1D13 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */;
+		name = "skype_messaging_carbon.c: 182";
+		rLen = 0;
+		rLoc = 4666;
+		rType = 0;
+		vrLen = 707;
+		vrLoc = 4161;
+	};
+	7A0A781A0D46A1EA0003B3EA /* skype-small.png */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = image.png;
+		path = "skype-small.png";
+		sourceTree = "<group>";
+	};
+	7A0A7A3A0D4852FC0003B3EA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A0A7A3B0D4852FC0003B3EA /* no_headers_here.txt */;
+		name = "no_headers_here.txt: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	7A0A7A3B0D4852FC0003B3EA /* no_headers_here.txt */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text;
+		name = no_headers_here.txt;
+		path = /Applications/Adium.app/Contents/Frameworks/libgthread.framework/Headers/no_headers_here.txt;
+		sourceTree = "<absolute>";
+	};
+	7A1F47F41108102A0057D2EC /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7AA523280D7C9BCB004CAB28 /* debug.c */;
+		name = "debug.c: 114";
+		rLen = 0;
+		rLoc = 2989;
+		rType = 0;
+		vrLen = 781;
+		vrLoc = 2323;
+	};
+	7A26AF130CE2AC880011676B /* skype_messaging_carbon.c:75 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */;
+		functionName = "skype_connect()";
+		hitCount = 1;
+		ignoreCount = 0;
+		lineNumber = 75;
+		location = SkypePlugin;
+		modificationTime = 236580431.466156;
+		originalNumberOfMultipleMatches = 0;
+		state = 1;
+	};
+	7A26AF150CE2AC8B0011676B /* skype_messaging_carbon.c:97 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */;
+		functionName = "skype_connect()";
+		hitCount = 1;
+		ignoreCount = 0;
+		lineNumber = 97;
+		location = SkypePlugin;
+		modificationTime = 236580470.604144;
+		originalNumberOfMultipleMatches = 0;
+		state = 1;
+	};
+	7A26E8BF113CF96200411626 /* CBPurpleAccount.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = CBPurpleAccount.h;
+		path = /Users/mymacspace/adium/Build/Release/AdiumLibpurple.framework/Versions/A/Headers/CBPurpleAccount.h;
+		sourceTree = "<absolute>";
+	};
+	7A2912690D94AFDD006AF606 /* skype_messaging_carbon.c:227 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */;
+		functionName = "allow_app_in_skype_api()";
+		hitCount = 2;
+		ignoreCount = 0;
+		lineNumber = 227;
+		location = SkypePlugin;
+		modificationTime = 236580709.051014;
+		originalNumberOfMultipleMatches = 0;
+		state = 1;
+	};
+	7A3BAFD20CD7DCF600B7D754 /* NSObjCRuntime.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = NSObjCRuntime.h;
+		path = /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSObjCRuntime.h;
+		sourceTree = "<absolute>";
+	};
+	7A3BAFE40CD7DEF900B7D754 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A3BAFD20CD7DCF600B7D754 /* NSObjCRuntime.h */;
+		name = "NSObjCRuntime.h: 60";
+		rLen = 17;
+		rLoc = 1535;
+		rType = 0;
+		vrLen = 1029;
+		vrLoc = 1218;
+	};
+	7A3C9A8B113D001C00C35C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */;
+		name = "SkypeJoinChatViewController.m: 49";
+		rLen = 0;
+		rLoc = 1323;
+		rType = 0;
+		vrLen = 1039;
+		vrLoc = 813;
+	};
+	7A3C9A8C113D001C00C35C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A26E8BF113CF96200411626 /* CBPurpleAccount.h */;
+		name = "CBPurpleAccount.h: 30";
+		rLen = 59;
+		rLoc = 1296;
+		rType = 0;
+		vrLen = 1117;
+		vrLoc = 1059;
+	};
+	7A3C9A8D113D001C00C35C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C50CC1B6D00064C5C6 /* PurpleSkypeAccount.h */;
+		name = "PurpleSkypeAccount.h: 13";
+		rLen = 15;
+		rLoc = 358;
+		rType = 0;
+		vrLen = 385;
+		vrLoc = 0;
+	};
+	7A3C9A94113D001C00C35C57 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */;
+		name = "PurpleSkypeAccountViewController.m: 30";
+		rLen = 5;
+		rLoc = 473;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	7A48DDFC0F7B8D6100144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7AA523280D7C9BCB004CAB28 /* debug.c */;
+		name = "debug.c: 69";
+		rLen = 0;
+		rLoc = 1559;
+		rType = 0;
+		vrLen = 907;
+		vrLoc = 1222;
+	};
+	7A48DE370F808D2600144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A7FDA300CF28363002A673A /* skype_messaging_carbon2.c */;
+		name = "skype_messaging_carbon2.c: 377";
+		rLen = 0;
+		rLoc = 8325;
+		rType = 0;
+		vrLen = 691;
+		vrLoc = 6882;
+	};
+	7A48DE380F808D2600144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */;
+		name = "skype_messaging_carbon.c: 226";
+		rLen = 4;
+		rLoc = 5897;
+		rType = 0;
+		vrLen = 1418;
+		vrLoc = 4268;
+	};
+	7A48DE490F80916400144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C50CC1B6D00064C5C6 /* PurpleSkypeAccount.h */;
+		name = "PurpleSkypeAccount.h: 13";
+		rLen = 15;
+		rLoc = 358;
+		rType = 0;
+		vrLen = 385;
+		vrLoc = 0;
+	};
+	7A48DE5E0F8092F100144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48DE5F0F8092F100144F0F /* blist.h */;
+		name = "blist.h: 106";
+		rLen = 5;
+		rLoc = 4367;
+		rType = 0;
+		vrLen = 2003;
+		vrLoc = 3580;
+	};
+	7A48DE5F0F8092F100144F0F /* blist.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = blist.h;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/blist.h;
+		sourceTree = "<absolute>";
+	};
+	7A48DE750F80A0FE00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48DE760F80A0FE00144F0F /* prpl.h */;
+		name = "prpl.h: 470";
+		rLen = 75;
+		rLoc = 16063;
+		rType = 0;
+		vrLen = 1388;
+		vrLoc = 15412;
+	};
+	7A48DE760F80A0FE00144F0F /* prpl.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = prpl.h;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/prpl.h;
+		sourceTree = "<absolute>";
+	};
+	7A48DE9B0F81D0BD00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48DE9C0F81D0BD00144F0F /* conversation.h */;
+		name = "conversation.h: 53";
+		rLen = 26;
+		rLoc = 2053;
+		rType = 0;
+		vrLen = 1590;
+		vrLoc = 1441;
+	};
+	7A48DE9C0F81D0BD00144F0F /* conversation.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = conversation.h;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/conversation.h;
+		sourceTree = "<absolute>";
+	};
+	7A48DEA70F81D0BD00144F0F /* conversation.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = conversation.h;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/conversation.h;
+		sourceTree = "<absolute>";
+	};
+	7A48DED10F81EB9E00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48DED20F81EB9E00144F0F /* conversation.c */;
+		name = "conversation.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 771;
+		vrLoc = 0;
+	};
+	7A48DED20F81EB9E00144F0F /* conversation.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = conversation.c;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/conversation.c;
+		sourceTree = "<absolute>";
+	};
+	7A48DED30F81EB9E00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48DEA70F81D0BD00144F0F /* conversation.h */;
+		name = "conversation.h: 304";
+		rLen = 27;
+		rLoc = 11676;
+		rType = 0;
+		vrLen = 528;
+		vrLoc = 11546;
+	};
+	7A48E0160F8A25EF00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E0170F8A25EF00144F0F /* server.c */;
+		name = "server.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 432;
+		vrLoc = 26670;
+	};
+	7A48E0170F8A25EF00144F0F /* server.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = server.c;
+		path = /Users/mymacspace/Downloads/server.c;
+		sourceTree = "<absolute>";
+	};
+	7A48E1BA0FB30D2B00144F0F /* SkypeJoinChatViewController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {525, 330}}";
+			sepNavSelRange = "{230, 18}";
+			sepNavVisRange = "{0, 405}";
+			sepNavWindowFrame = "{{85, 415}, {584, 458}}";
+		};
+	};
+	7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {922, 1560}}";
+			sepNavSelRange = "{179, 0}";
+			sepNavVisRange = "{0, 708}";
+			sepNavWindowFrame = "{{537, 380}, {832, 482}}";
+		};
+	};
+	7A48E1EF0FB3168E00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E1F00FB3168E00144F0F /* NSViewController.h */;
+		name = "NSViewController.h: 52";
+		rLen = 23;
+		rLoc = 3007;
+		rType = 0;
+		vrLen = 3007;
+		vrLoc = 1110;
+	};
+	7A48E1F00FB3168E00144F0F /* NSViewController.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = NSViewController.h;
+		path = /Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/AppKit.framework/Versions/C/Headers/NSViewController.h;
+		sourceTree = "<absolute>";
+	};
+	7A48E2780FB31F6E00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E1BA0FB30D2B00144F0F /* SkypeJoinChatViewController.h */;
+		name = "SkypeJoinChatViewController.h: 8";
+		rLen = 0;
+		rLoc = 160;
+		rType = 0;
+		vrLen = 405;
+		vrLoc = 0;
+	};
+	7A48E2940FB3209600144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E1D0E1AEF5800290ECE /* en_AU.po */;
+		name = "en_AU.po: 54";
+		rLen = 51;
+		rLoc = 1088;
+		rType = 0;
+		vrLen = 659;
+		vrLoc = 998;
+	};
+	7A48E2EB1014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E2EC1014728D00144F0F /* gspawn.h */;
+		name = "gspawn.h: 128";
+		rLen = 73;
+		rLoc = 5496;
+		rType = 0;
+		vrLen = 1582;
+		vrLoc = 902;
+	};
+	7A48E2EC1014728D00144F0F /* gspawn.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = gspawn.h;
+		path = /Users/mymacspace/libpurple/Libraries/glib/glib/gspawn.h;
+		sourceTree = "<absolute>";
+	};
+	7A48E2F01014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A629DBD0CC375700064C5C6 /* PurpleService.m */;
+		name = "PurpleService.m: 18";
+		rLen = 0;
+		rLoc = 885;
+		rType = 0;
+		vrLen = 922;
+		vrLoc = 0;
+	};
+	7A48E2F11014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A629D910CC36F270064C5C6 /* PurpleService.h */;
+		name = "PurpleService.h: 17";
+		rLen = 9;
+		rLoc = 874;
+		rType = 0;
+		vrLen = 936;
+		vrLoc = 0;
+	};
+	7A48E2F41014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E2F51014728D00144F0F /* NSString.h */;
+		name = "NSString.h: 237";
+		rLen = 10;
+		rLoc = 13358;
+		rType = 0;
+		vrLen = 2565;
+		vrLoc = 12903;
+	};
+	7A48E2F51014728D00144F0F /* NSString.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = NSString.h;
+		path = /Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSString.h;
+		sourceTree = "<absolute>";
+	};
+	7A48E2F61014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E2F71014728D00144F0F /* NSString.h */;
+		name = "NSString.h: 164";
+		rLen = 89;
+		rLoc = 7824;
+		rType = 0;
+		vrLen = 3194;
+		vrLoc = 5712;
+	};
+	7A48E2F71014728D00144F0F /* NSString.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = NSString.h;
+		path = /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSString.h;
+		sourceTree = "<absolute>";
+	};
+	7A48E2FB1014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654F30F0F7B7300B44F05 /* skype_messaging_x11.c */;
+		name = "skype_messaging_x11.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1379;
+		vrLoc = 0;
+	};
+	7A48E2FC1014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654F10F0F7B7300B44F05 /* skype_messaging_win32.c */;
+		name = "skype_messaging_win32.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1433;
+		vrLoc = 0;
+	};
+	7A48E2FD1014728D00144F0F /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654EE0F0F7B7300B44F05 /* skype_messaging_dbus.c */;
+		name = "skype_messaging_dbus.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 855;
+		vrLoc = 2814;
+	};
+	7A553B4E121D614200635123 /* eventloop.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = eventloop.h;
+		path = /Users/mymacspace/adium/Frameworks/libpurple.framework/Versions/0.6.5/Headers/eventloop.h;
+		sourceTree = "<absolute>";
+	};
+	7A553B58121D650100635123 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296D90CC1B7A20064C5C6 /* skype_messaging.c */;
+		name = "skype_messaging.c: 15";
+		rLen = 15;
+		rLoc = 634;
+		rType = 0;
+		vrLen = 0;
+		vrLoc = 0;
+	};
+	7A553B59121D650100635123 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A553B5A121D650100635123 /* blist.h */;
+		name = "blist.h: 927";
+		rLen = 50;
+		rLoc = 28379;
+		rType = 0;
+		vrLen = 1029;
+		vrLoc = 27869;
+	};
+	7A553B5A121D650100635123 /* blist.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = blist.h;
+		path = /Users/mymacspace/adium/Frameworks/libpurple.framework/Versions/0.6.5/Headers/blist.h;
+		sourceTree = "<absolute>";
+	};
+	7A553B5C121D650100635123 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A553B4E121D614200635123 /* eventloop.h */;
+		name = "eventloop.h: 198";
+		rLen = 87;
+		rLoc = 7066;
+		rType = 0;
+		vrLen = 1195;
+		vrLoc = 6482;
+	};
+	7A553B7B121D6C6F00635123 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A93A4BC0CCEE2DB008F5639 /* skype_events.c */;
+		name = "skype_events.c: 670";
+		rLen = 0;
+		rLoc = 25259;
+		rType = 0;
+		vrLen = 1394;
+		vrLoc = 24035;
+	};
+	7A6296300CC1B38C0064C5C6 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+		scmType = "";
+	};
+	7A6296310CC1B38C0064C5C6 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	7A62963E0CC1B56A0064C5C6 /* SkypePlugin.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {547, 431}}";
+			sepNavSelRange = "{144, 18}";
+			sepNavVisRange = "{0, 171}";
+			sepNavVisRect = "{{0, 0}, {628, 499}}";
+			sepNavWindowFrame = "{{649, 189}, {667, 628}}";
+		};
+	};
+	7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1321, 1170}}";
+			sepNavSelRange = "{2550, 43}";
+			sepNavVisRange = "{1842, 1072}";
+			sepNavVisRect = "{{0, 0}, {628, 499}}";
+			sepNavWindowFrame = "{{765, 188}, {667, 628}}";
+		};
+	};
+	7A6296C50CC1B6D00064C5C6 /* PurpleSkypeAccount.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 494}}";
+			sepNavSelRange = "{358, 15}";
+			sepNavVisRange = "{0, 385}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+			sepNavWindowFrame = "{{276, 35}, {667, 628}}";
+		};
+	};
+	7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {792, 4108}}";
+			sepNavSelRange = "{977, 0}";
+			sepNavVisRange = "{0, 0}";
+			sepNavVisRect = "{{0, 71}, {783, 368}}";
+			sepNavWindowFrame = "{{281, 33}, {667, 628}}";
+		};
+	};
+	7A6296C70CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {702, 431}}";
+			sepNavSelRange = "{96, 42}";
+			sepNavVisRange = "{0, 520}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+			sepNavWindowFrame = "{{46, 245}, {667, 628}}";
+		};
+	};
+	7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {887, 624}}";
+			sepNavSelRange = "{473, 5}";
+			sepNavVisRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+		};
+	};
+	7A6296C90CC1B6D00064C5C6 /* PurpleSkypeService.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {547, 431}}";
+			sepNavSelRange = "{138, 13}";
+			sepNavVisRange = "{0, 163}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+		};
+	};
+	7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1111, 2418}}";
+			sepNavSelRange = "{2206, 0}";
+			sepNavVisRange = "{145, 691}";
+			sepNavVisRect = "{{0, 817}, {628, 499}}";
+			sepNavWindowFrame = "{{138, 162}, {667, 628}}";
+		};
+	};
+	7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {612, 3668}}";
+			sepNavSelRange = "{4666, 0}";
+			sepNavVisRange = "{4161, 707}";
+			sepNavVisRect = "{{0, 1328}, {783, 368}}";
+			sepNavWindowFrame = "{{645, 238}, {667, 628}}";
+		};
+	};
+	7A6296D90CC1B7A20064C5C6 /* skype_messaging.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {793, 3497}}";
+			sepNavSelRange = "{634, 15}";
+			sepNavVisRange = "{0, 0}";
+			sepNavVisRect = "{{0, 408}, {783, 368}}";
+		};
+	};
+	7A6296DA0CC1B7A20064C5C6 /* libskype.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1860, 45877}}";
+			sepNavSelRange = "{32090, 39}";
+			sepNavVisRange = "{50436, 904}";
+			sepNavVisRect = "{{0, 8200}, {783, 368}}";
+			sepNavWindowFrame = "{{146, 196}, {667, 628}}";
+		};
+	};
+	7A629D910CC36F270064C5C6 /* PurpleService.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {792, 401}}";
+			sepNavSelRange = "{874, 9}";
+			sepNavVisRange = "{0, 936}";
+			sepNavWindowFrame = "{{200, 6}, {770, 762}}";
+		};
+	};
+	7A629DBD0CC375700064C5C6 /* PurpleService.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {792, 401}}";
+			sepNavSelRange = "{885, 0}";
+			sepNavVisRange = "{0, 922}";
+			sepNavVisRect = "{{0, 0}, {783, 368}}";
+			sepNavWindowFrame = "{{197, 6}, {770, 762}}";
+		};
+	};
+	7A637E1C0E1AEF5800290ECE /* de.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 3220}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{4262, 723}";
+			sepNavWindowFrame = "{{105, 90}, {770, 762}}";
+		};
+	};
+	7A637E1D0E1AEF5800290ECE /* en_AU.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 2982}}";
+			sepNavSelRange = "{1088, 51}";
+			sepNavVisRange = "{998, 659}";
+		};
+	};
+	7A637E1E0E1AEF5800290ECE /* es.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 3038}}";
+			sepNavSelRange = "{414, 0}";
+			sepNavVisRange = "{0, 1210}";
+		};
+	};
+	7A637E1F0E1AEF5800290ECE /* fr.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 2912}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1146}";
+		};
+	};
+	7A637E200E1AEF5800290ECE /* hu.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 3444}}";
+			sepNavSelRange = "{224, 0}";
+			sepNavVisRange = "{0, 1090}";
+		};
+	};
+	7A637E210E1AEF5800290ECE /* it.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 2982}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1128}";
+		};
+	};
+	7A637E220E1AEF5800290ECE /* ja.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 2972}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 934}";
+		};
+	};
+	7A637E230E1AEF5800290ECE /* nb.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1166, 3878}}";
+			sepNavSelRange = "{4884, 0}";
+			sepNavVisRange = "{0, 339}";
+		};
+	};
+	7A637E240E1AEF5800290ECE /* pl.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 3150}}";
+			sepNavSelRange = "{350, 20}";
+			sepNavVisRange = "{0, 1080}";
+		};
+	};
+	7A637E250E1AEF5800290ECE /* ru.po */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 3066}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1051}";
+		};
+	};
+	7A637E260E1AEF5800290ECE /* skype4pidgin.pot */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {957, 2982}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 865}";
+		};
+	};
+	7A637E340E1AEF6E00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E260E1AEF5800290ECE /* skype4pidgin.pot */;
+		name = "skype4pidgin.pot: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 865;
+		vrLoc = 0;
+	};
+	7A637ED80E1B048F00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E210E1AEF5800290ECE /* it.po */;
+		name = "it.po: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1128;
+		vrLoc = 0;
+	};
+	7A637EDA0E1B048F00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E1D0E1AEF5800290ECE /* en_AU.po */;
+		name = "en_AU.po: 13";
+		rLen = 0;
+		rLoc = 335;
+		rType = 0;
+		vrLen = 853;
+		vrLoc = 0;
+	};
+	7A637EDD0E1B048F00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E250E1AEF5800290ECE /* ru.po */;
+		name = "ru.po: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1051;
+		vrLoc = 0;
+	};
+	7A637EDE0E1B048F00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E220E1AEF5800290ECE /* ja.po */;
+		name = "ja.po: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 934;
+		vrLoc = 0;
+	};
+	7A637F330E1B0B0C00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E200E1AEF5800290ECE /* hu.po */;
+		name = "hu.po: 9";
+		rLen = 0;
+		rLoc = 224;
+		rType = 0;
+		vrLen = 1090;
+		vrLoc = 0;
+	};
+	7A637F340E1B0B0C00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E1F0E1AEF5800290ECE /* fr.po */;
+		name = "fr.po: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1146;
+		vrLoc = 0;
+	};
+	7A637F360E1B0B0C00290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E230E1AEF5800290ECE /* nb.po */;
+		name = "nb.po: 1";
+		rLen = 0;
+		rLoc = 9;
+		rType = 0;
+		vrLen = 1109;
+		vrLoc = 0;
+	};
+	7A6381330E37FC1700290ECE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E1C0E1AEF5800290ECE /* de.po */;
+		name = "de.po: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 723;
+		vrLoc = 4262;
+	};
+	7A6382500E40787E00290ECE /* SkypeNetPlugin */ = {
+		activeExec = 0;
+	};
+	7A6500B51021AF4600CA0257 /* eventloop.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = eventloop.h;
+		path = /Users/mymacspace/libpurple/pidgin/libpurple/eventloop.h;
+		sourceTree = "<absolute>";
+	};
+	7A65016D1021B36600CA0257 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6500B51021AF4600CA0257 /* eventloop.h */;
+		name = "eventloop.h: 55";
+		rLen = 0;
+		rLoc = 1622;
+		rType = 0;
+		vrLen = 1362;
+		vrLoc = 1131;
+	};
+	7A6501831021B9B700CA0257 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6501841021B9B700CA0257 /* libskype.c */;
+		name = "libskype.c: 610";
+		rLen = 18;
+		rLoc = 20993;
+		rType = 0;
+		vrLen = 1315;
+		vrLoc = 20234;
+	};
+	7A6501841021B9B700CA0257 /* libskype.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = libskype.c;
+		path = /Users/mymacspace/skype4pidgin/libskype.c;
+		sourceTree = "<absolute>";
+	};
+	7A6880DF117C9E7F00172604 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296D90CC1B7A20064C5C6 /* skype_messaging.c */;
+		name = "skype_messaging.c: 246";
+		rLen = 33;
+		rLoc = 6332;
+		rType = 0;
+		vrLen = 761;
+		vrLoc = 4024;
+	};
+	7A6880E6117C9E7F00172604 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A93A4BC0CCEE2DB008F5639 /* skype_events.c */;
+		name = "skype_events.c: 170";
+		rLen = 27;
+		rLoc = 5654;
+		rType = 0;
+		vrLen = 1548;
+		vrLoc = 5806;
+	};
+	7A6FCC97103D5C9000D8926C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A62963E0CC1B56A0064C5C6 /* SkypePlugin.h */;
+		name = "SkypePlugin.h: 10";
+		rLen = 18;
+		rLoc = 144;
+		rType = 0;
+		vrLen = 171;
+		vrLoc = 0;
+	};
+	7A6FCC99103D5C9000D8926C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C90CC1B6D00064C5C6 /* PurpleSkypeService.h */;
+		name = "PurpleSkypeService.h: 10";
+		rLen = 13;
+		rLoc = 138;
+		rType = 0;
+		vrLen = 163;
+		vrLoc = 0;
+	};
+	7A6FCC9B103D5C9000D8926C /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 7A0A781A0D46A1EA0003B3EA /* skype-small.png */;
+	};
+	7A6FCC9C103D5C9000D8926C /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 7A3654E70D0273270075FBB5 /* skype.png */;
+	};
+	7A6FCC9D103D5C9000D8926C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C70CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.h */;
+		name = "PurpleSkypeAccountViewController.h: 7";
+		rLen = 42;
+		rLoc = 96;
+		rType = 0;
+		vrLen = 520;
+		vrLoc = 0;
+	};
+	7A7FDA300CF28363002A673A /* skype_messaging_carbon2.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1169, 5922}}";
+			sepNavSelRange = "{7391, 0}";
+			sepNavVisRange = "{7031, 406}";
+			sepNavWindowFrame = "{{87, 415}, {584, 458}}";
+		};
+	};
+	7A93A4BC0CCEE2DB008F5639 /* skype_events.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {908, 16783}}";
+			sepNavSelRange = "{25259, 0}";
+			sepNavVisRange = "{24035, 1394}";
+			sepNavVisRect = "{{0, 1047}, {783, 368}}";
+			sepNavWindowFrame = "{{78, 245}, {667, 628}}";
+		};
+	};
+	7A95A3130CF2E5DE0047ECA1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A95A3140CF2E5DE0047ECA1 /* AIAbstractAccount.h */;
+		name = "AIAbstractAccount.h: 22";
+		rLen = 19;
+		rLoc = 952;
+		rType = 0;
+		vrLen = 1146;
+		vrLoc = 0;
+	};
+	7A95A3140CF2E5DE0047ECA1 /* AIAbstractAccount.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = AIAbstractAccount.h;
+		path = "/Users/mymacspace/adium/Frameworks/Adium Framework/Source/AIAbstractAccount.h";
+		sourceTree = "<absolute>";
+	};
+	7A95A3300CF2E9C70047ECA1 /* skype_messaging_x11.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_x11.c;
+		path = /Users/mymacspace/skype4pidgin/skype_messaging_x11.c;
+		sourceTree = "<absolute>";
+	};
+	7A95A3350CF2EA5C0047ECA1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A95A3300CF2E9C70047ECA1 /* skype_messaging_x11.c */;
+		name = "skype_messaging_x11.c: 141";
+		rLen = 95;
+		rLoc = 3646;
+		rType = 0;
+		vrLen = 690;
+		vrLoc = 3129;
+	};
+	7A9654AF0F0F79D800B44F05 /* skype_events.c:139 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 7A93A4BC0CCEE2DB008F5639 /* skype_events.c */;
+		functionName = "skype_handle_received_message()";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 139;
+		modificationTime = 252672472.608521;
+		originalNumberOfMultipleMatches = 0;
+		state = 1;
+	};
+	7A9654D50F0F7B7300B44F05 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654D60F0F7B7300B44F05 /* skype_messaging_dbus.c */;
+		name = "skype_messaging_dbus.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 935;
+		vrLoc = 0;
+	};
+	7A9654D60F0F7B7300B44F05 /* skype_messaging_dbus.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_dbus.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_dbus.c;
+		sourceTree = "<absolute>";
+	};
+	7A9654D70F0F7B7300B44F05 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7AB5A8B60E512DDC0097BFB4 /* skype_messaging_network.c */;
+		name = "skype_messaging_network.c: 18";
+		rLen = 72;
+		rLoc = 310;
+		rType = 0;
+		vrLen = 732;
+		vrLoc = 0;
+	};
+	7A9654D80F0F7B7300B44F05 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654D90F0F7B7300B44F05 /* skype_messaging_win32.c */;
+		name = "skype_messaging_win32.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1303;
+		vrLoc = 0;
+	};
+	7A9654D90F0F7B7300B44F05 /* skype_messaging_win32.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_win32.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_win32.c;
+		sourceTree = "<absolute>";
+	};
+	7A9654DA0F0F7B7300B44F05 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9654DB0F0F7B7300B44F05 /* skype_messaging_x11.c */;
+		name = "skype_messaging_x11.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 948;
+		vrLoc = 0;
+	};
+	7A9654DB0F0F7B7300B44F05 /* skype_messaging_x11.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_x11.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_x11.c;
+		sourceTree = "<absolute>";
+	};
+	7A9654DE0F0F7B7300B44F05 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A62963E0CC1B56A0064C5C6 /* SkypePlugin.h */;
+		name = "SkypePlugin.h: 10";
+		rLen = 18;
+		rLoc = 144;
+		rType = 0;
+		vrLen = 171;
+		vrLoc = 0;
+	};
+	7A9654EE0F0F7B7300B44F05 /* skype_messaging_dbus.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_dbus.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_dbus.c;
+		sourceTree = "<absolute>";
+	};
+	7A9654F10F0F7B7300B44F05 /* skype_messaging_win32.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_win32.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_win32.c;
+		sourceTree = "<absolute>";
+	};
+	7A9654F30F0F7B7300B44F05 /* skype_messaging_x11.c */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.c;
+		name = skype_messaging_x11.c;
+		path = /Users/mymacspace/SkypePlugin/skype_messaging_x11.c;
+		sourceTree = "<absolute>";
+	};
+	7A9A688F0E7BD5AB00A443F1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A9A68900E7BD5AB00A443F1 /* Info.plist */;
+		name = "Info.plist: 27";
+		rLen = 0;
+		rLoc = 795;
+		rType = 0;
+		vrLen = 795;
+		vrLoc = 0;
+	};
+	7A9A68900E7BD5AB00A443F1 /* Info.plist */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text.plist.xml;
+		name = Info.plist;
+		path = /Users/mymacspace/SkypePlugin/build/Release/SkypePlugin.AdiumPlugin/Contents/Info.plist;
+		sourceTree = "<absolute>";
+	};
+	7AA523280D7C9BCB004CAB28 /* debug.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {572, 1755}}";
+			sepNavSelRange = "{2989, 0}";
+			sepNavVisRange = "{2323, 781}";
+		};
+	};
+	7AB5A8550E4C200E0097BFB4 /* gaim-compat.h */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.c.h;
+		name = "gaim-compat.h";
+		path = "/Users/mymacspace/SkypePlugin/../adium/Frameworks/libpurple.framework/Headers/gaim-compat.h";
+		sourceTree = "<absolute>";
+	};
+	7AB5A8900E51246F0097BFB4 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7AB5A8550E4C200E0097BFB4 /* gaim-compat.h */;
+		name = "gaim-compat.h: 29";
+		rLen = 18;
+		rLoc = 1034;
+		rType = 0;
+		vrLen = 1398;
+		vrLoc = 0;
+	};
+	7AB5A8B60E512DDC0097BFB4 /* skype_messaging_network.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {660, 3192}}";
+			sepNavSelRange = "{310, 72}";
+			sepNavVisRange = "{4023, 579}";
+		};
+	};
+	7AB5A8BC0E52D2920097BFB4 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E240E1AEF5800290ECE /* pl.po */;
+		name = "pl.po: 13";
+		rLen = 20;
+		rLoc = 350;
+		rType = 0;
+		vrLen = 1080;
+		vrLoc = 0;
+	};
+	7AC7F3DB0F21F42A0013E7C0 /* PurpleSkypeService.m:127 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */;
+		functionName = "-registerStatuses";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 127;
+		modificationTime = 253883434.988928;
+		originalNumberOfMultipleMatches = 0;
+		state = 1;
+	};
+	7AC7F46F0F25B5A40013E7C0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C90CC1B6D00064C5C6 /* PurpleSkypeService.h */;
+		name = "PurpleSkypeService.h: 10";
+		rLen = 13;
+		rLoc = 138;
+		rType = 0;
+		vrLen = 163;
+		vrLoc = 0;
+	};
+	7AC7F4920F25B6F40013E7C0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296C70CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.h */;
+		name = "PurpleSkypeAccountViewController.h: 10";
+		rLen = 23;
+		rLoc = 186;
+		rType = 0;
+		vrLen = 413;
+		vrLoc = 0;
+	};
+	7AC7F51D0F44A21C0013E7C0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A637E1E0E1AEF5800290ECE /* es.po */;
+		name = "es.po: 15";
+		rLen = 0;
+		rLoc = 414;
+		rType = 0;
+		vrLen = 1210;
+		vrLoc = 0;
+	};
+	7AD402061228F08500A40EBA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A629DBD0CC375700064C5C6 /* PurpleService.m */;
+		name = "PurpleService.m: 18";
+		rLen = 0;
+		rLoc = 885;
+		rType = 0;
+		vrLen = 922;
+		vrLoc = 0;
+	};
+	7AD402071228F08500A40EBA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A629D910CC36F270064C5C6 /* PurpleService.h */;
+		name = "PurpleService.h: 17";
+		rLen = 9;
+		rLoc = 874;
+		rType = 0;
+		vrLen = 936;
+		vrLoc = 0;
+	};
+	7AD404B3122A4BA600A40EBA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 32DBCF630370AF2F00C91783 /* SkypePlugin_Prefix.pch */;
+		name = "SkypePlugin_Prefix.pch: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 154;
+		vrLoc = 0;
+	};
+	7AD404E7122A7D3F00A40EBA /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 7A9A68900E7BD5AB00A443F1 /* Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			AIMinimumAdiumVersionRequirement,
+		);
+		name = /Users/mymacspace/SkypePlugin/build/Release/SkypePlugin.AdiumPlugin/Contents/Info.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	7AD404E8122A7D3F00A40EBA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A6296DA0CC1B7A20064C5C6 /* libskype.c */;
+		name = "libskype.c: 956";
+		rLen = 39;
+		rLoc = 32090;
+		rType = 0;
+		vrLen = 904;
+		vrLoc = 50436;
+	};
+	7AD404EA122A7D3F00A40EBA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */;
+		name = "SkypeJoinChatViewController.m: 7";
+		rLen = 0;
+		rLoc = 179;
+		rType = 0;
+		vrLen = 708;
+		vrLoc = 0;
+	};
+	7AE0BBAE120E108F00992317 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */;
+		name = "SkypePlugin.m: 66";
+		rLen = 0;
+		rLoc = 2065;
+		rType = 0;
+		vrLen = 1379;
+		vrLoc = 1407;
+	};
+	8D5B49AC048680CD000E48DA /* SkypePlugin */ = {
+		activeExec = 0;
+	};
+}
