@@ -1,0 +1,602 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7A3655060D0274430075FBB5 /* skype-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 7A3654E60D0273270075FBB5 /* skype-small.png */; };
+		7A3655090D02744A0075FBB5 /* skype.png in Resources */ = {isa = PBXBuildFile; fileRef = 7A3654E70D0273270075FBB5 /* skype.png */; };
+		7A48E1BC0FB30D2B00144F0F /* SkypeJoinChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */; };
+		7A48E1D10FB3136500144F0F /* SkypeJoinChatView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 7A48E1D00FB3136500144F0F /* SkypeJoinChatView.nib */; };
+		7A48E2690FB31E2900144F0F /* PurpleSkypeAccountView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 7A48E2680FB31E2900144F0F /* PurpleSkypeAccountView.nib */; };
+		7A6296400CC1B56A0064C5C6 /* SkypePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */; };
+		7A6296CB0CC1B6D00064C5C6 /* PurpleSkypeAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */; };
+		7A6296CC0CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */; };
+		7A6296CD0CC1B6D00064C5C6 /* PurpleSkypeService.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */; };
+		7A6296DD0CC1B7A20064C5C6 /* libskype.c in Sources */ = {isa = PBXBuildFile; fileRef = 7A6296DA0CC1B7A20064C5C6 /* libskype.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		32DBCF630370AF2F00C91783 /* SkypePlugin_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkypePlugin_Prefix.pch; sourceTree = "<group>"; };
+		7A24C3690CD1B0490090E475 /* AIUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AIUtilities.framework; path = /Applications/Adium.app/Contents/Frameworks/AIUtilities.framework; sourceTree = "<absolute>"; };
+		7A3654E60D0273270075FBB5 /* skype-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "skype-small.png"; sourceTree = "<group>"; };
+		7A3654E70D0273270075FBB5 /* skype.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = skype.png; sourceTree = "<group>"; };
+		7A398D320CC455B4006536F6 /* Adium.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Adium.framework; path = /Applications/Adium.app/Contents/Frameworks/Adium.framework; sourceTree = "<absolute>"; };
+		7A48E1BA0FB30D2B00144F0F /* SkypeJoinChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkypeJoinChatViewController.h; sourceTree = "<group>"; };
+		7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SkypeJoinChatViewController.m; sourceTree = "<group>"; };
+		7A48E1D00FB3136500144F0F /* SkypeJoinChatView.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SkypeJoinChatView.nib; sourceTree = "<group>"; };
+		7A48E2680FB31E2900144F0F /* PurpleSkypeAccountView.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = PurpleSkypeAccountView.nib; sourceTree = "<group>"; };
+		7A59944B106466D700A68E5C /* libSkypeNetPlugin.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libSkypeNetPlugin.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A5A006D0D3190D300A388A6 /* libgthread.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libgthread.framework; path = /Applications/Adium.app/Contents/Frameworks/libgthread.framework; sourceTree = "<absolute>"; };
+		7A5A00730D31910800A388A6 /* libpurple.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpurple.framework; path = /Applications/Adium.app/Contents/Frameworks/libpurple.framework; sourceTree = "<absolute>"; };
+		7A62963E0CC1B56A0064C5C6 /* SkypePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkypePlugin.h; sourceTree = "<group>"; };
+		7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SkypePlugin.m; sourceTree = "<group>"; };
+		7A6296C50CC1B6D00064C5C6 /* PurpleSkypeAccount.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PurpleSkypeAccount.h; sourceTree = "<group>"; };
+		7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PurpleSkypeAccount.m; sourceTree = "<group>"; };
+		7A6296C70CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PurpleSkypeAccountViewController.h; sourceTree = "<group>"; };
+		7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PurpleSkypeAccountViewController.m; sourceTree = "<group>"; };
+		7A6296C90CC1B6D00064C5C6 /* PurpleSkypeService.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PurpleSkypeService.h; sourceTree = "<group>"; };
+		7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PurpleSkypeService.m; sourceTree = "<group>"; };
+		7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = skype_messaging_carbon.c; sourceTree = "<group>"; };
+		7A6296D90CC1B7A20064C5C6 /* skype_messaging.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = skype_messaging.c; sourceTree = "<group>"; };
+		7A6296DA0CC1B7A20064C5C6 /* libskype.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = libskype.c; sourceTree = "<group>"; };
+		7A6297C30CC330ED0064C5C6 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		7A629D910CC36F270064C5C6 /* PurpleService.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PurpleService.h; path = "../adium/Plugins/Purple Service/PurpleService.h"; sourceTree = SOURCE_ROOT; };
+		7A629DBD0CC375700064C5C6 /* PurpleService.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PurpleService.m; path = "../adium/Plugins/Purple Service/PurpleService.m"; sourceTree = SOURCE_ROOT; };
+		7A637E1C0E1AEF5800290ECE /* de.po */ = {isa = PBXFileReference; explicitFileType = text; fileEncoding = 4; path = de.po; sourceTree = "<group>"; };
+		7A637E1D0E1AEF5800290ECE /* en_AU.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_AU.po; sourceTree = "<group>"; };
+		7A637E1E0E1AEF5800290ECE /* es.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = es.po; sourceTree = "<group>"; };
+		7A637E1F0E1AEF5800290ECE /* fr.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fr.po; sourceTree = "<group>"; };
+		7A637E200E1AEF5800290ECE /* hu.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hu.po; sourceTree = "<group>"; };
+		7A637E210E1AEF5800290ECE /* it.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = it.po; sourceTree = "<group>"; };
+		7A637E220E1AEF5800290ECE /* ja.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ja.po; sourceTree = "<group>"; };
+		7A637E230E1AEF5800290ECE /* nb.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = nb.po; sourceTree = "<group>"; };
+		7A637E240E1AEF5800290ECE /* pl.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl.po; sourceTree = "<group>"; };
+		7A637E250E1AEF5800290ECE /* ru.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ru.po; sourceTree = "<group>"; };
+		7A637E260E1AEF5800290ECE /* skype4pidgin.pot */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = skype4pidgin.pot; sourceTree = "<group>"; };
+		7A7FDA300CF28363002A673A /* skype_messaging_carbon2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = skype_messaging_carbon2.c; sourceTree = "<group>"; };
+		7A93A4BC0CCEE2DB008F5639 /* skype_events.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = skype_events.c; sourceTree = "<group>"; };
+		7AA523280D7C9BCB004CAB28 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
+		7AB5A8B60E512DDC0097BFB4 /* skype_messaging_network.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = skype_messaging_network.c; sourceTree = "<group>"; };
+		7AE5BE5D0CC3952500125D43 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		8D5B49B6048680CD000E48DA /* SkypePlugin.AdiumPlugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SkypePlugin.AdiumPlugin; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7A63824F0E40787E00290ECE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		089C166AFE841209C02AAC07 /* SkypePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				7A629DBC0CC375410064C5C6 /* PurplePlugin Files */,
+				7A637E1B0E1AEF5800290ECE /* Locales */,
+				7A62963E0CC1B56A0064C5C6 /* SkypePlugin.h */,
+				7A62963F0CC1B56A0064C5C6 /* SkypePlugin.m */,
+				7AA523280D7C9BCB004CAB28 /* debug.c */,
+				7A6296D80CC1B7A20064C5C6 /* skype_messaging_carbon.c */,
+				7AB5A8B60E512DDC0097BFB4 /* skype_messaging_network.c */,
+				7A6296D90CC1B7A20064C5C6 /* skype_messaging.c */,
+				7A6296DA0CC1B7A20064C5C6 /* libskype.c */,
+				7A93A4BC0CCEE2DB008F5639 /* skype_events.c */,
+				7A7FDA300CF28363002A673A /* skype_messaging_carbon2.c */,
+				7A6296C50CC1B6D00064C5C6 /* PurpleSkypeAccount.h */,
+				7A6296C60CC1B6D00064C5C6 /* PurpleSkypeAccount.m */,
+				7A6296C70CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.h */,
+				7A6296C80CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m */,
+				7A48E2680FB31E2900144F0F /* PurpleSkypeAccountView.nib */,
+				7A6296C90CC1B6D00064C5C6 /* PurpleSkypeService.h */,
+				7A6296CA0CC1B6D00064C5C6 /* PurpleSkypeService.m */,
+				7A48E1BA0FB30D2B00144F0F /* SkypeJoinChatViewController.h */,
+				7A48E1BB0FB30D2B00144F0F /* SkypeJoinChatViewController.m */,
+				7A48E1D00FB3136500144F0F /* SkypeJoinChatView.nib */,
+				08FB77AFFE84173DC02AAC07 /* Classes */,
+				32C88E010371C26100C91783 /* Other Sources */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				089C1671FE841209C02AAC07 /* Frameworks and Libraries */,
+				19C28FB8FE9D52D311CA2CBB /* Products */,
+			);
+			name = SkypePlugin;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */,
+				1058C7AEFEA557BF11CA2CBB /* Other Frameworks */,
+			);
+			name = "Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7A3654E70D0273270075FBB5 /* skype.png */,
+				7A3654E60D0273270075FBB5 /* skype-small.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7A5A00730D31910800A388A6 /* libpurple.framework */,
+				7A5A006D0D3190D300A388A6 /* libgthread.framework */,
+				7A24C3690CD1B0490090E475 /* AIUtilities.framework */,
+				7A398D320CC455B4006536F6 /* Adium.framework */,
+				7AE5BE5D0CC3952500125D43 /* Cocoa.framework */,
+				7A6297C30CC330ED0064C5C6 /* Carbon.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7AEFEA557BF11CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FB8FE9D52D311CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D5B49B6048680CD000E48DA /* SkypePlugin.AdiumPlugin */,
+				7A59944B106466D700A68E5C /* libSkypeNetPlugin.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32C88E010371C26100C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32DBCF630370AF2F00C91783 /* SkypePlugin_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		7A629DBC0CC375410064C5C6 /* PurplePlugin Files */ = {
+			isa = PBXGroup;
+			children = (
+				7A629D910CC36F270064C5C6 /* PurpleService.h */,
+				7A629DBD0CC375700064C5C6 /* PurpleService.m */,
+			);
+			name = "PurplePlugin Files";
+			sourceTree = "<group>";
+		};
+		7A637E1B0E1AEF5800290ECE /* Locales */ = {
+			isa = PBXGroup;
+			children = (
+				7A637E1C0E1AEF5800290ECE /* de.po */,
+				7A637E1D0E1AEF5800290ECE /* en_AU.po */,
+				7A637E1E0E1AEF5800290ECE /* es.po */,
+				7A637E1F0E1AEF5800290ECE /* fr.po */,
+				7A637E200E1AEF5800290ECE /* hu.po */,
+				7A637E210E1AEF5800290ECE /* it.po */,
+				7A637E220E1AEF5800290ECE /* ja.po */,
+				7A637E230E1AEF5800290ECE /* nb.po */,
+				7A637E240E1AEF5800290ECE /* pl.po */,
+				7A637E250E1AEF5800290ECE /* ru.po */,
+				7A637E260E1AEF5800290ECE /* skype4pidgin.pot */,
+			);
+			includeInIndex = 1;
+			name = Locales;
+			path = po;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		7A63824D0E40787E00290ECE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		7A6382500E40787E00290ECE /* SkypeNetPlugin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A6382560E4078AC00290ECE /* Build configuration list for PBXNativeTarget "SkypeNetPlugin" */;
+			buildPhases = (
+				7A63824D0E40787E00290ECE /* Headers */,
+				7A63824E0E40787E00290ECE /* Sources */,
+				7A63824F0E40787E00290ECE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SkypeNetPlugin;
+			productName = SkypeNetPlugin;
+			productReference = 7A59944B106466D700A68E5C /* libSkypeNetPlugin.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		8D5B49AC048680CD000E48DA /* SkypePlugin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "SkypePlugin" */;
+			buildPhases = (
+				8D5B49AF048680CD000E48DA /* Resources */,
+				8D5B49B1048680CD000E48DA /* Sources */,
+				7A06CDD00CD6C38C00CBDAE6 /* Fix libpurple lookup */,
+				7A637E5C0E1AF03E00290ECE /* Compile locale's */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SkypePlugin;
+			productInstallPath = "$(HOME)/Library/Bundles";
+			productName = SkypePlugin;
+			productReference = 8D5B49B6048680CD000E48DA /* SkypePlugin.AdiumPlugin */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = NO;
+			};
+			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "SkypePlugin" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				ca,
+				cs,
+				da,
+				de,
+				en,
+				en_AU,
+				es,
+				fi,
+				fr,
+				fr_CA,
+				is,
+				it,
+				ja,
+				nb,
+				nl,
+				pl,
+				pt_BR,
+				ru,
+				sv,
+				tr,
+				Ukrainian,
+				zh_CN,
+				zh_TW,
+			);
+			mainGroup = 089C166AFE841209C02AAC07 /* SkypePlugin */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D5B49AC048680CD000E48DA /* SkypePlugin */,
+				7A6382500E40787E00290ECE /* SkypeNetPlugin */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D5B49AF048680CD000E48DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A3655090D02744A0075FBB5 /* skype.png in Resources */,
+				7A3655060D0274430075FBB5 /* skype-small.png in Resources */,
+				7A48E1D10FB3136500144F0F /* SkypeJoinChatView.nib in Resources */,
+				7A48E2690FB31E2900144F0F /* PurpleSkypeAccountView.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7A06CDD00CD6C38C00CBDAE6 /* Fix libpurple lookup */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Fix libpurple lookup";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#Make this change for every new version of libpurple in Adium source\n/Developer/usr/bin/install_name_tool -change \"@executable_path/../Frameworks/libpurple.framework/Versions/0.6.5/libpurple\" \"@executable_path/../Frameworks/libpurple.framework/libpurple\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents/MacOS/$PRODUCT_NAME\"\n\n#this needs to be updated for every new version of glib in Adium\n/Developer/usr/bin/install_name_tool -change \"@executable_path/../Frameworks/libglib.framework/Versions/2.0.0/libglib\" \"@executable_path/../Frameworks/libglib.framework/libglib\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents/MacOS/$PRODUCT_NAME\"\n/Developer/usr/bin/install_name_tool -change \"@executable_path/../Frameworks/libgthread.framework/Versions/2.0.0/libgthread\" \"@executable_path/../Frameworks/libgthread.framework/libgthread\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents/MacOS/$PRODUCT_NAME\"\n\n#/bin/mkdir \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries\"\n#\n#/bin/cp /usr/local/lib/libgthread-2.0.0.dylib \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/\"\n#/bin/cp /usr/local/lib/libglib-2.0.0.dylib \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/\"\n#/bin/cp /usr/local/lib/libintl.8.dylib \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/\"\n#\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libgthread-2.0.0.dylib\" \"@loader_path/../Libraries/libgthread-2.0.0.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/MacOS/$TARGET_NAME\"\n#\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libgthread-2.0.0.dylib\" \"@loader_path/../Libraries/libgthread-2.0.0.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libgthread-2.0.0.dylib\"\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libglib-2.0.0.dylib\" \"@loader_path/../Libraries/libglib-2.0.0.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libgthread-2.0.0.dylib\"\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libintl.8.dylib\" \"@loader_path/../Libraries/libintl.8.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libgthread-2.0.0.dylib\"\n#\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libglib-2.0.0.dylib\" \"@loader_path/../Libraries/libglib-2.0.0.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libglib-2.0.0.dylib\"\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libintl.8.dylib\" \"@loader_path/../Libraries/libintl.8.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libglib-2.0.0.dylib\"\n#\n#/usr/bin/install_name_tool -change \"/usr/local/lib/libintl.8.dylib\" \"@loader_path/../Libraries/libintl.8.dylib\" \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Libraries/libintl.8.dylib\"";
+		};
+		7A637E5C0E1AF03E00290ECE /* Compile locale's */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Compile locale's";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#compile po's to mo's\n\nfor i in po/*.po; do\n\tlang=`basename $i .po`\n\tmkdir -p \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Resources/locale/$lang/LC_MESSAGES\"\n\t/usr/local/bin/msgfmt -cf -o \"$TARGET_BUILD_DIR/$TARGET_NAME.$WRAPPER_EXTENSION/Contents/Resources/locale/$lang/LC_MESSAGES/skype4pidgin.mo\" $i\ndone";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A63824E0E40787E00290ECE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D5B49B1048680CD000E48DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A6296400CC1B56A0064C5C6 /* SkypePlugin.m in Sources */,
+				7A6296CB0CC1B6D00064C5C6 /* PurpleSkypeAccount.m in Sources */,
+				7A6296CC0CC1B6D00064C5C6 /* PurpleSkypeAccountViewController.m in Sources */,
+				7A6296CD0CC1B6D00064C5C6 /* PurpleSkypeService.m in Sources */,
+				7A6296DD0CC1B7A20064C5C6 /* libskype.c in Sources */,
+				7A48E1BC0FB30D2B00144F0F /* SkypeJoinChatViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB913B08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					i386,
+					ppc,
+				);
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"${HOME}/adium/build/Deployment-Debug",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_4)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_5)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_6)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_7)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_8)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_9)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_10)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
+					"@bundle_path/../Frameworks/",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"${HOME}/adium/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"${HOME}/adium/Plugins/Purple Service\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_5 = "\"$(SRCROOT)/../adium/Plugins/Purple Service\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_6 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/PlugIns/Purple.AdiumPlugin/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_8 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_9 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/PlugIns/Purple.AdiumPlugin/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/PlugIns/Purple.AdiumPlugin/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"/Volumes/Adium X 1.2b7/Adium.app/Contents/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_5 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/Frameworks\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G4;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = SkypePlugin_Prefix.pch;
+				GENERATE_MASTER_OBJECT_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED_1)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_2)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_3)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_4)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_5)",
+					"$(HEADER_SEARCH_PATHS_QUOTED_6)",
+					"${HOME}/libpurple/pidgin/libpurple",
+				);
+				HEADER_SEARCH_PATHS_QUOTED_1 = "\"${HOME}/adium/Frameworks/Adium Framework/Source\"";
+				HEADER_SEARCH_PATHS_QUOTED_2 = "\"${HOME}/adium/Plugins/Purple Service\"";
+				HEADER_SEARCH_PATHS_QUOTED_3 = "\"${HOME}/libpurple/Libraries/glib\"";
+				HEADER_SEARCH_PATHS_QUOTED_4 = "\"${HOME}/libpurple/Libraries/glib/glib\"";
+				HEADER_SEARCH_PATHS_QUOTED_5 = "\"${HOME}/libpurple/Libraries/glib/gmodule\"";
+				HEADER_SEARCH_PATHS_QUOTED_6 = "\"${HOME}/libpurple/Libraries/glib/gthread\"";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Application Support/Adium 2.0/Plugins/";
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
+				OTHER_CFLAGS = "-lgthread-2.0";
+				OTHER_LDFLAGS = (
+					"-lgthread-2.0",
+					"-undefined",
+					dynamic_lookup,
+				);
+				PRELINK_LIBS = "";
+				PRODUCT_NAME = SkypePlugin;
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				WRAPPER_EXTENSION = AdiumPlugin;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		1DEB913C08733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					x86_64,
+					i386,
+					ppc,
+				);
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(HOME)/adium/Frameworks",
+					"$(HOME)/adium/Build/Release",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_APPS_DIR)/Adium.app/Contents/Frameworks\"";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_MODEL_TUNING = G4;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = SkypePlugin_Prefix.pch;
+				GCC_THREADSAFE_STATICS = NO;
+				GENERATE_MASTER_OBJECT_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(HOME)/adium/Frameworks/libpurple.framework/Headers",
+					"$(HOME)/adium/Frameworks/libglib.framework/Headers",
+					"$(HOME)/adium/Frameworks/libjson-glib.framework/Headers",
+					"$(HOME)/adium/build",
+					"$(HOME)/adium/Frameworks/libintl.framework/Headers",
+					"$(HOME)/adium/build/Release/AdiumLibpurple.framework/Headers",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Application Support/Adium 2.0/Plugins/";
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_GENERATE_MAP_FILE = YES;
+				LIBRARY_SEARCH_PATHS = "";
+				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-undefined",
+					dynamic_lookup,
+					"-weak_framework",
+					libglib,
+					"-weak_framework",
+					libpurple,
+					"-weak_framework",
+					libgobject,
+					"-flat_namespace",
+				);
+				PRELINK_LIBS = "";
+				PRODUCT_NAME = SkypePlugin;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 ppc x86_64";
+				WRAPPER_EXTENSION = AdiumPlugin;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1DEB913F08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Debug;
+		};
+		1DEB914008733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+		7A6382520E40788000290ECE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = SkypeNetPlugin;
+			};
+			name = Debug;
+		};
+		7A6382530E40788000290ECE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = SkypeNetPlugin;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB913A08733D840010E9CD /* Build configuration list for PBXNativeTarget "SkypePlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913B08733D840010E9CD /* Debug */,
+				1DEB913C08733D840010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "SkypePlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913F08733D840010E9CD /* Debug */,
+				1DEB914008733D840010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7A6382560E4078AC00290ECE /* Build configuration list for PBXNativeTarget "SkypeNetPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A6382520E40788000290ECE /* Debug */,
+				7A6382530E40788000290ECE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}
