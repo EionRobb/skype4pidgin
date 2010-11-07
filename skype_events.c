@@ -28,7 +28,7 @@ static gboolean skype_handle_received_message(char *message);
 gint skype_find_filetransfer(PurpleXfer *transfer, char *skypeid);
 void skype_accept_transfer(PurpleXfer *transfer);
 void skype_decline_transfer(PurpleXfer *transfer);
-SkypeChat *skype_find_chat(const gchar *chat_id, PurpleAccount *this_account);
+static SkypeChat *skype_find_chat(const gchar *chat_id, PurpleAccount *this_account);
 gint skype_find_chat_compare_func(PurpleConversation *conv, char *chat_id);
 static void purple_xfer_set_status(PurpleXfer *xfer, PurpleXferStatusType status);
 void skype_chat_password_cb(SkypeChat *chat, const gchar *entry);
@@ -431,7 +431,7 @@ skype_handle_received_message(char *message)
 	{
 		//find the matching chat to update
 		chat = skype_find_chat(string_parts[1], this_account);
-		if (g_str_equal(string_parts[2], "TYPE"))
+		if (g_str_equal(string_parts[2], "STATUS") || g_str_equal(string_parts[2], "TYPE"))
 		{
 			if (g_str_equal(string_parts[3], "DIALOG") || g_str_equal(string_parts[3], "LEGACY_DIALOG"))
 			{
@@ -960,7 +960,7 @@ skype_decline_transfer(PurpleXfer *transfer)
 	//can't reject transfers
 }
 
-SkypeChat*
+static SkypeChat*
 skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 {
 	SkypeChat *chat;
@@ -969,6 +969,7 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 	if (chat_id == NULL)
 		return NULL;
 	
+	g_static_mutex_lock(&chat_link_mutex);
 	if(chat_link_table == NULL)
 	{
 		chat_link_table = g_hash_table_new(g_str_hash, g_str_equal);
@@ -982,11 +983,13 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 		chat->account = this_account;
 		g_hash_table_insert(chat_link_table, (char*)chat_id, chat);
 		
+		skype_send_message_nowait("GET CHAT %s STATUS", chat_id);
 		skype_send_message_nowait("GET CHAT %s TYPE", chat_id);
 		skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
 		skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", chat_id);
 		skype_send_message_nowait("GET CHAT %s TOPIC", chat_id);
 	}
+	g_static_mutex_unlock(&chat_link_mutex);
 	
 	chat->conv = NULL;
 	
@@ -1123,6 +1126,7 @@ handle_complete_message(int messagenumber)
 	{
 		skype_debug_info("skype", "Chat %s has no type\n", skypemessage->chatname);
 		//dont know where to put this message
+		skype_send_message_nowait("GET CHAT %s STATUS", skypemessage->chatname);
 		skype_send_message_nowait("GET CHAT %s TYPE", skypemessage->chatname);
 		chat->type_request_count++;
 		//Only try a maximum of 100 times to prevent an infinite loop (in case the chat name is unknown)

@@ -139,6 +139,7 @@ typedef struct _SkypeChat {
 } SkypeChat;
 
 static GHashTable *chat_link_table = NULL;
+static GStaticMutex chat_link_mutex = G_STATIC_MUTEX_INIT;
 
 //This is used for incomming SMS status messages to be associated with a particular phone number
 static GHashTable *sms_convo_link_table = NULL;
