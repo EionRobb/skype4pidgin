@@ -981,7 +981,7 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 		chat = g_new0(SkypeChat, 1);
 		chat->name = g_strdup(chat_id);
 		chat->account = this_account;
-		g_hash_table_insert(chat_link_table, (char*)chat_id, chat);
+		g_hash_table_insert(chat_link_table, chat->name, chat);
 		
 		skype_send_message_nowait("GET CHAT %s STATUS", chat_id);
 		skype_send_message_nowait("GET CHAT %s TYPE", chat_id);
