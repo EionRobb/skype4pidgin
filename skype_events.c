@@ -746,6 +746,8 @@ skype_handle_received_message(char *message)
 					skype_handle_incoming_call(gc, string_parts[1]);
 			} else if (g_str_equal(string_parts[3], "FINISHED") ||
 						g_str_equal(string_parts[3], "CANCELLED") ||
+						g_str_equal(string_parts[3], "REFUSED") ||
+						g_str_equal(string_parts[3], "MISSED") ||
 						g_str_equal(string_parts[3], "FAILED"))
 			{
 				skype_handle_call_got_ended(string_parts[1]);
@@ -895,6 +897,7 @@ void
 skype_call_reject_cb(gchar *call)
 {
 	skype_send_message_nowait("ALTER CALL %s END HANGUP", call);
+	skype_send_message_nowait("ALTER CALL %s HANGUP", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
 	g_free(call);
