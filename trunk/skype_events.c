@@ -139,7 +139,7 @@ skype_handle_received_message(char *message)
 		{
 			//need to make this synchronous :(
 			if (gc != NULL)
-				purple_connection_error(gc, _("\nSkype program closed"));
+				purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, _("\nSkype program closed"));
 			//purple_timeout_add(0, (GSourceFunc)skype_sync_skype_close, gc);
 		}
 	} else if (g_str_equal(command, "USER"))
@@ -1101,7 +1101,7 @@ gboolean
 skype_sync_skype_close(PurpleConnection *gc)
 {
 	if (gc != NULL)
-		purple_connection_error(gc, _("\nSkype program closed"));
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, _("\nSkype program closed"));
 	return FALSE;
 }
 
