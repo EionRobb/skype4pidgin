@@ -1545,7 +1545,7 @@ skype_login_cb(gpointer acct)
 {
 	if (!is_skype_running())
 	{
-		purple_timeout_add_seconds(1, skype_login_cb, acct);
+		purple_timeout_add_seconds(5, skype_login_cb, acct);
 		return FALSE;
 	}
 	skype_login(acct);
@@ -1592,7 +1592,8 @@ skype_login(PurpleAccount *acct)
 	test_account = find_acct(purple_plugin_get_id(this_plugin), NULL);
 	if (test_account && test_account != acct)
 	{
-		purple_connection_error(gc, errormsg = g_strconcat("\n",_("Only one Skype account allowed"), NULL));
+		errormsg = g_strconcat("\n",_("Only one Skype account allowed"), NULL);
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, errormsg);
 		g_free(errormsg);
 		return;
 	}
@@ -1618,13 +1619,13 @@ skype_login(PurpleAccount *acct)
 
 				if (skype_started)
 				{
-					purple_timeout_add_seconds(10, skype_login_cb, acct);
+					purple_timeout_add_seconds(20, skype_login_cb, acct);
 					return;
 				}
 				return;
 			}
 		}
-		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
+		purple_timeout_add_seconds(10, (GSourceFunc) skype_login_retry, acct);
 		return;
 	}
 	
@@ -1641,9 +1642,10 @@ skype_login_retry(PurpleAccount *acct)
 	
 	if (retry_count++ == 3)
 	{
-		gc->wants_to_die = TRUE;
-		purple_connection_error(gc, errormsg = g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL));		
+		errormsg = g_strconcat("\n", _("Could not connect to Skype process.\nSkype not running?"), NULL);
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, errormsg);
 		g_free(errormsg);
+		
 		return FALSE;
 	}
 	
@@ -1675,8 +1677,7 @@ skype_login_part2(PurpleAccount *acct)
 #endif
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		//purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
-		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
+		purple_timeout_add_seconds(10, (GSourceFunc) skype_login_retry, acct);
 		return FALSE;
 	}
 	if (g_str_equal(reply, "CONNSTATUS OFFLINE"))
@@ -1692,8 +1693,7 @@ skype_login_part2(PurpleAccount *acct)
 	reply = skype_send_message("PROTOCOL 7");
 	if (reply == NULL || strlen(reply) == 0)
 	{
-		//purple_connection_error(gc, g_strconcat("\n",_("Skype client not ready"), NULL));
-		purple_timeout_add_seconds(1, (GSourceFunc) skype_login_retry, acct);
+		purple_timeout_add_seconds(10, (GSourceFunc) skype_login_retry, acct);
 		return FALSE;
 	}
 	g_free(reply);
@@ -2500,7 +2500,7 @@ gboolean
 skype_check_keepalive(PurpleConnection *gc)
 {
 	if (last_pong < last_ping)
-		purple_connection_error(gc, _("\nSkype not responding"));
+		purple_connection_error_reason(gc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, _("\nSkype not responding"));
 	return FALSE;
 }
 

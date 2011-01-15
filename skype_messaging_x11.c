@@ -73,6 +73,7 @@ skype_connect()
 	XFlush(disp);
 	if (win == -1)
 	{
+		XCloseDisplay(disp);
 		skype_debug_info("skype_x11", "Could not create X11 messaging window\n");
 		return FALSE;
 	}
@@ -80,6 +81,9 @@ skype_connect()
 	skype_inst = XInternAtom(disp, "_SKYPE_INSTANCE", True);
 	if (skype_inst == None)
 	{
+		XDestroyWindow(disp, win);
+		XCloseDisplay(disp);
+		win = (Window)-1;
 		skype_win = (Window)-1;
 		skype_debug_info("skype_x11", "Could not create skype Atom\n");
 		return FALSE;
@@ -88,6 +92,9 @@ skype_connect()
 	status = XGetWindowProperty(disp, root, skype_inst, 0, 1, False, XA_WINDOW, &type_ret, &format_ret, &nitems_ret, &bytes_after_ret, &prop);
 	if(status != Success || format_ret != 32 || nitems_ret < 1)
 	{
+		XDestroyWindow(disp, win);
+		XCloseDisplay(disp);
+		win = (Window)-1;
 		XFree(prop);
 		skype_win = (Window)-1;
 		skype_debug_info("skype", "Skype instance not found\n");
