@@ -69,7 +69,8 @@ typedef enum _SkypeMessageType {
 	SKYPE_MESSAGE_ADD,
 	SKYPE_MESSAGE_LEFT,
 	SKYPE_MESSAGE_KICKED,
-	SKYPE_MESSAGE_TOPIC
+	SKYPE_MESSAGE_TOPIC,
+	SKYPE_MESSAGE_EDITED
 } SkypeMessageType;
 
 typedef struct _SkypeMessage {
@@ -386,7 +387,9 @@ skype_handle_received_message(char *message)
 			{
 				skypemessage->body = g_strdup(string_parts[3]);
 			} else {
-				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
+				// Could be a message that's been edited
+				skype_send_message_nowait("GET CHATMESSAGE %s EDITED_TIMESTAMP", string_parts[1]);
+				skype_send_message_nowait("GET CHATMESSAGE %s EDITED_BY", string_parts[1]);
 			}
 		} else if (g_str_equal(string_parts[2], "FROM_HANDLE"))
 		{
@@ -423,6 +426,33 @@ skype_handle_received_message(char *message)
 				skypemessage->timestamp = atoi(string_parts[3]);
 			} else {
 				skype_debug_info("skype", "Skype message %s not in hashtable\n", string_parts[1]);
+			}
+		} else if (g_str_equal(string_parts[2], "EDITED_BY") ||
+					g_str_equal(string_parts[2], "EDITED_TIMESTAMP"))
+		{
+			skypemessage = g_hash_table_lookup(messages_table, GINT_TO_POINTER(atoi(string_parts[1])));
+			if (skypemessage == NULL)
+			{
+				if (messages_table == NULL)
+				{
+					messages_table = g_hash_table_new(NULL, NULL);
+				}
+				skypemessage = g_new0(SkypeMessage, 1);
+				skypemessage->account = this_account;
+				skypemessage->flags = PURPLE_MESSAGE_SYSTEM;
+				skypemessage->type = SKYPE_MESSAGE_EDITED;
+				g_hash_table_insert(messages_table, GINT_TO_POINTER(atoi(string_parts[1])), skypemessage);
+				skype_send_message_nowait("GET CHATMESSAGE %s CHATNAME", string_parts[1]);
+			}
+			
+			if (g_str_equal(string_parts[2], "EDITED_TIMESTAMP"))
+			{
+				skypemessage->timestamp = atoi(string_parts[3]);
+				skype_send_message_nowait("GET CHATMESSAGE %s EDITED_BY", string_parts[1]);
+			}
+			else if (g_str_equal(string_parts[2], "EDITED_BY"))
+			{
+				skypemessage->from_handle = g_strdup(string_parts[3]);
 			}
 		}
 		
@@ -1316,6 +1346,32 @@ handle_complete_message(int messagenumber)
 				purple_conversation_update(chat->conv, PURPLE_CONV_UPDATE_TOPIC);
 			} 
 			break;
+		case SKYPE_MESSAGE_EDITED:
+			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
+				return FALSE;
+			PurpleBuddy *buddy = purple_find_buddy(skypemessage->account, skypemessage->from_handle);
+			body_html = g_strdup_printf("%s edited message '%s'", (buddy&&buddy->alias?buddy->alias:skypemessage->from_handle), skypemessage->body);
+			g_free(skypemessage->body);
+			skypemessage->body = body_html;
+			body_html = skype_strdup_withhtml(skypemessage->body);
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				if (chat->prpl_chat_id)
+					i = chat->prpl_chat_id;
+				else
+					i = g_str_hash(chat->name);
+				serv_got_chat_in(skypemessage->account->gc, i, skypemessage->from_handle, skypemessage->flags, body_html, skypemessage->timestamp);
+			} else if (chat->type == PURPLE_CONV_TYPE_IM)
+			{
+				if (!g_str_equal(skypemessage->from_handle, skype_get_account_username(skypemessage->account)))
+				{
+					serv_got_im(skypemessage->account->gc, skypemessage->from_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+				} else if (chat->partner_handle)
+				{
+					//if we're here, then we're receiving a message that we sent from a different computer
+					serv_got_im(skypemessage->account->gc, chat->partner_handle, body_html, skypemessage->flags, skypemessage->timestamp);
+				}
+			}
 	}
 	
 	if (skypemessage->flags == PURPLE_MESSAGE_RECV)
