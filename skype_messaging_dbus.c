@@ -143,7 +143,7 @@ is_skype_running()
 	int pid;
 	gchar* stat_path;
 	FILE *fh;
-	gchar exec_name[15];
+	gchar exec_name[16];
 	struct stat *statobj = g_new(struct stat, 1);
 	//open /proc
 	GDir *procdir = g_dir_open("/proc", 0, NULL);
