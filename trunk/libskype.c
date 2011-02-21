@@ -144,6 +144,8 @@ static GStaticMutex chat_link_mutex = G_STATIC_MUTEX_INIT;
 //This is used for incomming SMS status messages to be associated with a particular phone number
 static GHashTable *sms_convo_link_table = NULL;
 
+static guint protocol_version = 7;
+
 #include "debug.c"
 #include "skype_messaging.c"
 
@@ -1696,6 +1698,7 @@ skype_login_part2(PurpleAccount *acct)
 		purple_timeout_add_seconds(10, (GSourceFunc) skype_login_retry, acct);
 		return FALSE;
 	}
+	sscanf(reply, "PROTOCOL %d", &protocol_version);
 	g_free(reply);
 	
 	purple_connection_update_progress(gc, _("Hide Skype"), 3, 5);
@@ -1835,17 +1838,8 @@ skype_send_im(PurpleConnection *gc, const gchar *who, const gchar *message,
 
 	stripped = purple_markup_strip_html(message);
 	
-	if (conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
+	if (protocol_version < 5 || conv == NULL || purple_conversation_get_data(conv, "chat_id") == NULL)
 	{
-		/*chat_id = g_new(char, 200);
-		char *temp;
-		temp = skype_send_message("CHAT CREATE %s", who);
-		sscanf(temp, "CHAT %s ", chat_id);
-		g_free(temp);
-		if (conv != NULL)
-		{
-			purple_conversation_set_data(conv, "chat_id", chat_id);
-		}*/
 		skype_send_message_nowait("MESSAGE %s %s", who, stripped);
 	} else {
 		chat_id = purple_conversation_get_data(conv, "chat_id");
