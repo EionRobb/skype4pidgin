@@ -39,6 +39,7 @@ skype_notify_handler(DBusConnection *connection, DBusMessage *message, gpointer 
 	dbus_message_iter_init(temp_message, &iterator);
 	if (dbus_message_iter_get_arg_type(&iterator) != DBUS_TYPE_STRING)
 	{
+		dbus_message_unref(message);
 		return FALSE;
 	}
 	
@@ -51,6 +52,13 @@ skype_notify_handler(DBusConnection *connection, DBusMessage *message, gpointer 
 	dbus_message_unref(message);
 	
 	return DBUS_HANDLER_RESULT_HANDLED;
+}
+
+static void
+skype_destroy_handler(GObject *sender, gpointer data)
+{
+	proxy = NULL;
+	skype_message_received(g_strdup("CONNSTATUS LOGGEDOUT"));
 }
 
 static gboolean
@@ -83,9 +91,14 @@ skype_connect()
 		if (proxy == NULL && error != NULL)
 		{
 			skype_debug_warning("skype_dbus", "%s\n", error->message);
+			g_error_free(error);
 			return FALSE;
 		}
-	    
+		
+		g_signal_connect(G_OBJECT(proxy), "destroy", G_CALLBACK(skype_destroy_handler), NULL);
+#ifdef DBUS_MAJOR_VERSION
+		dbus_g_proxy_set_default_timeout(proxy, 3000);
+#endif
 		vtable.message_function = &skype_notify_handler;
 			dbus_connection_register_object_path(dbus_g_connection_get_connection(connection), "/com/Skype/Client", &vtable, NULL);
 	}
