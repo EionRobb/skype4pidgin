@@ -551,7 +551,7 @@ PURPLE_INIT_PLUGIN(skype, plugin_init, info);
 static PurpleAccount *
 skype_get_account(PurpleAccount *newaccount)
 {
-	static PurpleAccount* account;
+	static PurpleAccount* account = NULL;
 	if (newaccount != NULL)
 		account = newaccount;
 	return account;
