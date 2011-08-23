@@ -207,8 +207,7 @@ char *skype_send_message(char *message_format, ...)
 		g_thread_yield();
 			
 #ifdef __APPLE__
-		RunCurrentEventLoop(0);
-		usleep(1000);
+		RunCurrentEventLoop(kEventDurationMillisecond);
 		g_static_mutex_lock2(&mutex);
 
 		if (timeout++ == 10000)

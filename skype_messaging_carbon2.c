@@ -393,7 +393,7 @@ void SendSkypeCommand(CFStringRef command)
 		CFSTR("SKSkypeAPICommand"),
 		NULL,
 		userInfo,
-		FALSE);
+		TRUE);
 	
 	CFRelease(command);
 	CFRelease(id_number);
@@ -417,7 +417,7 @@ void DisconnectFromSkype(void)
 			CFSTR("SKSkypeAPIDetachRequest"),
 			NULL,
 			userInfo,
-			FALSE);
+			TRUE);
 			
 		client_id = 0;
 	}
