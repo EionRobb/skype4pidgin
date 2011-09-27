@@ -90,7 +90,7 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 			return STATUS_NAME_OFFLINE;
 	}
 	
-	return nil;
+	return STATUS_NAME_OFFLINE;
 }
 
 - (const char *)purpleStatusIDForStatus:(AIStatus *)statusState
