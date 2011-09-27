@@ -1070,6 +1070,7 @@ skype_set_buddies(PurpleAccount *acct)
 					//for now, dump them into a default group, until skype tells us where they belong
 					if (full_friends_list[i][0] == '+')
 					{
+#ifndef __APPLE__
 						if (skypeout_group == NULL)
 						{
 							skypeout_group = purple_find_group("SkypeOut");
@@ -1081,10 +1082,12 @@ skype_set_buddies(PurpleAccount *acct)
 								purple_blist_add_group(skypeout_group, NULL);
 							}
 						}
+#endif
 						purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
 					}
 					else
 					{
+#ifndef __APPLE__
 						if (skype_group == NULL)
 						{
 							skype_group = purple_find_group("Skype");
@@ -1096,6 +1099,7 @@ skype_set_buddies(PurpleAccount *acct)
 								purple_blist_add_group(skype_group, NULL);
 							}
 						}
+#endif
 						purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 					}
 				}
@@ -1192,6 +1196,7 @@ skype_set_buddies(PurpleAccount *acct)
 			//for now, dump them into a default group, until skype tells us where they belong
 			if (friends[i][0] == '+')
 			{
+#ifndef __APPLE__
 				if (skypeout_group == NULL)
 				{
 					skypeout_group = purple_find_group("SkypeOut");
@@ -1201,10 +1206,12 @@ skype_set_buddies(PurpleAccount *acct)
 						purple_blist_add_group(skypeout_group, NULL);
 					}
 				}
+#endif
 				purple_blist_add_buddy(buddy, NULL, skypeout_group, NULL);
 			}
 			else
 			{
+#ifndef __APPLE__
 				if (skype_group == NULL)
 				{
 					skype_group = purple_find_group("Skype");
@@ -1214,6 +1221,7 @@ skype_set_buddies(PurpleAccount *acct)
 						purple_blist_add_group(skype_group, NULL);
 					}
 				}
+#endif
 				purple_blist_add_buddy(buddy, NULL, skype_group, NULL);
 			}
 		}
