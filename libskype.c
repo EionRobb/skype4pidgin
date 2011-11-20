@@ -603,6 +603,9 @@ skype_node_menu(PurpleBlistNode *node)
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
+		buddy = (PurpleBuddy *)node;
+		sbuddy = (SkypeBuddy *)buddy->proto_data;
+		
 #ifndef SKYPENET
 #ifndef __APPLE__
 		act = purple_menu_action_new(_("_Send File"),
@@ -612,9 +615,6 @@ skype_node_menu(PurpleBlistNode *node)
 #endif
 //#ifndef USE_VV
 #if 1
-		buddy = (PurpleBuddy *)node;
-		sbuddy = (SkypeBuddy *)buddy->proto_data;
-		
 		if (!purple_media_manager_get())
 		{
 			gint call_id = 0, i, j;
