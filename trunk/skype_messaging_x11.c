@@ -24,8 +24,8 @@
 #include <X11/Xatom.h>
 
 static Display *disp = NULL;
-static Window win = (Window)-1;
-Window skype_win = (Window)-1;
+static Window win = (Window)None;
+Window skype_win = (Window)None;
 static GThread *receiving_thread = NULL;
 Atom message_start, message_continue;
 static gboolean run_loop = FALSE;
@@ -71,7 +71,7 @@ skype_connect()
 		0, BlackPixel( disp, DefaultScreen( disp ) ),
 		BlackPixel( disp, DefaultScreen( disp ) ));
 	XFlush(disp);
-	if (win == -1)
+	if (win == None)
 	{
 		XCloseDisplay(disp);
 		skype_debug_info("skype_x11", "Could not create X11 messaging window\n");
@@ -83,8 +83,8 @@ skype_connect()
 	{
 		XDestroyWindow(disp, win);
 		XCloseDisplay(disp);
-		win = (Window)-1;
-		skype_win = (Window)-1;
+		win = (Window)None;
+		skype_win = (Window)None;
 		skype_debug_info("skype_x11", "Could not create skype Atom\n");
 		return FALSE;
 	}
@@ -94,9 +94,9 @@ skype_connect()
 	{
 		XDestroyWindow(disp, win);
 		XCloseDisplay(disp);
-		win = (Window)-1;
+		win = (Window)None;
 		XFree(prop);
-		skype_win = (Window)-1;
+		skype_win = (Window)None;
 		skype_debug_info("skype", "Skype instance not found\n");
 		return FALSE;
 	}
@@ -116,11 +116,11 @@ static void
 skype_disconnect()
 {
 	run_loop = FALSE;
-	skype_win = (Window)-1;
+	skype_win = (Window)None;
 	
 	if (disp != NULL)
 	{
-		if (win != -1)
+		if (win != None)
 		{			
 			//wait here for the event to be handled
 			XDestroyWindow(disp, win);
@@ -128,7 +128,7 @@ skype_disconnect()
 		XCloseDisplay(disp);
 	}
 		
-	win = (Window)-1;
+	win = (Window)None;
 	disp = NULL;
 }
 
@@ -150,7 +150,7 @@ send_message(const char* message)
 	char *error_return;
 	unsigned int i;
 	
-	if (skype_win == -1 || win == -1 || disp == NULL)
+	if (skype_win == None || win == None || disp == NULL)
 	{
 		//There was an error
 		if (message[0] == '#')
