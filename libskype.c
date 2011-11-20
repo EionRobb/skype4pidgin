@@ -163,6 +163,7 @@ gchar *skype_get_user_info(const gchar *username, const gchar *property);
 void skype_set_status(PurpleAccount *account, PurpleStatus *status);
 void skype_set_idle(PurpleConnection *gc, int time);
 void skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
+void skype_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char *message);
 void skype_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group);
 void skype_add_deny(PurpleConnection *gc, const char *who);
 void skype_rem_deny(PurpleConnection *gc, const char *who);
@@ -340,6 +341,10 @@ PurplePluginProtocolInfo prpl_info = {
 	NULL,                 /* get_moods */
 	skype_set_public_alias, /* set_public_alias */
 	skype_get_public_alias /* get_public_alias */
+#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 8
+,	skype_add_buddy_with_invite, /* add_buddy_with_invite */
+	NULL                         /* add_buddies_with_invite */
+#endif
 };
 
 static PurplePluginInfo info = {
@@ -2415,10 +2420,10 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 	skype_send_message_nowait("DELETE GROUP %d", group_number);
 }
 
-void 
-skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+void
+skype_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
 {
-	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, _("Please authorize me so I can add you to my buddy list."));
+	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, message);
 
 	if (buddy->alias == NULL || strlen(buddy->alias) == 0)
 		skype_update_buddy_alias(buddy);
@@ -2432,6 +2437,12 @@ skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 	skype_rem_deny(gc, buddy->name);
 	
 	skype_update_buddy_status(buddy);
+}
+
+void 
+skype_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+{
+	skype_add_buddy_with_invite(gc, buddy, group, _("Please authorize me so I can add you to my buddy list."));
 }
 
 void 
