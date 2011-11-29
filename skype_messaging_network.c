@@ -20,6 +20,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef INCLUDED_LIBSKYPE_C 
+#	error	Don't compile this file directly.  Just compile libskype.c instead.
+#endif
+
 #include <glib.h>
 #include <errno.h>
 #include <string.h>

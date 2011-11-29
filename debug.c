@@ -19,6 +19,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#ifndef INCLUDED_LIBSKYPE_C 
+#	error	Don't compile this file directly.  Just compile libskype.c instead.
+#endif
 
 #include <glib.h>
 #include <debug.h>
