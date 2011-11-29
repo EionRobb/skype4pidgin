@@ -1392,6 +1392,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 
 	acct = purple_buddy_get_account(buddy);
 	
+#ifndef INSTANTBIRD
 	if (api_supports_avatar == 1 || api_supports_avatar == -1)
 	{
 		fh = g_file_open_tmp("skypeXXXXXX", &filename, &error);
@@ -1421,7 +1422,6 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 			g_error_free(error);
 		}
 	}
-#ifndef INSTANTBIRD
 	if (api_supports_avatar == 2 || api_supports_avatar == -1)
 	{
 		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", "user32768", "user65536",
@@ -1624,6 +1624,7 @@ skype_login(PurpleAccount *acct)
 	
 	if (!skype_connect())
 	{
+#ifndef INSTANTBIRD
 		if (purple_account_get_bool(acct, "skype_autostart", TRUE))
 		{
 			skype_debug_info("skype", "Should I start Skype?\n");
@@ -1645,6 +1646,7 @@ skype_login(PurpleAccount *acct)
 				return;
 			}
 		}
+#endif
 		purple_timeout_add_seconds(10, (GSourceFunc) skype_login_retry, acct);
 		return;
 	}
