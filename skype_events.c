@@ -764,8 +764,7 @@ skype_handle_received_message(char *message)
 			}
 			g_strfreev(chatusers);
 		}
-//#ifdef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 	} else if (purple_media_manager_get() && g_str_equal(command, "CALL"))
 	{
 		if (g_str_equal(string_parts[2], "STATUS"))
