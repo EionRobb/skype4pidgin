@@ -205,10 +205,10 @@ hide_skype()
 static gboolean
 exec_skype()
 {
-	gboolean success;
-	
+	gboolean success = FALSE;
+#ifndef INSTANTBIRD	
 	success = g_spawn_command_line_async("/Applications/Skype.app/Contents/MacOS/Skype", NULL);
-	
+#endif	
 	return success;
 }
 

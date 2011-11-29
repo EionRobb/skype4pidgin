@@ -211,6 +211,9 @@ hide_skype()
 static gboolean
 exec_skype()
 {
+#ifdef INSTANTBIRD
+	return FALSE;
+#else
 	GError *error;
 	if (g_spawn_command_line_async("skype --enable-dbus --use-session-dbus --disable-cleanlooks", &error))
 	{
@@ -219,5 +222,6 @@ exec_skype()
 		skype_debug_error("skype", "Could not start skype: %s\n", error->message);
 		return FALSE;
 	}
+#endif
 }
 

@@ -1421,6 +1421,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 			g_error_free(error);
 		}
 	}
+#ifndef INSTANTBIRD
 	if (api_supports_avatar == 2 || api_supports_avatar == -1)
 	{
 		const gchar *userfiles[] = {"user256", "user1024", "user4096", "user16384", "user32768", "user65536",
@@ -1479,6 +1480,7 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		}
 		g_free(username);
 	}
+#endif
 	if (api_supports_avatar == 3)
 	{
 		filename = g_strconcat("http://", purple_account_get_string(acct, "host", "skype.robbmob.com"), "/avatars/", buddy->name, NULL);

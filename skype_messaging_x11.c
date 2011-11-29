@@ -280,6 +280,9 @@ hide_skype()
 static gboolean
 exec_skype()
 {
+#ifdef INSTANTBIRD
+	return FALSE;
+#else
 	GError *error;
 	
 #ifdef USE_XVFB_SERVER	
@@ -334,6 +337,7 @@ exec_skype()
 		skype_debug_error("skype", "Could not start skype: %s\n", error->message);
 		return FALSE;
 	}
+#endif
 }
 
 static gboolean
