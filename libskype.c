@@ -2425,7 +2425,7 @@ void skype_remove_group(PurpleConnection *gc, PurpleGroup *group)
 }
 
 void
-skype_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
+skype_add_buddy_with_invite(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
 {
 	skype_send_message_nowait("SET USER %s BUDDYSTATUS 2 %s", buddy->name, message);
 
