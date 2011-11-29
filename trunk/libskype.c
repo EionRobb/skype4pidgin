@@ -148,6 +148,7 @@ static GHashTable *sms_convo_link_table = NULL;
 
 static guint protocol_version = 7;
 
+#define INCLUDED_LIBSKYPE_C
 #include "debug.c"
 #include "skype_messaging.c"
 
