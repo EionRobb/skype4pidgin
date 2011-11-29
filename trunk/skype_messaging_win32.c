@@ -200,6 +200,9 @@ hide_skype()
 static gboolean
 exec_skype()
 {
+#ifdef INSTANTBIRD
+	return FALSE;
+#else
 	DWORD size = 0;
 	gchar *path, *pathtemp;
 	HKEY regkey;
@@ -235,6 +238,7 @@ exec_skype()
 	success = g_spawn_command_line_async(pathtemp, NULL);
 	g_free(pathtemp);
 	return success;
+#endif
 }
 
 static gboolean
