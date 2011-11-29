@@ -1140,6 +1140,7 @@ handle_complete_message(int messagenumber)
 {
 	SkypeMessage *skypemessage = NULL;
 	SkypeChat *chat = NULL;
+	PurpleBuddy *buddy = NULL;
 	gchar *body_html = NULL;
 	xmlnode *xmlblob, *nodi;
 	int i;
@@ -1349,7 +1350,7 @@ handle_complete_message(int messagenumber)
 		case SKYPE_MESSAGE_EDITED:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return FALSE;
-			PurpleBuddy *buddy = purple_find_buddy(skypemessage->account, skypemessage->from_handle);
+			buddy = purple_find_buddy(skypemessage->account, skypemessage->from_handle);
 			body_html = g_strdup_printf("%s edited message '%s'", (buddy&&buddy->alias?buddy->alias:skypemessage->from_handle), skypemessage->body);
 			g_free(skypemessage->body);
 			skypemessage->body = body_html;

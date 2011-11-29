@@ -40,7 +40,9 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <unistd.h>
+#if __GNUC__
+#	include <unistd.h>
+#endif
 #include <string.h>
 
 //#include <internal.h>
@@ -627,8 +629,8 @@ skype_node_menu(PurpleBlistNode *node)
 			if (temp && *temp && temp[5] && temp[6])
 			{
 				gchar **ids = g_strsplit(&temp[6], ", ", 0);
-				g_free(temp);
 				gchar **buddy_calls = NULL;
+				g_free(temp);
 				temp = skype_send_message("SEARCH CALLS %s", buddy->name);
 				if (temp && *temp && temp[5] && temp[6])
 				{
@@ -2373,9 +2375,11 @@ skype_group_buddy(PurpleConnection *gc, const char *who, const char *old_group, 
 	group_number = skype_find_group_with_name(new_group);
 	if (group_number <= 0)
 	{
+		struct _cheat_skype_group_buddy_struct *cheat;
 		if (group_number == 0)
 			skype_send_message_nowait("CREATE GROUP %s", new_group);
-		struct _cheat_skype_group_buddy_struct *cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
+		
+		cheat = g_new(struct _cheat_skype_group_buddy_struct, 1);
 		cheat->gc = gc;
 		cheat->who = g_strdup(who);
 		cheat->old_group = old_group?g_strdup(old_group):NULL;
