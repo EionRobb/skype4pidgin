@@ -74,8 +74,7 @@
 #include <cmds.h>
 #include <status.h>
 
-//#ifdef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 #include <mediamanager.h>
 gboolean skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSessionType type);
 PurpleMediaCaps skype_get_media_caps(PurpleAccount *account, const char *who);
@@ -336,10 +335,12 @@ PurplePluginProtocolInfo prpl_info = {
 #endif
 	sizeof(PurplePluginProtocolInfo), /* struct_size */
 	NULL,                /* get_account_text_table */
-//#ifdef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 	skype_media_initiate,/* initiate_media */
 	skype_get_media_caps,/* can_do_media */
+#else
+	NULL,                /* initiate_media */
+	NULL,                /* can_do_media */
 #endif
 	NULL,                 /* get_moods */
 	skype_set_public_alias, /* set_public_alias */
@@ -621,8 +622,7 @@ skype_node_menu(PurpleBlistNode *node)
 										NULL, NULL);
 		m = g_list_append(m, act);
 #endif
-//#ifndef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 		if (!purple_media_manager_get())
 		{
 			gint call_id = 0, i, j;
@@ -1834,8 +1834,7 @@ skype_close(PurpleConnection *gc)
 	g_hash_table_destroy(sms_convo_link_table);
 	sms_convo_link_table = NULL;
 	
-//#ifdef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 	g_hash_table_destroy(call_media_hash);
 	call_media_hash = NULL;
 #endif
@@ -3319,8 +3318,7 @@ skype_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	return FALSE;
 }
 
-//#ifdef USE_VV
-#if 1
+#ifndef INSTANTBIRD
 /*
 Skype info from developer.skype.com and forum.skype.com:
 Audio:
