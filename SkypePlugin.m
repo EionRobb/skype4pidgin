@@ -17,6 +17,9 @@
 extern PurplePlugin *purple_plugin_new(gboolean native, const char *path) __attribute__((weak_import));
 //extern void g_thread_init (GThreadFunctions *vtable) __attribute__((weak_import));
 
+guint (*adium_timeout_add)(guint, GSourceFunc, gpointer);
+gboolean purple_init_skype_plugin(void);
+
 static void skypeAdiumPurpleAddXfer(PurpleXfer *xfer)
 {
 	if (!xfer || !xfer->account || strcmp(xfer->account->protocol_id, "prpl-bigbrownchunx-skype"))
@@ -65,7 +68,8 @@ guint adium_threadsafe_timeout_add(guint interval, GSourceFunc function, gpointe
 	printf("Calling purple_init_skype_plugin()\n");
 	//Hack in our own transfer code and thread-safe timeout loop
 	adium_purple_xfers_get_ui_ops()->add_xfer = skypeAdiumPurpleAddXfer;
-	adium_purple_eventloop_get_ui_ops()->timeout_add = adium_threadsafe_timeout_add;
+    //adium_timeout_add = adium_purple_eventloop_get_ui_ops()->timeout_add;
+	//adium_purple_eventloop_get_ui_ops()->timeout_add = adium_threadsafe_timeout_add;
 #ifdef ENABLE_NLS
 	//bindtextdomain("pidgin", [[[NSBundle bundleWithIdentifier:@"im.pidgin.libpurple"] resourcePath] fileSystemRepresentation]);
 	//bind_textdomain_codeset("pidgin", "UTF-8");

@@ -13,6 +13,9 @@
 #import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
 #import <Adium/AISharedAdium.h>
 
+char *skype_status_text(PurpleBuddy *buddy);
+const char *skype_get_account_username(PurpleAccount *acct);
+
 @implementation PurpleSkypeAccount
 
 static SLPurpleCocoaAdapter *purpleThread = nil;
@@ -236,9 +239,10 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 	return YES;
 }
 
-#ifndef SKYPENET
+/*#ifndef SKYPENET
 - (const char *)purpleAccountName
 {
+    printf("puprleAccountName\n");
 	//override parent method to grab the actual account UID from skype
 	const char *uid = (const char *)skype_get_account_username(NULL);
 	if (!uid || !strlen(uid))
@@ -251,6 +255,7 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 - (NSString *)formattedUID
 {
 	const char *uid = (const char *)skype_get_account_username(NULL);
+    printf("formattedUID %s %x\n", uid, (guint)account);
 	if (!uid || !strlen(uid))
 	{
 		return @"Skype";
@@ -258,7 +263,13 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 	//override parent method to grab the actual account UID from skype
 	return [[NSString alloc] initWithUTF8String:uid];
 }
-#endif
+
+- (NSString *)explicitFormattedUID
+{
+    printf("explicitFormattedUID %x\n", (guint)account);
+    return [self formattedUID];
+}
+#endif*/
 
 - (BOOL)shouldSetAliasesServerside
 {
@@ -268,8 +279,7 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 -(void)configurePurpleAccount{
 	[super configurePurpleAccount];
 	
-	if (!account)
-		return;
+	PurpleAccount *acct = [self purpleAccount];
 	
 	//purple_account_set_bool(account, "skypeout_online", TRUE);
 	//purple_account_set_bool(account, "skype_sync", TRUE);
@@ -279,16 +289,16 @@ static SLPurpleCocoaAdapter *purpleThread = nil;
 	
 	//Use this section of code once the account options page is set up
 	BOOL skypeout_online = [[self preferenceForKey:KEY_SKYPE_SHOW_SKYPEOUT group:GROUP_ACCOUNT_STATUS] boolValue];
-	purple_account_set_bool(account, "skypeout_online", skypeout_online);
+	purple_account_set_bool(acct, "skypeout_online", skypeout_online);
 	
 	BOOL skype_sync = [[self preferenceForKey:KEY_SKYPE_SYNC_OFFLINE group:GROUP_ACCOUNT_STATUS] boolValue];
-	purple_account_set_bool(account, "skype_sync", skype_sync);
+	purple_account_set_bool(acct, "skype_sync", skype_sync);
 	
 	BOOL check_for_updates = [[self preferenceForKey:KEY_SKYPE_CHECK_FOR_UPDATES group:GROUP_ACCOUNT_STATUS] boolValue];
-	purple_account_set_bool(account, "check_for_updates", check_for_updates);
+	purple_account_set_bool(acct, "check_for_updates", check_for_updates);
 	
 	BOOL skype_autostart = [[self preferenceForKey:KEY_SKYPE_AUTOSTART group:GROUP_ACCOUNT_STATUS] boolValue];
-	purple_account_set_bool(account, "skype_autostart", skype_autostart);
+	purple_account_set_bool(acct, "skype_autostart", skype_autostart);
 }
 
 -(NSDictionary *) extractChatCreationDictionaryFromConversation:(PurpleConversation *)conv

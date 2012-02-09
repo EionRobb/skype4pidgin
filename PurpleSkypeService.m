@@ -117,9 +117,8 @@
 	return YES;
 }
 
-- (void)registerStatuses
+/*- (void)registerStatuses
 {
-	
 #define SKYPE_ADD_STATUS(status,statustype) [[adium statusController] registerStatus:status \
 																	 withDescription:[[adium statusController] localizedDescriptionForCoreStatusName:status]\
 																			  ofType:statustype \
@@ -135,7 +134,7 @@
 	SKYPE_ADD_STATUS(STATUS_NAME_DND, AIAwayStatusType);
 	SKYPE_ADD_STATUS(STATUS_NAME_INVISIBLE, AIInvisibleStatusType);
 	SKYPE_ADD_STATUS(STATUS_NAME_OFFLINE, AIOfflineStatusType);
-}
+}*/
 
 /*!
  * @brief Default icon
