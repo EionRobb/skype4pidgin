@@ -404,8 +404,11 @@ plugin_init(PurplePlugin *plugin)
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
 
-	if (!g_thread_supported ())
-		g_thread_init (NULL);
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION < 32
+	if (glib_check_version(2, 32, 0))
+		if (!g_thread_supported ())
+			g_thread_init (NULL);
+#endif
 	this_plugin = plugin;
 	/* plugin's path at
 		this_plugin->path */
