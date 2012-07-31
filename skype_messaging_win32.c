@@ -167,7 +167,7 @@ Skype_WindowProc(HWND hWindow, UINT uiMessage, WPARAM uiParam, LPARAM ulParam)
 	if(uiMessage == WM_COPYDATA && hGlobal_SkypeAPIWindowHandle == (HWND)uiParam)
 	{
 		PCOPYDATASTRUCT poCopyData = (PCOPYDATASTRUCT)ulParam;
-		g_thread_create((GThreadFunc)skype_message_received, (void *)g_strdup(poCopyData->lpData), FALSE, NULL);
+		skype_message_received(g_strdup(poCopyData->lpData));
 		return 1;
 	} else if (uiMessage == uiGlobal_MsgID_SkypeControlAPIAttach) {
 		skype_debug_info("skype_win32", "Attached process %d %d\n", uiParam, ulParam);
