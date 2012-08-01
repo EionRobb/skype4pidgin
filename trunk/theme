@@ -13,12 +13,12 @@ Author=Eion Robb and Hylke Bons
 ../default/excited.png         :-D     :-d     :D      :d
 ../default/sad.png             :-(     :(
 ../default/wink.png            ;-)     ;)
-../default/tongue.png          :P      :-P     :-p     :p
-../default/shock.png           =-O     =-o
+../default/tongue.png          :P      :p      :-P     :-p
+../default/shocked.png         =-O     =-o
 ../default/kiss.png            :-*
 ../default/glasses-cool.png    8-)
 ../default/embarrassed.png     :-[
-../default/crying.png          :'(
+../default/crying.png          :'(     :'-(
 ../default/thinking.png        :-/     :-\\
 ../default/angel.png           O:-)    o:-)
 ../default/shut-mouth.png      :-X
@@ -26,7 +26,7 @@ Author=Eion Robb and Hylke Bons
 ../default/foot-in-mouth.png   :-!
 ../default/shout.png           >:o     >:O
 ! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
-! ../default/monkey.png        :-(|)  :(|)     8-|)
+! ../default/monkey.png        :-(|)   :(|)     8-|)
 ! ../default/cyclops.png       O-) o-)
 
 
@@ -82,14 +82,14 @@ Author=Eion Robb and Hylke Bons
 
 # Following AIM 6.1
 [AIM]
-../default/smile.png           :-)     :)
+../default/happy.png           :-)     :)
 ../default/wink.png            ;-)     ;)
 ../default/sad.png             :-(     :(
-../default/tongue.png          :-P     :P      :-p    :p
-../default/shock.png           =-O
+../default/tongue.png          :-P     :p     :P      :-p
+../default/shocked.png         =-O     =-o
 ../default/kiss.png            :-*
 ../default/shout.png           >:o
-../default/smile-big.png       :-D     :D
+../default/excited.png         :-D     :D
 ../default/moneymouth.png      :-$
 ../default/foot-in-mouth.png   :-!
 ../default/embarrassed.png     :-[
@@ -99,17 +99,17 @@ Author=Eion Robb and Hylke Bons
 ../default/shut-mouth.png      :-X
 ../default/glasses-cool.png    8-)
 ! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
-! ../default/monkey.png        :-(|)  :(|)
+! ../default/monkey.png        :-(|)   :(|)    8-|)
 ! ../default/cyclops.png       O-)     o-)
 
 
 # Following Windows Live Messenger 8.1
 [MSN]
-../default/smile.png           :)      :-)
-../default/smile-big.png       :D      :d :-D :-d
+../default/happy.png           :)      :-)
+../default/excited.png         :D      :d      :-D     :-d
 ../default/wink.png            ;)      ;-)
-../default/shock.png           :-O     :-o :O :o
-../default/tongue.png          :P      :p :-P :-p
+../default/shocked.png         :-O     :-o     :O      :o
+../default/tongue.png          :-P     :P      :-p     :p
 ../default/glasses-cool.png    (H)     (h)
 ../default/angry.png           :@      :-@
 ../default/embarrassed.png     :$      :-$
@@ -119,7 +119,7 @@ Author=Eion Robb and Hylke Bons
 ../default/neutral.png         :|      :-|
 ../default/devil.png           (6)
 ../default/angel.png           (A)     (a)
-../default/love.png            (L)     (l)
+../default/in_love.png         (L)     (l)
 ../default/love-over.png       (U)     (u)
 ../default/msn.png             (M)     (m)
 ../default/cat.png             (@)
@@ -179,7 +179,8 @@ Author=Eion Robb and Hylke Bons
 ../default/thunder.png         (li)
 ../default/party.png           <:o)
 ../default/eyeroll.png         8-)
-../default/yawn.png            |-) 
+../default/sleepy.png          |-)
+../default/bunny.png           ('.')
 ! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
 ! ../default/monkey.png        :-(|)  :(|)    8-|)
 ! ../default/cyclops.png       O-)     o-)
@@ -193,7 +194,7 @@ Author=Eion Robb and Hylke Bons
 
 # Following QQ 2006
 [QQ]
-../default/shocked.png           /:O      /jy       /surprised
+../default/shocked.png         /:O      /jy       /surprised
 ../default/curl-lip.png        /:~      /pz       /curl_lip
 ../default/desire.png          /:*      /se       /desire
 ../default/dazed.png           /:|      /dazed
@@ -201,12 +202,12 @@ Author=Eion Robb and Hylke Bons
 ../default/crying.png          /:<      /ll       /cry
 ../default/bashful.png         /:$      /hx       /bashful
 ../default/shut-mouth.png      /:X      /bz       /shut_mouth
-../default/sleeping.png          /:Z      /shui     /sleep
+../default/sleeping.png        /:Z      /shui     /sleep
 ../default/weep.png            /:'(     /dk       /weep
 ../default/embarrassed.png     /:-|     /gg       /embarassed
 ../default/pissed-off.png      /:@      /fn       /pissed_off
 ../default/act-up.png          /:P      /tp       /act_up
-../default/excited.png       /:D      /cy       /toothy_smile
+../default/excited.png         /:D      /cy       /toothy_smile
 ../default/happy.png           /:)      /wx       /small_smile
 ../default/sad.png             /:(      /ng       /sad
 ../default/glasses-cool.png    /:+      /kuk      /cool
@@ -218,7 +219,7 @@ Author=Eion Robb and Hylke Bons
 ../default/disdain.png         /;d      /by       /disdain
 ../default/arrogant.png        /;o      /am       /arrogant
 ../default/starving.png        /:g      /jie      /starving
-../default/sleepy.png            /|-)     /kun      /sleepy
+../default/sleepy.png          /|-)     /kun      /sleepy
 ../default/terror.png          /:!      /jk       /terror
 ../default/hot.png             /:L      /sweat
 ../default/smirk.png           /:>      /hanx     /smirk
@@ -296,7 +297,7 @@ Author=Eion Robb and Hylke Bons
 ../default/happy.png           :-)     :)
 ../default/neutral.png         :-$
 ../default/sad.png             :-(     :(
-../default/shock.png           =-O
+../default/shocked.png         =-O
 ../default/wink.png            ;-)     ;)
 ../default/tongue.png          :-P     :P      :-p     :p
 ../default/music.png           [:-}
@@ -332,7 +333,7 @@ Author=Eion Robb and Hylke Bons
 [Yahoo]
 ../default/happy.png           :)      :-)
 ../default/question.png        :-/     :-\\
-../default/shock.png           :-O     :O      :-o     :o 
+../default/shocked.png         :-O     :O      :-o     :o 
 ../default/devil.png           >:)
 ../default/angel.png           O:-)    o:-)    0:-)
 ../default/sick.png            :-&
@@ -361,7 +362,7 @@ Author=Eion Robb and Hylke Bons
 ../default/tongue.png          :-P     :P      :-p     :p
 ../default/glasses-cool.png    B-)     b-)
 ../default/neutral.png         :|      :-|
-../default/sleepy.png          I-)     i-)     |-)
+../default/sleeping.png        I-)     i-)     |-)
 ../default/clown.png           :o)     :O)
 ../default/doh.png             #-o     #-O
 ../default/weep.png            :-<
@@ -420,6 +421,100 @@ Author=Eion Robb and Hylke Bons
 ../default/male-fighter2.png   o=>     O=>
 ../default/female-fighter.png  o-+     O-+
 ../default/yin-yang.png        (%)
+
+# Following Yahoo! Messenger 8.1
+[Yahoo JAPAN]
+../default/happy.png           :)      :-)
+../default/question.png        :-/     :-\\
+../default/shocked.png         :-O     :O      :-o     :o 
+../default/devil.png           >:)
+../default/angel.png           O:-)    o:-)    0:-)
+../default/sick.png            :-&
+../default/sleepy.png          (:|
+../default/hypnotized.png      @-)
+../default/on-the-phone.png    :)]
+../default/sad.png             :(      :-(
+../default/amorous.png         :x      :-x     :X      :-X
+../default/angry.png           X-(     x-(     X(      x(
+../default/crying.png          :((
+../default/glasses-nerdy.png   :-B     :-b
+../default/quiet.png           :-$
+../default/drool.png           =P~     =p~
+../default/lying.png           :^O     :^o
+../default/call-me.png         :-c
+../default/wink.png            ;)      ;-)
+../default/embarrassed.png     :">
+../default/mean.png            :->     :>
+../default/laugh.png           :))     :-))
+../default/bye.png             =;
+../default/arrogant.png        [-(
+../default/thinking.png        :-?
+../default/waiting.png         :-w     :-W
+../default/at-wits-end.png     ~x(     ~X(
+../default/excited.png         :D      :-D     :d      :-d
+../default/tongue.png          :-P     :P      :-p     :p
+../default/glasses-cool.png    B-)     b-)
+../default/neutral.png         :|      :-|
+../default/sleeping.png        I-)     i-)     |-)
+../default/clown.png           :o)     :O)
+../default/doh.png             #-o     #-O
+../default/weep.png            :-<
+../default/go-away.png         :-h
+../default/lashes.png          ;;)
+../default/kiss.png            :-*     :*
+../default/confused.png        :-S     :-s
+../default/sarcastic.png       /:)
+../default/eyeroll.png         8-|
+../default/silly.png           8-}
+../default/clap.png            =D>     =d>
+../default/mad-tongue.png      >:P     >:p
+../default/time-out.png        :-t     :-T
+../default/hug-left.png        >:D<    >:d<
+../default/love-over.png       =((
+../default/hot.png             #:-S    #:-s
+../default/rotfl.png           =)) :-j :-J 
+../default/loser.png           L-)     l-)
+../default/party.png           <:-P    <:-p
+../default/nervous.png         :-SS       :-Ss    :-sS    :-ss
+../default/cowboy.png          <):)
+../default/desire.png          8->
+! ../default/skywalker.png     C:-)    c:-)    C:)     c:)
+! ../default/monkey.png        :-(|)  :(|)    8-|)
+! ../default/cyclops.png       O-)     o-)
+
+# Hidden Yahoo emotes
+../default/alien.png           =:)     >-)
+../default/beat-up.png         b-(     B-(
+../default/chicken.png         ~:>
+../default/coffee.png          ~o)     ~O)
+../default/cow.png             3:-O    3:-o
+../default/dance.png           \\:D/   \\:d/
+../default/rose.png            @};-
+../default/dont-know.png       :-L     :-l
+../default/skeleton.png        8-X     8-x
+../default/lamp.png            *-:)
+../default/monkey.png          :(|)
+../default/coins.png           $-)
+../default/peace.png           :)>-
+../default/pig.png             :@)
+../default/pray.png            [-o<    [-O<
+../default/pumpkin.png         (~~)
+../default/shame.png           [-X     [-x
+../default/flag.png            **==
+../default/clover.png          %%-
+../default/musical-note.png    :-"
+../default/giggle.png          ;))
+../default/worship.png         ^:)^
+../default/star.png            (*)
+../default/waving.png          >:/
+../default/talktohand.png      :-@
+
+# Only available after activating the Yahoo! Fighter IMVironment
+../default/male-fighter1.png   o->     O->
+../default/male-fighter2.png   o=>     O=>
+../default/female-fighter.png  o-+     O-+
+../default/yin-yang.png        (%)
+
 
 # Following MySpaceIM Beta 1.0.697.0
 [MySpaceIM]
@@ -502,73 +597,93 @@ Author=Eion Robb and Hylke Bons
 ../default/happy.png			:) :-) :=) (smile)
 ../default/sad.png				:( :-( :=( (sad)
 ../default/excited.png			:D :-D :=D :d :-d :=d (laugh)
-../default/glasses-cool.png	8-) 8=) B) B-) B=) (cool)
+../default/glasses-cool.png		8) 8-) 8=) B) B-) B=) (cool)
 ../default/shocked.png			:O :-O :=O :o :-o :=o (surprised)
-../default/wink.png			;) ;-) ;=) (wink)
+../default/wink.png				;) ;-) ;=) (wink)
 ../default/crying.png			;( ;-( ;=( (cry)
-../default/hot.png			(sweat) (:|
-../default/neutral.png		:| :-| :=| (speechless)
-../default/kiss.png			:* :-* :=* (kiss)
+../default/hot.png				(sweat) (:|
+../default/neutral.png			:| :-| :=| (speechless)
+../default/kiss.png				:* :-* :=* (kiss)
 ../default/tongue.png			:P :-P :=P :p :-p :=p (tongueout)
 ../default/embarrassed.png		(blush) :$ :-$ :=$ :">
 ../default/dont-know.png		:^) (wonder)
 ../default/sleeping.png			|-) I-) I=) (snooze)
 ../default/neutral.png			|-( |( |=( (dull)
 ../default/amorous.png			(inlove)
-../default/mean.png			]:) >:) (grin)
+../default/mean.png				]:) >:) (grin)
 ../default/act-up.png			(talk)
 ../default/sleepy.png			(yawn) |-()
-../default/sick.png			(puke) :& :-& :=&
-../default/doh.png				(doh)
+../default/sick.png				(puke) :& :-& :=&
+../default/doh.png				(doh) (facepalm) (fail)
 ../default/angry.png			:@ :-@ :=@ x( x-( X( X-( x=( X=( (angry)
 ../default/go-away.png			(wasntme)
 ../default/party.png			(party)
-../default/confused.png		:S :s :-s :-S :=s :=S
-../default/nervous.png		(worry)
+../default/confused.png			:S :s :-s :-S :=s :=S
+../default/nervous.png			(worry)
 ../default/snicker.png			(mm) (mmm) (mmmm)
 ../default/glasses-nerdy.png	8-| B-| 8| B| 8=| B=| (nerd)
 ../default/quiet.png			:x :-x :X :-X :# :-# :=x :=X :=#
 ../default/waving.png			(hi)
-../default/call-me.png	(call)
+../default/call-me.png			(call)
 ../default/devil.png			(devil)
 ../default/angel.png			(angel)
 ../default/desire.png			(envy)
-../default/stop.png			(wait)
-../default/hug-left.png		(hug) (bear)
+../default/stop.png				(wait)
+../default/hug-left.png			(hug) (bear)
 ../default/beauty.png			(makeup) (kate)
 ../default/giggle.png			(chuckle) (giggle)
-../default/clap.png			(clap)
-../default/thinking.png		(think) :-? :? :=?
+../default/clap.png				(clap)
+../default/thinking.png			(think) :-? :? :=?
 ../default/worship.png			(bow)
 ../default/rotfl.png			(rofl)
-../default/excited.png		(whew)
-../default/curl-lip.png		(happy)
+../default/hot.png				(whew)
+../default/curl-lip.png			(happy)
 ../default/smirk.png			(smirk)
-../default/good.png			(y) (Y) (ok) (yes)
+../default/happy.png			(nod)
+../default/wilt.png				(shake)
+../default/beat-up.png			(punch)
+../default/good.png				(y) (Y) (ok) (yes)
 ../default/bad.png				(n) (N) (no)
 ../default/handshake.png		(handshake)
 ../default/in_love.png			(h) (H) (l) (L) (heart) (love)
 ../default/love-over.png		(u) (U) (brokenheart)
-../default/mail.png			(e) (m) (mail)
-../default/rain.png			(rain) (st) (london)
+../default/mail.png				(e) (m) (mail)
+../default/rain.png				(rain) (st) (london)
 ../default/sun.png				(sun)
 ../default/clock.png			(o) (O) (time) (clock)
-../default/musical-note.png	(music)
-../default/film.png			(~) (film) (movie)
+../default/musical-note.png		(music)
+../default/film.png				(~) (film) (movie)
 ../default/mobile.png			(mp) (ph) (phone)
 ../default/coffee.png			(coffee)
 ../default/pizza.png			(pi) (pizza)
-../default/cake.png			(^) (cake)
-../default/beer.png			(beer)
+../default/cake.png				(^) (cake)
+../default/beer.png				(beer)
 ../default/terror.png			(bandit)
 ../default/at-wits-end.png		(headbang) (banghead)
 ../default/curse.png			(swear)
-../default/rose.png			(F) (f) (flower)
+../default/rose.png				(F) (f) (flower)
 ../default/drink.png			(d) (D) (drink)
 ../default/dance.png			(dance) \o/ \:D/ \:d/
-../default/star.png			(*) (star)
+../default/star.png				(*) (star)
 ../default/bulgy-eyes.png		(drunk)
 ../default/cigarette.png		(smoking) (smoke) (ci)
-../default/male-fighter1.png	(ninja)
+../default/male-fighter2.png	(ninja)
 ../default/dazed.png			(tmi)
-../default/goat.png		(emo)
+../default/goat.png				(emo)
+! ../default/goat.png			(malthe)
+! ../default/dog.png			(toivo)
+../default/mohawk.png			(rock)
+../default/poop.png				(bug)
+../default/loser.png			(finger)
+../default/hypnotized.png		(fubar)
+../default/island.png			(poolparty)
+../default/monkey.png			(heidy)
+../default/highfive.png			(highfive) (hifive) (h5)
+../default/fingers-crossed.png	(fingers) (fingerscrossed) (yn)
+../default/talktohand.png		(lalala) (lala) (notlistening)
+../default/waiting.png			(waiting) (forever) (impatience)
+../default/turtle.png			(tumbleweed)
+../default/computer.png			(wfh)
+../default/moneymouth.png		(cash) (mo) ($)
+../../protocols/22/myspace.png	(myspace)
+../../protocols/22/skype.png	(skype) (ss)
