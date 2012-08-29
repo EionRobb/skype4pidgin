@@ -807,6 +807,9 @@ skype_handle_received_message(char *message)
 				g_free(temp);
 				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, sender, this_account);
 
+				if (conv != NULL)
+					purple_conversation_write(conv, sender, _("Call started"), PURPLE_MESSAGE_SYSTEM|PURPLE_MESSAGE_NOTIFY, time(NULL));
+				
 				if (chatname && *chatname)
 				{
 					temp = g_strdup_printf("%s (%s)", chatname, sender);
@@ -819,7 +822,7 @@ skype_handle_received_message(char *message)
 				
 				purple_request_action(gc, _("Incoming Call"), temp, 
 								_("Do you want to accept their call?"),
-								0, this_account, sender, conv, g_strdup(string_parts[1]), 3, 
+								-1, this_account, sender, conv, g_strdup(string_parts[1]), 3, 
 								_("_Accept"), G_CALLBACK(skype_call_accept_cb), 
 								_("Accept with Video"), G_CALLBACK(skype_call_accept_video_cb),
 								_("_Reject"), G_CALLBACK(skype_call_reject_cb),
@@ -912,7 +915,21 @@ skype_call_accept_cb(gchar *call)
 	skype_send_message_nowait("ALTER CALL %s ANSWER", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
 	g_free(call);
+}
+
+gboolean
+skype_call_accept_start_video(gpointer callptr)
+{
+	gchar *call = callptr;
+	
+	skype_send_message_nowait("ALTER CALL %s START_VIDEO_SEND", call);
+	skype_send_message_nowait("ALTER CALL %s START_VIDEO_RECEIVE", call);
+	
+	g_free(call);
+	
+	return FALSE;
 }
 
 void
@@ -921,9 +938,9 @@ skype_call_accept_video_cb(gchar *call)
 	skype_send_message("ALTER CALL %s ANSWER", call);
 	skype_send_message("SET CALL %s SEEN", call);
 	skype_send_message("CLEAR CALLHISTORY INCOMING");
-	skype_send_message_nowait("ALTER CALL %s START_VIDEO_SEND", call);
-	skype_send_message_nowait("ALTER CALL %s START_VIDEO_RECEIVE", call);
-	g_free(call);
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
+	
+	purple_timeout_add_seconds(3, skype_call_accept_start_video, call);
 }
 
 void
@@ -933,6 +950,7 @@ skype_call_reject_cb(gchar *call)
 	skype_send_message_nowait("ALTER CALL %s HANGUP", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
 	g_free(call);
 }
 
@@ -941,6 +959,7 @@ skype_call_ignore_cb(gchar *call)
 {
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
 	g_free(call);
 }
 
@@ -950,6 +969,7 @@ skype_call_voicemail_cb(gchar *call)
 	skype_send_message_nowait("ALTER CALL %s END REDIRECT_TO_VOICEMAIL", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
 	g_free(call);
 }
 
@@ -959,6 +979,7 @@ skype_call_forward_cb(gchar *call)
 	skype_send_message_nowait("ALTER CALL %s END FORWARD_CALL", call);
 	skype_send_message_nowait("SET CALL %s SEEN", call);
 	skype_send_message_nowait("CLEAR CALLHISTORY INCOMING");
+	skype_send_message_nowait("SEARCH MISSEDCALLS");
 	g_free(call);
 }
 
