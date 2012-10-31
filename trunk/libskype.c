@@ -244,7 +244,9 @@ void skype_set_public_alias(PurpleConnection *gc, const char *alias, _account_ch
 void skype_get_public_alias(PurpleConnection *gc, _account_char_fn success_cb, _account_char_fn failure_cb);
 
 #ifndef SKYPENET
+#ifdef _WIN32
 static void skype_open_skype_options(void);
+#endif
 void skype_call_number(gpointer ignore, gchar *number);
 void skype_call_number_request(PurplePlugin *plugin, gpointer data);
 void skype_program_update_callback(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message);
@@ -817,7 +819,7 @@ skype_actions(PurplePlugin *plugin, gpointer context)
 	return m;
 }
 
-#ifndef SKYPENET
+#if !defined SKYPENET && defined _WIN32
 static void
 skype_open_skype_options(void)
 {
