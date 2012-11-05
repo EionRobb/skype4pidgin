@@ -1032,6 +1032,35 @@ skype_status_types(PurpleAccount *acct)
 	return types;
 }
 
+void
+skype_get_all_buddy_info(PurpleBuddy *buddy)
+{
+	skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
+	skype_send_message_nowait("GET USER %s ABOUT", buddy->name);
+
+	skype_send_message_nowait("GET USER %s SEX", buddy->name);
+	skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
+	skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
+	skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
+	skype_send_message_nowait("GET USER %s TIMEZONE", buddy->name);
+	skype_send_message_nowait("GET USER %s PROVINCE", buddy->name);
+	skype_send_message_nowait("GET USER %s CITY", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_OFFICE", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_HOME", buddy->name);
+	skype_send_message_nowait("GET USER %s HOMEPAGE", buddy->name);
+
+	skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
+	skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
+	skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
+	skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);
+	skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
+	skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
+	skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
+	skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES", buddy->name);
+}
+
 gboolean
 skype_set_buddies(PurpleAccount *acct)
 {
@@ -1160,6 +1189,7 @@ skype_set_buddies(PurpleAccount *acct)
 				} else {
 					purple_prpl_got_user_status(acct, buddy->name, full_friends_list[i+5], NULL);
 				}
+				skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
 			}
 			g_strfreev(full_friends_list);
 			skype_put_buddies_in_groups();
@@ -1965,8 +1995,8 @@ set_skype_buddy_attribute(SkypeBuddy *sbuddy, const gchar *skype_buddy_property,
 	{
 		g_free(sbuddy->gender);
 		sbuddy->gender = NULL;
-		if (value && strlen(value) && !g_str_equal(value, "UNKNOWN"))
-			sbuddy->gender = g_strdup(value);
+		if (value && *value && !g_str_equal(value, "UNKNOWN"))
+			sbuddy->gender = g_ascii_strdown(value, -1);
 	} else if (g_str_equal(skype_buddy_property, "LANGUAGE"))
 	{
 		g_free(sbuddy->language);
@@ -2092,33 +2122,9 @@ skype_buddy_new(PurpleBuddy *buddy)
 	skype_send_message_nowait("GET USER %s FULLNAME", buddy->name);
 	if (buddy->name[0] != '+')
 	{
-		skype_send_message_nowait("GET USER %s MOOD_TEXT", buddy->name);
-		skype_send_message_nowait("GET USER %s BIRTHDAY", buddy->name);
+		skype_send_message_nowait("GET USER %s ONLINESTATUS", buddy->name);
 		skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
-		skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
-
-		/*skype_send_message_nowait("GET USER %s SEX", buddy->name);
-		skype_send_message_nowait("GET USER %s LANGUAGE", buddy->name);
-		skype_send_message_nowait("GET USER %s COUNTRY", buddy->name);
-		skype_send_message_nowait("GET USER %s ISAUTHORIZED", buddy->name);
-		skype_send_message_nowait("GET USER %s ISBLOCKED", buddy->name);
-		skype_send_message_nowait("GET USER %s LASTONLINETIMESTAMP", buddy->name);
-		skype_send_message_nowait("GET USER %s TIMEZONE", buddy->name);
-		skype_send_message_nowait("GET USER %s NROF_AUTHED_BUDDIES", buddy->name);
-		skype_send_message_nowait("GET USER %s ABOUT", buddy->name);
-		
-		skype_send_message_nowait("GET USER %s PROVINCE", buddy->name);
-		skype_send_message_nowait("GET USER %s CITY", buddy->name);
-		skype_send_message_nowait("GET USER %s PHONE_HOME", buddy->name);
-		skype_send_message_nowait("GET USER %s PHONE_OFFICE", buddy->name);
-		skype_send_message_nowait("GET USER %s PHONE_MOBILE", buddy->name);
-		skype_send_message_nowait("GET USER %s HOMEPAGE", buddy->name);
-		skype_send_message_nowait("GET USER %s HASCALLEQUIPMENT", buddy->name);
-		skype_send_message_nowait("GET USER %s IS_VIDEO_CAPABLE", buddy->name);
-		skype_send_message_nowait("GET USER %s IS_VOICEMAIL_CAPABLE", buddy->name);
-		skype_send_message_nowait("GET USER %s CAN_LEAVE_VM", buddy->name);*/
 	}
-	
 	return newbuddy;
 }
 
@@ -2162,104 +2168,68 @@ skype_buddy_free(PurpleBuddy *buddy)
 	}
 }
 
-void 
-skype_get_info(PurpleConnection *gc, const gchar *username)
+gboolean
+skype_display_buddy_info(PurpleBuddy *buddy)
 {
 	PurpleNotifyUserInfo *user_info;
-	double timezoneoffset = 0;
-	struct tm *birthday_time;
-	int time;
-	gchar *temp;
-	PurpleBuddy *buddy;
 	SkypeBuddy *sbuddy;
 	
-	buddy = purple_find_buddy(gc->account, username);
 	if (buddy && buddy->proto_data)
 	{
+#define _SKYPE_USER_INFO(prop, key) if (prop) \
+	purple_notify_user_info_add_pair(user_info, _(key), (prop));
 		sbuddy = buddy->proto_data;
 		user_info = purple_notify_user_info_new();
 		
-		purple_notify_user_info_add_section_header(user_info, _("Contact Info"));
-		purple_notify_user_info_add_pair(user_info, _("Skype Name"), buddy->name);
-		purple_notify_user_info_add_pair(user_info, _("Full Name"), sbuddy->fullname);
-		purple_notify_user_info_add_pair(user_info, _("Mood Text"), sbuddy->mood);
-		
+		_SKYPE_USER_INFO(sbuddy->handle, "Skype Name");
+		_SKYPE_USER_INFO(sbuddy->fullname, "Full Name");
+		if (strlen(sbuddy->mood) != 0)
+			_SKYPE_USER_INFO(sbuddy->mood, "Mood Text");
 		purple_notify_user_info_add_section_break(user_info);
-		
-		purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
-		purple_notify_user_info_add_pair(user_info, _("Birthday"), purple_date_format_short(sbuddy->birthday));
-		purple_notify_user_info_add_pair(user_info, _("Gender"), sbuddy->gender);
-		purple_notify_user_info_add_pair(user_info, _("Preferred Language"), sbuddy->language);
-		purple_notify_user_info_add_pair(user_info, _("Country"), sbuddy->country);
-		purple_notify_user_info_add_pair(user_info, _("Is Video Capable"), (sbuddy->is_video_capable?"TRUE":"FALSE"));
-		purple_notify_user_info_add_pair(user_info, _("Authorization Granted"), (sbuddy->is_authorized?"TRUE":"FALSE"));
-		purple_notify_user_info_add_pair(user_info, _("Blocked"), (sbuddy->is_blocked?"TRUE":"FALSE"));
+		if (sbuddy->birthday != 0)
+			_SKYPE_USER_INFO(purple_date_format_short(sbuddy->birthday),"Birthday");
+		_SKYPE_USER_INFO(sbuddy->gender, "Gender");
+		_SKYPE_USER_INFO(sbuddy->language, "Preferred Language");
+		_SKYPE_USER_INFO(sbuddy->country, "Country");
 		if (sbuddy->timezone_offset)
-		{
-			purple_notify_user_info_add_pair(user_info, _("Timezone"), temp = g_strdup_printf("UMT %+.1f", sbuddy->timezone_offset));
-			g_free(temp);
-		} else {
-			purple_notify_user_info_add_pair(user_info, _("Timezone"), NULL);
-		}
-		purple_notify_user_info_add_pair(user_info, _("Number of buddies"), temp = g_strdup_printf("%d", sbuddy->number_of_buddies));
-		g_free(temp);
-		
+			_SKYPE_USER_INFO(g_strdup_printf("UMT %+.1f", sbuddy->timezone_offset),
+				"Timezone");
+		_SKYPE_USER_INFO(sbuddy->province, "Province");
+		_SKYPE_USER_INFO(sbuddy->city, "City");
+		_SKYPE_USER_INFO(sbuddy->phone_mobile, "Phone Mobile");
+		_SKYPE_USER_INFO(sbuddy->phone_office, "Phone Office");
+		_SKYPE_USER_INFO(sbuddy->phone_home, "Phone Home");
+		_SKYPE_USER_INFO(sbuddy->homepage, "Homepage");
 		purple_notify_user_info_add_section_break(user_info);
+		_SKYPE_USER_INFO(sbuddy->is_video_capable?_("Yes"):_("No"), "Video Capable");
+		_SKYPE_USER_INFO(sbuddy->has_call_equipment?_("Yes"):_("No"), "Call Equipment");
+		_SKYPE_USER_INFO(sbuddy->is_voicemail_capable?_("Yes"):_("No"), "VoiceMail Capable");
+		_SKYPE_USER_INFO(sbuddy->can_leave_voicemail?_("Yes"):_("No"), "Can Leave VoiceMail");
+		_SKYPE_USER_INFO(sbuddy->is_authorized?_("Yes"):_("No"), "Authorization Granted");
+		_SKYPE_USER_INFO(sbuddy->is_blocked?_("Yes"):_("No"), "Blocked");
+		_SKYPE_USER_INFO(g_strdup_printf("%d", sbuddy->number_of_buddies), "Number of buddies");
 		
-		purple_notify_user_info_add_pair(user_info, NULL, sbuddy->about);
-	
-		purple_notify_userinfo(gc, username, user_info, NULL, NULL);
-		purple_notify_user_info_destroy(user_info);
-		
-		return;
-	}
-	
-	user_info = purple_notify_user_info_new();
-#define _SKYPE_USER_INFO(prop, key)  \
-	purple_notify_user_info_add_pair(user_info, _(key),\
-		(skype_get_user_info(username, prop)));
+		_SKYPE_USER_INFO(timestamp_to_datetime(sbuddy->last_online), "Last online");
+		purple_notify_user_info_add_section_break(user_info);
+		_SKYPE_USER_INFO(sbuddy->about, "About");
 
-	purple_notify_user_info_add_section_header(user_info, _("Contact Info"));
-	_SKYPE_USER_INFO("HANDLE", "Skype Name");
-	_SKYPE_USER_INFO("FULLNAME", "Full Name");
-	purple_notify_user_info_add_section_break(user_info);
-	purple_notify_user_info_add_section_header(user_info, _("Personal Information"));
-	//_SKYPE_USER_INFO("BIRTHDAY", "Birthday");
-	temp = skype_get_user_info(username, "BIRTHDAY");
-	if (temp && strlen(temp) && !g_str_equal(temp, "0"))
-	{
-		birthday_time = g_new(struct tm, 1);
-		purple_str_to_time(temp, FALSE, birthday_time, NULL, NULL);
-		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup(purple_date_format_short(birthday_time)));
-		g_free(birthday_time);
-	} else {
-		purple_notify_user_info_add_pair(user_info, _("Birthday"), g_strdup("0"));
+		purple_notify_userinfo(purple_account_get_connection(buddy->account),
+			buddy->name, user_info,
+			(PurpleNotifyCloseCallback)purple_notify_user_info_destroy, user_info);
 	}
-	_SKYPE_USER_INFO("SEX", "Gender");
-	_SKYPE_USER_INFO("LANGUAGE", "Preferred Language");
-	_SKYPE_USER_INFO("COUNTRY", "Country");
-	_SKYPE_USER_INFO("IS_VIDEO_CAPABLE", "Is Video Capable");
-	_SKYPE_USER_INFO("ISAUTHORIZED", "Authorization Granted");
-	_SKYPE_USER_INFO("ISBLOCKED", "Blocked");
-	//_SKYPE_USER_INFO("LASTONLINETIMESTAMP", "Last online"); //timestamp
-	time = atoi(skype_get_user_info(username, "LASTONLINETIMESTAMP"));
-	skype_debug_info("skype", "time: %d\n", time);
-	purple_notify_user_info_add_pair(user_info, _("Last online"),
-			timestamp_to_datetime((time_t) time));
-	//		g_strdup(purple_date_format_long(localtime((time_t *)(void *)&time))));
-	//_SKYPE_USER_INFO("TIMEZONE", "Timezone"); //in seconds
-	timezoneoffset = atof(skype_get_user_info(username, "TIMEZONE")) / 3600;
-	timezoneoffset -= 24; //timezones are offset by 24 hours to keep them valid and unsigned
-	purple_notify_user_info_add_pair(user_info, _("Timezone"), g_strdup_printf("UMT %+.1f", timezoneoffset));
-	
-	_SKYPE_USER_INFO("NROF_AUTHED_BUDDIES", "Number of buddies");
-	purple_notify_user_info_add_section_break(user_info);
-	//_SKYPE_USER_INFO("ABOUT", "");
-	purple_notify_user_info_add_pair(user_info, NULL, (skype_get_user_info(username, "ABOUT")));
-	
-	purple_notify_userinfo(gc, username, user_info, NULL, NULL);
-	purple_notify_user_info_destroy(user_info);
-	
+	return FALSE;
+}
+
+void
+skype_get_info(PurpleConnection *gc, const gchar *username)
+{
+	PurpleBuddy *buddy;
+	buddy = purple_find_buddy(gc->account, username);
+	if (buddy)
+	{
+		skype_get_all_buddy_info(buddy);
+		purple_timeout_add_seconds(2, (GSourceFunc)skype_display_buddy_info, buddy);
+	}
 }
 
 gchar *
