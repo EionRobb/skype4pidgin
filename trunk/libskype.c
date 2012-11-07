@@ -1770,7 +1770,7 @@ skype_login_part2(PurpleAccount *acct)
 	
 	//sync buddies after everything else has finished loading
 	purple_timeout_add_seconds(1, (GSourceFunc)skype_set_buddies, (gpointer)acct);
-	purple_timeout_add_seconds(30, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
+	purple_timeout_add_seconds(10, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
 	
 	return FALSE;
 }
@@ -2643,8 +2643,8 @@ skype_check_missedmessages(PurpleAccount *account)
 	}
 	g_free(message);
 	
-	return FALSE; //dont keep looking for missed messages
-	//return TRUE; //keep looking for missed messages
+	//return FALSE; //dont keep looking for missed messages
+	return TRUE; //keep looking for missed messages
 }
 
 static gboolean
