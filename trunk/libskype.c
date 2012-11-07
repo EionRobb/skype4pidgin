@@ -1515,17 +1515,16 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 		}
 		g_free(username);
 	}
+#else /* ifdef INSTANTBIRD */
+	api_supports_avatar = 3;
 #endif
-	if (api_supports_avatar == 3)
+	if (api_supports_avatar == 3 || api_supports_avatar == -1)
 	{
-		filename = g_strconcat("http://", purple_account_get_string(acct, "host", "skype.robbmob.com"), "/avatars/", buddy->name, NULL);
+		filename = g_strdup_printf("http://api.skype.com/users/%s/profile/avatar", purple_url_encode(buddy->name));
 		purple_util_fetch_url(filename, TRUE, NULL, FALSE, skype_got_buddy_icon_cb, buddy);
 		g_free(filename);
-		return;
-	}
-	if (api_supports_avatar == -1)
-	{
-		api_supports_avatar = 0;
+		
+		api_supports_avatar = 3;
 		return;
 	}
 }
