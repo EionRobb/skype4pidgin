@@ -21,7 +21,7 @@
  */
 
 #ifndef INCLUDED_LIBSKYPE_C 
-#	error	Don't compile this file directly.  Just compile libskype.c instead.
+#	error	"Don't compile this file directly.  Just compile libskype.c instead."
 #endif
 
 #include <windows.h>
