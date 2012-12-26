@@ -893,6 +893,19 @@ skype_handle_received_message(char *message)
 				}
 			}
 		}
+	} else if (g_str_equal(command, "MESSAGES") || g_str_equal(command, "CHATMESSAGES"))
+	{
+		//MISSEDCHATMESSAGES response - workaround for Skype 6 and higher
+		gchar *messages_start = strchr(message, ' ');
+		if (messages_start != NULL)
+		{
+			gchar **messages = g_strsplit(messages_start + 1, ", ", 0);
+			for (i = 0; messages[i]; i++)
+			{
+				skype_send_message_nowait("GET CHATMESSAGE %s STATUS", messages[i]);
+			}
+			g_strfreev(messages);
+		}
 	}
 	if (string_parts)
 	{

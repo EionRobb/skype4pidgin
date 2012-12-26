@@ -2615,32 +2615,7 @@ skype_send_raw(PurpleConnection *gc, const char *buf, int len)
 static gboolean
 skype_check_missedmessages(PurpleAccount *account)
 {
-	int i;
-	gchar **messages;
-	gchar *message;
-	gchar *messages_start;
-	GList *message_list = NULL;
-	GList *iter;
-	
-	message = skype_send_message("SEARCH MISSEDCHATMESSAGES");
-	if (!message || *message == '\0')
-		return FALSE; //there was an error
-	messages_start = strchr(message, ' ');
-	if (messages_start != NULL)
-	{
-		messages = g_strsplit(messages_start + 1, ", ", 0);
-		for (i = 0; messages[i]; i++)
-		{
-			message_list = g_list_insert_sorted(message_list, messages[i], (GCompareFunc)strcmp);
-		}
-		for (iter = message_list; iter; iter = g_list_next(iter))
-		{
-			skype_send_message_nowait("GET CHATMESSAGE %s STATUS", iter->data);
-		}
-		g_strfreev(messages);
-		g_list_free(message_list);
-	}
-	g_free(message);
+	skype_send_message_nowait("SEARCH MISSEDCHATMESSAGES");
 	
 	//return FALSE; //dont keep looking for missed messages
 	return TRUE; //keep looking for missed messages
