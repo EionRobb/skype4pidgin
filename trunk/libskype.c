@@ -1717,6 +1717,8 @@ skype_login_part2(PurpleAccount *acct)
 {
 	gchar *reply;
 	PurpleConnection *gc;
+	static guint missedmessagestimout = 0;
+	
 	gc = purple_account_get_connection(acct);
 	
 	purple_connection_update_progress(gc, _("Authorizing"),
@@ -1769,7 +1771,8 @@ skype_login_part2(PurpleAccount *acct)
 	
 	//sync buddies after everything else has finished loading
 	purple_timeout_add_seconds(1, (GSourceFunc)skype_set_buddies, (gpointer)acct);
-	purple_timeout_add_seconds(10, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
+	if (!missedmessagestimout)
+		missedmessagestimout = purple_timeout_add_seconds(10, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
 	
 	return FALSE;
 }
