@@ -657,7 +657,7 @@ Author=Hylke Bons
 ../default/coffee.png			(coffee)
 ../default/pizza.png			(pi) (pizza)
 ../default/cake.png				(^) (cake)
-../default/beer.png				(beer)
+../default/beer.png				(beer) (b)
 ../default/terror.png			(bandit)
 ! ../default/at-wits-end.png	(headbang) (banghead)
 ! ../default/curse.png			(swear)
