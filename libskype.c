@@ -266,6 +266,9 @@ PurplePluginProtocolInfo prpl_info = {
 	OPT_PROTO_NO_PASSWORD|
 #endif
 #endif
+#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 8
+	OPT_PROTO_INVITE_MESSAGE|
+#endif
 	OPT_PROTO_REGISTER_NOSCREENNAME|OPT_PROTO_CHAT_TOPIC|OPT_PROTO_SLASH_COMMANDS_NATIVE,
 
 	NULL,                /* user_splits */
@@ -288,7 +291,11 @@ PurplePluginProtocolInfo prpl_info = {
 	skype_set_status,    /* set_status */
 	skype_set_idle,      /* set_idle */
 	NULL,                /* change_passwd */
+#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 8
+	skype_add_buddy_with_invite, /* add_buddy */
+#else
 	skype_add_buddy,     /* add_buddy */
+#endif
 	NULL,                /* add_buddies */
 	skype_remove_buddy,  /* remove_buddy */
 	NULL,                /* remove_buddies */
