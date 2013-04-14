@@ -501,6 +501,36 @@ skype_handle_received_message(char *message)
 				purple_conv_chat_set_topic(PURPLE_CONV_CHAT(chat->conv), my_username, string_parts[3]);
 				purple_conversation_update(chat->conv, PURPLE_CONV_UPDATE_TOPIC);
 			}
+		} else if (chat->conv && g_str_equal(string_parts[2], "MEMBEROBJECTS"))
+		{
+			if (chat->type == PURPLE_CONV_TYPE_CHAT)
+			{
+				chatusers = g_strsplit(string_parts[3], ", ", 0);
+				for (i=0; chatusers[i]; i++)
+				{
+					temp = skype_send_message("GET CHATMEMBER %s IDENTITY", chatusers[i]);
+					sender = g_strdup(&temp[21 + strlen(chatusers[i])]);
+					g_free(temp);
+					temp = skype_send_message("GET CHATMEMBER %s ROLE", chatusers[i]);
+					type = g_strdup(&temp[17 + strlen(chatusers[i])]);
+					g_free(temp);
+					
+					if (g_str_equal(type, "USER")) {
+						purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(chat->conv), sender, PURPLE_CBFLAGS_VOICE);
+					} else if (g_str_equal(type, "HELPER")) {
+						purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(chat->conv), sender, PURPLE_CBFLAGS_HALFOP);
+					} else if (g_str_equal(type, "MASTER")) {
+						purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(chat->conv), sender, PURPLE_CBFLAGS_OP);
+					} else if (g_str_equal(type, "CREATOR")) {
+						purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(chat->conv), sender, PURPLE_CBFLAGS_FOUNDER);
+					} else {
+						purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(chat->conv), sender, PURPLE_CBFLAGS_NONE);
+					}
+					
+					g_free(sender);
+					g_free(type);
+				}
+			}
 		} else if (chat->name && g_str_equal(string_parts[2], "MYSTATUS") && g_str_equal(string_parts[3], "PASSWORD_REQUIRED"))
 		{
 			purple_request_input(gc, _("Incorrect password"), _("Password"), chat->name, "", FALSE,
@@ -1058,6 +1088,7 @@ skype_find_chat(const gchar *chat_id, PurpleAccount *this_account)
 		skype_send_message_nowait("GET CHAT %s MEMBERS", chat_id);
 		skype_send_message_nowait("GET CHAT %s FRIENDLYNAME", chat_id);
 		skype_send_message_nowait("GET CHAT %s TOPIC", chat_id);
+		skype_send_message_nowait("GET CHAT %s MEMBEROBJECTS", chat_id);
 	}
 	g_static_mutex_unlock(&chat_link_mutex);
 	
