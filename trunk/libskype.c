@@ -1779,16 +1779,25 @@ skype_login_part2(PurpleAccount *acct)
 	//sync buddies after everything else has finished loading
 	purple_timeout_add_seconds(1, (GSourceFunc)skype_set_buddies, (gpointer)acct);
 
-	if (!missedmessagestimout)
+	if (TRUE)
 	{
-		gint version_int;
+		gint version_int = 0;
+		gchar *versionpos;
 		gchar *temp = skype_send_message("GET SKYPEVERSION");
 		gchar *version = g_strdup(&temp[13]);
 		g_free(temp);
-		*strchr(version, '.') = '\0';
-		version_int = atoi(version);
-		if (version_int >= 5)
+		versionpos = strchr(version, '.');
+		if (versionpos)
+		{
+			*versionpos = '\0';
+			version_int = atoi(version);
+		}
+		if (version_int >= 5 && !missedmessagestimout) {
 			missedmessagestimout = purple_timeout_add_seconds(10, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
+		} else if (version_int < 5 && missedmessagestimout) {
+			purple_timeout_remove(missedmessagestimout);
+			missedmessagestimout = 0;
+		}
 		
 		g_free(version);
 	}
