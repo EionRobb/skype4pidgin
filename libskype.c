@@ -1782,24 +1782,19 @@ skype_login_part2(PurpleAccount *acct)
 	if (TRUE)
 	{
 		gint version_int = 0;
-		gchar *versionpos;
-		gchar *temp = skype_send_message("GET SKYPEVERSION");
-		gchar *version = g_strdup(&temp[13]);
-		g_free(temp);
-		versionpos = strchr(version, '.');
-		if (versionpos)
-		{
-			*versionpos = '\0';
-			version_int = atoi(version);
-		}
+		gchar *version = skype_send_message("GET SKYPEVERSION");
+		sscanf(version, "%*s %d", &version_int);
+		skype_debug_info("skype", "version [%s] - %d\n", version, version_int);
+		g_free(version);
+		
 		if (version_int >= 5 && !missedmessagestimout) {
 			missedmessagestimout = purple_timeout_add_seconds(10, (GSourceFunc)skype_check_missedmessages, (gpointer)acct);
+			skype_debug_info("skype", "installing skype_check_missedmessages\n");
 		} else if (version_int < 5 && missedmessagestimout) {
 			purple_timeout_remove(missedmessagestimout);
 			missedmessagestimout = 0;
+			skype_debug_info("skype", "removing skype_check_missedmessages\n");
 		}
-		
-		g_free(version);
 	}
 	
 	return FALSE;
