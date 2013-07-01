@@ -1294,6 +1294,8 @@ handle_complete_message(int messagenumber)
 		case SKYPE_MESSAGE_TEXT:
 			if (!skypemessage->body || !skypemessage->from_handle || !skypemessage->timestamp)
 				return FALSE;
+			if (!skypemessage->account || !skypemessage->account->gc)
+				return FALSE;
 			body_html = skype_strdup_withhtml(skypemessage->body);
 			if (chat->type == PURPLE_CONV_TYPE_CHAT)
 			{
