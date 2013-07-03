@@ -99,6 +99,9 @@ libskype-debug.dll: .DEPENDS skype_messaging_win32.c
 libskypenet-debug.dll: .DEPENDS skype_messaging_network.c
 	${WIN32_COMPILER} -Wall -I. -g -O2 -pipe libskype.c -o libskypenet-debug.dll -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS} -DSKYPENET
 
+libskype.dylib: .DEPENDS skype_messaging_carbon.c skype_messaging_carbon2.c
+	gcc -I/opt/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include -I/opt/local/include -I/usr/include -dynamiclib -L/opt/local/lib -L/usr/lib -arch x86_64 -lpurple -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lintl -lz -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -Wall -I. -g -O2 -pipe libskype.c -o libskype.dylib -shared -F/System/Library/Frameworks -framework Carbon -framework CoreFoundation
+
 po/%.mo: po/%.po
 	msgfmt -cf -o $@ $<
 
