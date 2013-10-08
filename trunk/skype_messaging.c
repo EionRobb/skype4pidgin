@@ -97,7 +97,7 @@ skype_message_received(char *orig_message)
 	int string_pos;
 	char *message;
 	
-	if (strlen(orig_message) == 0)
+	if (orig_message == NULL || strlen(orig_message) == 0)
 		return;
 	
 	message = g_strdup(orig_message);
