@@ -2198,6 +2198,9 @@ skype_display_buddy_info(PurpleBuddy *buddy)
 {
 	PurpleNotifyUserInfo *user_info;
 	SkypeBuddy *sbuddy;
+	gchar *timezone = NULL;
+	gchar *buddy_count = NULL;
+	gchar *lastonline = NULL;
 	
 	if (buddy && buddy->proto_data)
 	{
@@ -2217,30 +2220,42 @@ skype_display_buddy_info(PurpleBuddy *buddy)
 		_SKYPE_USER_INFO(sbuddy->language, "Preferred Language");
 		_SKYPE_USER_INFO(sbuddy->country, "Country");
 		if (sbuddy->timezone_offset)
-			_SKYPE_USER_INFO(g_strdup_printf("UMT %+.1f", sbuddy->timezone_offset),
-				"Timezone");
+		{
+			timezone = g_strdup_printf("UMT %+.1f", sbuddy->timezone_offset);
+			_SKYPE_USER_INFO(timezone, "Timezone");
+		}
 		_SKYPE_USER_INFO(sbuddy->province, "Province");
 		_SKYPE_USER_INFO(sbuddy->city, "City");
 		_SKYPE_USER_INFO(sbuddy->phone_mobile, "Phone Mobile");
 		_SKYPE_USER_INFO(sbuddy->phone_office, "Phone Office");
 		_SKYPE_USER_INFO(sbuddy->phone_home, "Phone Home");
 		_SKYPE_USER_INFO(sbuddy->homepage, "Homepage");
+		
 		purple_notify_user_info_add_section_break(user_info);
+		
 		_SKYPE_USER_INFO(sbuddy->is_video_capable?_("Yes"):_("No"), "Video Capable");
 		_SKYPE_USER_INFO(sbuddy->has_call_equipment?_("Yes"):_("No"), "Call Equipment");
 		_SKYPE_USER_INFO(sbuddy->is_voicemail_capable?_("Yes"):_("No"), "VoiceMail Capable");
 		_SKYPE_USER_INFO(sbuddy->can_leave_voicemail?_("Yes"):_("No"), "Can Leave VoiceMail");
 		_SKYPE_USER_INFO(sbuddy->is_authorized?_("Yes"):_("No"), "Authorization Granted");
 		_SKYPE_USER_INFO(sbuddy->is_blocked?_("Yes"):_("No"), "Blocked");
-		_SKYPE_USER_INFO(g_strdup_printf("%d", sbuddy->number_of_buddies), "Number of buddies");
 		
-		_SKYPE_USER_INFO(timestamp_to_datetime(sbuddy->last_online), "Last online");
+		buddy_count = g_strdup_printf("%d", sbuddy->number_of_buddies);
+		_SKYPE_USER_INFO(buddy_count, "Number of buddies");
+		
+		lastonline = timestamp_to_datetime(sbuddy->last_online);
+		_SKYPE_USER_INFO(lastonline, "Last online");
+		
 		purple_notify_user_info_add_section_break(user_info);
 		_SKYPE_USER_INFO(sbuddy->about, "About");
 
 		purple_notify_userinfo(purple_account_get_connection(buddy->account),
 			buddy->name, user_info,
 			(PurpleNotifyCloseCallback)purple_notify_user_info_destroy, user_info);
+		
+		g_free(timezone);
+		g_free(buddy_count);
+		g_free(lastonline);
 	}
 	return FALSE;
 }
