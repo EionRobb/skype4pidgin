@@ -232,10 +232,8 @@ char *skype_send_message(char *message_format, ...)
 		//wait for message for a maximum of 10 seconds
 		g_get_current_time(&endtime);
 		g_time_val_add(&endtime, 10 * G_USEC_PER_SEC);
+		g_static_mutex_lock2(&mutex);
 		condition_result = g_cond_timed_wait(condition, g_static_mutex_get_mutex2(&mutex), &endtime);
-		
-		//g_cond_timed_wait already locks this mutex
-		//g_static_mutex_lock2(&mutex);
 		
 		if(!condition_result)
 #endif
