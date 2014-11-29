@@ -133,7 +133,8 @@ void skypeweb_connection_destroy(SkypeWebConnection *skypewebcon)
 	g_free(skypewebcon);
 }
 
-static void skypeweb_update_cookies(SkypeWebAccount *sa, const gchar *headers)
+void
+skypeweb_update_cookies(SkypeWebAccount *sa, const gchar *headers)
 {
 	const gchar *cookie_start;
 	const gchar *cookie_end;
@@ -205,8 +206,8 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 	if (skypewebcon->callback != NULL) {
 		if (!len)
 		{
-			purple_debug_error("skypeweb", "No data in response\n");
-			//skypewebcon->callback(skypewebcon->sa, NULL, skypewebcon->user_data);
+			//purple_debug_error("skypeweb", "No data in response\n");
+			skypewebcon->callback(skypewebcon->sa, NULL, skypewebcon->user_data);
 		} else {
 			JsonParser *parser = json_parser_new();
 			if (!json_parser_load_from_data(parser, tmp, len, NULL))
@@ -220,7 +221,7 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 				JsonNode *root = json_parser_get_root(parser);
 				
 				//TODO
-				purple_debug_info("skypeweb", "Got response: %s\n", tmp);
+				//purple_debug_info("skypeweb", "Got response: %s\n", tmp);
 				purple_debug_info("skypeweb", "executing callback for %s\n", skypewebcon->url);
 				skypewebcon->callback(skypewebcon->sa, root, skypewebcon->user_data);
 			}
@@ -565,7 +566,6 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		}
 		g_string_append_printf(request, "Content-length: %zu\r\n", strlen(postdata));
 	}
-	g_string_append_printf(request, "Accept: */*\r\n");
 	
 	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST)) {
 		g_string_append_printf(request, "X-Skypetoken: %s\r\n", sa->skype_token);
@@ -579,9 +579,11 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		g_string_append(request, "Referer: https://web.skype.com/main\r\n");
 		g_string_append(request, "Accept: application/json; ver=1.0;\r\n");
 		g_string_append(request, "ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=swx-skype.com; clientVer=908/1.0.0.20\r\n");
+	} else {
+		g_string_append_printf(request, "Accept: */*\r\n");
+		g_string_append_printf(request, "Cookie: %s\r\n", cookies);
 	}
 	
-	//g_string_append_printf(request, "Cookie: %s\r\n", cookies);
 	g_string_append_printf(request, "Accept-Encoding: gzip\r\n");
 	if (is_proxy == TRUE)
 	{

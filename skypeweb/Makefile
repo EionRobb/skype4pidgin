@@ -1,17 +1,21 @@
 
 COMPILER = gcc
 
-LIBPURPLE_CFLAGS += $(shell pkg-config --cflags glib-2.0 json-glib-1.0 purple nss gnome-keyring-1)
-LIBPURPLE_LIBS += $(shell pkg-config --libs glib-2.0 json-glib-1.0 purple nss)
+LIBPURPLE_CFLAGS += $(shell pkg-config --cflags glib-2.0 json-glib-1.0 purple)
+LIBPURPLE_LIBS += $(shell pkg-config --libs glib-2.0 json-glib-1.0 purple)
 
-STEAM_SOURCES = \
-	steam_connection.c \
-	libsteam.c 
+SKYPEWEB_SOURCES = \
+	skypeweb_connection.c \
+	skypeweb_contacts.c \
+	skypeweb_login.c \
+	skypeweb_messages.c \
+	skypeweb_util.c \
+	libskypeweb.c 
 
 .PHONY:	all clean install
-all: libsteam.so
+all: libskypeweb.so
 clean:
-	rm -f libsteam.so
+	rm -f libskypeweb.so
 
-libsteam.so: ${STEAM_SOURCES}
-	${COMPILER} -Wall -I. -g -O2 -fPIC -pipe ${STEAM_SOURCES} -o $@ ${LIBPURPLE_CFLAGS} ${LIBPURPLE_LIBS} -shared
+libskypeweb.so: ${SKYPEWEB_SOURCES}
+	${COMPILER} -Wall -I. -g -O2 -fPIC -pipe ${SKYPEWEB_SOURCES} -o $@ ${LIBPURPLE_CFLAGS} ${LIBPURPLE_LIBS} -shared
