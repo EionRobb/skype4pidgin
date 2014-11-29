@@ -9,8 +9,6 @@ void
 skypeweb_do_all_the_things(SkypeWebAccount *sa)
 {
 	if (sa->registration_token) {
-		purple_connection_set_state(sa->pc, PURPLE_CONNECTED);
-		
 		if (sa->authcheck_timeout) 
 			purple_timeout_remove(sa->authcheck_timeout);
 		skypeweb_check_authrequests(sa);
@@ -152,6 +150,8 @@ skypeweb_login(PurpleAccount *account)
 								_("Server requires TLS/SSL for login.  No TLS/SSL support found."));
 		return;
 	}
+
+	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_IMAGES;
 	
 	sa->account = account;
 	sa->pc = pc;
@@ -256,7 +256,7 @@ static PurplePluginProtocolInfo prpl_info = {
 #endif
 
 	/* options */
-	OPT_PROTO_MAIL_CHECK,
+	OPT_PROTO_CHAT_TOPIC,
 
 	NULL,                         /* user_splits */
 	NULL,                         /* protocol_options */

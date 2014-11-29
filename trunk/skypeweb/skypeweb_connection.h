@@ -47,6 +47,8 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 		const gchar *host, const gchar *url, const gchar *postdata,
 		SkypeWebProxyCallbackFunc callback_func, gpointer user_data,
 		gboolean keepalive);
+
+void skypeweb_update_cookies(SkypeWebAccount *sa, const gchar *headers);		
 gchar *skypeweb_cookies_to_string(SkypeWebAccount *sa);
 
 

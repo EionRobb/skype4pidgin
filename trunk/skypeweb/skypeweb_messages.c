@@ -11,6 +11,18 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	from = skypeweb_contact_url_to_name(selfLink);
 	
+	//TODO not need me
+	if (!purple_find_buddy(sa->account, from))
+	{
+		PurpleGroup *group = purple_find_group("Skype");
+		if (!group)
+		{
+			group = purple_group_new("Skype");
+			purple_blist_add_group(group, NULL);
+		}
+		purple_blist_add_buddy(purple_buddy_new(sa->account, from, NULL), NULL, group, NULL);
+	}
+	
 	purple_prpl_got_user_status(sa->account, from, status, NULL);
 }
 
