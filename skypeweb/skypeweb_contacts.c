@@ -397,8 +397,6 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		gboolean blocked = json_object_get_boolean_member(friend, "blocked");
 		PurpleBuddy *buddy;
 		
-		purple_debug_info("skypeweb", "Found user %s\n", skypename);
-		
 		buddy = purple_find_buddy(sa->account, skypename);
 		if (!buddy)
 		{
@@ -428,14 +426,14 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		serv_got_alias(sa->pc, skypename, sbuddy->display_name);
 		purple_blist_server_alias_buddy(buddy, fullname);
 		
-		users_to_fetch = g_slist_prepend(users_to_fetch, (gpointer) skypename);
+		users_to_fetch = g_slist_prepend(users_to_fetch, sbuddy->skypename);
 	}
 	
 	if (users_to_fetch)
 	{
 		skypeweb_get_friend_profiles(sa, users_to_fetch);
+		g_slist_free(users_to_fetch);
 	}
-	g_free(users_to_fetch);
 }
 
 void
