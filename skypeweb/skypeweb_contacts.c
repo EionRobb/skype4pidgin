@@ -100,7 +100,7 @@ skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user
 	PurpleNotifySearchResults *results;
 	PurpleNotifySearchColumn *column;
 	
-	
+	resultsarray = json_node_get_array(node);
 	length = json_array_get_length(resultsarray);
 	
 	if (length == 0)
@@ -221,6 +221,8 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		const gchar *username = json_object_get_string_member(contact, "username");
 		const gchar *new_avatar;
 		
+		purple_debug_info("skypeweb", "got_profiles processing %s\n", username);
+		
 		buddy = purple_find_buddy(sa->account, username);
 		if (!buddy)
 			continue;
@@ -233,7 +235,8 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		
 		g_free(sbuddy->display_name); sbuddy->display_name = g_strdup(json_object_get_string_member(contact, "displayname"));
 		serv_got_alias(sa->pc, username, sbuddy->display_name);
-	
+		purple_blist_server_alias_buddy(buddy, json_object_get_string_member(contact, "firstname"));
+		
 		new_avatar = json_object_get_string_member(contact, "avatarUrl");
 		if (new_avatar && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, new_avatar))) {
 			g_free(sbuddy->avatar_url);
@@ -243,8 +246,6 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		
 		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(contact, "mood"));
 		g_free(sbuddy->rich_mood); sbuddy->rich_mood = g_strdup(json_object_get_string_member(contact, "richMood"));
-		g_free(sbuddy->country); sbuddy->country = g_strdup(json_object_get_string_member(contact, "country"));
-		g_free(sbuddy->city); sbuddy->city = g_strdup(json_object_get_string_member(contact, "city"));
 	}
 }
 
@@ -323,8 +324,6 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		
 		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(userobj, "mood"));
 		g_free(sbuddy->rich_mood); sbuddy->rich_mood = g_strdup(json_object_get_string_member(userobj, "richMood"));
-		g_free(sbuddy->country); sbuddy->country = g_strdup(json_object_get_string_member(userobj, "country"));
-		g_free(sbuddy->city); sbuddy->city = g_strdup(json_object_get_string_member(userobj, "city"));
 	}
 	
 	purple_notify_userinfo(sa->pc, username, user_info, NULL, NULL);
@@ -426,7 +425,8 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		sbuddy->buddy = buddy;
 		buddy->proto_data = sbuddy;
 		
-		serv_got_alias(sa->pc, skypename, sbuddy->display_name); //purple_blist_server_alias_buddy(buddy, string_parts[3]);
+		serv_got_alias(sa->pc, skypename, sbuddy->display_name);
+		purple_blist_server_alias_buddy(buddy, fullname);
 		
 		users_to_fetch = g_slist_prepend(users_to_fetch, (gpointer) skypename);
 	}
