@@ -64,6 +64,7 @@
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
 	#define purple_connection_error purple_connection_error_reason
 	#define purple_notify_user_info_add_pair_html purple_notify_user_info_add_pair
+	#define purple_util_fetch_url_request purple_util_fetch_url_request_len_with_account
 #endif
 
 #define SKYPEWEB_MAX_MSG_RETRY 2

@@ -27,12 +27,14 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 /* PRPL functions */
 /******************************************************************************/
 
-static const char *skypeweb_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
+static const char *
+skypeweb_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
 	return "skype";
 }
 
-static gchar *skypeweb_status_text(PurpleBuddy *buddy)
+static gchar *
+skypeweb_status_text(PurpleBuddy *buddy)
 {
 	SkypeWebBuddy *sbuddy = buddy->proto_data;
 
@@ -76,8 +78,8 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 const gchar *
 skypeweb_list_emblem(PurpleBuddy *buddy)
 {
-	SkypeWebBuddy *sbuddy = buddy->proto_data;
-		
+	//SkypeWebBuddy *sbuddy = buddy->proto_data;
+	
 	return NULL;
 }
 
@@ -86,8 +88,6 @@ skypeweb_status_types(PurpleAccount *account)
 {
 	GList *types = NULL;
 	PurpleStatusType *status;
-
-	purple_debug_info("skypeweb", "status_types\n");
 	
 	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, "Online", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
@@ -104,7 +104,8 @@ skypeweb_status_types(PurpleAccount *account)
 }
 
 
-static void skypeweb_buddy_free(PurpleBuddy *buddy)
+static void
+skypeweb_buddy_free(PurpleBuddy *buddy)
 {
 	SkypeWebBuddy *sbuddy = buddy->proto_data;
 	if (sbuddy != NULL)
@@ -166,18 +167,17 @@ skypeweb_login(PurpleAccount *account)
 static void skypeweb_close(PurpleConnection *pc)
 {
 	SkypeWebAccount *sa;
-	GString *post;
 	
 	g_return_if_fail(pc != NULL);
 	g_return_if_fail(pc->proto_data != NULL);
 	
 	sa = pc->proto_data;
 	
-	skypeweb_logout(sa);
-	
 	purple_timeout_remove(sa->authcheck_timeout);
 	purple_timeout_remove(sa->poll_timeout);
 	purple_timeout_remove(sa->watchdog_timeout);
+
+	skypeweb_logout(sa);
 	
 	purple_debug_info("skypeweb", "destroying %d waiting connections\n",
 					  g_queue_get_length(sa->waiting_conns));
@@ -191,7 +191,7 @@ static void skypeweb_close(PurpleConnection *pc)
 
 	while (sa->conns != NULL)
 		skypeweb_connection_destroy(sa->conns->data);
-
+		
 	while (sa->dns_queries != NULL) {
 		PurpleDnsQueryData *dns_query = sa->dns_queries->data;
 		purple_debug_info("skypeweb", "canceling dns query for %s\n",
@@ -237,12 +237,11 @@ static GList *skypeweb_actions(PurplePlugin *plugin, gpointer context)
 
 static void plugin_init(PurplePlugin *plugin)
 {
-	PurpleAccountOption *option;
+	/*PurpleAccountOption *option;
 	PurplePluginInfo *info = plugin->info;
 	PurplePluginProtocolInfo *prpl_info = info->extra_info;
 	
-	
-	/*option = purple_account_option_bool_new(
+	option = purple_account_option_bool_new(
 		_("Always use HTTPS"),
 		"always_use_https", FALSE);
 	prpl_info->protocol_options = g_list_append(
@@ -275,7 +274,7 @@ static PurplePluginProtocolInfo prpl_info = {
 	skypeweb_send_im,             /* send_im */
 	NULL,                         /* set_info */
 	skypeweb_send_typing,         /* send_typing */
-	NULL,//skypeweb_get_info,            /* get_info */
+	skypeweb_get_info,            /* get_info */
 	skypeweb_set_status,          /* set_status */
 	skypeweb_set_idle,            /* set_idle */
 	NULL,                         /* change_passwd */

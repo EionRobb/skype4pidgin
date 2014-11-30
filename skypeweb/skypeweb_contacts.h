@@ -11,6 +11,7 @@ void skypeweb_get_friend_profiles(SkypeWebAccount *sa, GSList *contacts);
 void skypeweb_get_friend_profile(SkypeWebAccount *sa, const gchar *who);
 
 void skypeweb_get_friend_list(SkypeWebAccount *sa);
+void skypeweb_get_info(PurpleConnection *pc, const gchar *username);
 
 void skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group);
 void skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char* message);
