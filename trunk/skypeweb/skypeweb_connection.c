@@ -206,7 +206,7 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 	if (skypewebcon->callback != NULL) {
 		if (!len)
 		{
-			//purple_debug_error("skypeweb", "No data in response\n");
+			purple_debug_info("skypeweb", "No data in response\n");
 			skypewebcon->callback(skypewebcon->sa, NULL, skypewebcon->user_data);
 		} else {
 			JsonParser *parser = json_parser_new();
@@ -221,7 +221,7 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 				JsonNode *root = json_parser_get_root(parser);
 				
 				//TODO
-				//purple_debug_info("skypeweb", "Got response: %s\n", tmp);
+				purple_debug_info("skypeweb", "Got response: %s\n", tmp);
 				purple_debug_info("skypeweb", "executing callback for %s\n", skypewebcon->url);
 				skypewebcon->callback(skypewebcon->sa, root, skypewebcon->user_data);
 			}
@@ -505,7 +505,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	SkypeWebConnection *skypewebcon;
 	gchar *real_url;
 	gboolean is_proxy = FALSE;
-	const gchar *user_agent;
+	//const gchar *user_agent;
 	const gchar* const *languages;
 	gchar *language_names;
 	PurpleProxyInfo *proxy_info = NULL;
@@ -542,7 +542,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	}
 
 	cookies = skypeweb_cookies_to_string(sa);
-	//user_agent = purple_account_get_string(sa->account, "user-agent", "SkypeWeb 1.2.0 / iPhone");
+	//user_agent = purple_account_get_string(sa->account, "user-agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
 	
 	if (method & SKYPEWEB_METHOD_POST && !postdata)
 		postdata = "";
@@ -559,7 +559,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	//g_string_append_printf(request, "User-Agent: %s\r\n", user_agent);
 	if (method & SKYPEWEB_METHOD_POST) {
 		
-		if (postdata && postdata[0] == '[' || postdata[0] == '{') {
+		if (postdata && (postdata[0] == '[' || postdata[0] == '{')) {
 			g_string_append(request, "Content-Type: application/json\r\n"); // hax
 		} else {
 			g_string_append_printf(request, "Content-Type: application/x-www-form-urlencoded\r\n");

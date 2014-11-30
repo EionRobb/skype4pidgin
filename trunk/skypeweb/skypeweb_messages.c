@@ -146,7 +146,7 @@ skypeweb_subscribe_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	//{"id":"messagingService","type":"EndpointPresenceDoc","selfLink":"uri","privateInfo":{"epname":"skype"},"publicInfo":{"capabilities":"video|audio","type":1,"skypeNameVersion":"908/1.0.20/swx-skype.com","nodeInfo":"xx","version":"908/1.0.20"}}
 	// /v1/users/ME/endpoints/%7B60da4fa8-79f0-445b-846f-1f1e0116ecb5%7D/presenceDocs/messagingService
-
+	
 	skypeweb_do_all_the_things(sa);
 }
 
@@ -233,11 +233,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	
 	purple_debug_info("skypeweb", "reg token request is %s\n", request);
 	
-#if PURPLE_VERSION_CHECK(3, 0, 0)
-	requestdata = purple_util_fetch_url_request(sa->account, messages_url, TRUE, NULL, FALSE, request, TRUE, -1, skypeweb_got_registration_token, sa);
-#else
-	requestdata = purple_util_fetch_url_request(messages_url, TRUE, NULL, FALSE, request, TRUE, skypeweb_got_registration_token, sa);
-#endif
+	requestdata = purple_util_fetch_url_request(sa->account, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
 	requestdata->num_times_redirected = 10; /* Prevent following redirects */
 
 	g_free(request);
@@ -276,20 +272,25 @@ skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleTypingState 
 }
 
 
-
+static void
+skypeweb_set_statusid(SkypeWebAccount *sa, const gchar *status)
+{
+	gchar *post;
+	
+	post = g_strdup_printf("{\"status\":\"%s\"}", status);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/presenceDocs/messagingService", post, NULL, NULL, TRUE);
+	
+	g_free(post);
+}
 
 void
 skypeweb_set_status(PurpleAccount *account, PurpleStatus *status)
 {
 	PurpleConnection *pc = purple_account_get_connection(account);
 	SkypeWebAccount *sa = pc->proto_data;
-	gchar *post;
 	
-	post = g_strdup_printf("{\"status\":\"%s\"}", purple_status_get_id(status));
-	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/presenceDocs/messagingService", post, NULL, NULL, TRUE);
-	
-	g_free(post);
+	skypeweb_set_statusid(sa, purple_status_get_id(status));
 }
 
 void
@@ -298,9 +299,9 @@ skypeweb_set_idle(PurpleConnection *pc, int time)
 	SkypeWebAccount *sa = pc->proto_data;
 	
 	if (time < 30) {
-		//skypeweb_set_status(pc->account, active status);
+		skypeweb_set_statusid(sa, "Online");
 	} else {
-		//skypeweb_set_status(pc->account, idle status);
+		skypeweb_set_statusid(sa, "Idle");
 	}
 }
 
