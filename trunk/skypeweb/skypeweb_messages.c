@@ -24,6 +24,7 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	}
 	
 	purple_prpl_got_user_status(sa->account, from, status, NULL);
+	purple_prpl_got_user_idle(sa->account, from, g_str_equal(status, "Idle"), 0);
 }
 
 static void
@@ -198,7 +199,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 								_("Failed getting Registration Token"));
 		return;
 	}
-	purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
+	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
 	
 	sa->registration_token = registration_token;
 	
@@ -223,6 +224,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	request = g_strdup_printf("POST /v1/users/ME/endpoints HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: */*\r\n"
+			"BehaviorOverride: redirectAs404\r\n"
 			"LockAndKey: appId=" SKYPEWEB_LOCKANDKEY_APPID "; time=%s; lockAndKeyResponse=%s\r\n"
 			"ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=swx-skype.com; clientVer=908/1.0.0.20\r\n"
 			"Host: " SKYPEWEB_MESSAGES_HOST "\r\n"
@@ -231,7 +233,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 			"Content-Length: 2\r\n\r\n{}",
 			curtime, response, sa->skype_token);
 	
-	purple_debug_info("skypeweb", "reg token request is %s\n", request);
+	//purple_debug_info("skypeweb", "reg token request is %s\n", request);
 	
 	requestdata = purple_util_fetch_url_request(sa->account, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
 	requestdata->num_times_redirected = 10; /* Prevent following redirects */

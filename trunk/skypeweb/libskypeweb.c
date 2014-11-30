@@ -89,15 +89,18 @@ skypeweb_status_types(PurpleAccount *account)
 	GList *types = NULL;
 	PurpleStatusType *status;
 	
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, "Online", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, NULL, NULL, FALSE, TRUE, FALSE);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_OFFLINE, "Offline", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, "Online", "Online", TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_UNAVAILABLE, "Idle", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_OFFLINE, "Offline", "Offline", TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AWAY, "Away", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, "Idle", "Idle", FALSE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_EXTENDED_AWAY, "Hidden", NULL, TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AWAY, "Away", "Away", TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_EXTENDED_AWAY, "Hidden", "Hidden", TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
 	
 	return types;
@@ -118,8 +121,6 @@ skypeweb_buddy_free(PurpleBuddy *buddy)
 		g_free(sbuddy->avatar_url);
 		g_free(sbuddy->mood);
 		g_free(sbuddy->rich_mood);
-		g_free(sbuddy->country);
-		g_free(sbuddy->city);
 		
 		g_free(sbuddy);
 	}

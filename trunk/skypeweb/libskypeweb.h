@@ -118,8 +118,6 @@ struct _SkypeWebBuddy {
 	gchar *avatar_url;
 	gchar *mood;
 	gchar *rich_mood;
-	gchar *country;
-	gchar *city;
 };
 
 
