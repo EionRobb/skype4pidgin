@@ -67,7 +67,7 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 	g_string_append_printf(postdata, "timezone_field=%c|%d|%d&", (tz.tz_minuteswest < 0 ? '+' : '-'), tzhours, tzminutes);
 	g_string_append_printf(postdata, "pie=%s&", purple_url_encode(pie));
 	g_string_append_printf(postdata, "etm=%s&", purple_url_encode(etm));
-	g_string_append_printf(postdata, "js_time=%d.123&", time(NULL));
+	g_string_append_printf(postdata, "js_time=%" G_GINT64_FORMAT "&", skypeweb_get_js_time());
 	g_string_append(postdata, "client_id=578134");
 	g_string_append(postdata, "redirect_uri=https://web.skype.com/");
 	

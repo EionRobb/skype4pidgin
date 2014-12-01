@@ -9,6 +9,8 @@ void
 skypeweb_do_all_the_things(SkypeWebAccount *sa)
 {
 	if (sa->registration_token) {
+		skypeweb_get_self_details(sa);
+		
 		if (sa->authcheck_timeout) 
 			purple_timeout_remove(sa->authcheck_timeout);
 		skypeweb_check_authrequests(sa);
@@ -107,6 +109,84 @@ skypeweb_status_types(PurpleAccount *account)
 }
 
 
+static GList *
+skypeweb_chat_info(PurpleConnection *gc)
+{
+	GList *m = NULL;
+	struct proto_chat_entry *pce;
+
+	pce = g_new0(struct proto_chat_entry, 1);
+	pce->label = _("Skype Name");
+	pce->identifier = "chatname";
+	pce->required = TRUE;
+	m = g_list_append(m, pce);
+	
+	/*pce = g_new0(struct proto_chat_entry, 1);
+	pce->label = _("Password");
+	pce->identifier = "password";
+	pce->required = FALSE;
+	m = g_list_append(m, pce);*/
+	
+	return m;
+}
+
+static GHashTable *
+skypeweb_chat_info_defaults(PurpleConnection *gc, const char *chatname)
+{
+	GHashTable *defaults;
+	defaults = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
+	if (chatname != NULL)
+	{
+		g_hash_table_insert(defaults, "chatname", g_strdup(chatname));
+	}
+	return defaults;
+}
+
+static gchar *
+skypeweb_get_chat_name(GHashTable *data)
+{
+	gchar *temp;
+
+	if (data == NULL)
+		return NULL;
+	
+	temp = g_hash_table_lookup(data, "chatname");
+
+	if (temp == NULL)
+		return NULL;
+
+	return g_strdup(temp);
+}
+
+
+static void
+skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
+{
+	SkypeWebAccount *sa = pc->proto_data;
+	gchar *chatname;
+	gchar *post;
+	GString *url;
+	
+	chatname = (gchar *)g_hash_table_lookup(data, "chatname");
+	if (chatname == NULL)
+	{
+		return;
+	}
+	
+	url = g_string_new("/v1/threads/");
+	g_string_append_printf(url, "%s", purple_url_encode(chatname));
+	g_string_append(url, "/members/");
+	g_string_append_printf(url, "8:%s", purple_url_encode(sa->username));
+	
+	post = "{\"role\":\"User\"}";
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url->str, post, NULL, NULL, TRUE);
+	
+	g_string_free(url, TRUE);
+	
+	skypeweb_get_conversation_history(sa, chatname);
+}
+
 static void
 skypeweb_buddy_free(PurpleBuddy *buddy)
 {
@@ -137,6 +217,27 @@ skypeweb_fake_group_rename(PurpleConnection *pc, const char *old_name, PurpleGro
 	// Do nothing to stop the remove+add behaviour
 }
 
+static GList *
+skypeweb_node_menu(PurpleBlistNode *node)
+{
+	GList *m = NULL;
+	PurpleMenuAction *act;
+	PurpleBuddy *buddy;
+	SkypeWebBuddy *sbuddy;
+	
+	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
+	{
+		buddy = (PurpleBuddy *)node;
+		sbuddy = (SkypeWebBuddy *)buddy->proto_data;
+		
+		act = purple_menu_action_new(_("Initiate _Chat"),
+							PURPLE_CALLBACK(skypeweb_initiate_chat_from_node),
+							sbuddy->sa, NULL);
+		m = g_list_append(m, act);
+	}
+	
+	return m;
+}
 
 static void
 skypeweb_login(PurpleAccount *account)
@@ -155,6 +256,7 @@ skypeweb_login(PurpleAccount *account)
 
 	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_IMAGES;
 	
+	sa->username = g_strdup(account->username);
 	sa->account = account;
 	sa->pc = pc;
 	sa->cookie_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
@@ -207,6 +309,7 @@ static void skypeweb_close(PurpleConnection *pc)
 
 	g_free(sa->skype_token);
 	g_free(sa->registration_token);
+	g_free(sa->username);
 	g_free(sa);
 }
 
@@ -260,16 +363,15 @@ static PurplePluginProtocolInfo prpl_info = {
 
 	NULL,                         /* user_splits */
 	NULL,                         /* protocol_options */
-	/* NO_BUDDY_ICONS */          /* icon_spec */
 	{"jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_DISPLAY}, /* icon_spec */
 	skypeweb_list_icon,           /* list_icon */
 	skypeweb_list_emblem,         /* list_emblems */
 	skypeweb_status_text,         /* status_text */
 	skypeweb_tooltip_text,        /* tooltip_text */
 	skypeweb_status_types,        /* status_types */
-	NULL,//skypeweb_node_menu,           /* blist_node_menu */
-	NULL,//skypeweb_chat_info,           /* chat_info */
-	NULL,//skypeweb_chat_info_defaults,  /* chat_info_defaults */
+	skypeweb_node_menu,           /* blist_node_menu */
+	skypeweb_chat_info,           /* chat_info */
+	skypeweb_chat_info_defaults,  /* chat_info_defaults */
 	skypeweb_login,               /* login */
 	skypeweb_close,               /* close */
 	skypeweb_send_im,             /* send_im */
@@ -292,13 +394,13 @@ static PurplePluginProtocolInfo prpl_info = {
 	NULL,                         /* rem_permit */
 	NULL,                         /* rem_deny */
 	NULL,                         /* set_permit_deny */
-	NULL,//skypeweb_fake_join_chat,      /* join_chat */
+	skypeweb_join_chat,           /* join_chat */
 	NULL,                         /* reject chat invite */
-	NULL,//skypeweb_get_chat_name,       /* get_chat_name */
-	NULL,                         /* chat_invite */
+	skypeweb_get_chat_name,       /* get_chat_name */
+	skypeweb_chat_invite,         /* chat_invite */
 	NULL,//skypeweb_chat_fake_leave,     /* chat_leave */
 	NULL,                         /* chat_whisper */
-	NULL,//skypeweb_chat_send,           /* chat_send */
+	skypeweb_chat_send,           /* chat_send */
 	NULL,                         /* keepalive */
 	NULL,                         /* register_user */
 	NULL,                         /* get_cb_info */
