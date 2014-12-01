@@ -142,6 +142,43 @@ skypeweb_poll(SkypeWebAccount *sa)
 }
 
 
+void
+skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
+{
+	const gchar *contacts_url = "/v1/users/ME/contacts";
+	gchar *post;
+	GSList *cur = contacts;
+	JsonObject *obj;
+	JsonArray *contacts_array;
+	
+	if (contacts == NULL)
+		return;
+	
+	obj = json_object_new();
+	contacts_array = json_array_new();
+	
+	do {
+		JsonObject *contact = json_object_new();
+		gchar *id;
+		
+		id = g_strconcat("8:", cur->data, NULL);
+		json_object_set_string_member(contact, "id", id);
+		json_array_add_object_element(contacts_array, contact);
+		
+		g_free(id);
+	} while((cur = g_slist_next(cur)));
+	
+	json_object_set_array_member(obj, "contacts", contacts_array);
+	post = skypeweb_jsonobj_to_string(obj);
+
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, contacts_url, post, NULL, NULL, TRUE);
+	
+	g_free(post);
+	json_object_unref(obj);
+	json_array_unref(contacts_array);
+}
+
+
 static void
 skypeweb_subscribe_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
