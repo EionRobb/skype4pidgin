@@ -69,9 +69,36 @@ skypeweb_get_icon(PurpleBuddy *buddy)
 
 
 
+static void
+skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	JsonObject *userobj;
+	const gchar *old_alias;
+	const gchar *displayname;
+	const gchar *username;
+	
+	userobj = json_node_get_object(node);
+	
+	username = json_object_get_string_member(userobj, "username");
+	g_free(sa->username); sa->username = g_strdup(username);
+	
+	old_alias = purple_account_get_alias(sa->account);
+	if (!old_alias || !*old_alias) {
+		displayname = json_object_get_string_member(userobj, "displayname");
+		if (!displayname || g_str_equal(displayname, username))
+			displayname = json_object_get_string_member(userobj, "firstname");
+	
+		if (displayname)
+			purple_account_set_alias(sa->account, displayname);
+	}
+}
 
 
-
+void
+skypeweb_get_self_details(SkypeWebAccount *sa)
+{
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/displayname", NULL, skypeweb_got_self_details, NULL, TRUE);
+}
 
 
 
@@ -221,8 +248,6 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		
 		const gchar *username = json_object_get_string_member(contact, "username");
 		const gchar *new_avatar;
-		
-		purple_debug_info("skypeweb", "got_profiles processing %s\n", username);
 		
 		buddy = purple_find_buddy(sa->account, username);
 		if (!buddy)

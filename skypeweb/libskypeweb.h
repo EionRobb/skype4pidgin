@@ -85,6 +85,8 @@ typedef struct _SkypeWebBuddy SkypeWebBuddy;
 typedef void (*SkypeWebFunc)(SkypeWebAccount *swa);
 
 struct _SkypeWebAccount {
+	gchar *username;
+	
 	PurpleAccount *account;
 	PurpleConnection *pc;
 	GSList *conns; /**< A list of all active SkypeWebConnections */

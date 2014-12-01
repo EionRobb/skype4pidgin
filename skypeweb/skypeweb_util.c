@@ -70,6 +70,28 @@ skypeweb_contact_url_to_name(const gchar *url)
 	return start;
 }
 
+/** turn https://bay-client-s.gateway.messenger.live.com/v1/users/ME/conversations/19:blah@thread.skype
+	into 19:blah@thread.skype
+*/
+const gchar *
+skypeweb_thread_url_to_name(const gchar *url)
+{
+	static gchar *tempname = NULL;
+	const gchar *start, *end;
+	
+	start = g_strrstr(url, "/19:");
+	if (!start) return NULL;
+	start = start + 1;
+	
+	if ((end = strchr(start, '/'))) {
+		g_free(tempname);
+		tempname = g_strndup(start, end - start);
+		return tempname;
+	}
+	
+	return start;
+}
+
 /** Blatantly stolen from MSN prpl, with super-secret SHA256 change! */
 #define BUFSIZE	256
 char *
@@ -167,4 +189,14 @@ skypeweb_hmac_sha256(char *input)
 	output[32] = '\0';
 	
 	return output;
+}
+
+gint64
+skypeweb_get_js_time()
+{
+	GTimeVal val;
+	
+	g_get_current_time (&val);
+	
+	return (val.tv_sec * 1000) + (val.tv_usec / 1000);
 }
