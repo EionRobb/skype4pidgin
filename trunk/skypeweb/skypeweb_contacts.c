@@ -2,6 +2,7 @@
 
 #include "skypeweb_contacts.h"
 #include "skypeweb_connection.h"
+#include "skypeweb_messages.h"
 #include "skypeweb_util.h"
 
 static guint active_icon_downloads = 0;
@@ -432,6 +433,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 	if (users_to_fetch)
 	{
 		skypeweb_get_friend_profiles(sa, users_to_fetch);
+		skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
 		g_slist_free(users_to_fetch);
 	}
 }
