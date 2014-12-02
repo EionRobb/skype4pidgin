@@ -78,6 +78,7 @@
 #define SKYPEWEB_CONTACTS_HOST "api.skype.com"
 #define SKYPEWEB_MESSAGES_HOST "client-s.gateway.messenger.live.com"
 #define SKYPEWEB_LOGIN_HOST "login.skype.com"
+#define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;
