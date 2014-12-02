@@ -567,7 +567,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		g_string_append_printf(request, "Content-length: %zu\r\n", strlen(postdata));
 	}
 	
-	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST)) {
+	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST) || g_str_equal(host, SKYPEWEB_VIDEOMAIL_HOST)) {
 		g_string_append_printf(request, "X-Skypetoken: %s\r\n", sa->skype_token);
 		g_string_append(request, "X-Stratus-Caller: swx-skype.com\r\n");
 		g_string_append(request, "X-Stratus-Request: abcd1234\r\n");

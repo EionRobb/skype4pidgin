@@ -5,6 +5,8 @@
 #include "skypeweb_messages.h"
 #include "skypeweb_util.h"
 
+#include <ft.h>
+
 static guint active_icon_downloads = 0;
 
 static void
@@ -67,6 +69,160 @@ skypeweb_get_icon(PurpleBuddy *buddy)
 }
 
 
+static void
+skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	PurpleConversation *conv = user_data;
+	gint icon_id;
+	gchar *msg_tmp;
+	
+	if (!url_text || !url_text[0] || url_text[0] == '{')
+		return;
+	
+	icon_id = purple_imgstore_add_with_id((gpointer)url_text, len, NULL);
+	
+	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
+	purple_conversation_write(conv, conv->name, msg_tmp, PURPLE_MESSAGE_SYSTEM, time(NULL));
+	g_free(msg_tmp);
+	
+	purple_imgstore_unref_by_id(icon_id);
+}
+
+void
+skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
+{
+	gchar *url;
+	gchar *clean_uri;
+	gchar *headers;
+	
+	clean_uri = purple_strreplace(uri, "//", "/");
+	url = g_strconcat(clean_uri, "/views/imgo", NULL);
+	
+	headers = g_strdup_printf("GET %s HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Accept: image/*\r\n"
+			"Cookie: skypetoken_asm=%s\r\n"
+			"Host: api.asm.skype.com\r\n"
+			"\r\n\r\n",
+			strchr(url, '/'), sa->skype_token);
+	
+	purple_util_fetch_url_request(sa->account, url, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
+	
+	g_free(headers);
+	g_free(url);
+	g_free(clean_uri);
+}
+
+
+static void
+skypeweb_got_vm_file(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	PurpleXfer *xfer = user_data;
+	
+	purple_xfer_write(xfer, (guchar *)url_text, len);
+}
+
+static void
+skypeweb_init_vm_download(PurpleXfer *xfer)
+{
+	JsonObject *file = xfer->data;
+	gint64 fileSize;
+	const gchar *url;
+
+	fileSize = json_object_get_int_member(file, "fileSize");
+	url = json_object_get_string_member(file, "url");
+	
+	purple_xfer_set_completed(xfer, FALSE);
+	purple_util_fetch_url_request(xfer->account, url, TRUE, NULL, FALSE, NULL, FALSE, fileSize, skypeweb_got_vm_file, xfer);
+	
+	json_object_unref(file);
+}
+
+static void
+skypeweb_cancel_vm_download(PurpleXfer *xfer)
+{
+	JsonObject *file = xfer->data;
+	json_object_unref(file);
+}
+
+static void
+skypeweb_got_vm_download_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	PurpleConversation *conv = user_data;
+	PurpleXfer *xfer;
+	JsonObject *obj, *file;
+	JsonArray *files;
+	gint64 fileSize;
+	const gchar *url, *assetId, *status;
+	gchar *filename;
+	
+	obj = json_node_get_object(node);
+	files = json_object_get_array_member(obj, "files");
+	file = json_array_get_object_element(files, 0);
+	if (file != NULL) {
+		status = json_object_get_string_member(file, "status");
+		if (status && g_str_equal(status, "ok")) {
+			assetId = json_object_get_string_member(obj, "assetId");
+			fileSize = json_object_get_int_member(file, "fileSize");
+			url = json_object_get_string_member(file, "url");
+			
+			filename = g_strconcat(assetId, ".mp4", NULL);
+			
+			xfer = purple_xfer_new(sa->account, PURPLE_XFER_RECEIVE, conv->name);
+			purple_xfer_set_size(xfer, fileSize);
+			purple_xfer_set_filename(xfer, filename);
+			json_object_ref(file);
+			xfer->data = file;
+			purple_xfer_set_init_fnc(xfer, skypeweb_init_vm_download);
+			purple_xfer_set_cancel_recv_fnc(xfer, skypeweb_cancel_vm_download);
+			purple_xfer_add(xfer);
+			
+			g_free(filename);
+		} else if (status && g_str_equal(status, "running")) {
+			//skypeweb_download_video_message(sa, sid??????, conv);
+		}
+	}
+}
+
+static void
+skypeweb_got_vm_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	PurpleConversation *conv = user_data;
+	JsonObject *obj, *response, *media_stream;
+	const gchar *filename;
+	
+	obj = json_node_get_object(node);
+	response = json_object_get_object_member(obj, "response");
+	media_stream = json_object_get_object_member(response, "media_stream");
+	filename = json_object_get_string_member(media_stream, "filename");
+	
+	if (filename != NULL) {
+		// Need to keep retrying this url until it comes back with status:ok
+		gchar *url = g_strdup_printf("/vod/api-create?assetId=%s&profile=mp4-vm", purple_url_encode(filename));
+		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, "media.vm.skype.com", url, NULL, skypeweb_got_vm_download_info, conv, TRUE);
+		g_free(url);
+	}
+
+}
+
+void
+skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, PurpleConversation *conv)
+{
+	//1f25364917961071cfbd62c3493e5b4d
+	
+	//https://vm.skype.com/users/bigbrownchunx/video_mails/1f25364917961071cfbd62c3493e5b4d
+	//X-Skypetoken
+	gchar *url, *username_encoded;
+	
+	username_encoded = g_strdup(purple_url_encode(sa->username));
+	url = g_strdup_printf("/users/%s/video_mails/%s", username_encoded, purple_url_encode(sid));
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_VIDEOMAIL_HOST, url, NULL, skypeweb_got_vm_info, conv, TRUE);
+	
+	g_free(url);
+	g_free(username_encoded);
+	
+}
 
 
 static void
@@ -395,21 +551,6 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 	GSList *users_to_fetch = NULL;
 	guint index, length;
 	
-	/* {
-	"skypename": "eionrobb",
-	"fullname": "Eion Robb",
-	"authorized": true,
-	"blocked": false,
-	"display_name": "eionrobb",
-	"pstn_number": null,
-	"phone1": null,
-	"phone1_label": null,
-	"phone2": null,
-	"phone2_label": null,
-	"phone3": null,
-	"phone3_label": null
-} */
-
 	friends = json_node_get_array(node);
 	length = json_array_get_length(friends);
 	
@@ -510,13 +651,7 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	guint index, length;
 	
 	requests = json_node_get_array(node);
-	/* [{
-		"event_time": "2014-10-21 18:53:53.763883",
-		"sender": "gretike1984",
-		"greeting": "Kedves Eion Robb! Szeretn\u00e9lek felvenni a partnerlist\u00e1mra."
-	}] */
 	length = json_array_get_length(requests);
-	
 	for(index = 0; index < length; index++)
 	{
 		JsonObject *request = json_array_get_object_element(requests, index);

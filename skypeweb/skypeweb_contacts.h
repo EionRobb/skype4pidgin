@@ -5,6 +5,9 @@
 #include "libskypeweb.h"
 
 void skypeweb_get_icon(PurpleBuddy *buddy);
+void skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv);
+void skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, PurpleConversation *conv);
+
 void skypeweb_search_users(PurplePluginAction *action);
 
 void skypeweb_get_friend_profiles(SkypeWebAccount *sa, GSList *contacts);
