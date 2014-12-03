@@ -11,6 +11,7 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	const gchar *from;
 	
 	from = skypeweb_contact_url_to_name(selfLink);
+	g_return_if_fail(from);
 	
 	//TODO not need me
 	if (!purple_find_buddy(sa->account, from))
@@ -31,6 +32,7 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
+	const gchar *clientmessageid = json_object_get_string_member(resource, "clientmessageid");
 	const gchar *messagetype = json_object_get_string_member(resource, "messagetype");
 	const gchar *from = json_object_get_string_member(resource, "from");
 	const gchar *content = json_object_get_string_member(resource, "content");
@@ -42,7 +44,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
 	
+	if (clientmessageid && g_hash_table_remove(sa->sent_messages_hash, clientmessageid)) {
+		// We sent this message from here already
+		return;
+	}
+	
 	from = skypeweb_contact_url_to_name(from);
+	g_return_if_fail(from);
 	
 	if (strstr(conversationLink, "/19:")) {
 		const gchar *chatname, *topic;
@@ -65,8 +73,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} else {
 				html = g_strdup(content);
 			}
-			serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV,
-					html, composetimestamp);
+			serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
 					
 			g_free(html);
 		} else if (g_str_equal(messagetype, "ThreadActivity/AddMember")) {
@@ -129,12 +136,14 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 		if (g_str_equal(sa->username, from)) {
 			from = skypeweb_contact_url_to_name(conversationLink);
-			conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
-			if (conv == NULL)
-			{
-				conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+			if (from != NULL) {
+				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
+				if (conv == NULL)
+				{
+					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+				}
+				purple_conversation_write(conv, from, html, PURPLE_MESSAGE_SEND, composetimestamp);
 			}
-			purple_conversation_write(conv, from, html, PURPLE_MESSAGE_SEND, composetimestamp);
 		} else {
 			serv_got_im(sa->pc, from, html, PURPLE_MESSAGE_RECV, composetimestamp);
 		}
@@ -146,13 +155,15 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		if (g_str_equal(sa->username, from)) {
 			from = skypeweb_contact_url_to_name(conversationLink);
 		}
-		conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
-		if (conv == NULL)
-		{
-			conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+		if (from != NULL) {
+			conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
+			if (conv == NULL)
+			{
+				conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+			}
+			
+			skypeweb_download_uri_to_conv(sa, uri, conv);
 		}
-		
-		skypeweb_download_uri_to_conv(sa, uri, conv);
 		xmlnode_free(blob);
 	} else if (g_str_equal(messagetype, "Event/SkypeVideoMessage")) {
 		xmlnode *blob = xmlnode_from_str(content, -1);
@@ -161,14 +172,16 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		if (g_str_equal(sa->username, from)) {
 			from = skypeweb_contact_url_to_name(conversationLink);
 		}
-		conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
-		if (conv == NULL)
-		{
-			conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+		if (from != NULL) {
+			conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
+			if (conv == NULL)
+			{
+				conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, sa->account, from);
+			}
+			
+			//skypeweb_download_video_message(sa, sid, conv); //TODO
+			serv_got_im(sa->pc, from, content, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 		}
-		
-		//skypeweb_download_video_message(sa, sid, conv);
-		serv_got_im(sa->pc, from, content, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 		xmlnode_free(blob);
 	} else {
 		purple_debug_warning("skypeweb", "Unhandled message resource messagetype '%s'\n", messagetype);
@@ -505,11 +518,16 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 {
 	gchar *post, *url;
 	JsonObject *obj;
+	gint32 clientmessageid;
+	gchar *clientmessageid_str;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(convname));
 	
+	clientmessageid = g_random_int();
+	clientmessageid_str = g_strdup_printf("%d", clientmessageid);
+	
 	obj = json_object_new();
-	json_object_set_int_member(obj, "clientmessageid", g_random_int_range(100000, 999999));
+	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
 	json_object_set_string_member(obj, "content", message);
 	json_object_set_string_member(obj, "messagetype", "RichText");
 	json_object_set_string_member(obj, "contenttype", "text");
@@ -521,6 +539,8 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	g_free(post);
 	json_object_unref(obj);
 	g_free(url);
+	
+	g_hash_table_insert(sa->sent_messages_hash, clientmessageid_str, clientmessageid_str);
 }
 
 
