@@ -95,7 +95,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	gchar *clean_uri;
 	gchar *headers;
 	
-	clean_uri = purple_strreplace(uri, "//", "/");
+	clean_uri = purple_strreplace(uri, "/v1//", "/v1/");
 	url = g_strconcat(clean_uri, "/views/imgo", NULL);
 	
 	headers = g_strdup_printf("GET %s HTTP/1.0\r\n"
@@ -208,10 +208,6 @@ skypeweb_got_vm_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 void
 skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, PurpleConversation *conv)
 {
-	//1f25364917961071cfbd62c3493e5b4d
-	
-	//https://vm.skype.com/users/bigbrownchunx/video_mails/1f25364917961071cfbd62c3493e5b4d
-	//X-Skypetoken
 	gchar *url, *username_encoded;
 	
 	username_encoded = g_strdup(purple_url_encode(sa->username));
