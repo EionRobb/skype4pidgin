@@ -44,7 +44,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
 	
-	if (clientmessageid && g_hash_table_remove(sa->sent_messages_hash, clientmessageid)) {
+	if (clientmessageid && *clientmessageid && g_hash_table_remove(sa->sent_messages_hash, clientmessageid)) {
 		// We sent this message from here already
 		return;
 	}
@@ -518,13 +518,13 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 {
 	gchar *post, *url;
 	JsonObject *obj;
-	gint32 clientmessageid;
+	gint64 clientmessageid;
 	gchar *clientmessageid_str;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(convname));
 	
-	clientmessageid = g_random_int();
-	clientmessageid_str = g_strdup_printf("%d", clientmessageid);
+	clientmessageid = skypeweb_get_js_time();
+	clientmessageid_str = g_strdup_printf("%" G_GINT64_FORMAT "", clientmessageid);
 	
 	obj = json_object_new();
 	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
