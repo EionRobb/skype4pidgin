@@ -254,7 +254,7 @@ skypeweb_login(PurpleAccount *account)
 		return;
 	}
 
-	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_NO_FONTSIZE | PURPLE_CONNECTION_NO_IMAGES;
+	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_NO_FONTSIZE;
 	
 	sa->username = g_strdup(account->username);
 	sa->account = account;
@@ -359,7 +359,7 @@ static PurplePluginProtocolInfo prpl_info = {
 #endif
 
 	/* options */
-	OPT_PROTO_CHAT_TOPIC,
+	OPT_PROTO_CHAT_TOPIC | OPT_PROTO_INVITE_MESSAGE /*| OPT_PROTO_IM_IMAGE*/,
 
 	NULL,                         /* user_splits */
 	NULL,                         /* protocol_options */
