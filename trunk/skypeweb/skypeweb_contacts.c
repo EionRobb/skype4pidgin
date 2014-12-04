@@ -82,7 +82,7 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	icon_id = purple_imgstore_add_with_id((gpointer)url_text, len, NULL);
 	
 	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
-	purple_conversation_write(conv, conv->name, msg_tmp, PURPLE_MESSAGE_SYSTEM, time(NULL));
+	purple_conversation_write(conv, conv->name, msg_tmp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_IMAGES, time(NULL));
 	g_free(msg_tmp);
 	
 	purple_imgstore_unref_by_id(icon_id);
@@ -416,7 +416,7 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		purple_blist_server_alias_buddy(buddy, json_object_get_string_member(contact, "firstname"));
 		
 		new_avatar = json_object_get_string_member(contact, "avatarUrl");
-		if (new_avatar && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, new_avatar))) {
+		if (new_avatar && *new_avatar && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, new_avatar))) {
 			g_free(sbuddy->avatar_url);
 			sbuddy->avatar_url = g_strdup(new_avatar);			
 			skypeweb_get_icon(buddy);
@@ -633,7 +633,7 @@ skypeweb_auth_reject_cb(gpointer sender)
 	
 	sa = buddy->account->gc->proto_data;
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/reject", purple_url_encode(buddy->name));
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s/decline", purple_url_encode(buddy->name));
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
