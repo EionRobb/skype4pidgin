@@ -18,6 +18,10 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 		
 		skypeweb_get_friend_list(sa);
 		skypeweb_poll(sa);
+		
+		skype_web_get_offline_history(sa);
+		
+		skypeweb_set_status(sa->account, purple_account_get_active_status(sa->account));
 	} else {
 		//Too soon!
 		skypeweb_get_registration_token(sa);
@@ -267,7 +271,8 @@ skypeweb_login(PurpleAccount *account)
 	skypeweb_begin_web_login(sa);
 }
 
-static void skypeweb_close(PurpleConnection *pc)
+static void
+skypeweb_close(PurpleConnection *pc)
 {
 	SkypeWebAccount *sa;
 	
@@ -317,17 +322,20 @@ static void skypeweb_close(PurpleConnection *pc)
 /* Plugin functions */
 /******************************************************************************/
 
-static gboolean plugin_load(PurplePlugin *plugin)
+static gboolean
+plugin_load(PurplePlugin *plugin)
 {
 	return TRUE;
 }
 
-static gboolean plugin_unload(PurplePlugin *plugin)
+static gboolean
+plugin_unload(PurplePlugin *plugin)
 {
 	return TRUE;
 }
 
-static GList *skypeweb_actions(PurplePlugin *plugin, gpointer context)
+static GList *
+skypeweb_actions(PurplePlugin *plugin, gpointer context)
 {
 	GList *m = NULL;
 	PurplePluginAction *act;
@@ -339,7 +347,8 @@ static GList *skypeweb_actions(PurplePlugin *plugin, gpointer context)
 	return m;
 }
 
-static void plugin_init(PurplePlugin *plugin)
+static void
+plugin_init(PurplePlugin *plugin)
 {
 	/*PurpleAccountOption *option;
 	PurplePluginInfo *info = plugin->info;
