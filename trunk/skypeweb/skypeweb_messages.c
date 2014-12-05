@@ -193,10 +193,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		time_t arrivaltimestamp = purple_str_to_time(originalarrivaltime, TRUE, NULL, NULL, NULL);
 		
 		PUT "/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", convname
-		g_strdup_printf("{\"consumptionhorizon\":\"%" G_GINT64_FORMAT ";%" G_GINT64_FORMAT ";%s\"}", ((gint64)arrivaltimestamp)*1000, skypeweb_get_js_time(), clientmessageid) 
+		g_strdup_printf("{\"consumptionhorizon\":\"%d000;%" G_GINT64_FORMAT ";%s\"}", arrivaltimestamp, skypeweb_get_js_time(), clientmessageid) 
 	}*/
 	
 	g_strfreev(messagetype_parts);
+	
+	if (composetimestamp > purple_account_get_int(sa->account, "last_message_timestamp", 0))
+		purple_account_set_int(sa->account, "last_message_timestamp", composetimestamp);
 }
 
 static void
@@ -285,6 +288,7 @@ skypeweb_poll(SkypeWebAccount *sa)
 static void
 skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
+	time_t since = GPOINTER_TO_INT(user_data);
 	JsonObject *obj;
 	JsonArray *messages;
 	guint index, length;
@@ -295,20 +299,75 @@ skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	for(index = length; index > 0; index--)
 	{
 		JsonObject *message = json_array_get_object_element(messages, index);
-		process_message_resource(sa, message);
+		const gchar *composetime = json_object_get_string_member(message, "composetime");
+		time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
+		
+		if (composetimestamp > since) {
+			process_message_resource(sa, message);
+		}
 	}
+}
+
+void
+skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, time_t since)
+{
+	gchar *url;
+	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%d000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname), since);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_conv_history, GINT_TO_POINTER(since), TRUE);
+	
+	g_free(url);
 }
 
 void
 skypeweb_get_conversation_history(SkypeWebAccount *sa, const gchar *convname)
 {
-	gchar *url;
-	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=0&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname));
+	skypeweb_get_conversation_history_since(sa, convname, 0);
+}
+
+static void
+skypeweb_got_all_convs(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	time_t since = GPOINTER_TO_INT(user_data);
+	JsonObject *obj;
+	JsonArray *conversations;
+	guint index, length;
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_conv_history, NULL, TRUE);
+	obj = json_node_get_object(node);
+	conversations = json_object_get_array_member(obj, "conversations");
+	length = json_array_get_length(conversations);
+	for(index = 0; index < length; index++) {
+		JsonObject *conversation = json_array_get_object_element(conversations, index);
+		const gchar *id = json_object_get_string_member(conversation, "id");
+		JsonObject *lastMessage = json_object_get_object_member(conversation, "lastMessage");
+		if (lastMessage != NULL) {
+			const gchar *composetime = json_object_get_string_member(lastMessage, "composetime");
+			time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
+			
+			if (composetimestamp > since) {
+				skypeweb_get_conversation_history_since(sa, id, since);
+			}
+		}
+	}
+}
+
+void
+skypeweb_get_all_conversations_since(SkypeWebAccount *sa, time_t since)
+{
+	gchar *url;
+	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%d000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", since);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_all_convs, GINT_TO_POINTER(since), TRUE);
 	
 	g_free(url);
 }
+
+void
+skype_web_get_offline_history(SkypeWebAccount *sa)
+{
+	skypeweb_get_all_conversations_since(sa, purple_account_get_int(sa->account, "last_message_timestamp", time(NULL)));
+}
+
 
 void
 skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
@@ -483,6 +542,8 @@ static void
 skypeweb_set_statusid(SkypeWebAccount *sa, const gchar *status)
 {
 	gchar *post;
+	
+	g_return_if_fail(status);
 	
 	post = g_strdup_printf("{\"status\":\"%s\"}", status);
 	
