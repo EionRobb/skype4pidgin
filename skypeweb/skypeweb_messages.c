@@ -402,7 +402,6 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 	
 	g_free(post);
 	json_object_unref(obj);
-	json_array_unref(contacts_array);
 }
 
 
@@ -439,7 +438,6 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 	
 	g_free(post);
 	json_object_unref(obj);
-	json_array_unref(interested);
 }
 
 static void
