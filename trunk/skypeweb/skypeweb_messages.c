@@ -123,9 +123,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	if (g_str_equal(messagetype_parts[0], "Control")) {
 		if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
-			serv_got_typing(sa->pc, from, 20, PURPLE_NOT_TYPING);
+			serv_got_typing(sa->pc, from, 7, PURPLE_NOT_TYPING);
 		} else if (g_str_equal(messagetype_parts[1], "Typing")) {
-			serv_got_typing(sa->pc, from, 20, PURPLE_TYPING);
+			serv_got_typing(sa->pc, from, 7, PURPLE_TYPING);
 		}
 	} else if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
 		gchar *html;
@@ -534,7 +534,7 @@ skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleTypingState 
 	json_object_unref(obj);
 	g_free(url);
 	
-	return 20;
+	return 5;
 }
 
 
