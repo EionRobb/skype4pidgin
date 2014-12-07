@@ -314,6 +314,7 @@ skypeweb_close(PurpleConnection *pc)
 
 	g_free(sa->skype_token);
 	g_free(sa->registration_token);
+	g_free(sa->endpoint);
 	g_free(sa->username);
 	g_free(sa);
 }

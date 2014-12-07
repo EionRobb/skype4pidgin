@@ -105,6 +105,7 @@ struct _SkypeWebAccount {
 	
 	gchar *skype_token;
 	gchar *registration_token;
+	gchar *endpoint;
 };
 
 struct _SkypeWebBuddy {
