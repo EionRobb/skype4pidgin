@@ -269,6 +269,15 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 				process_thread_resource(sa, resource);
 			}
 		}
+	} else if (json_object_has_member(obj, "errorCode")) {
+		gint64 errorCode = json_object_get_int_member(obj, "errorCode");
+		
+		if (errorCode == 729) {
+			// "You must create an endpoint before performing this operation"
+			// Dammit, Jim; I'm a programmer, not a surgeon!
+			skypeweb_get_registration_token(sa);
+			return;
+		}
 	}
 	
 	//TODO record id of highest recieved id to make sure we dont process the same id twice
@@ -407,10 +416,7 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 
 static void
 skypeweb_subscribe_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
-{
-	//{"id":"messagingService","type":"EndpointPresenceDoc","selfLink":"uri","privateInfo":{"epname":"skype"},"publicInfo":{"capabilities":"video|audio","type":1,"skypeNameVersion":"908/1.0.20/swx-skype.com","nodeInfo":"xx","version":"908/1.0.20"}}
-	// /v1/users/ME/endpoints/%7B60da4fa8-79f0-445b-846f-1f1e0116ecb5%7D/presenceDocs/messagingService
-	
+{	
 	skypeweb_do_all_the_things(sa);
 }
 
@@ -444,7 +450,7 @@ static void
 skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
 	gchar *registration_token;
-	//gchar *endpointId;
+	gchar *endpointId;
 	SkypeWebAccount *sa = user_data;
 	
 	if (url_text == NULL) {
@@ -453,7 +459,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	}
 	
 	registration_token = skypeweb_string_get_chunk(url_text, len, "Set-RegistrationToken: ", ";");
-	//endpointId = skypeweb_string_get_chunk(url_text, len, "endpointId=", "\r\n");
+	endpointId = skypeweb_string_get_chunk(url_text, len, "endpointId=", "\r\n");
 	
 	if (registration_token == NULL) {
 		purple_connection_error (sa->pc,
@@ -464,6 +470,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
 	
 	sa->registration_token = registration_token;
+	sa->endpoint = endpointId;
 	
 	skypeweb_subscribe(sa);
 }
@@ -477,8 +484,8 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	gchar *response;
 	PurpleUtilFetchUrlData *requestdata;
 	
-	g_free(sa->registration_token);
-	sa->registration_token = NULL;
+	g_free(sa->registration_token); sa->registration_token = NULL;
+	g_free(sa->endpoint); sa->endpoint = NULL;
 	
 	curtime = g_strdup_printf("%d", (int) time(NULL));
 	response = skypeweb_hmac_sha256(curtime);
@@ -544,10 +551,14 @@ skypeweb_set_statusid(SkypeWebAccount *sa, const gchar *status)
 	g_return_if_fail(status);
 	
 	post = g_strdup_printf("{\"status\":\"%s\"}", status);
-	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/presenceDocs/messagingService", post, NULL, NULL, TRUE);
-	
 	g_free(post);
+
+	if (sa->endpoint) {
+		gchar *url = g_strdup_printf("/v1/users/ME/endpoints/%s/presenceDocs/messagingService", purple_url_encode(sa->endpoint));
+		post = "{\"id\":\"messagingService\", \"type\":\"EndpointPresenceDoc\", \"selfLink\":\"uri\", \"privateInfo\":{\"epname\":\"skype\"}, \"publicInfo\":{\"capabilities\":\"\", \"type\":1, \"skypeNameVersion\":\"908/1.0.20/swx-skype.com\", \"nodeInfo\":\"xx\", \"version\":\"908/1.0.20\"}}";
+		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, post, NULL, NULL, TRUE);
+	}
 }
 
 void
