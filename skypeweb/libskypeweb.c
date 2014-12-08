@@ -258,7 +258,7 @@ skypeweb_login(PurpleAccount *account)
 		return;
 	}
 
-	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_URLDESC | PURPLE_CONNECTION_NO_FONTSIZE;
+	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE;
 	
 	sa->username = g_strdup(account->username);
 	sa->account = account;
