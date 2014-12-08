@@ -246,7 +246,7 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	
 	if (messages != NULL) {
 		length = json_array_get_length(messages);
-		for(index = 0; index < length; index++)
+		for(index = length - 1; index >= 0; index--)
 		{
 			JsonObject *message = json_array_get_object_element(messages, index);
 			const gchar *resourceType = json_object_get_string_member(message, "resourceType");
@@ -305,7 +305,7 @@ skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	obj = json_node_get_object(node);
 	messages = json_object_get_array_member(obj, "messages");
 	length = json_array_get_length(messages);
-	for(index = length; index > 0; index--)
+	for(index = length - 1; index >= 0; index--)
 	{
 		JsonObject *message = json_array_get_object_element(messages, index);
 		const gchar *composetime = json_object_get_string_member(message, "composetime");
