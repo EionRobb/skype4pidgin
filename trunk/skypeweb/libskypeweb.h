@@ -122,7 +122,6 @@ struct _SkypeWebBuddy {
 	/** Profile info */
 	gchar *avatar_url;
 	gchar *mood;
-	gchar *rich_mood;
 };
 
 

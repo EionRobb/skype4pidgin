@@ -422,7 +422,6 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		}
 		
 		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(contact, "mood"));
-		g_free(sbuddy->rich_mood); sbuddy->rich_mood = g_strdup(json_object_get_string_member(contact, "richMood"));
 	}
 }
 
@@ -500,7 +499,6 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		}
 		
 		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(userobj, "mood"));
-		g_free(sbuddy->rich_mood); sbuddy->rich_mood = g_strdup(json_object_get_string_member(userobj, "richMood"));
 	}
 	
 	purple_notify_userinfo(sa->pc, username, user_info, NULL, NULL);
