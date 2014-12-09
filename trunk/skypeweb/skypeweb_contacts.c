@@ -273,7 +273,7 @@ void
 skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	JsonArray *resultsarray = NULL;
-	guint index, length;
+	gint index, length;
 	GString *userids;
 	gchar *search_term = user_data;
 
@@ -388,8 +388,7 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 	JsonArray *contacts;
 	PurpleBuddy *buddy;
 	SkypeWebBuddy *sbuddy;
-	guint index;
-	guint length;
+	gint index, length;
 	
 	contacts = json_node_get_array(node);
 	length = json_array_get_length(contacts);
@@ -545,7 +544,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 	JsonArray *friends;
 	PurpleGroup *group = NULL;
 	GSList *users_to_fetch = NULL;
-	guint index, length;
+	gint index, length;
 	
 	friends = json_node_get_array(node);
 	length = json_array_get_length(friends);
@@ -644,7 +643,7 @@ static void
 skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	JsonArray *requests;
-	guint index, length;
+	gint index, length;
 	
 	requests = json_node_get_array(node);
 	length = json_array_get_length(requests);
