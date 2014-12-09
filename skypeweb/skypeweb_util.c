@@ -67,7 +67,9 @@ skypeweb_contact_url_to_name(const gchar *url)
 		return tempname;
 	}
 	
-	return start;
+	g_free(tempname);
+	tempname = g_strdup(start);
+	return tempname;
 }
 
 /** turn https://bay-client-s.gateway.messenger.live.com/v1/users/ME/conversations/19:blah@thread.skype
@@ -199,4 +201,30 @@ skypeweb_get_js_time()
 	g_get_current_time (&val);
 	
 	return (val.tv_sec * 1000) + (val.tv_usec / 1000);
+}
+
+/* copied from oscar.c to be libpurple 2.1 compatible */
+PurpleAccount *
+find_acct(const char *prpl, const char *acct_id)
+{
+	PurpleAccount *acct = NULL;
+	
+	/* If we have a specific acct, use it */
+	if (acct_id && *acct_id) {
+		acct = purple_accounts_find(acct_id, prpl);
+		if (acct && !purple_account_is_connected(acct))
+			acct = NULL;
+	} else { /* Otherwise find an active account for the protocol */
+		GList *l = purple_accounts_get_all();
+		while (l) {
+			if (!strcmp(prpl, purple_account_get_protocol_id(l->data))
+				&& purple_account_is_connected(l->data)) {
+				acct = l->data;
+				break;
+			}
+			l = l->next;
+		}
+	}
+	
+	return acct;
 }
