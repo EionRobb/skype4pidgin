@@ -324,6 +324,80 @@ skypeweb_close(PurpleConnection *pc)
 /******************************************************************************/
 
 static gboolean
+skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
+{
+	PurpleAccount *account;
+	PurpleConnection *pc;
+	
+	if (!g_str_equal(proto, "skype"))
+		return FALSE;
+		
+	/*skype uri's:
+	
+		skype:						//does nothing
+		skype:{buddyname}			//open im with {buddyname}
+		skype:{buddynames}?chat		//open multi-user chat with {buddynames}
+		skype:?chat&blob={blob id}	//open public multi-user chat with the blob id of {blob id}
+		skype:?chat&id={chat id}	//open multi-user chat with the id of {chat id}
+		skype:{buddyname}?add		//add user to buddy list 
+		skype:{buddyname}?userinfo	//get buddy's info
+		
+		skype:{buddynames}?call		//call {buddynames}
+		skype:{buddyname}?voicemail	//send a voice mail message
+		skype:{buddyname}?sendfile	//send a file
+		*/
+	
+	account = find_acct(SKYPEWEB_PLUGIN_ID, g_hash_table_lookup(params, "account"));
+	pc = purple_account_get_connection(account);
+	
+	if (g_hash_table_lookup(params, "chat")) {
+		if (cmd && *cmd) {
+			//there'll be a bunch of usernames, seperated by semi-colon
+			if (strchr(cmd, ';')) {
+				gchar **users = g_strsplit_set(cmd, ";", -1);
+				skypeweb_initiate_chat(pc->proto_data, users[0]);
+				//TODO the other users
+				g_strfreev(users);
+			} else {
+				PurpleConversation *conv;
+				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, cmd, account);
+				if (!conv) {
+					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, account, cmd);
+				}
+				purple_conversation_present(conv);
+			}
+		} else {
+			//probably a public multi-user chat?
+			GHashTable *chatinfo;
+			if (g_hash_table_lookup(params, "id"))
+				chatinfo = skypeweb_chat_info_defaults(pc, g_hash_table_lookup(params, "id"));
+			else if (g_hash_table_lookup(params, "blob"))
+				chatinfo = skypeweb_chat_info_defaults(pc, g_hash_table_lookup(params, "blob"));
+				
+			skypeweb_join_chat(pc, chatinfo);
+			g_hash_table_destroy(chatinfo);
+		}
+	} else if (g_hash_table_lookup(params, "add")) {
+		purple_blist_request_add_buddy(account, cmd, "Skype", g_hash_table_lookup(params, "displayname"));
+		return TRUE;
+	} else if (g_hash_table_lookup(params, "call")) {
+		
+	} else if (g_hash_table_lookup(params, "userinfo")) {
+		skypeweb_get_info(pc, cmd);
+		return TRUE;
+	} else if (g_hash_table_lookup(params, "voicemail")) {
+		
+	} else if (g_hash_table_lookup(params, "sendfile")) {
+		
+	} else if (strlen(cmd)) {
+		//supposed to be the same as call?
+	}
+	
+	//we don't know how to handle this
+	return FALSE;
+}
+
+static gboolean
 plugin_load(PurplePlugin *plugin)
 {
 	return TRUE;
@@ -360,7 +434,36 @@ plugin_init(PurplePlugin *plugin)
 		"always_use_https", FALSE);
 	prpl_info->protocol_options = g_list_append(
 		prpl_info->protocol_options, option);*/
-
+	
+	
+	/*
+	//leave
+	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						plugin->info->id, skypeweb_cmd_leave,
+						_("leave [room]:  Leave the chat"), NULL);
+	//topic
+	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						plugin->info->id, skypeweb_cmd_topic,
+						_("topic [&lt;new topic&gt;]:  View or change the topic"),
+						NULL);
+	//call, as in call person
+	//kick
+	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						plugin->info->id, skypeweb_cmd_kick,
+						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
+						NULL);
+	//kickban
+	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						plugin->info->id, skypeweb_cmd_kickban,
+						_("kickban &lt;user&gt; [room]:  Kick and ban a user from the room."),
+						NULL);
+	*/
+	
+	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
 }
 
 static PurplePluginProtocolInfo prpl_info = {

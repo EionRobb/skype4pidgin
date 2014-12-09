@@ -10,3 +10,5 @@ const gchar *skypeweb_thread_url_to_name(const gchar *url);
 gchar *skypeweb_hmac_sha256(gchar *input);
 
 gint64 skypeweb_get_js_time();
+
+PurpleAccount *find_acct(const char *prpl, const char *acct_id);
