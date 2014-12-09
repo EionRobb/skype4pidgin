@@ -12,6 +12,7 @@ guint skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleTyping
 void skypeweb_poll(SkypeWebAccount *sa);
 void skypeweb_get_registration_token(SkypeWebAccount *sa);
 void skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const char *who);
+void skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who);
 void skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata);
 
 void skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts);

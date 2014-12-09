@@ -216,7 +216,46 @@ process_conversation_resource(SkypeWebAccount *sa, JsonObject *resource)
 static void
 process_thread_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
+	
+}
 
+static void
+process_endpointpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
+{
+	JsonObject *publicInfo = json_object_get_object_member(resource, "publicInfo");
+	if (publicInfo != NULL) {
+		const gchar *typ_str = json_object_get_string_member(publicInfo, "typ");
+		const gchar *skypeNameVersion = json_object_get_string_member(publicInfo, "skypeNameVersion");
+		
+		if (typ_str && *typ_str) {
+			if (g_str_equal(typ_str, "website")) {
+			
+			} else {
+				gint typ = atoi(typ_str);
+				switch(typ) {
+					case 17: //Android
+						break;
+					case 16: //iOS
+						break;
+					case 12: //WinRT/Metro
+						break;
+					case 15: //Winphone
+						break;
+					case 13: //OSX
+						break;
+					case 11: //Windows
+						break;
+					case 14: //Linux
+						break;
+					case 10: //XBox ? skypeNameVersion 11/1.8.0.1006
+						break;
+					default:
+						purple_debug_warning("skypeweb", "Unknown typ %d: %s\n", typ, skypeNameVersion);
+						break;
+				}
+			}
+		}
+	}
 }
 
 gboolean
@@ -260,7 +299,7 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 				process_userpresence_resource(sa, resource);
 			} else if (g_str_equal(resourceType, "EndpointPresence"))
 			{
-				//process_endpointpresence_resource(sa, resource);
+				process_endpointpresence_resource(sa, resource);
 			} else if (g_str_equal(resourceType, "ConversationUpdate"))
 			{
 				process_conversation_resource(sa, resource);
@@ -672,6 +711,38 @@ skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const ch
 	g_string_free(url, TRUE);
 }
 
+void
+skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who)
+{
+	JsonObject *obj, *contact;
+	JsonArray *members;
+	gchar *id, *post;
+	
+	obj = json_object_new();
+	members = json_array_new();
+	
+	contact = json_object_new();
+	id = g_strconcat("8:", who, NULL);
+	json_object_set_string_member(contact, "id", id);
+	json_object_set_string_member(contact, "role", "User");
+	json_array_add_object_element(members, contact);
+	g_free(id);
+	
+	contact = json_object_new();
+	id = g_strconcat("8:", sa->username, NULL);
+	json_object_set_string_member(contact, "id", id);
+	json_object_set_string_member(contact, "role", "Admin");
+	json_array_add_object_element(members, contact);
+	g_free(id);
+	
+	json_object_set_array_member(obj, "members", members);
+	post = skypeweb_jsonobj_to_string(obj);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/threads", post, NULL, NULL, TRUE);
+
+	g_free(post);
+	json_object_unref(obj);
+}
 
 void
 skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata)
@@ -680,9 +751,6 @@ skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata)
 	{
 		PurpleBuddy *buddy = (PurpleBuddy *) node;
 		SkypeWebAccount *sa;
-		JsonObject *obj, *contact;
-		JsonArray *members;
-		gchar *id, *post;
 		
 		if (userdata) {
 			sa = userdata;
@@ -691,29 +759,6 @@ skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata)
 			sa = pc->proto_data;
 		}
 		
-		obj = json_object_new();
-		members = json_array_new();
-		
-		contact = json_object_new();
-		id = g_strconcat("8:", buddy->name, NULL);
-		json_object_set_string_member(contact, "id", id);
-		json_object_set_string_member(contact, "role", "User");
-		json_array_add_object_element(members, contact);
-		g_free(id);
-		
-		contact = json_object_new();
-		id = g_strconcat("8:", sa->username, NULL);
-		json_object_set_string_member(contact, "id", id);
-		json_object_set_string_member(contact, "role", "Admin");
-		json_array_add_object_element(members, contact);
-		g_free(id);
-		
-		json_object_set_array_member(obj, "members", members);
-		post = skypeweb_jsonobj_to_string(obj);
-		
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/threads", post, NULL, NULL, TRUE);
-	
-		g_free(post);
-		json_object_unref(obj);
+		skypeweb_initiate_chat(sa, buddy->name);
 	}
 }
