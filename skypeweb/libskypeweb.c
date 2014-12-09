@@ -44,14 +44,9 @@ skypeweb_status_text(PurpleBuddy *buddy)
 {
 	SkypeWebBuddy *sbuddy = buddy->proto_data;
 
-	if (sbuddy && (sbuddy->mood || sbuddy->rich_mood))
+	if (sbuddy && sbuddy->mood && *(sbuddy->mood))
 	{
-		if (sbuddy->rich_mood)
-		{
-			return sbuddy->rich_mood;
-		} else {
-			return g_markup_printf_escaped("%s", sbuddy->mood);
-		}
+		return g_markup_printf_escaped("%s", sbuddy->mood);
 	}
 
 	return NULL;
@@ -204,7 +199,6 @@ skypeweb_buddy_free(PurpleBuddy *buddy)
 		g_free(sbuddy->display_name);
 		g_free(sbuddy->avatar_url);
 		g_free(sbuddy->mood);
-		g_free(sbuddy->rich_mood);
 		
 		g_free(sbuddy);
 	}
@@ -460,6 +454,12 @@ plugin_init(PurplePlugin *plugin)
 						PURPLE_CMD_FLAG_PRPL_ONLY,
 						plugin->info->id, skypeweb_cmd_kickban,
 						_("kickban &lt;user&gt; [room]:  Kick and ban a user from the room."),
+						NULL);
+	//setrole
+	purple_cmd_register("setrole", "ss", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						plugin->info->id, skypeweb_cmd_setrole,
+						_("setrole &lt;user&gt; &lt;MASTER | USER | ADMIN&gt;:  Change the role of a user."),
 						NULL);
 	*/
 	
