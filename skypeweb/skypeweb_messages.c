@@ -236,7 +236,7 @@ static void
 skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	JsonArray *messages = NULL;
-	guint index, length;
+	gint index, length;
 	JsonObject *obj;
 	
 	obj = json_node_get_object(node);
@@ -300,7 +300,7 @@ skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	time_t since = GPOINTER_TO_INT(user_data);
 	JsonObject *obj;
 	JsonArray *messages;
-	guint index, length;
+	gint index, length;
 	
 	obj = json_node_get_object(node);
 	messages = json_object_get_array_member(obj, "messages");
@@ -340,7 +340,7 @@ skypeweb_got_all_convs(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	time_t since = GPOINTER_TO_INT(user_data);
 	JsonObject *obj;
 	JsonArray *conversations;
-	guint index, length;
+	gint index, length;
 	
 	obj = json_node_get_object(node);
 	conversations = json_object_get_array_member(obj, "conversations");
