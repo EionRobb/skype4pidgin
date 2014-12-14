@@ -313,6 +313,12 @@ skypeweb_close(PurpleConnection *pc)
 	g_free(sa);
 }
 
+gboolean
+skypeweb_offline_message(const PurpleBuddy *buddy)
+{
+	return TRUE;
+}
+
 /******************************************************************************/
 /* Plugin functions */
 /******************************************************************************/
@@ -362,14 +368,17 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 			}
 		} else {
 			//probably a public multi-user chat?
-			GHashTable *chatinfo;
-			if (g_hash_table_lookup(params, "id"))
+			GHashTable *chatinfo = NULL;
+			if (g_hash_table_lookup(params, "id")) {
 				chatinfo = skypeweb_chat_info_defaults(pc, g_hash_table_lookup(params, "id"));
-			else if (g_hash_table_lookup(params, "blob"))
+			} else if (g_hash_table_lookup(params, "blob")) {
 				chatinfo = skypeweb_chat_info_defaults(pc, g_hash_table_lookup(params, "blob"));
-				
-			skypeweb_join_chat(pc, chatinfo);
-			g_hash_table_destroy(chatinfo);
+			}
+			
+			if (chatinfo != NULL) {
+				skypeweb_join_chat(pc, chatinfo);
+				g_hash_table_destroy(chatinfo);
+			}
 		}
 	} else if (g_hash_table_lookup(params, "add")) {
 		purple_blist_request_add_buddy(account, cmd, "Skype", g_hash_table_lookup(params, "displayname"));
@@ -537,7 +546,7 @@ static PurplePluginProtocolInfo prpl_info = {
 	NULL,                         /* can_receive_file */
 	NULL,                         /* send_file */
 	NULL,                         /* new_xfer */
-	NULL,                         /* offline_message */
+	skypeweb_offline_message,     /* offline_message */
 	NULL,                         /* whiteboard_prpl_ops */
 	NULL,                         /* send_raw */
 	NULL,                         /* roomlist_room_serialize */
