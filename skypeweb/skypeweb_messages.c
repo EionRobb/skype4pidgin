@@ -3,6 +3,20 @@
 #include "skypeweb_connection.h"
 #include "skypeweb_contacts.h"
 
+
+
+static gchar *
+skypeweb_meify(const gchar *message, gint skypeemoteoffset)
+{
+	guint len;
+	len = strlen(message);
+	
+	if (skypeemoteoffset <= 0 || skypeemoteoffset >= len)
+		return g_strdup(message);
+	
+	return g_strconcat("/me ", message + skypeemoteoffset, NULL);
+}
+
 static void
 process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
@@ -53,6 +67,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	g_return_if_fail(from);
 	
 	if (strstr(conversationLink, "/19:")) {
+		// This is a Thread/Group chat message
 		const gchar *chatname, *topic;
 		
 		chatname = skypeweb_thread_url_to_name(conversationLink);
@@ -67,11 +82,17 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		
 		if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
 			gchar *html;
+			gint64 skypeemoteoffset = 0;
+			
+			if (json_object_has_member(resource, "skypeemoteoffset"))
+				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
 			
 			if (g_str_equal(messagetype, "Text")) {
-				html = purple_markup_escape_text(content, -1);
+				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
+				html = purple_markup_escape_text(temp, -1);
+				g_free(temp);
 			} else {
-				html = g_strdup(content);
+				html = skypeweb_meify(content, skypeemoteoffset);
 			}
 			serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
 					
@@ -121,6 +142,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		return;
 	}
 	
+	// This is a One-to-one/IM message
 	if (g_str_equal(messagetype_parts[0], "Control")) {
 		if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
 			serv_got_typing(sa->pc, from, 7, PURPLE_NOT_TYPING);
@@ -129,10 +151,17 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 	} else if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
 		gchar *html;
+		gint64 skypeemoteoffset = 0;
+		
+		if (json_object_has_member(resource, "skypeemoteoffset"))
+			skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+		
 		if (g_str_equal(messagetype, "Text")) {
-			html = purple_markup_escape_text(content, -1);
+			gchar *temp = skypeweb_meify(content, skypeemoteoffset);
+			html = purple_markup_escape_text(temp, -1);
+			g_free(temp);
 		} else {
-			html = g_strdup(content);
+			html = skypeweb_meify(content, skypeemoteoffset);
 		}
 		if (g_str_equal(sa->username, from)) {
 			from = skypeweb_contact_url_to_name(conversationLink);
@@ -640,6 +669,10 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	json_object_set_string_member(obj, "content", message);
 	json_object_set_string_member(obj, "messagetype", "RichText");
 	json_object_set_string_member(obj, "contenttype", "text");
+	
+	if (g_str_has_prefix(message, "/me ")) {
+		json_object_set_string_member(obj, "skypeemoteoffset", "4"); //Why is this a string :(
+	}
 	
 	post = skypeweb_jsonobj_to_string(obj);
 	
