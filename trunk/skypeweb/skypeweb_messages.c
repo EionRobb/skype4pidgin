@@ -658,11 +658,15 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	JsonObject *obj;
 	gint64 clientmessageid;
 	gchar *clientmessageid_str;
+	gchar *stripped;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(convname));
 	
 	clientmessageid = skypeweb_get_js_time();
 	clientmessageid_str = g_strdup_printf("%" G_GINT64_FORMAT "", clientmessageid);
+	
+	// Some clients don't receive messages with <br>'s in them
+	stripped = purple_strreplace(message, "<br>", "\r\n");
 	
 	obj = json_object_new();
 	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
@@ -681,6 +685,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	g_free(post);
 	json_object_unref(obj);
 	g_free(url);
+	g_free(stripped);
 	
 	g_hash_table_insert(sa->sent_messages_hash, clientmessageid_str, clientmessageid_str);
 }
