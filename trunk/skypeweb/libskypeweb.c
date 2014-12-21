@@ -221,17 +221,25 @@ skypeweb_node_menu(PurpleBlistNode *node)
 	GList *m = NULL;
 	PurpleMenuAction *act;
 	PurpleBuddy *buddy;
-	SkypeWebBuddy *sbuddy;
+	SkypeWebAccount *sa = NULL;
 	
 	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *)node;
-		sbuddy = (SkypeWebBuddy *)buddy->proto_data;
+		if (buddy->proto_data) {
+			SkypeWebBuddy *sbuddy = (SkypeWebBuddy *)buddy->proto_data;
+			sa = sbuddy->sa;
+		} else {
+			PurpleConnection *pc = purple_account_get_connection(buddy->account);
+			sa = pc->proto_data;
+		}
 		
-		act = purple_menu_action_new(_("Initiate _Chat"),
-							PURPLE_CALLBACK(skypeweb_initiate_chat_from_node),
-							sbuddy->sa, NULL);
-		m = g_list_append(m, act);
+		if (sa != NULL) {
+			act = purple_menu_action_new(_("Initiate _Chat"),
+								PURPLE_CALLBACK(skypeweb_initiate_chat_from_node),
+								sa, NULL);
+			m = g_list_append(m, act);
+		}
 	}
 	
 	return m;
