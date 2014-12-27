@@ -569,7 +569,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	
 	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST) || g_str_equal(host, SKYPEWEB_VIDEOMAIL_HOST)) {
 		g_string_append_printf(request, "X-Skypetoken: %s\r\n", sa->skype_token);
-		g_string_append(request, "X-Stratus-Caller: swx-skype.com\r\n");
+		g_string_append(request, "X-Stratus-Caller: " SKYPEWEB_CLIENTINFO_NAME "\r\n");
 		g_string_append(request, "X-Stratus-Request: abcd1234\r\n");
 		g_string_append(request, "Origin: https://web.skype.com\r\n");
 		g_string_append(request, "Referer: https://web.skype.com/main\r\n");
@@ -578,7 +578,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		g_string_append_printf(request, "RegistrationToken: %s\r\n", sa->registration_token);
 		g_string_append(request, "Referer: https://web.skype.com/main\r\n");
 		g_string_append(request, "Accept: application/json; ver=1.0;\r\n");
-		g_string_append(request, "ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=swx-skype.com; clientVer=908/1.0.0.20\r\n");
+		g_string_append(request, "ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=" SKYPEWEB_CLIENTINFO_NAME "; clientVer=" SKYPEWEB_CLIENTINFO_VERSION "\r\n");
 	} else {
 		g_string_append_printf(request, "Accept: */*\r\n");
 		g_string_append_printf(request, "Cookie: %s\r\n", cookies);
