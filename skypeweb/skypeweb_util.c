@@ -200,7 +200,7 @@ skypeweb_get_js_time()
 	
 	g_get_current_time (&val);
 	
-	return (val.tv_sec * 1000) + (val.tv_usec / 1000);
+	return (((gint64) val.tv_sec) * 1000) + (val.tv_usec / 1000);
 }
 
 /* copied from oscar.c to be libpurple 2.1 compatible */
