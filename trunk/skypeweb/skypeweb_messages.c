@@ -144,6 +144,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	} else {
 		// This is a One-to-one/IM message
 		convname = g_strconcat("8:", skypeweb_contact_url_to_name(conversationLink), NULL);
+		from = skypeweb_contact_url_to_name(from);  //regen the from
 		
 		if (g_str_equal(messagetype_parts[0], "Control")) {
 			if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
