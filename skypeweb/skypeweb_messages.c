@@ -465,6 +465,7 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 	GSList *cur = contacts;
 	JsonObject *obj;
 	JsonArray *contacts_array;
+	guint count = 0;
 	
 	if (contacts == NULL)
 		return;
@@ -481,6 +482,21 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		json_array_add_object_element(contacts_array, contact);
 		
 		g_free(id);
+		
+		if (count++ >= 100) {
+			// Send off the current batch and continue
+			json_object_set_array_member(obj, "contacts", contacts_array);
+			post = skypeweb_jsonobj_to_string(obj);
+
+			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, contacts_url, post, NULL, NULL, TRUE);
+			
+			g_free(post);
+			json_object_unref(obj);
+			
+			obj = json_object_new();
+			contacts_array = json_array_new();
+			count = 0;
+		}
 	} while((cur = g_slist_next(cur)));
 	
 	json_object_set_array_member(obj, "contacts", contacts_array);
