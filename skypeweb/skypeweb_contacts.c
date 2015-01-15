@@ -467,7 +467,19 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	_SKYPE_USER_INFO("firstname", "First name");
 	_SKYPE_USER_INFO("lastname", "Last name");
 	_SKYPE_USER_INFO("birthday", "Birthday");
-	_SKYPE_USER_INFO("gender", "Gender");
+	//_SKYPE_USER_INFO("gender", "Gender");
+	if (!json_object_get_null_member(userobj, "gender")) {
+		const gchar *gender = json_object_get_string_member(userobj, "gender");
+		const gchar *gender_output;
+		if (*gender == '1') {
+			gender_output = _("Male");
+		} else if (*gender == '2') {
+			gender_output = _("Female");
+		} else {
+			gender_output = _("Unknown");
+		}
+		purple_notify_user_info_add_pair_html(user_info, _("Gender"), json_object_get_string_member(userobj, gender_output));
+	}
 	_SKYPE_USER_INFO("language", "Language");
 	_SKYPE_USER_INFO("country", "Country");
 	_SKYPE_USER_INFO("province", "Province");
