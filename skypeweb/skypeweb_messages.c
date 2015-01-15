@@ -81,7 +81,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			topic = json_object_get_string_member(resource, "threadtopic");
 			purple_conv_chat_set_topic(PURPLE_CONV_CHAT(conv), NULL, topic);
 			
-			//TODO get buddies and history
+			skypeweb_get_conversation_history(sa, chatname);
+			skypeweb_get_thread_users(sa, chatname);
 		}
 		
 		if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
@@ -136,6 +137,30 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				
 			g_free(initiator);
 			g_free(value);
+			xmlnode_free(blob);
+		} else if (g_str_equal(messagetype, "ThreadActivity/RoleUpdate")) {
+			xmlnode *blob = xmlnode_from_str(content, -1);
+			xmlnode *target;
+			for(target = xmlnode_get_child(blob, "target"); target;
+				target = xmlnode_get_next_twin(target))
+			{
+				gchar *user = xmlnode_get_data(xmlnode_get_child(target, "id"));
+				gchar *role = xmlnode_get_data(xmlnode_get_child(target, "role"));
+				PurpleConvChatBuddyFlags cbflags = PURPLE_CBFLAGS_NONE;
+				
+				if (role && *role) {
+					if (g_str_equal(role, "Admin")) {
+						cbflags = PURPLE_CBFLAGS_OP;
+					} else if (g_str_equal(role, "User")) {
+						cbflags = PURPLE_CBFLAGS_VOICE;
+					}
+				}
+				purple_conv_chat_user_set_flags(PURPLE_CONV_CHAT(conv), &user[2], cbflags);
+				
+				g_free(user);
+				g_free(role);
+			} 
+			
 			xmlnode_free(blob);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled thread message resource messagetype '%s'\n", messagetype);
@@ -372,6 +397,53 @@ skypeweb_poll(SkypeWebAccount *sa)
 }
 
 
+static void
+skypeweb_got_thread_users(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	PurpleConversation *conv;
+	gchar *chatname = user_data;
+	JsonObject *response;
+	JsonArray *members;
+	gint length, index;
+	
+	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, chatname, sa->account);
+	if (conv == NULL)
+		return;
+	purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
+	
+	response = json_node_get_object(node);
+	members = json_object_get_array_member(response, "members");
+	length = json_array_get_length(members);
+	for(index = length - 1; index >= 0; index--)
+	{
+		JsonObject *member = json_array_get_object_element(members, index);
+		const gchar *userLink = json_object_get_string_member(member, "userLink");
+		const gchar *role = json_object_get_string_member(member, "role");
+		const gchar *username = skypeweb_contact_url_to_name(userLink);
+		PurpleConvChatBuddyFlags cbflags = PURPLE_CBFLAGS_NONE;
+		
+		if (role && *role) {
+			if (g_str_equal(role, "Admin")) {
+				cbflags = PURPLE_CBFLAGS_OP;
+			} else if (g_str_equal(role, "User")) {
+				cbflags = PURPLE_CBFLAGS_VOICE;
+			}
+		}
+		
+		purple_conv_chat_add_user(PURPLE_CONV_CHAT(conv), username, NULL, cbflags, FALSE);
+	}
+}
+
+void
+skypeweb_get_thread_users(SkypeWebAccount *sa, const gchar *convname)
+{
+	gchar *url;
+	url = g_strdup_printf("/v1/threads/%s?view=msnp24Equivalent", purple_url_encode(convname));
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_thread_users, g_strdup(convname), TRUE);
+	
+	g_free(url);
+}
 
 static void
 skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
