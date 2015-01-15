@@ -193,7 +193,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 			if (g_str_equal(sa->username, from)) {
 				from = skypeweb_contact_url_to_name(conversationLink);
-				if (from != NULL) {
+				if (from != NULL && !g_str_has_prefix(html, "?OTR")) {
 					conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, from, sa->account);
 					if (conv == NULL)
 					{
