@@ -1,5 +1,4 @@
 
-
 #include "skypeweb_connection.h"
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
@@ -557,8 +556,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	g_string_append_printf(request, "Connection: %s\r\n",
 			(keepalive ? "Keep-Alive" : "close"));
 	//g_string_append_printf(request, "User-Agent: %s\r\n", user_agent);
-	if (method & SKYPEWEB_METHOD_POST) {
-		
+	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) {		
 		if (postdata && (postdata[0] == '[' || postdata[0] == '{')) {
 			g_string_append(request, "Content-Type: application/json\r\n"); // hax
 		} else {
