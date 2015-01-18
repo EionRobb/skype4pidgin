@@ -543,7 +543,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	cookies = skypeweb_cookies_to_string(sa);
 	//user_agent = purple_account_get_string(sa->account, "user-agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
 	
-	if (method & SKYPEWEB_METHOD_POST && !postdata)
+	if ((method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) && !postdata)
 		postdata = "";
 
 	/* Build the request */
@@ -606,13 +606,13 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	purple_debug_info("skypeweb", "getting url %s\n", url);
 
 	g_string_append_printf(request, "\r\n");
-	if (method & SKYPEWEB_METHOD_POST)
+	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT))
 		g_string_append_printf(request, "%s", postdata);
 
 	/* If it needs to go over a SSL connection, we probably shouldn't print
 	 * it in the debug log.  Without this condition a user's password is
 	 * printed in the debug log */
-	if (method == SKYPEWEB_METHOD_POST)
+	if (method == SKYPEWEB_METHOD_POST || method == SKYPEWEB_METHOD_PUT)
 		purple_debug_info("skypeweb", "sending request data:\n%s\n", postdata);
 	
 	purple_debug_misc("skypeweb", "sending headers:\n%s\n", request->str);
