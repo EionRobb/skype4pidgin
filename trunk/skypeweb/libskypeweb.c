@@ -270,7 +270,12 @@ skypeweb_login(PurpleAccount *account)
 	sa->sent_messages_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sa->waiting_conns = g_queue_new();
 	
-	skypeweb_begin_web_login(sa);
+	if(strchr(sa->username, '@')) {
+		//Has an email address for a username, probably a microsoft account?
+		skypeweb_begin_oauth_login(sa);
+	} else {
+		skypeweb_begin_web_login(sa);
+	}
 }
 
 static void
