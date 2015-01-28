@@ -195,7 +195,7 @@ skypeweb_login_got_ppft(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
 			msprequ_cookie, mspok_cookie, cktst_cookie, strlen(postdata->str), postdata->str);
 	
-	purple_util_fetch_url_request(sa->account, live_login_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_login_got_ppft, sa);
+	purple_util_fetch_url_request(sa->account, live_login_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_login_got_t, sa);
 	
 	g_string_free(postdata, TRUE);
 	g_free(request);
