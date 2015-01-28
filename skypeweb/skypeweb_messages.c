@@ -314,6 +314,8 @@ process_endpointpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 						break;
 					case 10: //XBox ? skypeNameVersion 11/1.8.0.1006
 						break;
+					case 1:  //SkypeWeb
+						break;
 					default:
 						purple_debug_warning("skypeweb", "Unknown typ %d: %s\n", typ, skypeNameVersion);
 						break;
