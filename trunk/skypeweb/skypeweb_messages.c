@@ -254,7 +254,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		url = g_strdup_printf("/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", purple_url_encode(convname));
 		post = g_strdup_printf("{\"consumptionhorizon\":\"%d000;%" G_GINT64_FORMAT ";%s\"}", arrivaltimestamp, skypeweb_get_js_time(), clientmessageid);
 		
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, post, NULL, NULL, TRUE);
+		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
 		
 		g_free(post);
 		g_free(url);
@@ -395,7 +395,7 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 void
 skypeweb_poll(SkypeWebAccount *sa)
 {
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/endpoints/SELF/subscriptions/0/poll", NULL, skypeweb_poll_cb, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/endpoints/SELF/subscriptions/0/poll", NULL, skypeweb_poll_cb, NULL, TRUE);
 }
 
 
@@ -442,7 +442,7 @@ skypeweb_get_thread_users(SkypeWebAccount *sa, const gchar *convname)
 	gchar *url;
 	url = g_strdup_printf("/v1/threads/%s?view=msnp24Equivalent", purple_url_encode(convname));
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_thread_users, g_strdup(convname), TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_thread_users, g_strdup(convname), TRUE);
 	
 	g_free(url);
 }
@@ -476,7 +476,7 @@ skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convna
 	gchar *url;
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%d000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname), since);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_conv_history, GINT_TO_POINTER(since), TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_conv_history, GINT_TO_POINTER(since), TRUE);
 	
 	g_free(url);
 }
@@ -519,7 +519,7 @@ skypeweb_get_all_conversations_since(SkypeWebAccount *sa, time_t since)
 	gchar *url;
 	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%d000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", since);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, NULL, skypeweb_got_all_convs, GINT_TO_POINTER(since), TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_all_convs, GINT_TO_POINTER(since), TRUE);
 	
 	g_free(url);
 }
@@ -562,7 +562,7 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 			json_object_set_array_member(obj, "contacts", contacts_array);
 			post = skypeweb_jsonobj_to_string(obj);
 
-			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, contacts_url, post, NULL, NULL, TRUE);
+			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, contacts_url, post, NULL, NULL, TRUE);
 			
 			g_free(post);
 			json_object_unref(obj);
@@ -576,7 +576,7 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 	json_object_set_array_member(obj, "contacts", contacts_array);
 	post = skypeweb_jsonobj_to_string(obj);
 
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, contacts_url, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, contacts_url, post, NULL, NULL, TRUE);
 	
 	g_free(post);
 	json_object_unref(obj);
@@ -609,7 +609,7 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 	
 	post = skypeweb_jsonobj_to_string(obj);
 
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/endpoints/SELF/subscriptions", post, skypeweb_subscribe_cb, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/endpoints/SELF/subscriptions", post, skypeweb_subscribe_cb, NULL, TRUE);
 	
 	g_free(post);
 	json_object_unref(obj);
@@ -621,10 +621,23 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	gchar *registration_token;
 	gchar *endpointId;
 	SkypeWebAccount *sa = user_data;
+	gchar *new_messages_host;
 	
 	if (url_text == NULL) {
 		url_text = url_data->webdata;
 		len = url_data->data_len;
+	}
+	
+	new_messages_host = skypeweb_string_get_chunk(url_text, len, "Location: https://", "/");
+	if (new_messages_host != NULL && !g_str_equal(sa->messages_host, new_messages_host)) {
+		g_free(sa->messages_host);
+		sa->messages_host = new_messages_host;
+		
+		// Your princess is in another castle
+		purple_debug_info("skypeweb", "Messages host has changed to %s\n", sa->messages_host);
+		
+		skypeweb_get_registration_token(sa);
+		return;
 	}
 	
 	registration_token = skypeweb_string_get_chunk(url_text, len, "Set-RegistrationToken: ", ";");
@@ -638,8 +651,8 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	}
 	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
 	
-	sa->registration_token = registration_token;
-	sa->endpoint = endpointId;
+	g_free(sa->registration_token); sa->registration_token = registration_token;
+	g_free(sa->endpoint); sa->endpoint = endpointId;
 	
 	skypeweb_subscribe(sa);
 }
@@ -647,7 +660,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 void
 skypeweb_get_registration_token(SkypeWebAccount *sa)
 {
-	const gchar *messages_url = "https://" SKYPEWEB_MESSAGES_HOST "/v1/users/ME/endpoints";
+	gchar *messages_url;
 	gchar *request;
 	gchar *curtime;
 	gchar *response;
@@ -659,17 +672,19 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	curtime = g_strdup_printf("%d", (int) time(NULL));
 	response = skypeweb_hmac_sha256(curtime);
 	
+	messages_url = g_strdup_printf("https://%s/v1/users/ME/endpoints", sa->messages_host);
+	
 	request = g_strdup_printf("POST /v1/users/ME/endpoints HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: */*\r\n"
 			"BehaviorOverride: redirectAs404\r\n"
 			"LockAndKey: appId=" SKYPEWEB_LOCKANDKEY_APPID "; time=%s; lockAndKeyResponse=%s\r\n"
 			"ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=" SKYPEWEB_CLIENTINFO_NAME "; clientVer=" SKYPEWEB_CLIENTINFO_VERSION "\r\n"
-			"Host: " SKYPEWEB_MESSAGES_HOST "\r\n"
+			"Host: %s\r\n"
 			"Content-Type: application/json\r\n"
 			"Authentication: skypetoken=%s\r\n"
 			"Content-Length: 2\r\n\r\n{}",
-			curtime, response, sa->skype_token);
+			curtime, response, sa->messages_host, sa->skype_token);
 	
 	//purple_debug_info("skypeweb", "reg token request is %s\n", request);
 	
@@ -679,6 +694,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	g_free(request);
 	g_free(curtime);
 	g_free(response);
+	g_free(messages_url);
 }
 
 
@@ -702,7 +718,7 @@ skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleTypingState 
 	
 	post = skypeweb_jsonobj_to_string(obj);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
 	
 	g_free(post);
 	json_object_unref(obj);
@@ -720,13 +736,13 @@ skypeweb_set_statusid(SkypeWebAccount *sa, const gchar *status)
 	g_return_if_fail(status);
 	
 	post = g_strdup_printf("{\"status\":\"%s\"}", status);
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/users/ME/presenceDocs/messagingService", post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/presenceDocs/messagingService", post, NULL, NULL, TRUE);
 	g_free(post);
 
 	if (sa->endpoint) {
 		gchar *url = g_strdup_printf("/v1/users/ME/endpoints/%s/presenceDocs/messagingService", purple_url_encode(sa->endpoint));
 		post = "{\"id\":\"messagingService\", \"type\":\"EndpointPresenceDoc\", \"selfLink\":\"uri\", \"privateInfo\":{\"epname\":\"skype\"}, \"publicInfo\":{\"capabilities\":\"\", \"type\":1, \"typ\":1, \"skypeNameVersion\":\"" SKYPEWEB_CLIENTINFO_VERSION "/" SKYPEWEB_CLIENTINFO_NAME "\", \"nodeInfo\":\"xx\", \"version\":\"" SKYPEWEB_CLIENTINFO_VERSION "\"}}";
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, post, NULL, NULL, TRUE);
+		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
 	}
 }
 
@@ -781,7 +797,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	
 	post = skypeweb_jsonobj_to_string(obj);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
 	
 	g_free(post);
 	json_object_unref(obj);
@@ -845,7 +861,7 @@ skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const ch
 	
 	post = "{\"role\":\"User\"}";
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url->str, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
 	
 	g_string_free(url, TRUE);
 }
@@ -877,7 +893,7 @@ skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who)
 	json_object_set_array_member(obj, "members", members);
 	post = skypeweb_jsonobj_to_string(obj);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, "/v1/threads", post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/threads", post, NULL, NULL, TRUE);
 
 	g_free(post);
 	json_object_unref(obj);

@@ -179,7 +179,7 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	
 	post = "{\"role\":\"User\"}";
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_MESSAGES_HOST, url->str, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
 	
 	g_string_free(url, TRUE);
 	
@@ -269,6 +269,7 @@ skypeweb_login(PurpleAccount *account)
 	sa->hostname_ip_cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	sa->sent_messages_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sa->waiting_conns = g_queue_new();
+	sa->messages_host = g_strdup(SKYPEWEB_DEFAULT_MESSAGES_HOST);
 	
 	if(strchr(sa->username, '@')) {
 		//Has an email address for a username, probably a microsoft account?
@@ -318,7 +319,8 @@ skypeweb_close(PurpleConnection *pc)
 	g_hash_table_destroy(sa->sent_messages_hash);
 	g_hash_table_destroy(sa->cookie_table);
 	g_hash_table_destroy(sa->hostname_ip_cache);
-
+	
+	g_free(sa->messages_host);
 	g_free(sa->skype_token);
 	g_free(sa->registration_token);
 	g_free(sa->endpoint);

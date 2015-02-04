@@ -77,7 +77,7 @@
 #define SKYPEWEB_LOCKANDKEY_SECRET "Q1P7W2E4J9R8U3S5"
 
 #define SKYPEWEB_CONTACTS_HOST "api.skype.com"
-#define SKYPEWEB_MESSAGES_HOST "client-s.gateway.messenger.live.com"
+#define SKYPEWEB_DEFAULT_MESSAGES_HOST "client-s.gateway.messenger.live.com"
 #define SKYPEWEB_LOGIN_HOST "login.skype.com"
 #define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
 
@@ -99,6 +99,7 @@ struct _SkypeWebAccount {
 	GSList *dns_queries;
 	GHashTable *cookie_table;
 	GHashTable *hostname_ip_cache;
+	gchar *messages_host;
 	
 	GHashTable *sent_messages_hash;
 	guint poll_timeout;

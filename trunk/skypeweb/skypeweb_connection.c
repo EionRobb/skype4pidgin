@@ -572,7 +572,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		g_string_append(request, "Origin: https://web.skype.com\r\n");
 		g_string_append(request, "Referer: https://web.skype.com/main\r\n");
 		g_string_append(request, "Accept: application/json; ver=1.0;\r\n");
-	} else if (g_str_equal(host, SKYPEWEB_MESSAGES_HOST)) {
+	} else if (g_str_equal(host, sa->messages_host)) {
 		g_string_append_printf(request, "RegistrationToken: %s\r\n", sa->registration_token);
 		g_string_append(request, "Referer: https://web.skype.com/main\r\n");
 		g_string_append(request, "Accept: application/json; ver=1.0;\r\n");
