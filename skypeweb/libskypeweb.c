@@ -461,15 +461,12 @@ skypeweb_actions(PurplePlugin *plugin, gpointer context)
 static void
 plugin_init(PurplePlugin *plugin)
 {
-	/*PurpleAccountOption *option;
+	PurpleAccountOption *option;
 	PurplePluginInfo *info = plugin->info;
 	PurplePluginProtocolInfo *prpl_info = info->extra_info;
 	
-	option = purple_account_option_bool_new(
-		_("Always use HTTPS"),
-		"always_use_https", FALSE);
-	prpl_info->protocol_options = g_list_append(
-		prpl_info->protocol_options, option);*/
+	option = purple_account_option_bool_new("", "", FALSE);
+	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
 	
 	
 	/*
