@@ -62,6 +62,11 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 	struct timezone tz;
 	guint tzhours, tzminutes;
 	
+	if (error_message && *error_message) {
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, error_message);
+		return;
+	}
+	
 	gettimeofday(NULL, &tz);
 	tzminutes = tz.tz_minuteswest;
 	if (tzminutes < 0) tzminutes = -tzminutes;
