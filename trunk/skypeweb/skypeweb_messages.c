@@ -805,7 +805,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	
 	obj = json_object_new();
 	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
-	json_object_set_string_member(obj, "content", message);
+	json_object_set_string_member(obj, "content", stripped);
 	json_object_set_string_member(obj, "messagetype", "RichText");
 	json_object_set_string_member(obj, "contenttype", "text");
 	
