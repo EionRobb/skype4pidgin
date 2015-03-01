@@ -65,6 +65,7 @@ static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
 	const gchar *clientmessageid = json_object_get_string_member(resource, "clientmessageid");
+	const gchar *skypeeditedid = json_object_get_string_member(resource, "skypeeditedid");
 	const gchar *messagetype = json_object_get_string_member(resource, "messagetype");
 	const gchar *from = json_object_get_string_member(resource, "from");
 	const gchar *content = json_object_get_string_member(resource, "content");
@@ -79,6 +80,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	if (clientmessageid && *clientmessageid && g_hash_table_remove(sa->sent_messages_hash, clientmessageid)) {
 		// We sent this message from here already
+		g_strfreev(messagetype_parts);
 		return;
 	}
 	
@@ -103,12 +105,14 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			skypeweb_get_thread_users(sa, chatname);
 		}
 		
-		if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
+		if ((g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) && content && *content) {
 			gchar *html;
 			gint64 skypeemoteoffset = 0;
 			
 			if (json_object_has_member(resource, "skypeemoteoffset"))
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+			
+			//TODO if (skypeeditedid && *skypeeditedid) { ... }
 			
 			if (g_str_equal(messagetype, "Text")) {
 				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
@@ -195,12 +199,14 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} else if (g_str_equal(messagetype_parts[1], "Typing")) {
 				serv_got_typing(sa->pc, from, 7, PURPLE_TYPING);
 			}
-		} else if (g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) {
+		} else if ((g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) && content && *content) {
 			gchar *html;
 			gint64 skypeemoteoffset = 0;
 			
 			if (json_object_has_member(resource, "skypeemoteoffset"))
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+			
+			//TODO if (skypeeditedid && *skypeeditedid) { ... }
 			
 			if (g_str_equal(messagetype, "Text")) {
 				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
