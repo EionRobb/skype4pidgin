@@ -478,14 +478,14 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	
 	user_info = purple_notify_user_info_new();
 	
-#define _SKYPE_USER_INFO(prop, key) if (prop && !json_object_get_null_member(userobj, (prop))) \
+#define _SKYPE_USER_INFO(prop, key) if (prop && json_object_has_member(userobj, (prop)) && !json_object_get_null_member(userobj, (prop))) \
 	purple_notify_user_info_add_pair_html(user_info, _(key), json_object_get_string_member(userobj, (prop)));
 	
 	_SKYPE_USER_INFO("firstname", "First name");
 	_SKYPE_USER_INFO("lastname", "Last name");
 	_SKYPE_USER_INFO("birthday", "Birthday");
 	//_SKYPE_USER_INFO("gender", "Gender");
-	if (!json_object_get_null_member(userobj, "gender")) {
+	if (json_object_has_member(userobj, "gender") && !json_object_get_null_member(userobj, "gender")) {
 		const gchar *gender = json_object_get_string_member(userobj, "gender");
 		const gchar *gender_output;
 		if (*gender == '1') {
@@ -495,7 +495,7 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		} else {
 			gender_output = _("Unknown");
 		}
-		purple_notify_user_info_add_pair_html(user_info, _("Gender"), json_object_get_string_member(userobj, gender_output));
+		purple_notify_user_info_add_pair_html(user_info, _("Gender"), gender_output);
 	}
 	_SKYPE_USER_INFO("language", "Language");
 	_SKYPE_USER_INFO("country", "Country");
