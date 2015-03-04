@@ -119,7 +119,7 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 void
 skypeweb_begin_web_login(SkypeWebAccount *sa)
 {
-	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login";
+	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login?method=skype&client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
 	
 	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_login_got_pie, sa);
 	
