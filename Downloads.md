@@ -1,0 +1,1 @@
+Plugin files can be downloaded from http://eion.robbmob.com/ (mirror at http://skype4pidgin.googlecode.com/svn/downloads/ )
