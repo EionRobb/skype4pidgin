@@ -51,7 +51,7 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 	purple_debug_info("skypeweb", "getting new buddy icon for %s\n", buddy->name);
 	
 	sbuddy = buddy->proto_data;
-	if (sbuddy->avatar_url && sbuddy->avatar_url[0]) {
+	if (sbuddy != NULL && sbuddy->avatar_url && sbuddy->avatar_url[0]) {
 		url = g_strdup(sbuddy->avatar_url);
 	} else {
 		url = g_strdup_printf("https://api.skype.com/users/%s/profile/avatar", purple_url_encode(buddy->name));
