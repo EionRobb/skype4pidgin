@@ -90,7 +90,7 @@ Delete $INSTDIR\plugins\libskypeweb.dll
 Delete $INSTDIR\pixmaps\pidgin\protocols\16\skype.png
 Delete $INSTDIR\pixmaps\pidgin\protocols\22\skype.png
 Delete $INSTDIR\pixmaps\pidgin\protocols\48\skype.png
-Delete $INSTDIR\pixmaps\pidgin\protocols\scalable\skype.svg
+#Delete $INSTDIR\pixmaps\pidgin\protocols\scalable\skype.svg
 
 DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\pidgin-skypeweb"
 
