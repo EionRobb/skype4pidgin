@@ -11,6 +11,7 @@ LINUX_ARM_COMPILER = arm-none-linux-gnueabi-gcc
 LINUX_PPC_COMPILER = powerpc-unknown-linux-gnu-gcc
 FREEBSD60_COMPILER = i686-pc-freebsd6.0-gcc
 MACPORT_COMPILER = i686-apple-darwin10-gcc-4.0.1
+MAKENSIS ?= /cygdrive/C/Program\ Files\ \(x86\)/NSIS/makensis.exe
 
 LIBPURPLE_CFLAGS = -I/usr/include/libpurple -I/usr/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include -I/usr/local/include -I/usr/include/json-glib-1.0 -ljson-glib-1.0
@@ -38,7 +39,9 @@ all:	libskypeweb.dll
 
 install:
 
-installers:	
+installers:	libskypeweb.dll pidgin-skypeweb.nsi
+	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i pidgin-skypeweb.nsi
+	$(MAKENSIS) pidgin-skypeweb.nsi > /dev/null
 
 clean:
 	rm -f libskypeweb.dll
