@@ -13,6 +13,9 @@ BuildRequires: glib2-devel
 BuildRequires: libpurple-devel
 BuildRequires: json-glib-devel
 BuildRequires: gcc
+Requires: libpurple
+Requires: pidgin
+Requires: json-glib
 
 %description
 Adds support for Skype to Pidgin, Adium, Finch and other libpurple 
