@@ -9,10 +9,9 @@ License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
 Source0: %{name}-%{version}.tar.gz
 
-BuildRequires: openssl-devel
 BuildRequires: glib2-devel
 BuildRequires: libpurple-devel
-BuildRequires: zlib-devel
+BuildRequires: json-glib-devel
 BuildRequires: gcc
 
 %description
