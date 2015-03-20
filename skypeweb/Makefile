@@ -33,6 +33,8 @@ install:
 	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48
 	install -m $(FILE_PERM) icons/48/skype.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48/skype.png
 	install -m $(FILE_PERM) icons/48/skypeout.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48/skypeout.png
+	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/emotes/skype
+	install -m $(FILE_PERM) theme $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/emotes/skype/theme
 clean:
 	rm -f libskypeweb.so
 

@@ -38,6 +38,7 @@ make install DESTDIR=%{buildroot}
 %{_datadir}/pixmaps/pidgin/protocols/22/skypeout.png
 %{_datadir}/pixmaps/pidgin/protocols/48/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/48/skypeout.png
+%{_datadir}/pixmaps/pidgin/emotes/skype/theme
 
 %changelog
 * Mon Mar 16 2015 V1TSK <vitaly@easycoding.org> - 0.1
