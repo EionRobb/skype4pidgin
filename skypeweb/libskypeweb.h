@@ -98,7 +98,7 @@
 #define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
-#define SKYPEWEB_CLIENTINFO_VERSION "908/1.0.0.30"
+#define SKYPEWEB_CLIENTINFO_VERSION "908/1.1.765"
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;
