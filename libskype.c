@@ -433,6 +433,10 @@ plugin_init(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Make Skype online/offline when going online/offline"), "skype_sync", TRUE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Update Skype status message"), "update_status", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+	option = purple_account_option_bool_new(_("Display video capability status"), "video_capable", TRUE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	//option = purple_account_option_bool_new(_("Automatically check for updates"), "check_for_updates", TRUE);
 	//prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 	option = purple_account_option_bool_new(_("Automatically reject all authorization requests"), "reject_all_auths", FALSE);
@@ -1539,6 +1543,9 @@ skype_update_buddy_icon(PurpleBuddy *buddy)
 const char *
 skype_list_emblem(PurpleBuddy *buddy)
 {
+	PurpleAccount *acct;
+	acct = purple_buddy_get_account(buddy);
+
 	SkypeBuddy *sbuddy;
 	time_t now;
 	struct tm *today_tm;
@@ -1561,9 +1568,9 @@ skype_list_emblem(PurpleBuddy *buddy)
 				return "birthday";
 			}
 		}
-		if (sbuddy->is_video_capable)
+		if (purple_account_get_bool(acct, "video_capable", TRUE) && sbuddy->is_video_capable)
 		{
-			return "video";	
+			return "video";
 		}
 	}
 	return NULL;
@@ -2302,7 +2309,8 @@ skype_set_status(PurpleAccount *account, PurpleStatus *status)
 		message = "";
 	else
 		message = purple_markup_strip_html(message);
-	skype_send_message_nowait("SET PROFILE MOOD_TEXT %s", message);
+	if (purple_account_get_bool(account, "update_status", TRUE))
+		skype_send_message_nowait("SET PROFILE MOOD_TEXT %s", message);
 }
 
 void
