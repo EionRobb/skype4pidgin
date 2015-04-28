@@ -185,10 +185,17 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	gchar *chatname;
 	gchar *post;
 	GString *url;
+	PurpleConversation *conv;
 	
 	chatname = (gchar *)g_hash_table_lookup(data, "chatname");
 	if (chatname == NULL)
 	{
+		return;
+	}
+	
+	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, chatname, sa->account);
+	if (conv != NULL) {
+		purple_conversation_present(conv);
 		return;
 	}
 	
@@ -204,6 +211,12 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	g_string_free(url, TRUE);
 	
 	skypeweb_get_conversation_history(sa, chatname);
+	skypeweb_get_thread_users(sa, chatname);
+	
+	conv = serv_got_joined_chat(pc, g_str_hash(chatname), chatname);
+	purple_conversation_set_data(conv, "chatname", g_strdup(chatname));
+	
+	purple_conversation_present(conv);
 }
 
 static void
@@ -352,6 +365,14 @@ gboolean
 skypeweb_offline_message(const PurpleBuddy *buddy)
 {
 	return TRUE;
+}
+
+static PurpleCmdRet
+skypeweb_cmd_list(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	purple_roomlist_show_with_account(purple_conversation_get_account(conv));
+	
+	return PURPLE_CMD_RET_OK;
 }
 
 /******************************************************************************/
@@ -504,6 +525,12 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 	*/
 	
+	purple_cmd_register("list", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_IM,
+						plugin->info->id, skypeweb_cmd_list,
+						_("list: Display a list of multi-chat group chats you are in."),
+						NULL);
+	
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
 }
 
@@ -572,7 +599,7 @@ static PurplePluginProtocolInfo prpl_info = {
 	NULL,                         /* get_cb_real_name */
 	NULL,                         /* set_chat_topic */
 	NULL,                         /* find_blist_chat */
-	NULL,                         /* roomlist_get_list */
+	skypeweb_roomlist_get_list,   /* roomlist_get_list */
 	NULL,                         /* roomlist_cancel */
 	NULL,                         /* roomlist_expand_category */
 	NULL,                         /* can_receive_file */

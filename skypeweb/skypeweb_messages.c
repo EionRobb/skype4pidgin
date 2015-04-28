@@ -555,6 +555,65 @@ skype_web_get_offline_history(SkypeWebAccount *sa)
 }
 
 
+static void
+skypeweb_got_roomlist_threads(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	PurpleRoomlist *roomlist = user_data;
+	JsonObject *obj;
+	JsonArray *conversations;
+	gint index, length;
+	
+	obj = json_node_get_object(node);
+	conversations = json_object_get_array_member(obj, "conversations");
+	length = json_array_get_length(conversations);
+	for(index = 0; index < length; index++) {
+		JsonObject *conversation = json_array_get_object_element(conversations, index);
+		const gchar *id = json_object_get_string_member(conversation, "id");
+		PurpleRoomlistRoom *room = purple_roomlist_room_new(PURPLE_ROOMLIST_ROOMTYPE_ROOM, id, NULL);
+		
+		purple_roomlist_room_add_field(roomlist, room, id);
+		if (json_object_has_member(conversation, "threadProperties")) {
+			JsonObject *threadProperties = json_object_get_object_member(conversation, "threadProperties");
+			if (threadProperties != NULL) {
+				const gchar *topic = json_object_get_string_member(threadProperties, "topic");
+				purple_roomlist_room_add_field(roomlist, room, topic);
+			}
+		}
+		purple_roomlist_room_add(roomlist, room);
+	}
+	
+	purple_roomlist_set_in_progress(roomlist, FALSE);
+}
+
+PurpleRoomlist *
+skypeweb_roomlist_get_list(PurpleConnection *pc)
+{
+	SkypeWebAccount *sa = pc->proto_data;
+	const gchar *url = "/v1/users/ME/conversations?startTime=0&pageSize=100&view=msnp24Equivalent&targetType=Thread";
+	PurpleRoomlist *roomlist;
+	GList *fields = NULL;
+	PurpleRoomlistField *f;
+	
+	roomlist = purple_roomlist_new(sa->account);
+
+	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("ID"), "chatname", TRUE);
+	fields = g_list_append(fields, f);
+
+	//f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Users"), "users", FALSE);
+	//fields = g_list_append(fields, f);
+
+	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Topic"), "topic", FALSE);
+	fields = g_list_append(fields, f);
+
+	purple_roomlist_set_fields(roomlist, fields);
+	purple_roomlist_set_in_progress(roomlist, TRUE);
+
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_roomlist_threads, roomlist, FALSE);
+	
+	return roomlist;
+}
+
+
 void
 skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 {

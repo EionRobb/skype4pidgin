@@ -63,12 +63,14 @@
 #include "accountopt.h"
 #include "blist.h"
 #include "core.h"
+#include "cmds.h"
 #include "connection.h"
 #include "debug.h"
 #include "dnsquery.h"
 #include "proxy.h"
 #include "prpl.h"
 #include "request.h"
+#include "roomlist.h"
 #include "savedstatuses.h"
 #include "sslconn.h"
 #include "util.h"
@@ -122,6 +124,7 @@ struct _SkypeWebAccount {
 	guint watchdog_timeout;
 	
 	guint authcheck_timeout;
+	time_t last_authrequest;
 	
 	gchar *skype_token;
 	gchar *registration_token;

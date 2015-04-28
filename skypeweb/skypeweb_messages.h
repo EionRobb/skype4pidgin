@@ -31,6 +31,7 @@ void skypeweb_get_registration_token(SkypeWebAccount *sa);
 void skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const char *who);
 void skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who);
 void skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata);
+PurpleRoomlist *skypeweb_roomlist_get_list(PurpleConnection *pc);
 
 void skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts);
 void skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, time_t since);
