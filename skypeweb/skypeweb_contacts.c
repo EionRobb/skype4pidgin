@@ -674,22 +674,30 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 {
 	JsonArray *requests;
 	gint index, length;
+	time_t latest_timestamp = 0;
 	
 	requests = json_node_get_array(node);
 	length = json_array_get_length(requests);
 	for(index = 0; index < length; index++)
 	{
 		JsonObject *request = json_array_get_object_element(requests, index);
-		//const gchar *event_time = json_object_get_string_member(request, "event_time");
+		const gchar *event_time = json_object_get_string_member(request, "event_time");
 		const gchar *sender = json_object_get_string_member(request, "sender");
 		const gchar *greeting = json_object_get_string_member(request, "greeting");
+		time_t event_timestamp = purple_str_to_time(event_time, TRUE, NULL, NULL, NULL);
+		
+		if (event_timestamp <= sa->last_authrequest)
+			continue;
 		
 		purple_account_request_authorization(
 				sa->account, sender, NULL,
 				NULL, greeting, FALSE,
 				skypeweb_auth_accept_cb, skypeweb_auth_reject_cb, purple_buddy_new(sa->account, sender, NULL));
-					
+		
+		latest_timestamp = MAX(latest_timestamp, event_timestamp);
 	}
+	
+	sa->last_authrequest = latest_timestamp;
 }
 
 gboolean
