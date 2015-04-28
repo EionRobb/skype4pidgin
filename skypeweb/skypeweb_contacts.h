@@ -37,6 +37,8 @@ void skypeweb_get_self_details(SkypeWebAccount *sa);
 void skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group);
 void skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char* message);
 void skypeweb_add_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group);
+void skypeweb_buddy_block(PurpleConnection *pc, const char *name);
+void skypeweb_buddy_unblock(PurpleConnection *pc, const char *name);
 
 gboolean skypeweb_check_authrequests(SkypeWebAccount *sa);
 

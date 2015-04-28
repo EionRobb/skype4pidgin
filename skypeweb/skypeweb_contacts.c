@@ -96,6 +96,9 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	if (!url_text || !url_text[0] || url_text[0] == '{')
 		return;
 	
+	if (error_message && *error_message)
+		return;
+	
 	icon_id = purple_imgstore_add_with_id((gpointer)url_text, len, NULL);
 	
 	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
@@ -723,4 +726,32 @@ skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *gro
 {
 	//SkypeWebAccount *sa = pc->proto_data;
 	
+}
+
+void
+skypeweb_buddy_block(PurpleConnection *pc, const char *name)
+{
+	SkypeWebAccount *sa = pc->proto_data;
+	gchar *url, *postdata;
+	
+	url = g_strdup_printf("/users/self/contacts/%s/block", purple_url_encode(name));
+	postdata = g_strdup_printf("reporterIp=127.0.0.1&uiVersion=" SKYPEWEB_CLIENTINFO_VERSION "/" SKYPEWEB_CLIENTINFO_NAME);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
+	
+	g_free(postdata);
+	g_free(url);
+}
+
+void
+skypeweb_buddy_unblock(PurpleConnection *pc, const char *name)
+{
+	SkypeWebAccount *sa = pc->proto_data;
+	gchar *url;
+	
+	url = g_strdup_printf("/users/self/contacts/%s/unblock", purple_url_encode(name));
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, "", NULL, NULL, TRUE);
+	
+	g_free(url);
 }

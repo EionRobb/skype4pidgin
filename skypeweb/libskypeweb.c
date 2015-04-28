@@ -544,9 +544,9 @@ static PurplePluginProtocolInfo prpl_info = {
 	skypeweb_buddy_remove,        /* remove_buddy */
 	NULL,                         /* remove_buddies */
 	NULL,                         /* add_permit */
-	NULL,                         /* add_deny */
+	skypeweb_buddy_block,         /* add_deny */
 	NULL,                         /* rem_permit */
-	NULL,                         /* rem_deny */
+	skypeweb_buddy_unblock,       /* rem_deny */
 	NULL,                         /* set_permit_deny */
 	skypeweb_join_chat,           /* join_chat */
 	NULL,                         /* reject chat invite */
