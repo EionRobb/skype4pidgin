@@ -65,7 +65,7 @@ static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
 	const gchar *clientmessageid = json_object_get_string_member(resource, "clientmessageid");
-	const gchar *skypeeditedid = json_object_get_string_member(resource, "skypeeditedid");
+	const gchar *skypeeditedid = NULL;
 	const gchar *messagetype = json_object_get_string_member(resource, "messagetype");
 	const gchar *from = json_object_get_string_member(resource, "from");
 	const gchar *content = json_object_get_string_member(resource, "content");
@@ -83,6 +83,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		g_strfreev(messagetype_parts);
 		return;
 	}
+	
+	if (json_object_has_member(resource, "skypeeditedid"))
+		skypeeditedid = json_object_get_string_member(resource, "skypeeditedid");
 	
 	from = skypeweb_contact_url_to_name(from);
 	g_return_if_fail(from);
@@ -371,46 +374,48 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	
 	obj = json_node_get_object(node);
 	
-	if (json_object_has_member(obj, "eventMessages"))
-		messages = json_object_get_array_member(obj, "eventMessages");
-	
-	if (messages != NULL) {
-		length = json_array_get_length(messages);
-		for(index = length - 1; index >= 0; index--)
-		{
-			JsonObject *message = json_array_get_object_element(messages, index);
-			const gchar *resourceType = json_object_get_string_member(message, "resourceType");
-			JsonObject *resource = json_object_get_object_member(message, "resource");
+	if (obj != NULL) {
+		if (json_object_has_member(obj, "eventMessages"))
+			messages = json_object_get_array_member(obj, "eventMessages");
+		
+		if (messages != NULL) {
+			length = json_array_get_length(messages);
+			for(index = length - 1; index >= 0; index--)
+			{
+				JsonObject *message = json_array_get_object_element(messages, index);
+				const gchar *resourceType = json_object_get_string_member(message, "resourceType");
+				JsonObject *resource = json_object_get_object_member(message, "resource");
+				
+				if (g_str_equal(resourceType, "NewMessage"))
+				{
+					process_message_resource(sa, resource);
+				} else if (g_str_equal(resourceType, "UserPresence"))
+				{
+					process_userpresence_resource(sa, resource);
+				} else if (g_str_equal(resourceType, "EndpointPresence"))
+				{
+					process_endpointpresence_resource(sa, resource);
+				} else if (g_str_equal(resourceType, "ConversationUpdate"))
+				{
+					process_conversation_resource(sa, resource);
+				} else if (g_str_equal(resourceType, "ThreadUpdate"))
+				{
+					process_thread_resource(sa, resource);
+				}
+			}
+		} else if (json_object_has_member(obj, "errorCode")) {
+			gint64 errorCode = json_object_get_int_member(obj, "errorCode");
 			
-			if (g_str_equal(resourceType, "NewMessage"))
-			{
-				process_message_resource(sa, resource);
-			} else if (g_str_equal(resourceType, "UserPresence"))
-			{
-				process_userpresence_resource(sa, resource);
-			} else if (g_str_equal(resourceType, "EndpointPresence"))
-			{
-				process_endpointpresence_resource(sa, resource);
-			} else if (g_str_equal(resourceType, "ConversationUpdate"))
-			{
-				process_conversation_resource(sa, resource);
-			} else if (g_str_equal(resourceType, "ThreadUpdate"))
-			{
-				process_thread_resource(sa, resource);
+			if (errorCode == 729) {
+				// "You must create an endpoint before performing this operation"
+				// Dammit, Jim; I'm a programmer, not a surgeon!
+				skypeweb_get_registration_token(sa);
+				return;
 			}
 		}
-	} else if (json_object_has_member(obj, "errorCode")) {
-		gint64 errorCode = json_object_get_int_member(obj, "errorCode");
 		
-		if (errorCode == 729) {
-			// "You must create an endpoint before performing this operation"
-			// Dammit, Jim; I'm a programmer, not a surgeon!
-			skypeweb_get_registration_token(sa);
-			return;
-		}
+		//TODO record id of highest recieved id to make sure we dont process the same id twice
 	}
-	
-	//TODO record id of highest recieved id to make sure we dont process the same id twice
 	
 	sa->poll_timeout = purple_timeout_add_seconds(1, skypeweb_timeout, sa);
 			
