@@ -370,9 +370,10 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	JsonArray *messages = NULL;
 	gint index, length;
-	JsonObject *obj;
+	JsonObject *obj = NULL;
 	
-	obj = json_node_get_object(node);
+	if (json_node_get_node_type(node) == JSON_NODE_OBJECT)
+		obj = json_node_get_object(node);
 	
 	if (obj != NULL) {
 		if (json_object_has_member(obj, "eventMessages"))
@@ -531,7 +532,7 @@ skypeweb_got_all_convs(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		JsonObject *conversation = json_array_get_object_element(conversations, index);
 		const gchar *id = json_object_get_string_member(conversation, "id");
 		JsonObject *lastMessage = json_object_get_object_member(conversation, "lastMessage");
-		if (lastMessage != NULL) {
+		if (lastMessage != NULL && json_object_has_member(lastMessage, "composetime")) {
 			const gchar *composetime = json_object_get_string_member(lastMessage, "composetime");
 			time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
 			
