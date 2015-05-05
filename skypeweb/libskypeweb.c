@@ -534,6 +534,10 @@ plugin_init(PurplePlugin *plugin)
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
 }
 
+#if !PURPLE_VERSION_CHECK(2, 8, 0)
+#	define OPT_PROTO_INVITE_MESSAGE 0x00000800
+#endif
+
 static PurplePluginProtocolInfo prpl_info = {
 #if PURPLE_VERSION_CHECK(3, 0, 0)
 	sizeof(PurplePluginProtocolInfo),	/* struct_size */
