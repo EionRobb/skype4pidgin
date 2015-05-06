@@ -31,4 +31,4 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbui
 	tar -czf purple-skypeweb-0.1.tar.gz *
 	rpmbuild -tb purple-skypeweb-0.1.tar.gz
 ```
-The result can be found in `~/rpmbuild/RPMS/`uname -m`/` directory.
+The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
