@@ -24,7 +24,7 @@ Requires devel headers/libs for libpurple and libjson-glib
 
 Building RPM package for Fedora/openSUSE/CentOS/RHEL
 ---------
-Requires devel headers/libs for libpurple and libjson-glib, gcc compiler and rpmbuild tool
+Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbuild tool
 ```
 	sudo yum install git rpm-build gcc json-glib-devel libpurple-devel pidgin-devel
 	cd skype4pidgin/skypeweb
