@@ -21,3 +21,14 @@ Requires devel headers/libs for libpurple and libjson-glib
 	make
 	sudo make install
 ```
+
+Building RPM package for Fedora/openSUSE/CentOS/RHEL
+---------
+Requires devel headers/libs for libpurple and libjson-glib, gcc compiler and rpmbuild tool
+```
+	sudo yum install git rpm-build gcc json-glib-devel libpurple-devel pidgin-devel
+	cd skype4pidgin/skypeweb
+	tar -czf purple-skypeweb-0.1.tar.gz *
+	rpmbuild -tb purple-skypeweb-0.1.tar.gz
+```
+The result can be found in `~/rpmbuild/RPMS/`uname -m`/` directory.
