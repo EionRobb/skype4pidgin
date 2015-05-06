@@ -410,6 +410,9 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 	SkypeWebBuddy *sbuddy;
 	gint index, length;
 	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_ARRAY)
+		return;
+	
 	contacts = json_node_get_array(node);
 	length = json_array_get_length(contacts);
 	

@@ -64,11 +64,11 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
-	const gchar *clientmessageid = json_object_get_string_member(resource, "clientmessageid");
+	const gchar *clientmessageid = NULL;
 	const gchar *skypeeditedid = NULL;
 	const gchar *messagetype = json_object_get_string_member(resource, "messagetype");
 	const gchar *from = json_object_get_string_member(resource, "from");
-	const gchar *content = json_object_get_string_member(resource, "content");
+	const gchar *content = NULL;
 	const gchar *composetime = json_object_get_string_member(resource, "composetime");
 	const gchar *conversationLink = json_object_get_string_member(resource, "conversationLink");
 	time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
@@ -86,6 +86,10 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	if (json_object_has_member(resource, "skypeeditedid"))
 		skypeeditedid = json_object_get_string_member(resource, "skypeeditedid");
+	if (json_object_has_member(resource, "content"))
+		content = json_object_get_string_member(resource, "content");
+	if (json_object_has_member(resource, "clientmessageid"))
+		clientmessageid = json_object_get_string_member(resource, "clientmessageid");
 	
 	from = skypeweb_contact_url_to_name(from);
 	g_return_if_fail(from);
@@ -372,7 +376,7 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	gint index, length;
 	JsonObject *obj = NULL;
 	
-	if (json_node_get_node_type(node) == JSON_NODE_OBJECT)
+	if (node != NULL && json_node_get_node_type(node) == JSON_NODE_OBJECT)
 		obj = json_node_get_object(node);
 	
 	if (obj != NULL) {
