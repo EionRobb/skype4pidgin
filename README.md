@@ -1,5 +1,10 @@
+If you're reading this, you probably want the newer SkypeWeb plugin from [here](https://github.com/EionRobb/skype4pidgin/tree/master/skypeweb).  The readme for the legacy Skype plugin is below:
+
+
+
+
 ﻿Skype plugin for Pidgin/Adium/libpurple
-=======================================
+========================================
 
 If you've found this file then you'll probably realise that this is the Skype plugin for libpurple.  Yes, it does require Skype to be running as it uses the Skype API to communicate with a running copy of Skype.  The Windows and Linux versions were made by me in a week.  The OS X version has taken lots longer, but it needed reverse engineering of the Skype.framework before it was GPL compatable.
 
