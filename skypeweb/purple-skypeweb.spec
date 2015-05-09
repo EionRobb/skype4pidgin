@@ -2,7 +2,7 @@
 
 Name: purple-skypeweb
 Version: 0.1
-Release: 1
+Release: 2
 Summary: Adds support for Skype to Pidgin
 Group: Applications/Productivity
 License: GPLv3
@@ -14,12 +14,19 @@ BuildRequires: libpurple-devel
 BuildRequires: json-glib-devel
 BuildRequires: gcc
 Requires: libpurple
-Requires: pidgin
 Requires: json-glib
+
+%package -n pidgin-skypeweb
+Summary: Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
+Requires: purple-skypeweb
+Requires: pidgin
 
 %description
 Adds support for Skype to Pidgin, Adium, Finch and other libpurple 
 based messengers.
+
+%description -n pidgin-skypeweb
+Adds pixmaps, icons and smileys for Skype protocol.
 
 %prep
 %setup -c
@@ -32,6 +39,8 @@ make install DESTDIR=%{buildroot}
 
 %files
 %{_libdir}/purple-2/libskypeweb.so
+
+%files -n pidgin-skypeweb
 %{_datadir}/pixmaps/pidgin/protocols/16/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/16/skypeout.png
 %{_datadir}/pixmaps/pidgin/protocols/22/skype.png
@@ -41,5 +50,8 @@ make install DESTDIR=%{buildroot}
 %{_datadir}/pixmaps/pidgin/emotes/skype/theme
 
 %changelog
-* Mon Mar 16 2015 V1TSK <vitaly@easycoding.org> - 0.1
+* Sat May 09 2015 V1TSK <vitaly@easycoding.org> - 0.1-2
+- Separated packages. Now can be used with other libpurple-based clients without Pidgin being installed.
+
+* Mon Mar 16 2015 V1TSK <vitaly@easycoding.org> - 0.1-1
 - Created first RPM spec for Fedora/openSUSE.
