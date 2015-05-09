@@ -78,6 +78,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
 	
+	if (json_object_has_member(resource, "clientmessageid"))
+		clientmessageid = json_object_get_string_member(resource, "clientmessageid");
+	
 	if (clientmessageid && *clientmessageid && g_hash_table_remove(sa->sent_messages_hash, clientmessageid)) {
 		// We sent this message from here already
 		g_strfreev(messagetype_parts);
@@ -88,8 +91,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		skypeeditedid = json_object_get_string_member(resource, "skypeeditedid");
 	if (json_object_has_member(resource, "content"))
 		content = json_object_get_string_member(resource, "content");
-	if (json_object_has_member(resource, "clientmessageid"))
-		clientmessageid = json_object_get_string_member(resource, "clientmessageid");
 	
 	from = skypeweb_contact_url_to_name(from);
 	g_return_if_fail(from);
