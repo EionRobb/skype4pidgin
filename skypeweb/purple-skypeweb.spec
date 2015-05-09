@@ -1,8 +1,9 @@
 %define debug_package %{nil}
+%define plugin_name skypeweb
 
-Name: purple-skypeweb
+Name: purple-%{plugin_name}
 Version: 0.1
-Release: 2
+Release: 1
 Summary: Adds support for Skype to Pidgin
 Group: Applications/Productivity
 License: GPLv3
@@ -16,16 +17,16 @@ BuildRequires: gcc
 Requires: libpurple
 Requires: json-glib
 
-%package -n pidgin-skypeweb
+%package -n pidgin-%{plugin_name}
 Summary: Adds pixmaps, icons and smileys for Skype protocol.
-Requires: purple-skypeweb
+Requires: %{name}
 Requires: pidgin
 
 %description
 Adds support for Skype to Pidgin, Adium, Finch and other libpurple 
 based messengers.
 
-%description -n pidgin-skypeweb
+%description -n pidgin-%{plugin_name}
 Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
 %prep
@@ -40,7 +41,7 @@ make install DESTDIR=%{buildroot}
 %files
 %{_libdir}/purple-2/libskypeweb.so
 
-%files -n pidgin-skypeweb
+%files -n pidgin-%{plugin_name}
 %{_datadir}/pixmaps/pidgin/protocols/16/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/16/skypeout.png
 %{_datadir}/pixmaps/pidgin/protocols/22/skype.png
