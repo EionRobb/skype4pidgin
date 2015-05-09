@@ -8,7 +8,7 @@ Summary: Adds support for Skype to Pidgin
 Group: Applications/Productivity
 License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
-Source0: %{name}.tar.gz
+Source0: %{plugin_name}.tar.gz
 
 BuildRequires: glib2-devel
 BuildRequires: libpurple-devel
