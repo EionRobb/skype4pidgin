@@ -73,8 +73,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	const gchar *conversationLink = json_object_get_string_member(resource, "conversationLink");
 	time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
 	gchar **messagetype_parts;
-	PurpleConversation *conv;
-	gchar *convname;
+	PurpleConversation *conv = NULL;
+	gchar *convname = NULL;
 	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
 	
@@ -276,22 +276,30 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 	}
 	
-	if (clientmessageid && *clientmessageid) {
-		// Mark message as seen
-		const gchar *originalarrivaltime = json_object_get_string_member(resource, "originalarrivaltime");
-		time_t arrivaltimestamp = purple_str_to_time(originalarrivaltime, TRUE, NULL, NULL, NULL);
-		gchar *post, *url;
+	if (conv != NULL) {
+		const gchar *id = json_object_get_string_member(resource, "id");
 		
-		url = g_strdup_printf("/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", purple_url_encode(convname));
-		post = g_strdup_printf("{\"consumptionhorizon\":\"%d000;%" G_GINT64_FORMAT ";%s\"}", arrivaltimestamp, skypeweb_get_js_time(), clientmessageid);
+		g_free(purple_conversation_get_data(conv, "last_skypeweb_id"));
 		
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
-		
-		g_free(post);
-		g_free(url);
-		g_free(convname);
+		if (purple_conversation_has_focus(conv)) {
+			// Mark message as seen straight away
+			gchar *post, *url;
+			
+			url = g_strdup_printf("/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", purple_url_encode(convname));
+			post = g_strdup_printf("{\"consumptionhorizon\":\"%s;%" G_GINT64_FORMAT ";%s\"}", id, skypeweb_get_js_time(), id);
+			
+			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+			
+			g_free(post);
+			g_free(url);
+			
+			purple_conversation_set_data(conv, "last_skypeweb_id", NULL);
+		} else {
+			purple_conversation_set_data(conv, "last_skypeweb_id", g_strdup(id));
+		}
 	}
 	
+	g_free(convname);
 	g_strfreev(messagetype_parts);
 	
 	if (composetimestamp > purple_account_get_int(sa->account, "last_message_timestamp", 0))
@@ -432,6 +440,37 @@ skypeweb_poll(SkypeWebAccount *sa)
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/endpoints/SELF/subscriptions/0/poll", NULL, skypeweb_poll_cb, NULL, TRUE);
 }
 
+void
+skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConvUpdateType type)
+{
+	if (type == PURPLE_CONV_UPDATE_UNSEEN) {
+		gchar *last_skypeweb_id = purple_conversation_get_data(conv, "last_skypeweb_id");
+		
+		if (last_skypeweb_id && *last_skypeweb_id) {
+			PurpleAccount *account = purple_conversation_get_account(conv);
+			SkypeWebAccount *sa = purple_account_get_connection(account)->proto_data;
+			gchar *post, *url, *convname;
+			
+			if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_IM) {
+				convname = g_strconcat("8:", conv->name, NULL);
+			} else {
+				convname = g_strdup(purple_conversation_get_data(conv, "chatname"));
+			}
+			
+			url = g_strdup_printf("/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", purple_url_encode(convname));
+			post = g_strdup_printf("{\"consumptionhorizon\":\"%s;%" G_GINT64_FORMAT ";%s\"}", last_skypeweb_id, skypeweb_get_js_time(), last_skypeweb_id);
+			
+			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+			
+			g_free(convname);
+			g_free(post);
+			g_free(url);
+			
+			g_free(last_skypeweb_id);
+			purple_conversation_set_data(conv, "last_skypeweb_id", NULL);
+		}
+	}
+}
 
 static void
 skypeweb_got_thread_users(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
