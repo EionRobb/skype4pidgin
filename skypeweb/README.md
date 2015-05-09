@@ -28,7 +28,7 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbui
 ```
 	sudo yum install git rpm-build gcc json-glib-devel libpurple-devel pidgin-devel
 	cd skype4pidgin/skypeweb
-	tar -czf purple-skypeweb-0.1.tar.gz *
-	rpmbuild -tb purple-skypeweb-0.1.tar.gz
+	tar -czf skypeweb.tar.gz *
+	rpmbuild -tb skypeweb.tar.gz
 ```
 The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
