@@ -17,7 +17,7 @@ Requires: libpurple
 Requires: json-glib
 
 %package -n pidgin-skypeweb
-Summary: Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
+Summary: Adds pixmaps, icons and smileys for Skype protocol.
 Requires: purple-skypeweb
 Requires: pidgin
 
@@ -26,7 +26,7 @@ Adds support for Skype to Pidgin, Adium, Finch and other libpurple
 based messengers.
 
 %description -n pidgin-skypeweb
-Adds pixmaps, icons and smileys for Skype protocol.
+Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
 %prep
 %setup -c
