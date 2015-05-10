@@ -532,6 +532,8 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 	
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
+	
+	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
 }
 
 #if !PURPLE_VERSION_CHECK(2, 8, 0)

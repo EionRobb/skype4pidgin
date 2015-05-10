@@ -39,5 +39,6 @@ void skypeweb_get_conversation_history(SkypeWebAccount *sa, const gchar *convnam
 void skypeweb_get_thread_users(SkypeWebAccount *sa, const gchar *convname);
 void skypeweb_get_all_conversations_since(SkypeWebAccount *sa, time_t since);
 void skype_web_get_offline_history(SkypeWebAccount *sa);
+void skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConvUpdateType type);
 
 #endif /* SKYPEWEB_MESSAGES_H */
