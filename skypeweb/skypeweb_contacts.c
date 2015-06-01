@@ -646,6 +646,7 @@ skypeweb_auth_accept_cb(gpointer sender)
 	PurpleBuddy *buddy = sender;
 	SkypeWebAccount *sa;
 	gchar *url = NULL;
+	GSList *users_to_fetch;
 	
 	sa = buddy->account->gc->proto_data;
 	
@@ -654,6 +655,11 @@ skypeweb_auth_accept_cb(gpointer sender)
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
+	
+	// Subscribe to status/message updates
+	users_to_fetch = g_slist_prepend(NULL, buddy->name);
+	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
+	g_slist_free(users_to_fetch);
 }
 
 void
@@ -716,6 +722,7 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 {
 	SkypeWebAccount *sa = pc->proto_data;
 	gchar *url, *postdata;
+	GSList *users_to_fetch;
 	
 	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(buddy->name));
 	postdata = g_strdup_printf("greeting=%s", message ? purple_url_encode(message) : "");
@@ -724,6 +731,11 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 	
 	g_free(postdata);
 	g_free(url);
+	
+	// Subscribe to status/message updates
+	users_to_fetch = g_slist_prepend(NULL, buddy->name);
+	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
+	g_slist_free(users_to_fetch);
 }
 
 void 
