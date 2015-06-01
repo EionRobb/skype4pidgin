@@ -375,6 +375,59 @@ skypeweb_cmd_list(PurpleConversation *conv, const gchar *cmd, gchar **args, gcha
 	return PURPLE_CMD_RET_OK;
 }
 
+static PurpleCmdRet
+skypeweb_cmd_leave(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *pc = NULL;
+	int id = -1;
+	SkypeWebAccount *sa;
+	
+	pc = purple_conversation_get_gc(conv);	
+	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	
+	if (pc == NULL || id == -1 || pc->proto_data == NULL)
+		return PURPLE_CMD_RET_FAILED;
+	
+	sa = pc->proto_data;
+	skypeweb_chat_kick(pc, id, sa->username);
+	
+	return PURPLE_CMD_RET_OK;
+}
+
+static PurpleCmdRet
+skypeweb_cmd_kick(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *pc = NULL;
+	int id = -1;
+	
+	pc = purple_conversation_get_gc(conv);	
+	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	
+	if (pc == NULL || id == -1)
+		return PURPLE_CMD_RET_FAILED;
+	
+	skypeweb_chat_kick(pc, id, args[0]);
+	
+	return PURPLE_CMD_RET_OK;
+}
+
+static PurpleCmdRet
+skypeweb_cmd_invite(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *pc = NULL;
+	int id = -1;
+	
+	pc = purple_conversation_get_gc(conv);	
+	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	
+	if (pc == NULL || id == -1)
+		return PURPLE_CMD_RET_FAILED;
+	
+	skypeweb_chat_invite(pc, id, NULL, args[0]);
+	
+	return PURPLE_CMD_RET_OK;
+}
+
 /******************************************************************************/
 /* Plugin functions */
 /******************************************************************************/
@@ -491,13 +544,24 @@ plugin_init(PurplePlugin *plugin)
 	option = purple_account_option_bool_new("", "", FALSE);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
 	
-	
-	/*
 	//leave
 	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
 						plugin->info->id, skypeweb_cmd_leave,
-						_("leave [room]:  Leave the chat"), NULL);
+						_("leave:  Leave the group chat"), NULL);
+	//kick
+	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						plugin->info->id, skypeweb_cmd_kick,
+						_("kick &lt;user&gt;:  Kick a user from the group chat."),
+						NULL);
+	//add
+	purple_cmd_register("add", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PRPL_ONLY,
+						plugin->info->id, skypeweb_cmd_invite,
+						_("add &lt;user&gt;:  Add a user to the group chat."),
+						NULL);
+	/*
 	//topic
 	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
@@ -505,12 +569,6 @@ plugin_init(PurplePlugin *plugin)
 						_("topic [&lt;new topic&gt;]:  View or change the topic"),
 						NULL);
 	//call, as in call person
-	//kick
-	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY,
-						plugin->info->id, skypeweb_cmd_kick,
-						_("kick &lt;user&gt; [room]:  Kick a user from the room."),
-						NULL);
 	//kickban
 	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY,

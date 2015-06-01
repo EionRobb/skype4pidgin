@@ -663,6 +663,18 @@ skypeweb_roomlist_get_list(PurpleConnection *pc)
 	return roomlist;
 }
 
+void
+skypeweb_unsubscribe_from_contact_status(SkypeWebAccount *sa, const gchar *who)
+{
+	const gchar *contacts_url = "/v1/users/ME/contacts";
+	gchar *url;
+	
+	url = g_strconcat(contacts_url, "/8:", purple_url_encode(who), NULL);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, NULL, NULL, TRUE);
+	
+	g_free(url);
+}
 
 void
 skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
@@ -995,6 +1007,30 @@ skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const ch
 	post = "{\"role\":\"User\"}";
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
+	
+	g_string_free(url, TRUE);
+}
+
+void
+skypeweb_chat_kick(PurpleConnection *pc, int id, const char *who)
+{
+	SkypeWebAccount *sa = pc->proto_data;
+	PurpleConversation *conv;
+	gchar *chatname;
+	gchar *post;
+	GString *url;
+
+	conv = purple_find_chat(pc, id);
+	chatname = (gchar *)g_hash_table_lookup(conv->data, "chatname");
+	
+	url = g_string_new("/v1/threads/");
+	g_string_append_printf(url, "%s", purple_url_encode(chatname));
+	g_string_append(url, "/members/");
+	g_string_append_printf(url, "8:%s", purple_url_encode(who));
+	
+	post = "";
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
 	
 	g_string_free(url, TRUE);
 }
