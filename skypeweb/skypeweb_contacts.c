@@ -747,8 +747,9 @@ skypeweb_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 void
 skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	//SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = pc->proto_data;
 	
+	skypeweb_unsubscribe_from_contact_status(sa, buddy->name);
 }
 
 void
