@@ -175,8 +175,11 @@ skypeweb_got_vm_download_info(SkypeWebAccount *sa, JsonNode *node, gpointer user
 	gint64 fileSize;
 	const gchar *url, *assetId, *status;
 	gchar *filename;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	obj = json_node_get_object(node);
+	
 	files = json_object_get_array_member(obj, "files");
 	file = json_array_get_object_element(files, 0);
 	if (file != NULL) {
@@ -210,8 +213,11 @@ skypeweb_got_vm_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	PurpleConversation *conv = user_data;
 	JsonObject *obj, *response, *media_stream;
 	const gchar *filename;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	obj = json_node_get_object(node);
+	
 	response = json_object_get_object_member(obj, "response");
 	media_stream = json_object_get_object_member(response, "media_stream");
 	filename = json_object_get_string_member(media_stream, "filename");
@@ -248,7 +254,9 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	const gchar *old_alias;
 	const gchar *displayname;
 	const gchar *username;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	userobj = json_node_get_object(node);
 	
 	username = json_object_get_string_member(userobj, "username");
@@ -412,7 +420,6 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 	
 	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_ARRAY)
 		return;
-	
 	contacts = json_node_get_array(node);
 	length = json_array_get_length(contacts);
 	
@@ -479,7 +486,9 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	PurpleBuddy *buddy;
 	SkypeWebBuddy *sbuddy;
 	const gchar *new_avatar;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	userobj = json_node_get_object(node);
 	
 	user_info = purple_notify_user_info_new();

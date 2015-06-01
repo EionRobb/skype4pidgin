@@ -486,8 +486,11 @@ skypeweb_got_thread_users(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	if (conv == NULL)
 		return;
 	purple_conv_chat_clear_users(PURPLE_CONV_CHAT(conv));
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)	return;
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	response = json_node_get_object(node);
+	
 	members = json_object_get_array_member(response, "members");
 	length = json_array_get_length(members);
 	for(index = length - 1; index >= 0; index--)
@@ -528,8 +531,11 @@ skypeweb_got_conv_history(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	JsonObject *obj;
 	JsonArray *messages;
 	gint index, length;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	obj = json_node_get_object(node);
+	
 	messages = json_object_get_array_member(obj, "messages");
 	length = json_array_get_length(messages);
 	for(index = length - 1; index >= 0; index--)
@@ -568,8 +574,11 @@ skypeweb_got_all_convs(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	JsonObject *obj;
 	JsonArray *conversations;
 	gint index, length;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	obj = json_node_get_object(node);
+	
 	conversations = json_object_get_array_member(obj, "conversations");
 	length = json_array_get_length(conversations);
 	for(index = 0; index < length; index++) {
@@ -612,8 +621,11 @@ skypeweb_got_roomlist_threads(SkypeWebAccount *sa, JsonNode *node, gpointer user
 	JsonObject *obj;
 	JsonArray *conversations;
 	gint index, length;
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) return;	
+	
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
 	obj = json_node_get_object(node);
+	
 	conversations = json_object_get_array_member(obj, "conversations");
 	length = json_array_get_length(conversations);
 	for(index = 0; index < length; index++) {
