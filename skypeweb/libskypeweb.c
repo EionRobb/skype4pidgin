@@ -278,9 +278,12 @@ skypeweb_node_menu(PurpleBlistNode *node)
 	return m;
 }
 
+static PurplePlugin *skypeweb_plugin = NULL;
+
 static void
 skypeweb_login(PurpleAccount *account)
 {
+	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", skypeweb_plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
 	PurpleConnection *pc = purple_account_get_connection(account);
 	SkypeWebAccount *sa = g_new0(SkypeWebAccount, 1);
 	
@@ -327,7 +330,7 @@ skypeweb_close(PurpleConnection *pc)
 	purple_timeout_remove(sa->watchdog_timeout);
 
 	skypeweb_logout(sa);
-	
+	purple_signal_disconnect(purple_conversations_get_handle(), "conversation-updated", skypeweb_plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen));
 	purple_debug_info("skypeweb", "destroying %d waiting connections\n",
 					  g_queue_get_length(sa->waiting_conns));
 	
@@ -590,8 +593,7 @@ plugin_init(PurplePlugin *plugin)
 						NULL);
 	
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
-	
-	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
+	skypeweb_plugin = plugin;
 }
 
 #if !PURPLE_VERSION_CHECK(2, 8, 0)
