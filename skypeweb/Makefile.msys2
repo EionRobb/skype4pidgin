@@ -1,0 +1,60 @@
+# MSYS2 makefile for SkypeWeb
+
+ifndef PIDGIN_BUILD_DIR
+    $(error PIDGIN_BUILD_DIR is required)
+endif
+
+COMPILER ?= gcc.exe
+OBJCOPY ?= objcopy.exe
+MAKENSIS ?= makensis.exe
+PIDGIN_VARIANT ?= Pidgin
+PRODUCT_NAME ?= $(PIDGIN_VARIANT) SkypeWeb
+INSTALLER_NAME ?= $(PRODUCT_NAME) Setup
+
+REVISION_ID = $(shell git rev-parse --short HEAD)
+REVISION_NUMBER = $(shell git rev-list --count HEAD)
+ifneq ($(REVISION_ID),)
+PRODUCT_VERSION ?= R$(REVISION_NUMBER).$(REVISION_ID)
+else
+PRODUCT_VERSION ?= $(shell date +%d-%b-%Y)
+endif
+
+MINGW_PREFIX = $(shell which gcc | awk -F/bin/ '{ printf $$1 }')
+LIBPURPLE_CFLAGS = -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB
+CFLAGS = -Wno-format -I${PIDGIN_BUILD_DIR}/libpurple -I${PIDGIN_BUILD_DIR}/libpurple/win32 $(shell pkg-config --cflags json-glib-1.0)
+LIBS = -L${PIDGIN_BUILD_DIR}/libpurple -lglib-2.0 -lgobject-2.0 -lintl -lpurple -lws2_32 -ljson-glib-1.0 -lz -lnss3
+JSON_GLIB_DLL = libjson-glib-1.0-0.dll
+
+SKYPEWEB_SOURCES = \
+	skypeweb_connection.c \
+	skypeweb_contacts.c \
+	skypeweb_login.c \
+	skypeweb_messages.c \
+	skypeweb_util.c \
+	libskypeweb.c
+
+.PHONY: all clean
+
+all: libskypeweb.dll
+
+libskypeweb.dll: ${SKYPEWEB_SOURCES}
+	${COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared ${CFLAGS} ${LIBS}
+	${OBJCOPY} --only-keep-debug $@ $@.dbg
+	${OBJCOPY} --strip-debug $@
+	${OBJCOPY} --add-gnu-debuglink=$@.dbg $@
+
+libskypeweb-debug.dll: ${SKYPEWEB_SOURCES}
+	${COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O0 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared ${CFLAGS} ${LIBS}
+
+installer: libskypeweb.dll
+	cp $(MINGW_PREFIX)/bin/$(JSON_GLIB_DLL) .
+	$(MAKENSIS) \
+		-DPRODUCT_NAME="$(PRODUCT_NAME)" \
+		-DINSTALLER_NAME="$(INSTALLER_NAME)" \
+		-DPRODUCT_VERSION="$(PRODUCT_VERSION)" \
+		-DPIDGIN_VARIANT="$(PIDGIN_VARIANT)" \
+		-DJSON_GLIB_DLL="$(JSON_GLIB_DLL)" \
+		pidgin-skypeweb.nsi
+
+clean:
+	rm -f $(JSON_GLIB_DLL) libskypeweb.dll libskypeweb-debug.dll *.dll.dbg *.exe
