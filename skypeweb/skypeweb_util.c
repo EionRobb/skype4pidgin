@@ -18,7 +18,11 @@
  
 #include "skypeweb_util.h"
 
-#include <cipher.h>
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+#	include "cipher.h"
+#else
+#	include "ciphers/sha256hash.h"
+#endif
 
 gchar *
 skypeweb_string_get_chunk(const gchar *haystack, gsize len, const gchar *start, const gchar *end)
@@ -117,8 +121,7 @@ skypeweb_thread_url_to_name(const gchar *url)
 char *
 skypeweb_hmac_sha256(char *input)
 {
-	PurpleCipher *cipher;
-	PurpleCipherContext *context;
+	PurpleHash *hash;
 	const guchar productKey[] = SKYPEWEB_LOCKANDKEY_SECRET;
 	const guchar productID[]  = SKYPEWEB_LOCKANDKEY_APPID;
 	const char hexChars[]     = "0123456789abcdef";
@@ -135,14 +138,11 @@ skypeweb_hmac_sha256(char *input)
 	int len;
 	int i;
 	
-	/* Create the SHA256 hash by using Purple SHA256 algorithm */
-	cipher = purple_ciphers_find_cipher("sha256");
-	context = purple_cipher_context_new(cipher, NULL);
-
-	purple_cipher_context_append(context, (guchar *)input, strlen(input));
-	purple_cipher_context_append(context, productKey, sizeof(productKey) - 1);
-	purple_cipher_context_digest(context, sizeof(sha256Hash), sha256Hash, NULL);
-	purple_cipher_context_destroy(context);
+	hash = purple_sha256_hash_new();
+	purple_hash_append(hash, (guchar *)input, strlen(input));
+	purple_hash_append(hash, productKey, sizeof(productKey) - 1);
+	purple_hash_digest(hash, (guchar *)sha256Hash, sizeof(sha256Hash));
+	purple_hash_destroy(hash);
 	
 	/* Split it into four integers */
 	sha256Parts = (unsigned int *)sha256Hash;

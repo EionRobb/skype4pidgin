@@ -60,7 +60,7 @@ skypeweb_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 static gchar *
 skypeweb_status_text(PurpleBuddy *buddy)
 {
-	SkypeWebBuddy *sbuddy = buddy->proto_data;
+	SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 
 	if (sbuddy && sbuddy->mood && *(sbuddy->mood))
 	{
@@ -73,13 +73,13 @@ skypeweb_status_text(PurpleBuddy *buddy)
 void
 skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gboolean full)
 {
-	SkypeWebBuddy *sbuddy = buddy->proto_data;
+	SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 	
 	if (sbuddy)
 	{
 		PurplePresence *presence;
 		PurpleStatus *status;
-		SkypeWebBuddy *sbuddy = buddy->proto_data;
+		SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 
 		presence = purple_buddy_get_presence(buddy);
 		status = purple_presence_get_active_status(presence);
@@ -97,7 +97,7 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 const gchar *
 skypeweb_list_emblem(PurpleBuddy *buddy)
 {
-	//SkypeWebBuddy *sbuddy = buddy->proto_data;
+	//SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 	
 	return NULL;
 }
@@ -132,15 +132,15 @@ static GList *
 skypeweb_chat_info(PurpleConnection *gc)
 {
 	GList *m = NULL;
-	struct proto_chat_entry *pce;
+	PurpleProtocolChatEntry *pce;
 
-	pce = g_new0(struct proto_chat_entry, 1);
+	pce = g_new0(PurpleProtocolChatEntry, 1);
 	pce->label = _("Skype Name");
 	pce->identifier = "chatname";
 	pce->required = TRUE;
 	m = g_list_append(m, pce);
 	
-	/*pce = g_new0(struct proto_chat_entry, 1);
+	/*pce = g_new0(PurpleProtocolChatEntry, 1);
 	pce->label = _("Password");
 	pce->identifier = "password";
 	pce->required = FALSE;
@@ -181,11 +181,11 @@ skypeweb_get_chat_name(GHashTable *data)
 static void
 skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *chatname;
 	gchar *post;
 	GString *url;
-	PurpleConversation *conv;
+	PurpleChatConversation *chatconv;
 	
 	chatname = (gchar *)g_hash_table_lookup(data, "chatname");
 	if (chatname == NULL)
@@ -193,9 +193,9 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 		return;
 	}
 	
-	conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, chatname, sa->account);
-	if (conv != NULL) {
-		purple_conversation_present(conv);
+	chatconv = purple_conversations_find_chat_with_account(chatname, sa->account);
+	if (chatconv != NULL) {
+		purple_conversation_present(PURPLE_CONVERSATION(chatconv));
 		return;
 	}
 	
@@ -213,19 +213,19 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	skypeweb_get_conversation_history(sa, chatname);
 	skypeweb_get_thread_users(sa, chatname);
 	
-	conv = serv_got_joined_chat(pc, g_str_hash(chatname), chatname);
-	purple_conversation_set_data(conv, "chatname", g_strdup(chatname));
+	chatconv = purple_serv_got_joined_chat(pc, g_str_hash(chatname), chatname);
+	purple_conversation_set_data(PURPLE_CONVERSATION(chatconv), "chatname", g_strdup(chatname));
 	
-	purple_conversation_present(conv);
+	purple_conversation_present(PURPLE_CONVERSATION(chatconv));
 }
 
 static void
 skypeweb_buddy_free(PurpleBuddy *buddy)
 {
-	SkypeWebBuddy *sbuddy = buddy->proto_data;
+	SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 	if (sbuddy != NULL)
 	{
-		buddy->proto_data = NULL;
+		purple_buddy_set_protocol_data(buddy, NULL);
 
 		g_free(sbuddy->skypename);
 		g_free(sbuddy->fullname);
@@ -256,15 +256,15 @@ skypeweb_node_menu(PurpleBlistNode *node)
 	PurpleBuddy *buddy;
 	SkypeWebAccount *sa = NULL;
 	
-	if(PURPLE_BLIST_NODE_IS_BUDDY(node))
+	if(PURPLE_IS_BUDDY(node))
 	{
 		buddy = (PurpleBuddy *)node;
-		if (buddy->proto_data) {
-			SkypeWebBuddy *sbuddy = (SkypeWebBuddy *)buddy->proto_data;
+		if (purple_buddy_get_protocol_data(buddy)) {
+			SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 			sa = sbuddy->sa;
 		} else {
-			PurpleConnection *pc = purple_account_get_connection(buddy->account);
-			sa = pc->proto_data;
+			PurpleConnection *pc = purple_account_get_connection(purple_buddy_get_account(buddy));
+			sa = purple_connection_get_protocol_data(pc);
 		}
 		
 		if (sa != NULL) {
@@ -284,7 +284,7 @@ skypeweb_login(PurpleAccount *account)
 	PurpleConnection *pc = purple_account_get_connection(account);
 	SkypeWebAccount *sa = g_new0(SkypeWebAccount, 1);
 	
-	pc->proto_data = sa;
+	purple_connection_set_protocol_data(pc, sa);
 	
 	if (!purple_ssl_is_supported()) {
 		purple_connection_error (pc,
@@ -295,7 +295,7 @@ skypeweb_login(PurpleAccount *account)
 
 	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE;
 	
-	sa->username = g_strdup(account->username);
+	sa->username = g_strdup(purple_account_get_username(account));
 	sa->account = account;
 	sa->pc = pc;
 	sa->cookie_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
@@ -320,9 +320,9 @@ skypeweb_close(PurpleConnection *pc)
 	SkypeWebAccount *sa;
 	
 	g_return_if_fail(pc != NULL);
-	g_return_if_fail(pc->proto_data != NULL);
 	
-	sa = pc->proto_data;
+	sa = purple_connection_get_protocol_data(pc);
+	g_return_if_fail(sa != NULL);
 	
 	purple_timeout_remove(sa->authcheck_timeout);
 	purple_timeout_remove(sa->poll_timeout);
@@ -384,13 +384,16 @@ skypeweb_cmd_leave(PurpleConversation *conv, const gchar *cmd, gchar **args, gch
 	int id = -1;
 	SkypeWebAccount *sa;
 	
-	pc = purple_conversation_get_gc(conv);	
-	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	pc = purple_conversation_get_connection(conv);
+	id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv));
 	
-	if (pc == NULL || id == -1 || pc->proto_data == NULL)
+	if (pc == NULL || id == -1)
 		return PURPLE_CMD_RET_FAILED;
 	
-	sa = pc->proto_data;
+	sa = purple_connection_get_protocol_data(pc);
+	if (sa == NULL)
+		return PURPLE_CMD_RET_FAILED;
+	
 	skypeweb_chat_kick(pc, id, sa->username);
 	
 	return PURPLE_CMD_RET_OK;
@@ -402,8 +405,8 @@ skypeweb_cmd_kick(PurpleConversation *conv, const gchar *cmd, gchar **args, gcha
 	PurpleConnection *pc = NULL;
 	int id = -1;
 	
-	pc = purple_conversation_get_gc(conv);	
-	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	pc = purple_conversation_get_connection(conv);
+	id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv));
 	
 	if (pc == NULL || id == -1)
 		return PURPLE_CMD_RET_FAILED;
@@ -419,8 +422,8 @@ skypeweb_cmd_invite(PurpleConversation *conv, const gchar *cmd, gchar **args, gc
 	PurpleConnection *pc = NULL;
 	int id = -1;
 	
-	pc = purple_conversation_get_gc(conv);	
-	id = purple_conv_chat_get_id(PURPLE_CONV_CHAT(conv));
+	pc = purple_conversation_get_connection(conv);	
+	id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv));
 	
 	if (pc == NULL || id == -1)
 		return PURPLE_CMD_RET_FAILED;
@@ -466,16 +469,16 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 			//there'll be a bunch of usernames, seperated by semi-colon
 			if (strchr(cmd, ';')) {
 				gchar **users = g_strsplit_set(cmd, ";", -1);
-				skypeweb_initiate_chat(pc->proto_data, users[0]);
+				skypeweb_initiate_chat(purple_connection_get_protocol_data(pc), users[0]);
 				//TODO the other users
 				g_strfreev(users);
 			} else {
-				PurpleConversation *conv;
-				conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, cmd, account);
-				if (!conv) {
-					conv = purple_conversation_new(PURPLE_CONV_TYPE_IM, account, cmd);
+				PurpleIMConversation *imconv;
+				imconv = purple_conversations_find_im_with_account(cmd, account);
+				if (!imconv) {
+					imconv = purple_im_conversation_new(account, cmd);
 				}
-				purple_conversation_present(conv);
+				purple_conversation_present(PURPLE_CONVERSATION(imconv));
 			}
 		} else {
 			//probably a public multi-user chat?
@@ -514,6 +517,8 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 static gboolean
 plugin_load(PurplePlugin *plugin)
 {
+	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
+	
 	return TRUE;
 }
 

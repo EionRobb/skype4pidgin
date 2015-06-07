@@ -61,14 +61,12 @@
 #endif
 
 #include "accountopt.h"
-#include "blist.h"
 #include "core.h"
 #include "cmds.h"
 #include "connection.h"
 #include "debug.h"
 #include "dnsquery.h"
 #include "proxy.h"
-#include "prpl.h"
 #include "request.h"
 #include "roomlist.h"
 #include "savedstatuses.h"
@@ -76,6 +74,14 @@
 #include "util.h"
 #include "version.h"
 
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	#include "blist.h"
+	#include "prpl.h"
+#else
+	#include "buddylist.h"
+	#include "plugins.h"
+#endif
+	
 #if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 12
 #	define atoll(a) g_ascii_strtoll(a, NULL, 0)
 #endif
@@ -84,6 +90,77 @@
 	#define purple_connection_error purple_connection_error_reason
 	#define purple_notify_user_info_add_pair_html purple_notify_user_info_add_pair
 	#define purple_util_fetch_url_request purple_util_fetch_url_request_len_with_account
+	
+	#define PurpleConversationUpdateType PurpleConvUpdateType
+	#define PurpleChatConversation PurpleConvChat
+	#define PurpleIMConversation PurpleConvIm
+	#define PurpleProtocolAction PurplePluginAction
+/*	#define G_TYPE_STRING PURPLE_TYPE_STRING */
+	#define PURPLE_IS_BUDDY PURPLE_BLIST_NODE_IS_BUDDY
+	#define PurpleProtocolChatEntry struct proto_chat_entry
+	#define PURPLE_CONNECTION_CONNECTED PURPLE_CONNECTED
+	#define PURPLE_CONNECTION_CONNECTING PURPLE_CONNECTING
+	#define purple_connection_get_protocol_data(pc) ((pc)->proto_data)
+	#define purple_connection_set_protocol_data(pc, data) ((pc)->proto_data = (data))
+	#define purple_conversation_present_error purple_conv_present_error
+	#define purple_account_privacy_check purple_privacy_check
+	#define purple_serv_got_im serv_got_im
+	#define purple_serv_got_typing serv_got_typing
+	#define PurpleIMTypingState PurpleTypingState
+	#define PURPLE_IM_NOT_TYPING PURPLE_NOT_TYPING
+	#define PURPLE_IM_TYPING PURPLE_TYPING
+	#define PURPLE_IM_TYPED PURPLE_TYPED
+	#define purple_blist_find_buddy purple_find_buddy
+	#define purple_blist_find_group purple_find_group
+	#define PurpleChatUser PurpleConvChatBuddy
+	#define PurpleChatUserFlags PurpleConvChatBuddyFlags
+	#define PURPLE_CHAT_USER_NONE PURPLE_CBFLAGS_NONE
+	#define PURPLE_CHAT_USER_OP PURPLE_CBFLAGS_OP
+	#define PURPLE_CHAT_USER_VOICE PURPLE_CBFLAGS_VOICE
+	#define purple_chat_user_set_flags(cb, flags) purple_conv_chat_user_set_flags(cb->chat, cb->name, flags)
+	#define purple_serv_got_joined_chat serv_got_joined_chat
+	#define purple_serv_got_chat_invite serv_got_chat_invite
+	#define purple_serv_got_chat_in serv_got_chat_in
+	#define purple_chat_conversation_set_topic purple_conv_chat_set_topic
+	#define purple_chat_conversation_find_user purple_conv_chat_find_user
+	#define purple_chat_conversation_add_user purple_conv_chat_add_user
+	#define purple_chat_conversation_leave purple_conv_chat_left
+	#define purple_chat_conversation_add_user purple_conv_chat_add_user
+	#define purple_chat_conversation_remove_user purple_conv_chat_remove_user
+	#define purple_chat_conversation_clear_users purple_conv_chat_clear_users
+	#define purple_protocol_got_user_status purple_prpl_got_user_status
+	#define purple_protocol_got_user_idle purple_prpl_got_user_idle
+	#define PURPLE_CONVERSATION_UPDATE_TOPIC PURPLE_CONV_UPDATE_TOPIC
+	#define PURPLE_CONVERSATION_UPDATE_UNSEEN PURPLE_CONV_UPDATE_UNSEEN
+	#define purple_conversations_find_chat purple_find_chat
+	#define purple_conversations_find_chat_with_account(name, account) PURPLE_CONV_CHAT(purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, name, account))
+	#define purple_conversations_find_im_with_account(name, account) PURPLE_CONV_IM(purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, name, account))
+	#define purple_chat_conversation_new(account, from) PURPLE_CONV_CHAT(purple_conversation_new(PURPLE_CONV_TYPE_CHAT, account, from))
+	#define purple_im_conversation_new(account, from) PURPLE_CONV_IM(purple_conversation_new(PURPLE_CONV_TYPE_IM, account, from))
+	#define PURPLE_CONVERSATION(chatorim) (chatorim->conv)
+	#define PURPLE_IM_CONVERSATION(conv) PURPLE_CONV_IM(conv)
+	#define PURPLE_CHAT_CONVERSATION(conv) PURPLE_CONV_CHAT(conv)
+	#define PURPLE_IS_IM_CONVERSATION(conv) (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_IM)
+	#define PURPLE_IS_CHAT_CONVERSATION(conv) (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT)
+	#define purple_conversation_get_connection purple_conversation_get_gc
+	#define PurpleMessage PurpleConvMessage
+	#define purple_conversation_write_message(conv, msg) purple_conversation_write(conv, msg->who, msg->what, msg->flags, msg->when)
+	#define PurpleXmlNode xmlnode
+	#define purple_xmlnode_from_str xmlnode_from_str
+	#define purple_xmlnode_get_child xmlnode_get_child
+	#define purple_xmlnode_get_next_twin xmlnode_get_next_twin
+	#define purple_xmlnode_get_data xmlnode_get_data
+	#define purple_xmlnode_get_attrib xmlnode_get_attrib
+	#define purple_xmlnode_free xmlnode_free
+	#define PurpleHash PurpleCipherContext
+	#define purple_sha256_hash_new() purple_cipher_context_new(purple_ciphers_find_cipher("sha256"), NULL)
+	#define purple_hash_append purple_cipher_context_append
+	#define purple_hash_digest(hash, data, len) purple_cipher_context_digest(hash, len, data, NULL)
+	#define purple_hash_destroy purple_cipher_context_destroy
+#else
+	#define purple_conversation_set_data(conv, key, value) g_object_set_data(G_OBJECT(conv), key, value)
+	#define purple_conversation_get_data(conv, key) g_object_get_data(G_OBJECT(conv), key)
+	#define purple_hash_destroy g_object_unref
 #endif
 
 #define SKYPEWEB_MAX_MSG_RETRY 2

@@ -22,7 +22,11 @@
 #include "skypeweb_messages.h"
 #include "skypeweb_util.h"
 
-#include <ft.h>
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+#	include "ft.h"
+#else
+#	include "xfer.h"
+#endif
 
 static guint active_icon_downloads = 0;
 

@@ -20,6 +20,8 @@
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
 	#define purple_connection_error purple_connection_error_reason
+	#define purple_proxy_info_get_proxy_type purple_proxy_info_get_type
+	#define purple_account_is_disconnecting(account) (account->disconnecting)
 #endif
 
 #if !GLIB_CHECK_VERSION (2, 22, 0)
@@ -543,9 +545,9 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 	if (sa && sa->account && !(method & SKYPEWEB_METHOD_SSL))
 	{
 		proxy_info = purple_proxy_get_setup(sa->account);
-		if (purple_proxy_info_get_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL)
+		if (purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL)
 			proxy_info = purple_global_proxy_get_info();
-		if (purple_proxy_info_get_type(proxy_info) == PURPLE_PROXY_HTTP)
+		if (purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_HTTP)
 		{
 			is_proxy = TRUE;
 		}	
@@ -701,9 +703,9 @@ static void skypeweb_attempt_connection(SkypeWebConnection *skypewebcon)
 	if (sa && sa->account && !(skypewebcon->method & SKYPEWEB_METHOD_SSL))
 	{
 		proxy_info = purple_proxy_get_setup(sa->account);
-		if (purple_proxy_info_get_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL)
+		if (purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_USE_GLOBAL)
 			proxy_info = purple_global_proxy_get_info();
-		if (purple_proxy_info_get_type(proxy_info) == PURPLE_PROXY_HTTP)
+		if (purple_proxy_info_get_proxy_type(proxy_info) == PURPLE_PROXY_HTTP)
 		{
 			is_proxy = TRUE;
 		}	
@@ -753,7 +755,7 @@ static void skypeweb_attempt_connection(SkypeWebConnection *skypewebcon)
 		if (host_ip != NULL) {
 			g_free(skypewebcon->hostname);
 			skypewebcon->hostname = g_strdup(host_ip);
-		} else if (sa->account && !sa->account->disconnecting) {
+		} else if (sa->account && !purple_account_is_disconnecting(sa->account)) {
 			GSList *host_lookup_list = NULL;
 			PurpleDnsQueryData *query;
 

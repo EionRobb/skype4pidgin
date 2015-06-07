@@ -123,7 +123,7 @@ skypeweb_begin_web_login(SkypeWebAccount *sa)
 	
 	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_login_got_pie, sa);
 	
-	purple_connection_set_state(sa->pc, PURPLE_CONNECTING);
+	purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTING);
 	purple_connection_update_progress(sa->pc, _("Connecting"), 1, 4);
 }
 
@@ -238,7 +238,7 @@ skypeweb_begin_oauth_login(SkypeWebAccount *sa)
 	
 	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, NULL, TRUE, 524288, skypeweb_login_got_ppft, sa);
 	
-	purple_connection_set_state(sa->pc, PURPLE_CONNECTING);
+	purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTING);
 	purple_connection_update_progress(sa->pc, _("Connecting"), 1, 4);
 }
 
