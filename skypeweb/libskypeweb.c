@@ -282,7 +282,6 @@ static void
 skypeweb_login(PurpleAccount *account)
 {
 	PurpleConnection *pc = purple_account_get_connection(account);
-	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
 	SkypeWebAccount *sa = g_new0(SkypeWebAccount, 1);
 	
 	pc->proto_data = sa;
@@ -311,6 +310,8 @@ skypeweb_login(PurpleAccount *account)
 	} else {
 		skypeweb_begin_web_login(sa);
 	}
+	
+	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
 }
 
 static void
