@@ -496,8 +496,8 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 #define _SKYPE_USER_INFO(prop, key) if (prop && json_object_has_member(userobj, (prop)) && !json_object_get_null_member(userobj, (prop))) \
 	purple_notify_user_info_add_pair_html(user_info, _(key), json_object_get_string_member(userobj, (prop)));
 	
-	_SKYPE_USER_INFO("firstname", "First name");
-	_SKYPE_USER_INFO("lastname", "Last name");
+	_SKYPE_USER_INFO("firstname", "First Name");
+	_SKYPE_USER_INFO("lastname", "Last Name");
 	_SKYPE_USER_INFO("birthday", "Birthday");
 	//_SKYPE_USER_INFO("gender", "Gender");
 	if (json_object_has_member(userobj, "gender") && !json_object_get_null_member(userobj, "gender")) {
