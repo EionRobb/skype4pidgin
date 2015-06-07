@@ -51,6 +51,13 @@ exec_program("pkg-config --variable=plugindir purple 2>/dev/null"
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
 
+exec_program("pkg-config --variable=datadir purple 2>/dev/null"
+        OUTPUT_VARIABLE PURPLE_DATADIR)
+
+install(DIRECTORY "icons/"
+    DESTINATION "${PURPLE_DATADIR}/pixmaps/pidgin/protocols/"
+    )
+
 # package settings
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Skype protocol plug-in for libpurple")
 set(CPACK_PACKAGE_VENDOR "Eionrobb")
