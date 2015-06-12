@@ -45,6 +45,11 @@ target_link_libraries(${PROJECT_NAME}
     ${JSON-GLIB_LIBRARIES}
     )
 
+link_directories(
+    ${PURPLE_LIBRARY_DIRS}
+    )
+
+
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
 exec_program("pkg-config --variable=plugindir purple 2>/dev/null"
         OUTPUT_VARIABLE LIB_INSTALL_DIR)
