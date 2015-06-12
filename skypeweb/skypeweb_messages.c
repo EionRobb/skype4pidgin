@@ -73,7 +73,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	const gchar *conversationLink = json_object_get_string_member(resource, "conversationLink");
 	time_t composetimestamp = purple_str_to_time(composetime, TRUE, NULL, NULL, NULL);
 	gchar **messagetype_parts;
-	//PurpleConversation *conv = NULL;
+	PurpleConversation *conv = NULL;
 	gchar *convname = NULL;
 	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
@@ -173,6 +173,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		} else if (g_str_equal(messagetype, "ThreadActivity/RoleUpdate")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			PurpleXmlNode *target;
+			PurpleChatUser *cb;
+			
 			for(target = purple_xmlnode_get_child(blob, "target"); target;
 				target = purple_xmlnode_get_next_twin(target))
 			{
@@ -187,7 +189,12 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 						cbflags = PURPLE_CHAT_USER_VOICE;
 					}
 				}
-				purple_chat_user_set_flags(chatconv, &user[2], cbflags);
+				#if !PURPLE_VERSION_CHECK(3, 0, 0)
+					purple_conv_chat_user_set_flags(chatconv, &user[2], cbflags);
+				#else
+					cb = purple_chat_conversation_find_user(chatconv, &user[2]);
+					purple_chat_user_set_flags(cb, cbflags);
+				#endif
 				
 				g_free(user);
 				g_free(role);
@@ -229,48 +236,56 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			if (g_str_equal(sa->username, from)) {
 				from = skypeweb_contact_url_to_name(conversationLink);
 				if (from != NULL && !g_str_has_prefix(html, "?OTR")) {
-					conv = purple_conversations_find_im_with_account(from, sa->account);
-					if (conv == NULL)
+					imconv = purple_conversations_find_im_with_account(from, sa->account);
+					if (imconv == NULL)
 					{
-						conv = purple_im_conversation_new(sa->account, from);
+						imconv = purple_im_conversation_new(sa->account, from);
 					}
+					conv = PURPLE_CONVERSATION(imconv);
 					purple_conversation_write(conv, from, html, PURPLE_MESSAGE_SEND, composetimestamp);
 				}
 			} else {
 				purple_serv_got_im(sa->pc, from, html, PURPLE_MESSAGE_RECV, composetimestamp);
+				
+				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				conv = PURPLE_CONVERSATION(imconv);
 			}
 			g_free(html);
 		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "uri");
+			PurpleIMConversation *imconv;
 			
 			if (g_str_equal(sa->username, from)) {
 				from = skypeweb_contact_url_to_name(conversationLink);
 			}
 			if (from != NULL) {
-				conv = purple_conversations_find_im_with_account(from, sa->account);
-				if (conv == NULL)
+				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				if (imconv == NULL)
 				{
-					conv = purple_im_conversation_new(sa->account, from);
+					imconv = purple_im_conversation_new(sa->account, from);
 				}
 				
+				conv = PURPLE_CONVERSATION(imconv);
 				skypeweb_download_uri_to_conv(sa, uri, conv);
 			}
 			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "Event/SkypeVideoMessage")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *sid = purple_xmlnode_get_attrib(blob, "sid");
+			PurpleIMConversation *imconv;
 			
 			if (g_str_equal(sa->username, from)) {
 				from = skypeweb_contact_url_to_name(conversationLink);
 			}
 			if (from != NULL) {
-				conv = purple_conversations_find_im_with_account(from, sa->account);
-				if (conv == NULL)
+				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				if (imconv == NULL)
 				{
-					conv = purple_im_conversation_new(sa->account, from);
+					imconv = purple_im_conversation_new(sa->account, from);
 				}
 				
+				conv = PURPLE_CONVERSATION(imconv);
 				//skypeweb_download_video_message(sa, sid, conv); //TODO
 				purple_serv_got_im(sa->pc, from, content, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}

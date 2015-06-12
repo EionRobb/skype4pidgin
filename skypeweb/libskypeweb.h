@@ -117,22 +117,22 @@
 	#define PURPLE_CHAT_USER_NONE PURPLE_CBFLAGS_NONE
 	#define PURPLE_CHAT_USER_OP PURPLE_CBFLAGS_OP
 	#define PURPLE_CHAT_USER_VOICE PURPLE_CBFLAGS_VOICE
-	#define purple_chat_user_set_flags(cb, flags) purple_conv_chat_user_set_flags(cb->chat, cb->name, flags)
-	#define purple_serv_got_joined_chat serv_got_joined_chat
+	#define purple_serv_got_joined_chat(pc, id, name) PURPLE_CONV_CHAT(serv_got_joined_chat(pc, id, name))
 	#define purple_serv_got_chat_invite serv_got_chat_invite
 	#define purple_serv_got_chat_in serv_got_chat_in
 	#define purple_chat_conversation_set_topic purple_conv_chat_set_topic
-	#define purple_chat_conversation_find_user purple_conv_chat_find_user
+	#define purple_chat_conversation_find_user(chat, name) purple_conv_chat_cb_find(chat, name)
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
 	#define purple_chat_conversation_leave purple_conv_chat_left
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
 	#define purple_chat_conversation_remove_user purple_conv_chat_remove_user
 	#define purple_chat_conversation_clear_users purple_conv_chat_clear_users
+	#define purple_chat_conversation_get_id purple_conv_chat_get_id
 	#define purple_protocol_got_user_status purple_prpl_got_user_status
 	#define purple_protocol_got_user_idle purple_prpl_got_user_idle
 	#define PURPLE_CONVERSATION_UPDATE_TOPIC PURPLE_CONV_UPDATE_TOPIC
 	#define PURPLE_CONVERSATION_UPDATE_UNSEEN PURPLE_CONV_UPDATE_UNSEEN
-	#define purple_conversations_find_chat purple_find_chat
+	#define purple_conversations_find_chat(pc, id) PURPLE_CONV_CHAT(purple_find_chat(pc, id))
 	#define purple_conversations_find_chat_with_account(name, account) PURPLE_CONV_CHAT(purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, name, account))
 	#define purple_conversations_find_im_with_account(name, account) PURPLE_CONV_IM(purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, name, account))
 	#define purple_chat_conversation_new(account, from) PURPLE_CONV_CHAT(purple_conversation_new(PURPLE_CONV_TYPE_CHAT, account, from))
