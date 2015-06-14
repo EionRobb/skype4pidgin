@@ -267,7 +267,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				}
 				
 				conv = PURPLE_CONVERSATION(imconv);
-				skypeweb_download_uri_to_conv(sa, uri, conv);
+				//skypeweb_download_uri_to_conv(sa, uri, conv);
 			}
 			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "Event/SkypeVideoMessage")) {
