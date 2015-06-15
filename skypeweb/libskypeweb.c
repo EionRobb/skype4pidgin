@@ -283,6 +283,7 @@ skypeweb_login(PurpleAccount *account)
 {
 	PurpleConnection *pc = purple_account_get_connection(account);
 	SkypeWebAccount *sa = g_new0(SkypeWebAccount, 1);
+	PurpleConnectionFlags flags;
 	
 	purple_connection_set_protocol_data(pc, sa);
 	
@@ -293,7 +294,9 @@ skypeweb_login(PurpleAccount *account)
 		return;
 	}
 
-	pc->flags |= PURPLE_CONNECTION_HTML | PURPLE_CONNECTION_NO_BGCOLOR | PURPLE_CONNECTION_NO_FONTSIZE;
+	flags = purple_connection_get_flags(pc);
+	flags |= PURPLE_CONNECTION_FLAG_HTML | PURPLE_CONNECTION_FLAG_NO_BGCOLOR | PURPLE_CONNECTION_FLAG_NO_FONTSIZE;
+	purple_connection_set_flags(pc, flags);
 	
 	sa->username = g_strdup(purple_account_get_username(account));
 	sa->account = account;
@@ -514,121 +517,30 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	return FALSE;
 }
 
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+	static PurpleProtocol *skypeweb_protocol;
+#endif
+
+
 static gboolean
-plugin_load(PurplePlugin *plugin)
+plugin_load(PurplePlugin *plugin
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+, GError **error
+#endif
+)
 {
+	
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+	skypeweb_protocol = purple_protocols_add(SKYPEWEB_TYPE_PROTOCOL, error);
+	if (!skypeweb_protocol)
+		return FALSE;
+#endif
+	
+	
+	
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
 	
-	return TRUE;
-}
-
-static gboolean
-plugin_unload(PurplePlugin *plugin)
-{
-	return TRUE;
-}
-
-static GList *
-skypeweb_actions(PurplePlugin *plugin, gpointer context)
-{
-	GList *m = NULL;
-	PurplePluginAction *act;
-
-	act = purple_plugin_action_new(_("Search for friends..."),
-			skypeweb_search_users);
-	m = g_list_append(m, act);
-
-	return m;
-}
-
-#if !PURPLE_VERSION_CHECK(2, 8, 0)
-#	define OPT_PROTO_INVITE_MESSAGE 0x00000800
-#endif
-
-G_MODULE_EXPORT gboolean 
-purple_init_plugin(PurplePlugin *plugin)
-{
-	PurpleAccountOption *option;
-	PurplePluginInfo *info = g_new0(PurplePluginInfo, 1);
-	PurplePluginProtocolInfo *prpl_info = g_new0(PurplePluginProtocolInfo, 1);
-	PurpleBuddyIconSpec icon_spec = {"jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_DISPLAY};
 	
-	plugin->info = info;
-	
-	// Plugin info
-	info->magic = PURPLE_PLUGIN_MAGIC;
-	info->major_version = PURPLE_MAJOR_VERSION;
-	info->minor_version = PURPLE_MINOR_VERSION;
-	info->type = PURPLE_PLUGIN_PROTOCOL;
-	info->priority = PURPLE_PRIORITY_DEFAULT;
-	info->id = SKYPEWEB_PLUGIN_ID;
-	info->name = "Skype (HTTP)";
-	info->version = SKYPEWEB_PLUGIN_VERSION;
-	info->summary = N_("Skype for Web Protocol Plugin");
-	info->description = N_("Skype for Web Protocol Plugin");
-	info->author = "Eion Robb <eionrobb@gmail.com>";
-	info->homepage = "http://github.com/EionRobb/skype4pidgin";
-	info->load = plugin_load;
-	info->unload = plugin_unload;
-	info->extra_info = prpl_info;
-	info->actions = skypeweb_actions;
-	
-	// Protocol info
-	prpl_info->options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_INVITE_MESSAGE /*| OPT_PROTO_IM_IMAGE*/;
-	prpl_info->icon_spec = icon_spec;
-	prpl_info->list_icon = skypeweb_list_icon;
-	prpl_info->list_emblem = skypeweb_list_emblem;
-	prpl_info->status_text = skypeweb_status_text;
-	prpl_info->tooltip_text = skypeweb_tooltip_text;
-	prpl_info->status_types = skypeweb_status_types;
-	prpl_info->blist_node_menu = skypeweb_node_menu;
-	prpl_info->chat_info = skypeweb_chat_info;
-	prpl_info->chat_info_defaults = skypeweb_chat_info_defaults;
-	prpl_info->login = skypeweb_login;
-	prpl_info->close = skypeweb_close;
-	prpl_info->send_im = skypeweb_send_im;
-	
-	prpl_info->send_typing = skypeweb_send_typing;
-	prpl_info->get_info = skypeweb_get_info;
-	prpl_info->set_status = skypeweb_set_status;
-	prpl_info->set_idle = skypeweb_set_idle;
-	
-#if !PURPLE_VERSION_CHECK(3, 0, 0)
-	prpl_info->add_buddy = skypeweb_add_buddy;
-#else
-	prpl_info->add_buddy = skypeweb_add_buddy_with_invite;
-#endif
-	prpl_info->remove_buddy = skypeweb_buddy_remove;
-	prpl_info->add_deny = skypeweb_buddy_block;
-	prpl_info->rem_deny = skypeweb_buddy_unblock;
-	prpl_info->join_chat = skypeweb_join_chat;
-	prpl_info->get_chat_name = skypeweb_get_chat_name;
-	prpl_info->chat_invite = skypeweb_chat_invite;
-	prpl_info->chat_leave =	NULL; //skypeweb_chat_fake_leave;
-	prpl_info->chat_send = skypeweb_chat_send;
-	prpl_info->group_buddy = skypeweb_fake_group_buddy;
-	prpl_info->rename_group = skypeweb_fake_group_rename;
-	prpl_info->buddy_free = skypeweb_buddy_free;
-	prpl_info->normalize = purple_normalize_nocase;
-	prpl_info->roomlist_get_list = skypeweb_roomlist_get_list;
-	prpl_info->offline_message = skypeweb_offline_message;
-#if (PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 5) || PURPLE_MAJOR_VERSION > 2
-	#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 5
-		prpl_info->struct_size = sizeof(PurplePluginProtocolInfo);
-	#endif
-	prpl_info->get_account_text_table = NULL; // skypeweb_get_account_text_table;
-	#if PURPLE_MAJOR_VERSION == 2 && PURPLE_MINOR_VERSION >= 8
-		prpl_info->add_buddy_with_invite = skypeweb_add_buddy_with_invite;
-	#endif
-#endif
-	
-	
-	
-	
-	
-	
-	option = purple_account_option_bool_new("", "", FALSE);
-	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
 	
 	//leave
 	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
@@ -677,8 +589,273 @@ purple_init_plugin(PurplePlugin *plugin)
 	
 	purple_signal_connect(purple_get_core(), "uri-handler", plugin, PURPLE_CALLBACK(skypeweb_uri_handler), NULL);
 	
-	
-	
-	return purple_plugin_register(plugin);
+	return TRUE;
 }
+
+static gboolean
+plugin_unload(PurplePlugin *plugin
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+, GError **error
+#endif
+)
+{
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+	if (!purple_protocols_remove(skypeweb_protocol, error))
+		return FALSE;
+#endif
+	
+	return TRUE;
+}
+
+static GList *
+skypeweb_actions(
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+PurplePlugin *plugin, gpointer context
+#else
+PurpleConnection *pc
+#endif
+)
+{
+	GList *m = NULL;
+	PurplePluginAction *act;
+
+	act = purple_plugin_action_new(_("Search for friends..."),
+			skypeweb_search_users);
+	m = g_list_append(m, act);
+
+	return m;
+}
+
+#if !PURPLE_VERSION_CHECK(2, 8, 0)
+#	define OPT_PROTO_INVITE_MESSAGE 0x00000800
+#endif
+
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+G_MODULE_EXPORT gboolean 
+purple_init_plugin(PurplePlugin *plugin)
+{
+	PurplePluginInfo *info = g_new0(PurplePluginInfo, 1);
+	PurplePluginProtocolInfo *prpl_info = g_new0(PurplePluginProtocolInfo, 1);
+#endif
+
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+static void 
+skypeweb_protocol_init(PurpleProtocol *prpl_info) 
+{
+	PurpleProtocol *info = prpl_info;
+#endif
+	PurpleAccountOption *option;
+	PurpleBuddyIconSpec icon_spec = {"jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_DISPLAY};
+
+	//PurpleProtocol
+	info->id = SKYPEWEB_PLUGIN_ID;
+	info->name = "Skype (HTTP)";
+	prpl_info->options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_INVITE_MESSAGE /*| OPT_PROTO_IM_IMAGE*/;
+	option = purple_account_option_bool_new("", "", FALSE);
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
+	prpl_info->icon_spec = icon_spec;
+#else
+	prpl_info->account_options = g_list_append(prpl_info->account_options, option);
+	prpl_info->icon_spec = &icon_spec;
+#endif
+	
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_class_init(PurpleProtocolClass *prpl_info) 
+{
+#endif
+	//PurpleProtocolClass
+	prpl_info->login = skypeweb_login;
+	prpl_info->close = skypeweb_close;
+	prpl_info->status_types = skypeweb_status_types;
+	prpl_info->list_icon = skypeweb_list_icon;
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_client_iface_init(PurpleProtocolClientIface *prpl_info) 
+{
+	PurpleProtocolClientIface *info = prpl_info;
+#endif
+	
+	//PurpleProtocolClientIface
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	info->actions = skypeweb_actions;
+#else
+	info->get_actions = skypeweb_actions;
+#endif
+	prpl_info->list_emblem = skypeweb_list_emblem;
+	prpl_info->status_text = skypeweb_status_text;
+	prpl_info->tooltip_text = skypeweb_tooltip_text;
+	prpl_info->blist_node_menu = skypeweb_node_menu;
+	prpl_info->buddy_free = skypeweb_buddy_free;
+	prpl_info->normalize = purple_normalize_nocase;
+	prpl_info->offline_message = skypeweb_offline_message;
+	prpl_info->get_account_text_table = NULL; // skypeweb_get_account_text_table;
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_server_iface_init(PurpleProtocolServerIface *prpl_info) 
+{
+#endif
+	
+	//PurpleProtocolServerIface
+	prpl_info->get_info = skypeweb_get_info;
+	prpl_info->set_status = skypeweb_set_status;
+	prpl_info->set_idle = skypeweb_set_idle;
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->add_buddy = skypeweb_add_buddy;
+#else
+	prpl_info->add_buddy = skypeweb_add_buddy_with_invite;
+#endif
+	prpl_info->remove_buddy = skypeweb_buddy_remove;
+	prpl_info->group_buddy = skypeweb_fake_group_buddy;
+	prpl_info->rename_group = skypeweb_fake_group_rename;
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_im_iface_init(PurpleProtocolIMIface *prpl_info) 
+{
+#endif
+	
+	//PurpleProtocolIMIface
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->send_im = skypeweb_send_im;
+#else
+	prpl_info->send = skypeweb_send_im;
+#endif
+	prpl_info->send_typing = skypeweb_send_typing;
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_chat_iface_init(PurpleProtocolChatIface *prpl_info) 
+{
+#endif
+	
+	//PurpleProtocolChatIface
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->chat_info = skypeweb_chat_info;
+	prpl_info->chat_info_defaults = skypeweb_chat_info_defaults;
+	prpl_info->join_chat = skypeweb_join_chat;
+	prpl_info->get_chat_name = skypeweb_get_chat_name;
+	prpl_info->chat_invite = skypeweb_chat_invite;
+	prpl_info->chat_leave =	NULL; //skypeweb_chat_fake_leave;
+	prpl_info->chat_send = skypeweb_chat_send;
+#else
+	prpl_info->info = skypeweb_chat_info;
+	prpl_info->info_defaults = skypeweb_chat_info_defaults;
+	prpl_info->join = skypeweb_join_chat;
+	prpl_info->get_name = skypeweb_get_chat_name;
+	prpl_info->invite = skypeweb_chat_invite;
+	prpl_info->leave =	NULL; //skypeweb_chat_fake_leave;
+	prpl_info->send = skypeweb_chat_send;
+#endif
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_privacy_iface_init(PurpleProtocolPrivacyIface *prpl_info) 
+{
+#endif
+
+	//PurpleProtocolPrivacyIface
+	prpl_info->add_deny = skypeweb_buddy_block;
+	prpl_info->rem_deny = skypeweb_buddy_unblock;
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
+skypeweb_protocol_roomlist_iface_init(PurpleProtocolRoomlistIface *prpl_info) 
+{
+#endif
+	
+	//PurpleProtocolRoomlistIface
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->roomlist_get_list = skypeweb_roomlist_get_list;
+#else
+	prpl_info->get_list = skypeweb_roomlist_get_list;
+#endif
+	
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	// Plugin info
+	info->magic = PURPLE_PLUGIN_MAGIC;
+	info->major_version = PURPLE_MAJOR_VERSION;
+	info->minor_version = PURPLE_MINOR_VERSION;
+	info->type = PURPLE_PLUGIN_PROTOCOL;
+	info->priority = PURPLE_PRIORITY_DEFAULT;
+	info->version = SKYPEWEB_PLUGIN_VERSION;
+	info->summary = N_("Skype for Web Protocol Plugin");
+	info->description = N_("Skype for Web Protocol Plugin");
+	info->author = "Eion Robb <eionrobb@gmail.com>";
+	info->homepage = "http://github.com/EionRobb/skype4pidgin";
+	info->load = plugin_load;
+	info->unload = plugin_unload;
+	info->extra_info = prpl_info;
+	
+	// Protocol info
+	#if PURPLE_MINOR_VERSION >= 5
+		prpl_info->struct_size = sizeof(PurplePluginProtocolInfo);
+	#endif
+	#if PURPLE_MINOR_VERSION >= 8
+		prpl_info->add_buddy_with_invite = skypeweb_add_buddy_with_invite;
+	#endif
+	
+	plugin->info = info;
+	return purple_plugin_register(plugin);
+#endif
+	
+}
+
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+
+
+PURPLE_DEFINE_TYPE_EXTENDED(
+	SkypeWebProtocol, skypeweb_protocol, PURPLE_TYPE_PROTOCOL, G_TYPE_FLAG_ABSTRACT,
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_CLIENT_IFACE,
+	                                  skypeweb_protocol_client_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_SERVER_IFACE,
+	                                  skypeweb_protocol_server_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_IM_IFACE,
+	                                  skypeweb_protocol_im_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_CHAT_IFACE,
+	                                  skypeweb_protocol_chat_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_PRIVACY_IFACE,
+	                                  skypeweb_protocol_privacy_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_ROOMLIST_IFACE,
+	                                  skypeweb_protocol_roomlist_iface_init)
+);
+
+static PurplePluginInfo *
+plugin_query(GError **error)
+{
+	return purple_plugin_info_new(
+		"id",           SKYPEWEB_PLUGIN_ID,
+		"name",         "SkypeWeb Protocol",
+		"version",      SKYPEWEB_PLUGIN_VERSION,
+		"category",     N_("Protocol"),
+		"summary",      N_("SkypeWeb Protocol Plugin"),
+		"description",  N_("SkypeWeb Protocol Plugin"),
+		"website",      "http://github.com/EionRobb/skype4pidgin",
+		"abi-version",  PURPLE_ABI_VERSION,
+		"flags",        PURPLE_PLUGIN_INFO_FLAGS_INTERNAL |
+		                PURPLE_PLUGIN_INFO_FLAGS_AUTO_LOAD,
+		NULL
+	);
+}
+
+
+PURPLE_PLUGIN_INIT(skypeweb, plugin_query, plugin_load, plugin_unload);
+#endif
 

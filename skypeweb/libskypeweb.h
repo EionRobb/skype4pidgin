@@ -95,17 +95,24 @@
 	#define PurpleChatConversation PurpleConvChat
 	#define PurpleIMConversation PurpleConvIm
 	#define PurpleProtocolAction PurplePluginAction
-/*	#define G_TYPE_STRING PURPLE_TYPE_STRING */
 	#define PURPLE_IS_BUDDY PURPLE_BLIST_NODE_IS_BUDDY
 	#define PurpleProtocolChatEntry struct proto_chat_entry
 	#define PURPLE_CONNECTION_CONNECTED PURPLE_CONNECTED
 	#define PURPLE_CONNECTION_CONNECTING PURPLE_CONNECTING
+	#define PURPLE_CONNECTION_FLAG_HTML PURPLE_CONNECTION_HTML
+	#define PURPLE_CONNECTION_FLAG_NO_BGCOLOR PURPLE_CONNECTION_NO_BGCOLOR
+	#define PURPLE_CONNECTION_FLAG_NO_FONTSIZE PURPLE_CONNECTION_NO_FONTSIZE
 	#define purple_connection_get_protocol_data(pc) ((pc)->proto_data)
 	#define purple_connection_set_protocol_data(pc, data) ((pc)->proto_data = (data))
+	#define purple_connection_set_flags(pc, flags) (pc->flags = flags)
+	#define purple_connection_get_flags(pc) (pc->flags)
 	#define purple_conversation_present_error purple_conv_present_error
 	#define purple_account_privacy_check purple_privacy_check
+	#define purple_account_get_private_alias purple_account_get_alias
+	#define purple_account_set_private_alias purple_account_set_alias
 	#define purple_serv_got_im serv_got_im
 	#define purple_serv_got_typing serv_got_typing
+	#define purple_serv_got_alias serv_got_alias
 	#define PurpleIMTypingState PurpleTypingState
 	#define PURPLE_IM_NOT_TYPING PURPLE_NOT_TYPING
 	#define PURPLE_IM_TYPING PURPLE_TYPING
@@ -161,6 +168,27 @@
 	#define purple_conversation_set_data(conv, key, value) g_object_set_data(G_OBJECT(conv), key, value)
 	#define purple_conversation_get_data(conv, key) g_object_get_data(G_OBJECT(conv), key)
 	#define purple_hash_destroy g_object_unref
+	#define PURPLE_TYPE_STRING G_TYPE_STRING
+	
+	
+typedef struct _SkypeWebProtocol
+{
+	PurpleProtocol parent;
+} SkypeWebProtocol;
+
+typedef struct _SkypeWebProtocolClass
+{
+	PurpleProtocolClass parent_class;
+} SkypeWebProtocolClass;
+
+G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
+#define SKYPEWEB_TYPE_PROTOCOL             (skypeweb_protocol_get_type())
+#define SKYPEWEB_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocol))
+#define SKYPEWEB_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocolClass))
+#define SKYPEWEB_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), SKYPEWEB_TYPE_PROTOCOL))
+#define SKYPEWEB_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), SKYPEWEB_TYPE_PROTOCOL))
+#define SKYPEWEB_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocolClass))
+
 #endif
 
 #define SKYPEWEB_MAX_MSG_RETRY 2

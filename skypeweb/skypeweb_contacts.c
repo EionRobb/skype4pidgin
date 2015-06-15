@@ -36,12 +36,12 @@ skypeweb_get_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	PurpleBuddy *buddy = user_data;
 	SkypeWebBuddy *sbuddy;
 	
-	if (!buddy || !buddy->proto_data)
+	if (!buddy || !purple_buddy_get_protocol_data(buddy))
 		return;
 	
-	sbuddy = buddy->proto_data;
+	sbuddy = purple_buddy_get_protocol_data(buddy);
 	
-	purple_buddy_icons_set_for_user(buddy->account, buddy->name, g_memdup(url_text, len), len, sbuddy->avatar_url);
+	purple_buddy_icons_set_for_user(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy), g_memdup(url_text, len), len, sbuddy->avatar_url);
 	
 	active_icon_downloads--;
 }
@@ -52,16 +52,16 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 	SkypeWebBuddy *sbuddy;
 	gchar *url;
 	
-	purple_debug_info("skypeweb", "getting new buddy icon for %s\n", buddy->name);
+	purple_debug_info("skypeweb", "getting new buddy icon for %s\n", purple_buddy_get_name(buddy));
 	
-	sbuddy = buddy->proto_data;
+	sbuddy = purple_buddy_get_protocol_data(buddy);
 	if (sbuddy != NULL && sbuddy->avatar_url && sbuddy->avatar_url[0]) {
 		url = g_strdup(sbuddy->avatar_url);
 	} else {
-		url = g_strdup_printf("https://api.skype.com/users/%s/profile/avatar", purple_url_encode(buddy->name));
+		url = g_strdup_printf("https://api.skype.com/users/%s/profile/avatar", purple_url_encode(purple_buddy_get_name(buddy)));
 	}
 	
-	purple_util_fetch_url_request(buddy->account, url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_get_icon_cb, buddy);
+	purple_util_fetch_url_request(purple_buddy_get_account(buddy), url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_get_icon_cb, buddy);
 
 	g_free(url);
 
@@ -266,14 +266,14 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	username = json_object_get_string_member(userobj, "username");
 	g_free(sa->username); sa->username = g_strdup(username);
 	
-	old_alias = purple_account_get_alias(sa->account);
+	old_alias = purple_account_get_private_alias(sa->account);
 	if (!old_alias || !*old_alias) {
 		displayname = json_object_get_string_member(userobj, "displayname");
 		if (!displayname || g_str_equal(displayname, username))
 			displayname = json_object_get_string_member(userobj, "firstname");
 	
 		if (displayname)
-			purple_account_set_alias(sa->account, displayname);
+			purple_account_set_private_alias(sa->account, displayname);
 	}
 }
 
@@ -297,7 +297,7 @@ skypeweb_search_results_add_buddy(PurpleConnection *pc, GList *row, void *user_d
 {
 	PurpleAccount *account = purple_connection_get_account(pc);
 
-	if (!purple_find_buddy(account, g_list_nth_data(row, 0)))
+	if (!purple_blist_find_buddy(account, g_list_nth_data(row, 0)))
 		purple_blist_request_add_buddy(account, g_list_nth_data(row, 0), "Skype", g_list_nth_data(row, 1));
 }
 
@@ -398,7 +398,7 @@ void
 skypeweb_search_users(PurplePluginAction *action)
 {
 	PurpleConnection *pc = (PurpleConnection *) action->context;
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
 	purple_request_input(pc, "Search for Skype Friends",
 					   "Search for Skype Friends",
@@ -437,15 +437,15 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		buddy = purple_find_buddy(sa->account, username);
 		if (!buddy)
 			continue;
-		sbuddy = buddy->proto_data;
+		sbuddy = purple_buddy_get_protocol_data(buddy);
 		if (sbuddy == NULL) {
 			sbuddy = g_new0(SkypeWebBuddy, 1);
-			buddy->proto_data = sbuddy;
+			purple_buddy_set_protocol_data(buddy, sbuddy);
 			sbuddy->skypename = g_strdup(username);
 		}
 		
 		g_free(sbuddy->display_name); sbuddy->display_name = g_strdup(json_object_get_string_member(contact, "displayname"));
-		serv_got_alias(sa->pc, username, sbuddy->display_name);
+		purple_serv_got_alias(sa->pc, username, sbuddy->display_name);
 		purple_blist_server_alias_buddy(buddy, json_object_get_string_member(contact, "firstname"));
 		
 		new_avatar = json_object_get_string_member(contact, "avatarUrl");
@@ -532,10 +532,10 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	
 	buddy = purple_find_buddy(sa->account, username);
 	if (buddy) {
-		sbuddy = buddy->proto_data;
+		sbuddy = purple_buddy_get_protocol_data(buddy);
 		if (sbuddy == NULL) {
 			sbuddy = g_new0(SkypeWebBuddy, 1);
-			buddy->proto_data = sbuddy;
+			purple_buddy_set_protocol_data(buddy, sbuddy);
 			sbuddy->skypename = g_strdup(username);
 		}
 		
@@ -557,7 +557,7 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 void
 skypeweb_get_info(PurpleConnection *pc, const gchar *username)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url;
 	
 	url = g_strdup_printf("/users/%s/profile", purple_url_encode(username));
@@ -610,7 +610,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		{
 			if (!group)
 			{
-				group = purple_find_group("Skype");
+				group = purple_blist_find_group("Skype");
 				if (!group)
 				{
 					group = purple_group_new("Skype");
@@ -629,9 +629,9 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		sbuddy->blocked = blocked;
 		
 		sbuddy->buddy = buddy;
-		buddy->proto_data = sbuddy;
+		purple_buddy_set_protocol_data(buddy, sbuddy);
 		
-		serv_got_alias(sa->pc, skypename, sbuddy->display_name);
+		purple_serv_got_alias(sa->pc, skypename, sbuddy->display_name);
 		purple_blist_server_alias_buddy(buddy, fullname);
 		
 		users_to_fetch = g_slist_prepend(users_to_fetch, sbuddy->skypename);
@@ -661,16 +661,16 @@ skypeweb_auth_accept_cb(gpointer sender)
 	gchar *url = NULL;
 	GSList *users_to_fetch;
 	
-	sa = buddy->account->gc->proto_data;
+	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/accept", purple_url_encode(buddy->name));
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s/accept", purple_url_encode(purple_buddy_get_name(buddy)));
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
 	
 	// Subscribe to status/message updates
-	users_to_fetch = g_slist_prepend(NULL, buddy->name);
+	users_to_fetch = g_slist_prepend(NULL, purple_buddy_get_name(buddy));
 	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
 	g_slist_free(users_to_fetch);
 }
@@ -682,9 +682,9 @@ skypeweb_auth_reject_cb(gpointer sender)
 	SkypeWebAccount *sa;
 	gchar *url = NULL;
 	
-	sa = buddy->account->gc->proto_data;
+	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/decline", purple_url_encode(buddy->name));
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s/decline", purple_url_encode(purple_buddy_get_name(buddy)));
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
@@ -733,11 +733,11 @@ skypeweb_check_authrequests(SkypeWebAccount *sa)
 void
 skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char* message)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url, *postdata;
 	GSList *users_to_fetch;
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(buddy->name));
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(purple_buddy_get_name(buddy)));
 	postdata = g_strdup_printf("greeting=%s", message ? purple_url_encode(message) : "");
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
@@ -746,7 +746,7 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 	g_free(url);
 	
 	// Subscribe to status/message updates
-	users_to_fetch = g_slist_prepend(NULL, buddy->name);
+	users_to_fetch = g_slist_prepend(NULL, purple_buddy_get_name(buddy));
 	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
 	g_slist_free(users_to_fetch);
 }
@@ -760,15 +760,15 @@ skypeweb_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
 void
 skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
-	skypeweb_unsubscribe_from_contact_status(sa, buddy->name);
+	skypeweb_unsubscribe_from_contact_status(sa, purple_buddy_get_name(buddy));
 }
 
 void
 skypeweb_buddy_block(PurpleConnection *pc, const char *name)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url, *postdata;
 	
 	url = g_strdup_printf("/users/self/contacts/%s/block", purple_url_encode(name));
@@ -783,7 +783,7 @@ skypeweb_buddy_block(PurpleConnection *pc, const char *name)
 void
 skypeweb_buddy_unblock(PurpleConnection *pc, const char *name)
 {
-	SkypeWebAccount *sa = pc->proto_data;
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url;
 	
 	url = g_strdup_printf("/users/self/contacts/%s/unblock", purple_url_encode(name));
