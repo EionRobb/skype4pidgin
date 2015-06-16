@@ -747,6 +747,7 @@ skypeweb_protocol_chat_iface_init(PurpleProtocolChatIface *prpl_info)
 	prpl_info->chat_invite = skypeweb_chat_invite;
 	prpl_info->chat_leave =	NULL; //skypeweb_chat_fake_leave;
 	prpl_info->chat_send = skypeweb_chat_send;
+	prpl_info->set_chat_topic = skypeweb_chat_set_topic;
 #else
 	prpl_info->info = skypeweb_chat_info;
 	prpl_info->info_defaults = skypeweb_chat_info_defaults;
@@ -755,6 +756,7 @@ skypeweb_protocol_chat_iface_init(PurpleProtocolChatIface *prpl_info)
 	prpl_info->invite = skypeweb_chat_invite;
 	prpl_info->leave =	NULL; //skypeweb_chat_fake_leave;
 	prpl_info->send = skypeweb_chat_send;
+	prpl_info->set_topic = skypeweb_chat_set_topic;
 #endif
 #if PURPLE_VERSION_CHECK(3, 0, 0)
 }

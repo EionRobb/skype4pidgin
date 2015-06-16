@@ -1116,3 +1116,32 @@ skypeweb_initiate_chat_from_node(PurpleBlistNode *node, gpointer userdata)
 		skypeweb_initiate_chat(sa, purple_buddy_get_name(buddy));
 	}
 }
+
+void
+skypeweb_chat_set_topic(PurpleConnection *pc, int id, const char *topic)
+{
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
+	PurpleChatConversation *chatconv;
+	JsonObject *obj;
+	gchar *chatname;
+	gchar *post;
+	GString *url;
+
+	chatconv = purple_conversations_find_chat(pc, id);
+	chatname = purple_conversation_get_data(PURPLE_CONVERSATION(chatconv), "chatname");
+	
+	url = g_string_new("/v1/threads/");
+	g_string_append_printf(url, "%s", purple_url_encode(chatname));
+	g_string_append(url, "/properties?name=topic");
+	
+	obj = json_object_new();
+	json_object_set_string_member(obj, "topic", topic);
+	post = skypeweb_jsonobj_to_string(obj);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
+	
+	g_string_free(url, TRUE);
+	g_free(post);
+	json_object_unref(obj);
+}
+
