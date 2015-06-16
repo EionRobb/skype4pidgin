@@ -761,6 +761,13 @@ void
 skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group)
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
+	gchar *url;
+	
+	url = g_strdup_printf("/users/self/contacts/%s", purple_url_encode(purple_buddy_get_name(buddy)));
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
+	
+	g_free(url);
 	
 	skypeweb_unsubscribe_from_contact_status(sa, purple_buddy_get_name(buddy));
 }
