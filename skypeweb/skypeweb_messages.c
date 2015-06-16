@@ -92,9 +92,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	if (json_object_has_member(resource, "content"))
 		content = json_object_get_string_member(resource, "content");
 	
-	from = skypeweb_contact_url_to_name(from);
-	g_return_if_fail(from);
-	
 	if (strstr(conversationLink, "/19:")) {
 		// This is a Thread/Group chat message
 		const gchar *chatname, *topic;
@@ -121,6 +118,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			if (json_object_has_member(resource, "skypeemoteoffset"))
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+			
+			from = skypeweb_contact_url_to_name(from);
+			g_return_if_fail(from);
 			
 			//TODO if (skypeeditedid && *skypeeditedid) { ... }
 			
@@ -208,7 +208,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	} else {
 		// This is a One-to-one/IM message
 		convname = g_strconcat("8:", skypeweb_contact_url_to_name(conversationLink), NULL);
-		from = skypeweb_contact_url_to_name(json_object_get_string_member(resource, "from"));  //regen the from
+		from = skypeweb_contact_url_to_name(from);
+		g_return_if_fail(from);
 		
 		if (g_str_equal(messagetype_parts[0], "Control")) {
 			if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
