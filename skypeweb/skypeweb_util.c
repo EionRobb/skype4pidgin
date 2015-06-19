@@ -80,7 +80,17 @@ skypeweb_contact_url_to_name(const gchar *url)
 	const gchar *start, *end;
 	
 	start = g_strrstr(url, "/8:");
-	if (!start) return NULL;
+	if (!start) {
+  		/*Hotmail accounts start with 1
+        	It was crashing on large groups
+        	Turns out it was from hotmail accounts
+        	This may only be a bandaid, I haven't
+        	fully tested the consequences of this
+        	change. -mustyoshi
+        	*/
+        	start = g_strrstr(url, "/1:");
+        	if (!start) return NULL;
+	}
 	start = start + 3;
 	
 	if ((end = strchr(start, '/'))) {
