@@ -528,7 +528,12 @@ skypeweb_got_thread_users(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 			}
 		}
 		
-		purple_chat_conversation_add_user(chatconv, username, NULL, cbflags, FALSE);
+		if (username == NULL && json_object_has_member(member, "linkedMri")) {
+			username = skypeweb_contact_url_to_name(json_object_get_string_member(member, "linkedMri"));
+		}
+		if (username != NULL) {
+			purple_chat_conversation_add_user(chatconv, username, NULL, cbflags, FALSE);
+		}
 	}
 }
 
