@@ -291,6 +291,56 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				purple_serv_got_im(sa->pc, from, content, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}
 			purple_xmlnode_free(blob);
+		} else if (g_str_equal(messagetype, "Event/Call")) {
+			PurpleXmlNode *partlist = purple_xmlnode_from_str(content, -1);
+			const gchar *partlisttype = purple_xmlnode_get_attrib(partlist, "type");
+			const gchar *message = NULL;
+			PurpleIMConversation *imconv;
+			gboolean incoming = TRUE;
+			
+			if (g_str_equal(sa->username, from)) {
+				incoming = FALSE;
+				from = skypeweb_contact_url_to_name(conversationLink);
+			}
+			if (partlisttype && from != NULL) {
+				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				if (imconv == NULL)
+				{
+					imconv = purple_im_conversation_new(sa->account, from);
+				}
+				
+				conv = PURPLE_CONVERSATION(imconv);
+				if (g_str_equal(partlisttype, "started")) {
+					message = _("Call started");
+				} else if (g_str_equal(partlisttype, "ended")) {
+					PurpleXmlNode *part;
+					gint duration_int = -1;
+					
+					for(part = purple_xmlnode_get_child(partlist, "part");
+						part;
+						part = purple_xmlnode_get_next_twin(part))
+					{
+						const gchar *identity = purple_xmlnode_get_attrib(part, "identity");
+						if (identity && g_str_equal(sa->username, identity)) {
+							PurpleXmlNode *duration = purple_xmlnode_get_child(part, "duration");
+							if (duration != NULL) {
+								gchar *duration_str;
+								duration_str = purple_xmlnode_get_data(duration);
+								duration_int = atoi(duration_str);
+								break;
+							}
+						}
+					}
+					if (duration_int < 0) {
+						message = _("Call missed");
+					} else {
+						//TODO report how long the call was
+						message = _("Call ended");
+					}
+				}
+				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
+			}
+			purple_xmlnode_free(partlist);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled message resource messagetype '%s'\n", messagetype);
 		}
