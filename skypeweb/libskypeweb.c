@@ -437,6 +437,23 @@ skypeweb_cmd_invite(PurpleConversation *conv, const gchar *cmd, gchar **args, gc
 	return PURPLE_CMD_RET_OK;
 }
 
+static PurpleCmdRet
+skypeweb_cmd_topic(PurpleConversation *conv, const gchar *cmd, gchar **args, gchar **error, void *data)
+{
+	PurpleConnection *pc = NULL;
+	int id = -1;
+	
+	pc = purple_conversation_get_connection(conv);
+	id = purple_chat_conversation_get_id(PURPLE_CHAT_CONVERSATION(conv));
+	
+	if (pc == NULL || id == -1)
+		return PURPLE_CMD_RET_FAILED;
+	
+	skypeweb_chat_set_topic(pc, id, args ? args[0] : NULL);
+	
+	return PURPLE_CMD_RET_OK;
+}
+
 /******************************************************************************/
 /* Plugin functions */
 /******************************************************************************/
@@ -560,13 +577,13 @@ plugin_load(PurplePlugin *plugin
 						plugin->info->id, skypeweb_cmd_invite,
 						_("add &lt;user&gt;:  Add a user to the group chat."),
 						NULL);
-	/*
 	//topic
 	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
 						plugin->info->id, skypeweb_cmd_topic,
 						_("topic [&lt;new topic&gt;]:  View or change the topic"),
 						NULL);
+	/*
 	//call, as in call person
 	//kickban
 	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
