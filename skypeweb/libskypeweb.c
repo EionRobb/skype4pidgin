@@ -258,11 +258,12 @@ skypeweb_node_menu(PurpleBlistNode *node)
 	
 	if(PURPLE_IS_BUDDY(node))
 	{
-		buddy = (PurpleBuddy *)node;
+		buddy = PURPLE_BUDDY(node);
 		if (purple_buddy_get_protocol_data(buddy)) {
 			SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 			sa = sbuddy->sa;
-		} else {
+		}
+		if (sa == NULL) {
 			PurpleConnection *pc = purple_account_get_connection(purple_buddy_get_account(buddy));
 			sa = purple_connection_get_protocol_data(pc);
 		}

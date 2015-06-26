@@ -442,6 +442,7 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 			sbuddy = g_new0(SkypeWebBuddy, 1);
 			purple_buddy_set_protocol_data(buddy, sbuddy);
 			sbuddy->skypename = g_strdup(username);
+			sbuddy->sa = sa;
 		}
 		
 		g_free(sbuddy->display_name); sbuddy->display_name = g_strdup(json_object_get_string_member(contact, "displayname"));
@@ -537,6 +538,7 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 			sbuddy = g_new0(SkypeWebBuddy, 1);
 			purple_buddy_set_protocol_data(buddy, sbuddy);
 			sbuddy->skypename = g_strdup(username);
+			sbuddy->sa = sa;
 		}
 		
 		new_avatar = json_object_get_string_member(userobj, "avatarUrl");
@@ -623,6 +625,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		
 		SkypeWebBuddy *sbuddy = g_new0(SkypeWebBuddy, 1);
 		sbuddy->skypename = g_strdup(skypename);
+		sbuddy->sa = sa;
 		sbuddy->fullname = g_strdup(fullname);
 		sbuddy->display_name = g_strdup(display_name);
 		sbuddy->authorized = authorized;
