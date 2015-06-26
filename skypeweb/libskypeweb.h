@@ -127,6 +127,7 @@
 	#define purple_serv_got_joined_chat(pc, id, name) PURPLE_CONV_CHAT(serv_got_joined_chat(pc, id, name))
 	#define purple_serv_got_chat_invite serv_got_chat_invite
 	#define purple_serv_got_chat_in serv_got_chat_in
+	#define purple_chat_conversation_get_topic purple_conv_chat_get_topic
 	#define purple_chat_conversation_set_topic purple_conv_chat_set_topic
 	#define purple_chat_conversation_find_user(chat, name) purple_conv_chat_cb_find(chat, name)
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
