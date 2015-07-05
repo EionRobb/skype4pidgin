@@ -218,6 +218,7 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 		}
 	}
 
+	purple_debug_misc("skypeweb", "Got response: %s\n", skypewebcon->rx_buf);
 	g_free(skypewebcon->rx_buf);
 	skypewebcon->rx_buf = NULL;
 
@@ -239,7 +240,7 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 				JsonNode *root = json_parser_get_root(parser);
 				
 				//TODO
-				purple_debug_info("skypeweb", "Got response: %s\n", tmp);
+				purple_debug_misc("skypeweb", "Response data: %s\n", tmp);
 				purple_debug_info("skypeweb", "executing callback for %s\n", skypewebcon->url);
 				skypewebcon->callback(skypewebcon->sa, root, skypewebcon->user_data);
 			}
