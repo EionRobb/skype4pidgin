@@ -254,7 +254,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			g_free(html);
 		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
-			const gchar *uri = purple_xmlnode_get_attrib(blob, "uri");
+			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
 			PurpleIMConversation *imconv;
 			
 			if (g_str_equal(sa->username, from)) {
@@ -268,7 +268,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				}
 				
 				conv = PURPLE_CONVERSATION(imconv);
-				//skypeweb_download_uri_to_conv(sa, uri, conv);
+				skypeweb_download_uri_to_conv(sa, uri, conv);
 			}
 			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "Event/SkypeVideoMessage")) {

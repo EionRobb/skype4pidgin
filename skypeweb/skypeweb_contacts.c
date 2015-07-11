@@ -97,7 +97,7 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	gint icon_id;
 	gchar *msg_tmp;
 	
-	if (!url_text || !url_text[0] || url_text[0] == '{')
+	if (!url_text || !url_text[0] || url_text[0] == '{' || url_text[0] == '<')
 		return;
 	
 	if (error_message && *error_message)
@@ -115,26 +115,23 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 void
 skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
 {
-	gchar *url;
-	gchar *clean_uri;
 	gchar *headers;
+	gchar *path, *host;
 	
-	clean_uri = purple_strreplace(uri, "/v1//", "/v1/");
-	url = g_strconcat(clean_uri, "/views/imgo", NULL);
-	
-	headers = g_strdup_printf("GET %s HTTP/1.0\r\n"
+	purple_url_parse(uri, &host, NULL, &path, NULL, NULL);
+	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: image/*\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
-			"Host: api.asm.skype.com\r\n"
+			"Host: %s\r\n"
 			"\r\n\r\n",
-			strchr(url, '/'), sa->skype_token);
+			path, sa->skype_token, host);
 	
-	purple_util_fetch_url_request(sa->account, url, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
+	purple_util_fetch_url_request(sa->account, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
 	
 	g_free(headers);
-	g_free(url);
-	g_free(clean_uri);
+	g_free(host);
+	g_free(path);
 }
 
 
