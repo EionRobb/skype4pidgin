@@ -209,7 +209,7 @@ skypeweb_login_got_ppft(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	
 	// POST to https://login.live.com/ppsecure/post.srf?wa=wsignin1.0&wreply=https%3A%2F%2Fsecure.skype.com%2Flogin%2Foauth%2Fproxy%3Fclient_id%3D578134%26redirect_uri%3Dhttps%253A%252F%252Fweb.skype.com
 	
-	request = g_strdup_printf("POST /ppsecure/post.srf?wa=wsignin1.0&wreply=https%%3A%%2F%%2Fsecure.skype.com%%2Flogin%%2Foauth%%2Fproxy%%3Fclient_id%%3D578134%%26redirect_uri%%3Dhttps%%253A%%252F%%252Fweb.skype.com HTTP/1.0\r\n"
+	request = g_strdup_printf("POST /ppsecure/post.srf?wa=wsignin1.0&wp=MBI_SSL&wreply=https%%3A%%2F%%2Fsecure.skype.com%%2Flogin%%2Foauth%%2Fproxy%%3Fclient_id%%3D578134%%26redirect_uri%%3Dhttps%%253A%%252F%%252Fweb.skype.com HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: */*\r\n"
 			"Host: login.live.com\r\n"
