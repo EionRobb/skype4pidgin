@@ -14,8 +14,8 @@ The plugin requires libjson-glib which is part of the installer exe or can be do
 
 Compiling
 ---------
-Requires devel headers/libs for libpurple and libjson-glib
-```
+Requires devel headers/libs for libpurple and libjson-glib [libglib2.0-dev, libjson-glib-dev and libpurple-dev]
+```	
 	git clone git://github.com/EionRobb/skype4pidgin.git
 	cd skype4pidgin/skypeweb
 	make
