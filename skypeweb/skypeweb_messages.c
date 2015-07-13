@@ -859,6 +859,18 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 		len = url_data->data_len;
 	}
 	
+	if (url_text == NULL) {
+		if (purple_major_version == 2 && (
+			purple_minor_version < 10 ||
+			(purple_minor_version == 10 && purple_micro_version < 11))
+			) {
+			purple_connection_error (sa->pc,
+									PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR,
+									_("Your version of libpurple is too old.\nUpgrade to 2.10.11 or newer and try again."));
+			return;
+		}
+	}
+	
 	new_messages_host = skypeweb_string_get_chunk(url_text, len, "Location: https://", "/");
 	if (new_messages_host != NULL && !g_str_equal(sa->messages_host, new_messages_host)) {
 		g_free(sa->messages_host);
