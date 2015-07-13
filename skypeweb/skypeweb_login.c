@@ -33,11 +33,18 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	
 	refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");
 	if (refresh_token == NULL) {
-		purple_debug_info("skypeweb", "login response was %s\r\n", url_text);
-		purple_connection_error(sa->pc,
-								PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-								_("Failed getting Skype Token"));
-		return;
+		if (g_strstr_len(url_text, len, "recaptcha_response_field")) {
+			purple_connection_error(sa->pc,
+									PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+									_("Captcha required.\nTry logging into web.skype.com and try again."));
+			return;
+		} else {
+			purple_debug_info("skypeweb", "login response was %s\r\n", url_text);
+			purple_connection_error(sa->pc,
+									PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+									_("Failed getting Skype Token"));
+			return;
+		}
 	}
 	
 	sa->skype_token = refresh_token;
