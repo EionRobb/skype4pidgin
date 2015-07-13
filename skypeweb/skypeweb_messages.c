@@ -21,6 +21,8 @@
 #include "skypeweb_connection.h"
 #include "skypeweb_contacts.h"
 
+#include <inttypes.h>
+
 
 
 static gchar *
@@ -628,7 +630,7 @@ void
 skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, time_t since)
 {
 	gchar *url;
-	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%d000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname), since);
+	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%"PRIdFAST32"000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname), since);
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_conv_history, GINT_TO_POINTER(since), TRUE);
 	
@@ -674,7 +676,7 @@ void
 skypeweb_get_all_conversations_since(SkypeWebAccount *sa, time_t since)
 {
 	gchar *url;
-	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%d000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", since);
+	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%"PRIdFAST32"000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", since);
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_all_convs, GINT_TO_POINTER(since), TRUE);
 	
