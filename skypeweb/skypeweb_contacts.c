@@ -660,19 +660,20 @@ skypeweb_auth_accept_cb(gpointer sender)
 	SkypeWebAccount *sa;
 	gchar *url = NULL;
 	GSList *users_to_fetch;
+	gchar *buddy_name;
 	
 	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
+	buddy_name = g_strdup(purple_buddy_get_name(buddy));
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/accept", purple_url_encode(purple_buddy_get_name(buddy)));
-	
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s/accept", purple_url_encode(buddy_name));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
-	
 	g_free(url);
 	
 	// Subscribe to status/message updates
-	users_to_fetch = g_slist_prepend(NULL, purple_buddy_get_name(buddy));
+	users_to_fetch = g_slist_prepend(NULL, buddy_name);
 	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
 	g_slist_free(users_to_fetch);
+	g_free(buddy_name);
 }
 
 void
@@ -736,8 +737,10 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url, *postdata;
 	GSList *users_to_fetch;
+	gchar *buddy_name;
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(purple_buddy_get_name(buddy)));
+	buddy_name = g_strdup(purple_buddy_get_name(buddy));
+	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(buddy_name));
 	postdata = g_strdup_printf("greeting=%s", message ? purple_url_encode(message) : "");
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
@@ -746,9 +749,11 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 	g_free(url);
 	
 	// Subscribe to status/message updates
-	users_to_fetch = g_slist_prepend(NULL, purple_buddy_get_name(buddy));
+	users_to_fetch = g_slist_prepend(NULL, buddy_name);
 	skypeweb_subscribe_to_contact_status(sa, users_to_fetch);
 	g_slist_free(users_to_fetch);
+	
+	g_free(buddy_name);
 }
 
 void 
