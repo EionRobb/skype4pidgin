@@ -634,7 +634,11 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		purple_serv_got_alias(sa->pc, skypename, sbuddy->display_name);
 		purple_blist_server_alias_buddy(buddy, fullname);
 		
-		users_to_fetch = g_slist_prepend(users_to_fetch, sbuddy->skypename);
+		if (blocked == TRUE) {
+			purple_privacy_deny_add(sa->account, skypename, TRUE);
+		} else {
+			users_to_fetch = g_slist_prepend(users_to_fetch, sbuddy->skypename);
+		}
 	}
 	
 	if (users_to_fetch)
