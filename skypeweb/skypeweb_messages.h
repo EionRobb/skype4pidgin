@@ -37,10 +37,10 @@ void skypeweb_chat_set_topic(PurpleConnection *pc, int id, const char *topic);
 
 void skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts);
 void skypeweb_unsubscribe_from_contact_status(SkypeWebAccount *sa, const gchar *who);
-void skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, time_t since);
+void skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, gint since);
 void skypeweb_get_conversation_history(SkypeWebAccount *sa, const gchar *convname);
 void skypeweb_get_thread_users(SkypeWebAccount *sa, const gchar *convname);
-void skypeweb_get_all_conversations_since(SkypeWebAccount *sa, time_t since);
+void skypeweb_get_all_conversations_since(SkypeWebAccount *sa, gint since);
 void skype_web_get_offline_history(SkypeWebAccount *sa);
 void skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType type);
 
