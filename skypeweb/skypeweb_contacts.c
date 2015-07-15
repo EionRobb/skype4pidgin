@@ -34,16 +34,13 @@ static void
 skypeweb_get_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
 	PurpleBuddy *buddy = user_data;
-	SkypeWebBuddy *sbuddy;
-	
-	if (!buddy || !purple_buddy_get_protocol_data(buddy))
-		return;
-	
-	sbuddy = purple_buddy_get_protocol_data(buddy);
-	
-	purple_buddy_icons_set_for_user(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy), g_memdup(url_text, len), len, sbuddy->avatar_url);
 	
 	active_icon_downloads--;
+	
+	if (!buddy)
+		return;
+	
+	purple_buddy_icons_set_for_user(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy), g_memdup(url_text, len), len, url_data->url);
 }
 
 static void
