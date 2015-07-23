@@ -454,6 +454,11 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	gint index, length;
 	JsonObject *obj = NULL;
 	
+	if (node == NULL && ((int)time(NULL)) > sa->registration_expiry) {
+		skypeweb_get_registration_token(sa);
+		return;
+	}
+	
 	if (node != NULL && json_node_get_node_type(node) == JSON_NODE_OBJECT)
 		obj = json_node_get_object(node);
 	
@@ -851,6 +856,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 {
 	gchar *registration_token;
 	gchar *endpointId;
+	gchar *expires;
 	SkypeWebAccount *sa = user_data;
 	gchar *new_messages_host;
 	
@@ -885,6 +891,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	
 	registration_token = skypeweb_string_get_chunk(url_text, len, "Set-RegistrationToken: ", ";");
 	endpointId = skypeweb_string_get_chunk(url_text, len, "endpointId=", "\r\n");
+	expires = skypeweb_string_get_chunk(url_text, len, "expires=", ";");
 	
 	if (registration_token == NULL) {
 		purple_connection_error (sa->pc,
@@ -896,6 +903,10 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	
 	g_free(sa->registration_token); sa->registration_token = registration_token;
 	g_free(sa->endpoint); sa->endpoint = endpointId;
+	if (expires && *expires) {
+		sa->registration_expiry = atoi(expires);
+		g_free(expires);
+	}
 	
 	skypeweb_subscribe(sa);
 }
