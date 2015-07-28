@@ -103,10 +103,12 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		if (!chatconv) {
 			chatconv = purple_serv_got_joined_chat(sa->pc, g_str_hash(chatname), chatname);
 			purple_conversation_set_data(PURPLE_CONVERSATION(chatconv), "chatname", g_strdup(chatname));
-			
-			topic = json_object_get_string_member(resource, "threadtopic");
-			purple_chat_conversation_set_topic(chatconv, NULL, topic);
-			
+
+			if (json_object_has_member(resource, "threadtopic")) {
+				topic = json_object_get_string_member(resource, "threadtopic");
+				purple_chat_conversation_set_topic(chatconv, NULL, topic);
+			}
+				
 			skypeweb_get_conversation_history(sa, chatname);
 			skypeweb_get_thread_users(sa, chatname);
 		}
