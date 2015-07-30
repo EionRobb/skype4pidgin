@@ -33,12 +33,13 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 			purple_timeout_remove(sa->authcheck_timeout);
 		skypeweb_check_authrequests(sa);
 		sa->authcheck_timeout = purple_timeout_add_seconds(120, (GSourceFunc)skypeweb_check_authrequests, sa);
-		
+		purple_connection_set_state(sa->pc, PURPLE_CONNECTED);
+
 		skypeweb_get_friend_list(sa);
 		skypeweb_poll(sa);
 		
 		skype_web_get_offline_history(sa);
-		
+
 		skypeweb_set_status(sa->account, purple_account_get_active_status(sa->account));
 	} else {
 		//Too soon!
