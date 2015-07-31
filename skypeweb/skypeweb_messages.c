@@ -1070,7 +1070,7 @@ skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMe
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
 	PurpleChatConversation *chatconv;
-	gchar* chatname;
+	const gchar* chatname;
 	
 	chatconv = purple_conversations_find_chat(pc, id);
 	chatname = purple_conversation_get_data(PURPLE_CONVERSATION(chatconv), "chatname");
