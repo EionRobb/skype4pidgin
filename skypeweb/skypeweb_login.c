@@ -51,8 +51,6 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	
 	skypeweb_update_cookies(sa, url_text);
 	
-	purple_connection_set_state(sa->pc, PURPLE_CONNECTED);
-	
 	skypeweb_do_all_the_things(sa);
 }
 
