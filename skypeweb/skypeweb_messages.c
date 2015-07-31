@@ -1074,8 +1074,12 @@ skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMe
 	
 	chatconv = purple_conversations_find_chat(pc, id);
 	chatname = purple_conversation_get_data(PURPLE_CONVERSATION(chatconv), "chatname");
-	if (!chatname)
-		return -1;
+	if (!chatname) {
+		// Fix for a condition around the chat data and serv_got_joined_chat()
+		chatname = purple_conversation_get_name(PURPLE_CONVERSATION(chatconv));
+		if (!chatname)
+			return -1;
+        }
 
 	skypeweb_send_message(sa, chatname, message);
 
