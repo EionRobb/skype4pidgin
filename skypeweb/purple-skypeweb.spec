@@ -40,15 +40,15 @@ Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 %setup -c
 
 %build -n %{purplelib_name}
-cd %{project_name}-*/skypeweb
+cd %{project_name}-*/%{plugin_name}
 make
 
 %install
-cd %{project_name}-*/skypeweb
+cd %{project_name}-*/%{plugin_name}
 make install DESTDIR=%{buildroot}
 
 %files -n %{purplelib_name}
-%{_libdir}/purple-2/libskypeweb.so
+%{_libdir}/purple-2/lib%{plugin_name}.so
 
 %files -n pidgin-%{plugin_name}
 %{_datadir}/pixmaps/pidgin/protocols/16/skype.png
