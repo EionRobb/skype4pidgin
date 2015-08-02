@@ -579,11 +579,6 @@ plugin_load(PurplePlugin *plugin
 #endif
 	
 	
-	
-	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", plugin, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
-	
-	
-	
 	//leave
 	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
 						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,

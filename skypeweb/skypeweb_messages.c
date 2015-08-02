@@ -520,6 +520,9 @@ skypeweb_poll(SkypeWebAccount *sa)
 void
 skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType type)
 {
+	if (!PURPLE_CONNECTION_IS_CONNECTED(purple_conversation_get_gc(conv)))
+		return;
+	
 	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN) {
 		gchar *last_skypeweb_id = purple_conversation_get_data(conv, "last_skypeweb_id");
 		
