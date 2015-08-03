@@ -1,5 +1,6 @@
 CC	?= cc
 CFLAGS	?= -O2 -g -pipe
+PKG_CONFIG  ?= pkg-config
 
 DIR_PERM	= 0755
 FILE_PERM	= 0644
