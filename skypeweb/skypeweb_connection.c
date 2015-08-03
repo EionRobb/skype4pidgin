@@ -68,7 +68,7 @@ static gchar *skypeweb_gunzip(const guchar *gzip_data, gssize *len_ptr)
 	if (gzip_err == Z_DATA_ERROR)
 	{
 		inflateEnd(&zstr);
-		inflateInit2(&zstr, -MAX_WBITS);
+		gzip_err = inflateInit2(&zstr, -MAX_WBITS);
 		if (gzip_err != Z_OK)
 		{
 			g_free(data_buffer);
@@ -239,8 +239,6 @@ static void skypeweb_connection_process_data(SkypeWebConnection *skypewebcon)
 			} else {
 				JsonNode *root = json_parser_get_root(parser);
 				
-				//TODO
-				purple_debug_misc("skypeweb", "Response data: %s\n", tmp);
 				purple_debug_info("skypeweb", "executing callback for %s\n", skypewebcon->url);
 				skypewebcon->callback(skypewebcon->sa, root, skypewebcon->user_data);
 			}
