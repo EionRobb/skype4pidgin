@@ -1,15 +1,16 @@
+CC	?= cc
+CFLAGS	?= -O2 -g -pipe
 
-COMPILER = gcc
-DIR_PERM=0755
-FILE_PERM=0644
+DIR_PERM	= 0755
+FILE_PERM	= 0644
 
-LIBPURPLE_CFLAGS += $(shell pkg-config --cflags glib-2.0 json-glib-1.0 purple)
-LIBPURPLE_LIBS += $(shell pkg-config --libs glib-2.0 json-glib-1.0 purple)
-PLUGIN_DIR_PURPLE=$(shell pkg-config --variable=plugindir purple)
-DATA_ROOT_DIR_PURPLE=$(shell pkg-config --variable=datarootdir purple)
+LIBPURPLE_CFLAGS	+= $(shell $(PKG_CONFIG) --cflags glib-2.0 json-glib-1.0 purple)
+LIBPURPLE_LIBS		+= $(shell $(PKG_CONFIG) --libs glib-2.0 json-glib-1.0 purple)
+PLUGIN_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=plugindir purple)
+DATA_ROOT_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=datarootdir purple)
 
-PRPL_NAME=libskypeweb.so
-PRPL_LIBNAME=${PRPL_NAME}
+PRPL_NAME	= libskypeweb.so
+PRPL_LIBNAME	= ${PRPL_NAME}
 
 SKYPEWEB_SOURCES = \
 	skypeweb_connection.c \
@@ -20,7 +21,7 @@ SKYPEWEB_SOURCES = \
 	libskypeweb.c 
 
 .PHONY:	all clean install
-all: ${PRPL_NAME}
+all: $(PRPL_NAME)
 install:
 	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(PLUGIN_DIR_PURPLE)
 	install -m $(FILE_PERM) $(PRPL_LIBNAME) $(DESTDIR)$(PLUGIN_DIR_PURPLE)/$(PRPL_NAME)
@@ -38,5 +39,5 @@ install:
 clean:
 	rm -f libskypeweb.so
 
-${PRPL_NAME}: ${SKYPEWEB_SOURCES}
-	${COMPILER} -Wall -I. -g -O2 -fPIC -pipe ${SKYPEWEB_SOURCES} -o $@ ${LIBPURPLE_CFLAGS} ${LIBPURPLE_LIBS} -shared
+$(PRPL_NAME): $(SKYPEWEB_SOURCES)
+	$(CC) -Wall -I. -fPIC $(CFLAGS) $(SKYPEWEB_SOURCES) -o $@ $(LIBPURPLE_CFLAGS) $(LIBPURPLE_LIBS) -shared
