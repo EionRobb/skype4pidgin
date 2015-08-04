@@ -11,6 +11,7 @@ Group: Applications/Productivity
 License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
 Source0: %{project_name}-%{version}.tar.gz
+Requires: pidgin-%{plugin_name}
 
 %description
 meta pkj.
@@ -26,7 +27,7 @@ Requires: json-glib
 
 %package -n pidgin-%{plugin_name}
 Summary: Adds pixmaps, icons and smileys for Skype protocol.
-Requires: %{name}
+Requires: %{purplelib_name}
 Requires: pidgin
 
 %description -n %{purplelib_name}
@@ -58,6 +59,8 @@ make install DESTDIR=%{buildroot}
 %{_datadir}/pixmaps/pidgin/protocols/48/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/48/skypeout.png
 %{_datadir}/pixmaps/pidgin/emotes/skype/theme
+
+%files
 
 %changelog
 * Sat May 09 2015 V1TSK <vitaly@easycoding.org> - 0.1-2
