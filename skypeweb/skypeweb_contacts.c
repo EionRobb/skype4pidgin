@@ -441,7 +441,15 @@ skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_
 		
 		g_free(sbuddy->display_name); sbuddy->display_name = g_strdup(json_object_get_string_member(contact, "displayname"));
 		purple_serv_got_alias(sa->pc, username, sbuddy->display_name);
-		purple_blist_server_alias_buddy(buddy, json_object_get_string_member(contact, "firstname"));
+		if (json_object_has_member(contact, "lastname")) {
+			gchar *fullname = g_strconcat(json_object_get_string_member(contact, "firstname"), " ", json_object_get_string_member(contact, "lastname"), NULL);
+			
+			purple_blist_server_alias_buddy(buddy, fullname);
+			
+			g_free(fullname);
+		} else {
+			purple_blist_server_alias_buddy(buddy, json_object_get_string_member(contact, "firstname"));
+		}
 		
 		new_avatar = json_object_get_string_member(contact, "avatarUrl");
 		if (new_avatar && *new_avatar && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, new_avatar))) {
