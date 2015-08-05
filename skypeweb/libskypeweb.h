@@ -201,12 +201,13 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_LOCKANDKEY_SECRET "Q1P7W2E4J9R8U3S5"
 
 #define SKYPEWEB_CONTACTS_HOST "api.skype.com"
+#define SKYPEWEB_NEW_CONTACTS_HOST "contacts.skype.com"
 #define SKYPEWEB_DEFAULT_MESSAGES_HOST "client-s.gateway.messenger.live.com"
 #define SKYPEWEB_LOGIN_HOST "login.skype.com"
 #define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
-#define SKYPEWEB_CLIENTINFO_VERSION "908/1.5.108"
+#define SKYPEWEB_CLIENTINFO_VERSION "908/1.7.251"
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;
