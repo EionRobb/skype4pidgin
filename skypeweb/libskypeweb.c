@@ -55,6 +55,13 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 static const char *
 skypeweb_list_icon(PurpleAccount *account, PurpleBuddy *buddy)
 {
+	
+	if (buddy != NULL) {
+		const gchar *buddy_name = purple_buddy_get_name(buddy);
+		if (buddy_name && SKYPEWEB_BUDDY_IS_MSN(buddy_name)) {
+			return "msn";
+		}
+	}
 	return "skype";
 }
 

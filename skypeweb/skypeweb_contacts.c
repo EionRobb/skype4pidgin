@@ -629,8 +629,8 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		const gchar *surname = NULL;
 		PurpleBuddy *buddy;
 		
-		//TODO make this work for "msn" and "pstn"
-		if (!g_str_equal(type, "skype"))
+		//TODO make this work for "pstn"
+		if (!g_str_equal(type, "skype") && !g_str_equal(type, "msn"))
 			continue;
 		
 		if (json_object_has_member(contact, "suggested") && json_object_get_boolean_member(contact, "suggested") && !authorized) {

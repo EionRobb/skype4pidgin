@@ -80,6 +80,7 @@ skypeweb_contact_url_to_name(const gchar *url)
 	const gchar *start, *end;
 	
 	start = g_strrstr(url, "/8:");
+	if (!start) start = g_strrstr(url, "/1:");
 	if (!start) return NULL;
 	start = start + 3;
 	

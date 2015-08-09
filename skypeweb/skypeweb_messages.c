@@ -40,6 +40,8 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
 	const gchar *selfLink = json_object_get_string_member(resource, "selfLink");
 	const gchar *status = json_object_get_string_member(resource, "status");
+	// const gchar *capabilities = json_object_get_string_member(resource, "capabilities");
+	// const gchar *lastSeenAt = json_object_get_string_member(resource, "lastSeenAt");
 	const gchar *from;
 	
 	from = skypeweb_contact_url_to_name(selfLink);
@@ -56,6 +58,10 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 		purple_blist_add_buddy(purple_buddy_new(sa->account, from, NULL), NULL, group, NULL);
 	}
+	
+	// if (g_str_equal(capabilities, "IsMobile")) {  //"Seamless | IsMobile"
+		// purple_protocol_got_user_status(sa->account, from, "mobile", NULL);
+	// }
 	
 	purple_protocol_got_user_status(sa->account, from, status, NULL);
 	purple_protocol_got_user_idle(sa->account, from, g_str_equal(status, "Idle"), 0);
@@ -208,10 +214,17 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 		
 	} else {
+		const gchar *convbuddyname;
 		// This is a One-to-one/IM message
-		convname = g_strconcat("8:", skypeweb_contact_url_to_name(conversationLink), NULL);
 		from = skypeweb_contact_url_to_name(from);
 		g_return_if_fail(from);
+		
+		convbuddyname = skypeweb_contact_url_to_name(conversationLink);
+		if (SKYPEWEB_BUDDY_IS_MSN(convbuddyname)) {
+			convname = g_strconcat("1:", convbuddyname, NULL);
+		} else {
+			convname = g_strconcat("8:", convname, NULL);
+		}
 		
 		if (g_str_equal(messagetype_parts[0], "Control")) {
 			if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
@@ -237,15 +250,14 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				html = skypeweb_meify(content, skypeemoteoffset);
 			}
 			if (g_str_equal(sa->username, from)) {
-				from = skypeweb_contact_url_to_name(conversationLink);
-				if (from != NULL && !g_str_has_prefix(html, "?OTR")) {
-					imconv = purple_conversations_find_im_with_account(from, sa->account);
+				if (!g_str_has_prefix(html, "?OTR")) {
+					imconv = purple_conversations_find_im_with_account(convbuddyname, sa->account);
 					if (imconv == NULL)
 					{
-						imconv = purple_im_conversation_new(sa->account, from);
+						imconv = purple_im_conversation_new(sa->account, convbuddyname);
 					}
 					conv = PURPLE_CONVERSATION(imconv);
-					purple_conversation_write(conv, from, html, PURPLE_MESSAGE_SEND, composetimestamp);
+					purple_conversation_write(conv, convbuddyname, html, PURPLE_MESSAGE_SEND, composetimestamp);
 				}
 			} else {
 				purple_serv_got_im(sa->pc, from, html, PURPLE_MESSAGE_RECV, composetimestamp);
@@ -260,7 +272,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleIMConversation *imconv;
 			
 			if (g_str_equal(sa->username, from)) {
-				from = skypeweb_contact_url_to_name(conversationLink);
+				from = convbuddyname;
 			}
 			if (from != NULL) {
 				imconv = purple_conversations_find_im_with_account(from, sa->account);
@@ -279,7 +291,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleIMConversation *imconv;
 			
 			if (g_str_equal(sa->username, from)) {
-				from = skypeweb_contact_url_to_name(conversationLink);
+				from = convbuddyname;
 			}
 			if (from != NULL) {
 				imconv = purple_conversations_find_im_with_account(from, sa->account);
@@ -302,7 +314,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			if (g_str_equal(sa->username, from)) {
 				incoming = FALSE;
-				from = skypeweb_contact_url_to_name(conversationLink);
+				from = convbuddyname;
 			}
 			if (partlisttype && from != NULL) {
 				imconv = purple_conversations_find_im_with_account(from, sa->account);
@@ -532,7 +544,12 @@ skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType t
 			gchar *post, *url, *convname;
 			
 			if (PURPLE_IS_IM_CONVERSATION(conv)) {
-				convname = g_strconcat("8:", purple_conversation_get_name(conv), NULL);
+				const gchar *buddyname = purple_conversation_get_name(conv);
+				if (SKYPEWEB_BUDDY_IS_MSN(buddyname)) {
+					convname = g_strconcat("1:", buddyname, NULL);
+				} else {
+					convname = g_strconcat("8:", buddyname, NULL);
+				}
 			} else {
 				convname = g_strdup(purple_conversation_get_data(conv, "chatname"));
 			}
@@ -765,7 +782,11 @@ skypeweb_unsubscribe_from_contact_status(SkypeWebAccount *sa, const gchar *who)
 	const gchar *contacts_url = "/v1/users/ME/contacts";
 	gchar *url;
 	
-	url = g_strconcat(contacts_url, "/8:", purple_url_encode(who), NULL);
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		url = g_strconcat(contacts_url, "/1:", purple_url_encode(who), NULL);
+	} else {
+		url = g_strconcat(contacts_url, "/8:", purple_url_encode(who), NULL);
+	}
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, NULL, NULL, TRUE);
 	
@@ -792,7 +813,11 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		JsonObject *contact = json_object_new();
 		gchar *id;
 		
-		id = g_strconcat("8:", cur->data, NULL);
+		if (SKYPEWEB_BUDDY_IS_MSN(cur->data)) {
+			id = g_strconcat("1:", cur->data, NULL);
+		} else {
+			id = g_strconcat("8:", cur->data, NULL);
+		}
 		json_object_set_string_member(contact, "id", id);
 		json_array_add_object_element(contacts_array, contact);
 		
@@ -967,7 +992,11 @@ skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleIMTypingStat
 	gchar *post, *url;
 	JsonObject *obj;
 	
-	url = g_strdup_printf("/v1/users/ME/conversations/8:%s/messages", purple_url_encode(name));
+	if (SKYPEWEB_BUDDY_IS_MSN(name)) {
+		url = g_strdup_printf("/v1/users/ME/conversations/1:%s/messages", purple_url_encode(name));
+	} else {
+		url = g_strdup_printf("/v1/users/ME/conversations/8:%s/messages", purple_url_encode(name));
+	}
 	
 	obj = json_object_new();
 	json_object_set_int_member(obj, "clientmessageid", time(NULL));
@@ -1097,7 +1126,11 @@ skypeweb_send_im(PurpleConnection *pc, const gchar *who, const gchar *message, P
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *convname;
 	
-	convname = g_strconcat("8:", who, NULL);
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		convname = g_strconcat("1:", who, NULL);
+	} else {
+		convname = g_strconcat("8:", who, NULL);
+	}
 	skypeweb_send_message(sa, convname, message);
 	g_free(convname);
 	
@@ -1120,7 +1153,11 @@ skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const ch
 	url = g_string_new("/v1/threads/");
 	g_string_append_printf(url, "%s", purple_url_encode(chatname));
 	g_string_append(url, "/members/");
-	g_string_append_printf(url, "8:%s", purple_url_encode(who));
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		g_string_append_printf(url, "1:%s", purple_url_encode(who));
+	} else {
+		g_string_append_printf(url, "8:%s", purple_url_encode(who));
+	}
 	
 	post = "{\"role\":\"User\"}";
 	
@@ -1144,7 +1181,11 @@ skypeweb_chat_kick(PurpleConnection *pc, int id, const char *who)
 	url = g_string_new("/v1/threads/");
 	g_string_append_printf(url, "%s", purple_url_encode(chatname));
 	g_string_append(url, "/members/");
-	g_string_append_printf(url, "8:%s", purple_url_encode(who));
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		g_string_append_printf(url, "1:%s", purple_url_encode(who));
+	} else {
+		g_string_append_printf(url, "8:%s", purple_url_encode(who));
+	}
 	
 	post = "";
 	
@@ -1164,7 +1205,11 @@ skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who)
 	members = json_array_new();
 	
 	contact = json_object_new();
-	id = g_strconcat("8:", who, NULL);
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		id = g_strconcat("1:", who, NULL);
+	} else {
+		id = g_strconcat("8:", who, NULL);
+	}
 	json_object_set_string_member(contact, "id", id);
 	json_object_set_string_member(contact, "role", "User");
 	json_array_add_object_element(members, contact);
