@@ -223,7 +223,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		if (SKYPEWEB_BUDDY_IS_MSN(convbuddyname)) {
 			convname = g_strconcat("1:", convbuddyname, NULL);
 		} else {
-			convname = g_strconcat("8:", convname, NULL);
+			convname = g_strconcat("8:", convbuddyname, NULL);
 		}
 		
 		if (g_str_equal(messagetype_parts[0], "Control")) {
