@@ -94,7 +94,18 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	gint icon_id;
 	gchar *msg_tmp;
 	
-	if (!url_text || !url_text[0] || url_text[0] == '{' || url_text[0] == '<')
+	if (url_text == NULL && url_data->data_len) {
+		gchar *location;
+		location = skypeweb_string_get_chunk(url_data->webdata, url_data->data_len, "Location: https://", "/");
+		if (location && *location) {
+			PurpleConnection *pc = purple_conversation_get_connection(conv);
+			skypeweb_download_uri_to_conv(purple_connection_get_protocol_data(pc), location, conv);
+			g_free(location);
+		}
+		return;
+	}
+	
+	if (!url_text || !len || url_text[0] == '{' || url_text[0] == '<')
 		return;
 	
 	if (error_message && *error_message)
@@ -114,6 +125,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 {
 	gchar *headers;
 	gchar *path, *host;
+	PurpleUtilFetchUrlData *requestdata;
 	
 	purple_url_parse(uri, &host, NULL, &path, NULL, NULL);
 	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
@@ -124,7 +136,8 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 			"\r\n\r\n",
 			path, sa->skype_token, host);
 	
-	purple_util_fetch_url_request(sa->account, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
+	requestdata = purple_util_fetch_url_request(sa->account, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
+	requestdata->num_times_redirected = 10; /* Prevent following redirects */
 	
 	g_free(headers);
 	g_free(host);
