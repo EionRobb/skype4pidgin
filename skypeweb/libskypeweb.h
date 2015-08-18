@@ -123,6 +123,10 @@
 	#define PurpleChatUserFlags PurpleConvChatBuddyFlags
 	#define PURPLE_CHAT_USER_NONE PURPLE_CBFLAGS_NONE
 	#define PURPLE_CHAT_USER_OP PURPLE_CBFLAGS_OP
+	#define PURPLE_CHAT_USER_FOUNDER PURPLE_CBFLAGS_FOUNDER
+	#define PURPLE_CHAT_USER_TYPING PURPLE_CBFLAGS_TYPING
+	#define PURPLE_CHAT_USER_AWAY PURPLE_CBFLAGS_AWAY
+	#define PURPLE_CHAT_USER_HALFOP PURPLE_CBFLAGS_HALFOP
 	#define PURPLE_CHAT_USER_VOICE PURPLE_CBFLAGS_VOICE
 	#define purple_serv_got_joined_chat(pc, id, name) PURPLE_CONV_CHAT(serv_got_joined_chat(pc, id, name))
 	#define purple_serv_got_chat_invite serv_got_chat_invite
