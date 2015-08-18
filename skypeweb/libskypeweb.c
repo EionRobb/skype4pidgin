@@ -675,8 +675,8 @@ PurpleConnection *pc
 #endif
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
-G_MODULE_EXPORT gboolean 
-purple_init_plugin(PurplePlugin *plugin)
+static void
+plugin_init(PurplePlugin *plugin)
 {
 	PurplePluginInfo *info = g_new0(PurplePluginInfo, 1);
 	PurplePluginProtocolInfo *prpl_info = g_new0(PurplePluginProtocolInfo, 1);
@@ -853,7 +853,6 @@ skypeweb_protocol_roomlist_iface_init(PurpleProtocolRoomlistIface *prpl_info)
 	#endif
 	
 	plugin->info = info;
-	return purple_plugin_register(plugin);
 #endif
 	
 }
@@ -903,5 +902,9 @@ plugin_query(GError **error)
 
 
 PURPLE_PLUGIN_INIT(skypeweb, plugin_query, plugin_load, plugin_unload);
+#else
+	
+static PurplePluginInfo aLovelyBunchOfCoconuts;
+PURPLE_INIT_PLUGIN(skypeweb, plugin_init, aLovelyBunchOfCoconuts);
 #endif
 
