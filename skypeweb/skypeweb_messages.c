@@ -253,10 +253,10 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		}
 		
 	} else {
-		const gchar *convbuddyname;
+		gchar *convbuddyname;
 		// This is a One-to-one/IM message
 		
-		convbuddyname = skypeweb_contact_url_to_name(conversationLink);
+		convbuddyname = g_strdup(skypeweb_contact_url_to_name(conversationLink));
 		if (SKYPEWEB_BUDDY_IS_MSN(convbuddyname)) {
 			convname = g_strconcat("1:", convbuddyname, NULL);
 		} else {
@@ -398,6 +398,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled message resource messagetype '%s'\n", messagetype);
 		}
+		
+		g_free(convbuddyname);
 	}
 	
 	if (conv != NULL) {
