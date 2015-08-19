@@ -67,6 +67,18 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	purple_protocol_got_user_idle(sa->account, from, g_str_equal(status, "Idle"), 0);
 }
 
+// static gboolean
+// skypeweb_clear_typing_hack(PurpleChatUser *cb)
+// {
+	// PurpleChatUserFlags cbflags;
+	
+	// cbflags = purple_chat_user_get_flags(cb);
+	// cbflags &= ~PURPLE_CHAT_USER_TYPING & ~PURPLE_CHAT_USER_VOICE;
+	// purple_chat_user_set_flags(cb, cbflags);
+	
+	// return FALSE;
+// }
+
 static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
@@ -121,17 +133,20 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		conv = PURPLE_CONVERSATION(chatconv);
 		
 		if (g_str_equal(messagetype, "Control/Typing")) {
+			PurpleChatUserFlags cbflags;
+			PurpleChatUser *cb;
+
 			from = skypeweb_contact_url_to_name(from);
 			g_return_if_fail(from);
 
 			// typing notification text, not personalized because of multiple "typing" events
-			if (purple_account_get_bool(sa->pc->account, "show-typing-as-text", FALSE)) {
+			if (purple_account_get_bool(sa->account, "show-typing-as-text", FALSE)) {
 				const gchar *message = g_strdup_printf("%s ...", N_("buddy typing"));
 				const gchar *last_message = NULL;
 
 				// get last message (first in GList)
 				if (conv && g_list_length(conv->message_history)) {
-					PurpleConvMessage *last = g_list_nth_data(g_list_first(conv->message_history),0);
+					PurpleMessage *last = g_list_nth_data(g_list_first(conv->message_history),0);
 					last_message = g_strdup(last->what);
 				}
 
@@ -140,19 +155,34 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 					purple_conversation_write(conv, NULL, message, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_NOTIFY | PURPLE_MESSAGE_ACTIVE_ONLY , composetimestamp);
 				}
 			}
-
+			
+			#if !PURPLE_VERSION_CHECK(3, 0, 0)
+				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
+			#else
+				cb = purple_chat_conversation_find_user(chatconv, from);
+				cbflags = purple_chat_user_get_flags(cb);
+			#endif
+			
+			cbflags |= PURPLE_CHAT_USER_TYPING;
+			
 			// typing notification icon
-			if (purple_account_get_bool(sa->pc->account, "show-typing-as-icon", FALSE)) {
-				PurpleConvChatBuddyFlags cbflags = purple_conv_chat_user_get_flags(chatconv, from);
-				purple_conv_chat_user_set_flags(chatconv, from,
-					(cbflags & PURPLE_CHAT_USER_OP) || (cbflags & PURPLE_CHAT_USER_TYPING)
-						? (PURPLE_CHAT_USER_TYPING | PURPLE_CHAT_USER_VOICE)
-						: PURPLE_CHAT_USER_VOICE
-				);
+			if (purple_account_get_bool(sa->account, "show-typing-as-icon", FALSE)) {
+				cbflags |= PURPLE_CHAT_USER_VOICE;
 			}
-		} else if ((g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text")) && content && *content) {
+			
+			#if !PURPLE_VERSION_CHECK(3, 0, 0)
+				purple_conv_chat_user_set_flags(chatconv, from, cbflags);
+			#else
+				purple_chat_user_set_flags(cb, cbflags);
+			#endif
+			
+			//purple_timeout_add_seconds(7, skypeweb_clear_typing_hack, cb);
+			
+		} else if ((g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text"))) {
 			gchar *html;
 			gint64 skypeemoteoffset = 0;
+			PurpleChatUserFlags cbflags;
+			PurpleChatUser *cb;
 			
 			if (json_object_has_member(resource, "skypeemoteoffset"))
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
@@ -162,25 +192,35 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			// Remove typing notification icon w/o "show-typing-as-icon" option check.
 			// Hard reset cbflags even if user changed settings while someone typing message.
-			PurpleConvChatBuddyFlags cbflags = purple_conv_chat_user_get_flags(chatconv, from);
-			purple_conv_chat_user_set_flags(chatconv, from,
-				(cbflags & PURPLE_CHAT_USER_TYPING) || cbflags == PURPLE_CHAT_USER_OP
-					? PURPLE_CHAT_USER_OP
-					: PURPLE_CHAT_USER_HALFOP
-			);
+			#if !PURPLE_VERSION_CHECK(3, 0, 0)
+				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
+			#else
+				cb = purple_chat_conversation_find_user(chatconv, from);
+				cbflags = purple_chat_user_get_flags(cb);
+			#endif
+			
+			cbflags &= ~PURPLE_CHAT_USER_TYPING & ~PURPLE_CHAT_USER_VOICE;
+			
+			#if !PURPLE_VERSION_CHECK(3, 0, 0)
+				purple_conv_chat_user_set_flags(chatconv, from, cbflags);
+			#else
+				purple_chat_user_set_flags(cb, cbflags);
+			#endif
 
 			//TODO if (skypeeditedid && *skypeeditedid) { ... }
 			
-			if (g_str_equal(messagetype, "Text")) {
-				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
-				html = purple_markup_escape_text(temp, -1);
-				g_free(temp);
-			} else {
-				html = skypeweb_meify(content, skypeemoteoffset);
+			if (content && *content) {
+				if (g_str_equal(messagetype, "Text")) {
+					gchar *temp = skypeweb_meify(content, skypeemoteoffset);
+					html = purple_markup_escape_text(temp, -1);
+					g_free(temp);
+				} else {
+					html = skypeweb_meify(content, skypeemoteoffset);
+				}
+				purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
+						
+				g_free(html);
 			}
-			purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
-					
-			g_free(html);
 		} else if (g_str_equal(messagetype, "ThreadActivity/AddMember")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			PurpleXmlNode *target;
@@ -229,12 +269,11 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				gchar *role = purple_xmlnode_get_data(purple_xmlnode_get_child(target, "role"));
 				PurpleChatUserFlags cbflags = PURPLE_CHAT_USER_NONE;
 				
-				// roles in lowercase here
 				if (role && *role) {
-					if (g_str_equal(role, "admin")) {
+					if (g_str_equal(role, "Admin") || g_str_equal(role, "admin")) {
 						cbflags = PURPLE_CHAT_USER_OP;
-					} else if (g_str_equal(role, "user")) {
-						cbflags = PURPLE_CHAT_USER_HALFOP;
+					} else if (g_str_equal(role, "User") || g_str_equal(role, "user")) {
+						//cbflags = PURPLE_CHAT_USER_VOICE;
 					}
 				}
 				#if !PURPLE_VERSION_CHECK(3, 0, 0)
@@ -637,12 +676,13 @@ skypeweb_got_thread_users(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 		const gchar *userLink = json_object_get_string_member(member, "userLink");
 		const gchar *role = json_object_get_string_member(member, "role");
 		const gchar *username = skypeweb_contact_url_to_name(userLink);
-		PurpleChatUserFlags cbflags = PURPLE_CHAT_USER_HALFOP;
+		PurpleChatUserFlags cbflags = PURPLE_CHAT_USER_NONE;
 		
-		// Only MASTER(ADMIN) or USER(SPEAKER) roles allowed in new(unmoderated) Skype chats.
 		if (role && *role) {
-			if (g_str_equal(role, "Admin")) {
-				cbflags = (PURPLE_CHAT_USER_OP);
+			if (g_str_equal(role, "Admin") || g_str_equal(role, "admin")) {
+				cbflags = PURPLE_CHAT_USER_OP;
+			} else if (g_str_equal(role, "User") || g_str_equal(role, "user")) {
+				//cbflags = PURPLE_CHAT_USER_VOICE;
 			}
 		}
 
