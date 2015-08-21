@@ -158,7 +158,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			#if !PURPLE_VERSION_CHECK(3, 0, 0)
 				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
-        (void) cb;
+				(void) cb;
 			#else
 				cb = purple_chat_conversation_find_user(chatconv, from);
 				cbflags = purple_chat_user_get_flags(cb);
@@ -195,6 +195,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			// Hard reset cbflags even if user changed settings while someone typing message.
 			#if !PURPLE_VERSION_CHECK(3, 0, 0)
 				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
+				(void) cb;
 			#else
 				cb = purple_chat_conversation_find_user(chatconv, from);
 				cbflags = purple_chat_user_get_flags(cb);
@@ -207,10 +208,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			#else
 				purple_chat_user_set_flags(cb, cbflags);
 			#endif
-      (void) cb;
 
 			//TODO if (skypeeditedid && *skypeeditedid) { ... }
-      (void) skypeeditedid;
+			(void) skypeeditedid;
 			
 			if (content && *content) {
 				if (g_str_equal(messagetype, "Text")) {
@@ -281,11 +281,11 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				}
 				#if !PURPLE_VERSION_CHECK(3, 0, 0)
 					purple_conv_chat_user_set_flags(chatconv, &user[2], cbflags);
+					(void) cb;
 				#else
 					cb = purple_chat_conversation_find_user(chatconv, &user[2]);
 					purple_chat_user_set_flags(cb, cbflags);
 				#endif
-        (void) cb;
 				g_free(user);
 				g_free(role);
 			} 
@@ -385,7 +385,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				
 				conv = PURPLE_CONVERSATION(imconv);
 				//skypeweb_download_video_message(sa, sid, conv); //TODO
-        (void) sid;
+				(void) sid;
 				purple_serv_got_im(sa->pc, from, content, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}
 			purple_xmlnode_free(blob);
@@ -398,7 +398,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			if (g_str_equal(sa->username, from)) {
 				incoming = FALSE;
-        (void) incoming;
+				(void) incoming;
 				from = convbuddyname;
 			}
 			if (partlisttype && from != NULL) {
@@ -481,14 +481,14 @@ static void
 process_conversation_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
 	const gchar *id = json_object_get_string_member(resource, "id");
-  (void) id;
+	(void) id;
 
 	JsonObject *threadProperties;
 	
 	if (json_object_has_member(resource, "threadProperties")) {
 		threadProperties = json_object_get_object_member(resource, "threadProperties");
 	}
-  (void) threadProperties;
+	(void) threadProperties;
 }
 
 static void

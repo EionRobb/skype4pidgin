@@ -74,7 +74,7 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 	}
 	
 	gettimeofday(&tv, &tz);
-  (void) tv;
+	(void) tv;
 	tzminutes = tz.tz_minuteswest;
 	if (tzminutes < 0) tzminutes = -tzminutes;
 	tzhours = tzminutes / 60;
