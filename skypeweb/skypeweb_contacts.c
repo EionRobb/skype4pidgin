@@ -199,6 +199,7 @@ skypeweb_got_vm_download_info(SkypeWebAccount *sa, JsonNode *node, gpointer user
 			assetId = json_object_get_string_member(obj, "assetId");
 			fileSize = json_object_get_int_member(file, "fileSize");
 			url = json_object_get_string_member(file, "url");
+			(void) url;
 			
 			filename = g_strconcat(assetId, ".mp4", NULL);
 			

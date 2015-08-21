@@ -377,6 +377,7 @@ static void skypeweb_post_or_get_connect_cb(gpointer data, gint source,
 	/* TODO: Check the return value of write() */
 	len = write(skypewebcon->fd, skypewebcon->request->str,
 			skypewebcon->request->len);
+	(void) len;
 	skypewebcon->input_watcher = purple_input_add(skypewebcon->fd,
 			PURPLE_INPUT_READ,
 			skypeweb_post_or_get_readdata_cb, skypewebcon);
@@ -395,6 +396,7 @@ static void skypeweb_post_or_get_ssl_connect_cb(gpointer data,
 	/* TODO: Check the return value of write() */
 	len = purple_ssl_write(skypewebcon->ssl_conn,
 			skypewebcon->request->str, skypewebcon->request->len);
+	(void) len;
 	purple_ssl_input_add(skypewebcon->ssl_conn,
 			skypeweb_post_or_get_ssl_readdata_cb, skypewebcon);
 }
