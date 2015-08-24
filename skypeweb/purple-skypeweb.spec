@@ -52,12 +52,18 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/purple-2/lib%{plugin_name}.so
 
 %files -n pidgin-%{plugin_name}
+%{_datadir}/pixmaps/pidgin
+%{_datadir}/pixmaps/pidgin/protocols
+%{_datadir}/pixmaps/pidgin/protocols/16
 %{_datadir}/pixmaps/pidgin/protocols/16/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/16/skypeout.png
+%{_datadir}/pixmaps/pidgin/protocols/22
 %{_datadir}/pixmaps/pidgin/protocols/22/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/22/skypeout.png
+%{_datadir}/pixmaps/pidgin/protocols/48
 %{_datadir}/pixmaps/pidgin/protocols/48/skype.png
 %{_datadir}/pixmaps/pidgin/protocols/48/skypeout.png
+%{_datadir}/pixmaps/pidgin/emotes
 %{_datadir}/pixmaps/pidgin/emotes/skype/theme
 
 %files
