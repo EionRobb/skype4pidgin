@@ -124,24 +124,24 @@ void
 skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
 {
 	gchar *headers;
-	gchar *path, *host;
 	PurpleUtilFetchUrlData *requestdata;
+	PurpleHttpURL *httpurl;
 	
-	purple_url_parse(uri, &host, NULL, &path, NULL, NULL);
+	httpurl = purple_http_url_parse(uri);
 	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: image/*\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
 			"Host: %s\r\n"
 			"\r\n\r\n",
-			path, sa->skype_token, host);
+			purple_http_url_get_path(httpurl), sa->skype_token, 
+			purple_http_url_get_host(httpurl));
 	
 	requestdata = purple_util_fetch_url_request(sa->account, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
 	requestdata->num_times_redirected = 10; /* Prevent following redirects */
 	
 	g_free(headers);
-	g_free(host);
-	g_free(path);
+	purple_http_url_free(httpurl);
 }
 
 

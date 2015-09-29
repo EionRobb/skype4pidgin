@@ -80,6 +80,7 @@
 #else
 	#include "buddylist.h"
 	#include "plugins.h"
+	#include "http.h"
 #endif
 	
 #if GLIB_MAJOR_VERSION >= 2 && GLIB_MINOR_VERSION >= 12
@@ -128,6 +129,8 @@
 	#define PURPLE_CHAT_USER_AWAY PURPLE_CBFLAGS_AWAY
 	#define PURPLE_CHAT_USER_HALFOP PURPLE_CBFLAGS_HALFOP
 	#define PURPLE_CHAT_USER_VOICE PURPLE_CBFLAGS_VOICE
+	#define PURPLE_CHAT_USER_TYPING PURPLE_CBFLAGS_TYPING
+	#define purple_chat_user_get_flags(cb) purple_conv_chat_user_get_flags(
 	#define purple_serv_got_joined_chat(pc, id, name) PURPLE_CONV_CHAT(serv_got_joined_chat(pc, id, name))
 	#define purple_serv_got_chat_invite serv_got_chat_invite
 	#define purple_serv_got_chat_in serv_got_chat_in
@@ -169,6 +172,31 @@
 	#define purple_hash_append purple_cipher_context_append
 	#define purple_hash_digest(hash, data, len) purple_cipher_context_digest(hash, len, data, NULL)
 	#define purple_hash_destroy purple_cipher_context_destroy
+	#define PURPLE_CMD_FLAG_PROTOCOL_ONLY PURPLE_CMD_FLAG_PRPL_ONLY
+	#define PURPLE_CMD_P_PLUGIN PURPLE_CMD_P_PRPL
+	
+/*typedef struct {
+	PurpleConvChatBuddy cb;
+	PurpleConvChat *chat;
+} PurpleChatUser;*/
+
+typedef struct {
+	gchar *host;
+	gint port;
+	gchar *path;
+	gchar *user;
+	gchar *passwd;
+} PurpleHttpURL;
+
+static inline PurpleHttpURL *purple_http_url_parse(const gchar *url) {
+	PurpleHttpURL *ret = g_new0(PurpleHttpURL, 1);
+	purple_url_parse(url, &(ret->host), &(ret->port), &(ret->path), &(ret->user), &(ret->passwd));
+	return ret;
+}
+	#define purple_http_url_get_host(httpurl) (httpurl->host)
+	#define purple_http_url_get_path(httpurl) (httpurl->path)
+static inline void purple_http_url_free(PurpleHttpURL *phl) { g_free(phl->host); g_free(phl->path); g_free(phl->user); g_free(phl->passwd); g_free(phl);  }
+
 #else
 	#define purple_conversation_set_data(conv, key, value) g_object_set_data(G_OBJECT(conv), key, value)
 	#define purple_conversation_get_data(conv, key) g_object_get_data(G_OBJECT(conv), key)

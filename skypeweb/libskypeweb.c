@@ -33,7 +33,7 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 			purple_timeout_remove(sa->authcheck_timeout);
 		skypeweb_check_authrequests(sa);
 		sa->authcheck_timeout = purple_timeout_add_seconds(120, (GSourceFunc)skypeweb_check_authrequests, sa);
-		purple_connection_set_state(sa->pc, PURPLE_CONNECTED);
+		purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTED);
 
 		skypeweb_get_friend_list(sa);
 		skypeweb_poll(sa);
@@ -307,7 +307,9 @@ skypeweb_login(PurpleAccount *account)
 	flags |= PURPLE_CONNECTION_FLAG_HTML | PURPLE_CONNECTION_FLAG_NO_BGCOLOR | PURPLE_CONNECTION_FLAG_NO_FONTSIZE;
 	purple_connection_set_flags(pc, flags);
 	
-	sa->username = g_strdup(purple_account_get_username(account));
+	if (!SKYPEWEB_BUDDY_IS_MSN(purple_account_get_username(account))) {
+		sa->username = g_ascii_strdown(purple_account_get_username(account), -1);
+	}
 	sa->account = account;
 	sa->pc = pc;
 	sa->cookie_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
@@ -587,47 +589,47 @@ plugin_load(PurplePlugin *plugin
 	
 	
 	//leave
-	purple_cmd_register("leave", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
-						plugin->info->id, skypeweb_cmd_leave,
+	purple_cmd_register("leave", "", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_leave,
 						_("leave:  Leave the group chat"), NULL);
 	//kick
-	purple_cmd_register("kick", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY,
-						plugin->info->id, skypeweb_cmd_kick,
+	purple_cmd_register("kick", "s", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_kick,
 						_("kick &lt;user&gt;:  Kick a user from the group chat."),
 						NULL);
 	//add
-	purple_cmd_register("add", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY,
-						plugin->info->id, skypeweb_cmd_invite,
+	purple_cmd_register("add", "s", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_invite,
 						_("add &lt;user&gt;:  Add a user to the group chat."),
 						NULL);
 	//topic
-	purple_cmd_register("topic", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
-						plugin->info->id, skypeweb_cmd_topic,
+	purple_cmd_register("topic", "s", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY | PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_topic,
 						_("topic [&lt;new topic&gt;]:  View or change the topic"),
 						NULL);
 	/*
 	//call, as in call person
 	//kickban
-	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY,
-						plugin->info->id, skypeweb_cmd_kickban,
+	purple_cmd_register("kickban", "s", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_kickban,
 						_("kickban &lt;user&gt; [room]:  Kick and ban a user from the room."),
 						NULL);
 	//setrole
-	purple_cmd_register("setrole", "ss", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY,
-						plugin->info->id, skypeweb_cmd_setrole,
+	purple_cmd_register("setrole", "ss", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_setrole,
 						_("setrole &lt;user&gt; &lt;MASTER | USER | ADMIN&gt;:  Change the role of a user."),
 						NULL);
 	*/
 	
-	purple_cmd_register("list", "", PURPLE_CMD_P_PRPL, PURPLE_CMD_FLAG_CHAT |
-						PURPLE_CMD_FLAG_PRPL_ONLY | PURPLE_CMD_FLAG_IM,
-						plugin->info->id, skypeweb_cmd_list,
+	purple_cmd_register("list", "", PURPLE_CMD_P_PLUGIN, PURPLE_CMD_FLAG_CHAT |
+						PURPLE_CMD_FLAG_PROTOCOL_ONLY | PURPLE_CMD_FLAG_IM,
+						SKYPEWEB_PLUGIN_ID, skypeweb_cmd_list,
 						_("list: Display a list of multi-chat group chats you are in."),
 						NULL);
 	
