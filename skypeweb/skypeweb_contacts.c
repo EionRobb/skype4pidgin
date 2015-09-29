@@ -264,7 +264,7 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 {
 	JsonObject *userobj;
 	const gchar *old_alias;
-	const gchar *displayname;
+	const gchar *displayname = NULL;
 	const gchar *username;
 	
 	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
@@ -276,12 +276,17 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	
 	old_alias = purple_account_get_private_alias(sa->account);
 	if (!old_alias || !*old_alias) {
-		displayname = json_object_get_string_member(userobj, "displayname");
+		if (json_object_has_member(userobj, "displayname"))
+			displayname = json_object_get_string_member(userobj, "displayname");
 		if (!displayname || g_str_equal(displayname, username))
 			displayname = json_object_get_string_member(userobj, "firstname");
 	
 		if (displayname)
 			purple_account_set_private_alias(sa->account, displayname);
+	}
+	
+	if (sa->username) {
+		skypeweb_get_friend_list(sa);
 	}
 }
 
@@ -289,7 +294,7 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 void
 skypeweb_get_self_details(SkypeWebAccount *sa)
 {
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/displayname", NULL, skypeweb_got_self_details, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/profile", NULL, skypeweb_got_self_details, NULL, TRUE);
 }
 
 
@@ -701,6 +706,11 @@ void
 skypeweb_get_friend_list(SkypeWebAccount *sa)
 {
 	gchar *url;
+	
+	if (!sa->username) {
+		//purple_debug_error("skypeweb", "Can't fetch contacts yet, don't have local username");
+		return;
+	}
 	
 	url = g_strdup_printf("/contacts/v1/users/%s/contacts", purple_url_encode(sa->username));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, skypeweb_get_friend_list_cb, NULL, TRUE);
