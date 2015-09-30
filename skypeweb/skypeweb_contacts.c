@@ -285,8 +285,8 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 			purple_account_set_private_alias(sa->account, displayname);
 	}
 	
-	if (sa->username) {
-		skypeweb_get_friend_list(sa);
+	if (!PURPLE_CONNECTION_IS_CONNECTED(sa->pc)) {
+		skypeweb_do_all_the_things(sa);
 	}
 }
 

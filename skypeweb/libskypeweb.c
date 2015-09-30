@@ -26,6 +26,9 @@
 void
 skypeweb_do_all_the_things(SkypeWebAccount *sa)
 {
+	if (!sa->username) {
+		skypeweb_get_self_details(sa);
+	} else
 	if (sa->registration_token) {
 		skypeweb_get_self_details(sa);
 		
@@ -318,7 +321,7 @@ skypeweb_login(PurpleAccount *account)
 	sa->waiting_conns = g_queue_new();
 	sa->messages_host = g_strdup(SKYPEWEB_DEFAULT_MESSAGES_HOST);
 	
-	if(strchr(sa->username, '@')) {
+	if(strchr(purple_account_get_username(account), '@')) {
 		//Has an email address for a username, probably a microsoft account?
 		skypeweb_begin_oauth_login(sa);
 	} else {
