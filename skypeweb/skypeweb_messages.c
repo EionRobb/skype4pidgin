@@ -21,7 +21,20 @@
 #include "skypeweb_connection.h"
 #include "skypeweb_contacts.h"
 
-
+static gboolean
+skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username) {
+	if (!username || *username == 0) {
+		return FALSE;
+	}
+	
+	if (sa->username) {
+		if (g_str_equal(username, sa->username)) {
+			return TRUE;
+		}
+	}
+	
+	return !g_ascii_strcasecmp(username, purple_account_get_username(sa->account));
+}
 
 static gchar *
 skypeweb_meify(const gchar *message, gint skypeemoteoffset)
@@ -220,7 +233,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				} else {
 					html = skypeweb_meify(content, skypeemoteoffset);
 				}
-				purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, g_str_equal(sa->username, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
+				purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, skypeweb_is_user_self(sa, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
 						
 				g_free(html);
 			}
@@ -243,7 +256,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				target = purple_xmlnode_get_next_twin(target))
 			{
 				gchar *user = purple_xmlnode_get_data(target);
-				if (g_str_equal(sa->username, &user[2]))
+				if (skypeweb_is_user_self(sa, &user[2]))
 					purple_chat_conversation_leave(chatconv);
 				purple_chat_conversation_remove_user(chatconv, &user[2], NULL);
 				g_free(user);
@@ -332,7 +345,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} else {
 				html = skypeweb_meify(content, skypeemoteoffset);
 			}
-			if (g_str_equal(sa->username, from)) {
+			if (skypeweb_is_user_self(sa, from)) {
 				if (!g_str_has_prefix(html, "?OTR")) {
 					imconv = purple_conversations_find_im_with_account(convbuddyname, sa->account);
 					if (imconv == NULL)
@@ -354,7 +367,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
 			PurpleIMConversation *imconv;
 			
-			if (g_str_equal(sa->username, from)) {
+			if (skypeweb_is_user_self(sa, from)) {
 				from = convbuddyname;
 			}
 			if (from != NULL) {
@@ -373,7 +386,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			const gchar *sid = purple_xmlnode_get_attrib(blob, "sid");
 			PurpleIMConversation *imconv;
 			
-			if (g_str_equal(sa->username, from)) {
+			if (skypeweb_is_user_self(sa, from)) {
 				from = convbuddyname;
 			}
 			if (from != NULL) {
@@ -396,7 +409,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleIMConversation *imconv;
 			gboolean incoming = TRUE;
 			
-			if (g_str_equal(sa->username, from)) {
+			if (skypeweb_is_user_self(sa, from)) {
 				incoming = FALSE;
 				(void) incoming;
 				from = convbuddyname;
@@ -420,7 +433,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 						part = purple_xmlnode_get_next_twin(part))
 					{
 						const gchar *identity = purple_xmlnode_get_attrib(part, "identity");
-						if (identity && g_str_equal(sa->username, identity)) {
+						if (identity && skypeweb_is_user_self(sa, identity)) {
 							PurpleXmlNode *duration = purple_xmlnode_get_child(part, "duration");
 							if (duration != NULL) {
 								gchar *duration_str;
@@ -622,15 +635,15 @@ skypeweb_poll(SkypeWebAccount *sa)
 void
 skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType type)
 {
-	if (!PURPLE_CONNECTION_IS_CONNECTED(purple_conversation_get_gc(conv)))
+	PurpleConnection *pc = purple_conversation_get_connection(conv);
+	if (!PURPLE_CONNECTION_IS_CONNECTED(pc))
 		return;
 	
 	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN) {
 		gchar *last_skypeweb_id = purple_conversation_get_data(conv, "last_skypeweb_id");
 		
 		if (last_skypeweb_id && *last_skypeweb_id) {
-			PurpleAccount *account = purple_conversation_get_account(conv);
-			SkypeWebAccount *sa = purple_connection_get_protocol_data(purple_account_get_connection(account));
+			SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 			gchar *post, *url, *convname;
 			
 			if (PURPLE_IS_IM_CONVERSATION(conv)) {
