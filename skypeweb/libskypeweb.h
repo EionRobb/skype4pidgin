@@ -139,6 +139,7 @@
 	#define purple_chat_conversation_find_user(chat, name) purple_conv_chat_cb_find(chat, name)
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
 	#define purple_chat_conversation_leave purple_conv_chat_left
+	#define purple_chat_conversation_has_left purple_conv_chat_has_left
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
 	#define purple_chat_conversation_remove_user purple_conv_chat_remove_user
 	#define purple_chat_conversation_clear_users purple_conv_chat_clear_users

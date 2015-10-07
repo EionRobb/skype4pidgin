@@ -205,7 +205,7 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	}
 	
 	chatconv = purple_conversations_find_chat_with_account(chatname, sa->account);
-	if (chatconv != NULL) {
+	if (chatconv != NULL && !purple_chat_conversation_has_left(chatconv)) {
 		purple_conversation_present(PURPLE_CONVERSATION(chatconv));
 		return;
 	}
