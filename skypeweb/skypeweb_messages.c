@@ -992,6 +992,8 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	gchar *expires;
 	SkypeWebAccount *sa = user_data;
 	gchar *new_messages_host;
+
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	if (url_text == NULL) {
 		url_text = url_data->webdata;
@@ -1075,8 +1077,10 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	
 	//purple_debug_info("skypeweb", "reg token request is %s\n", request);
 	
-	requestdata = purple_util_fetch_url_request(sa->account, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
-	requestdata->num_times_redirected = 10; /* Prevent following redirects */
+	requestdata = skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
+
+	if (requestdata != NULL)
+		requestdata->num_times_redirected = 10; /* Prevent following redirects */
 
 	g_free(request);
 	g_free(curtime);

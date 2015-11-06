@@ -367,6 +367,11 @@ skypeweb_close(PurpleConnection *pc)
 		sa->dns_queries = g_slist_remove(sa->dns_queries, dns_query);
 		purple_dnsquery_destroy(dns_query);
 	}
+
+	while (sa->url_datas) {
+		purple_util_fetch_url_cancel(sa->url_datas->data);
+		sa->url_datas = g_slist_delete_link(sa->url_datas, sa->url_datas);
+	}
 	
 	g_hash_table_destroy(sa->sent_messages_hash);
 	g_hash_table_destroy(sa->cookie_table);

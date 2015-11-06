@@ -26,6 +26,8 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	gchar *refresh_token;
 	SkypeWebAccount *sa = user_data;
 	
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+
 	if (url_text == NULL) {
 		url_text = url_data->webdata;
 		len = url_data->data_len;
@@ -68,6 +70,8 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 	struct timezone tz;
 	guint tzhours, tzminutes;
 	
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+
 	if (error_message && *error_message) {
 		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, error_message);
 		return;
@@ -112,7 +116,7 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
 			strlen(postdata->str), postdata->str);
 	
-	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
+	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
 
 	g_string_free(postdata, TRUE);
 	g_free(request);
@@ -128,7 +132,7 @@ skypeweb_begin_web_login(SkypeWebAccount *sa)
 {
 	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login?method=skype&client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
 	
-	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_login_got_pie, sa);
+	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_login_got_pie, sa);
 	
 	purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTING);
 	purple_connection_update_progress(sa->pc, _("Connecting"), 1, 4);
@@ -142,6 +146,8 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	gchar *request;
 	GString *postdata;
 	gchar *magic_t_value; // T is for tasty
+
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	// <input type="hidden" name="t" id="t" value="...">
 	magic_t_value = skypeweb_string_get_chunk(url_text, len, "=\"t\" value=\"", "\"");
@@ -167,7 +173,7 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
 			strlen(postdata->str), postdata->str);
 	
-	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
+	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
 	
 	g_string_free(postdata, TRUE);
 	g_free(request);
@@ -187,6 +193,8 @@ skypeweb_login_got_ppft(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	gchar *ppft;
 	GString *postdata;
 	gchar *request;
+
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	// grab PPFT and cookies (MSPRequ, MSPOK)
 	msprequ_cookie = skypeweb_string_get_chunk(url_text, len, "Set-Cookie: MSPRequ=", ";");
@@ -225,7 +233,7 @@ skypeweb_login_got_ppft(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
 			msprequ_cookie, mspok_cookie, cktst_cookie, strlen(postdata->str), postdata->str);
 	
-	purple_util_fetch_url_request(sa->account, live_login_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_login_got_t, sa);
+	skypeweb_fetch_url_request(sa, live_login_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_login_got_t, sa);
 	
 	g_string_free(postdata, TRUE);
 	g_free(request);
@@ -243,7 +251,7 @@ skypeweb_begin_oauth_login(SkypeWebAccount *sa)
 {
 	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login/oauth/microsoft?client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
 	
-	purple_util_fetch_url_request(sa->account, login_url, TRUE, NULL, FALSE, NULL, TRUE, 524288, skypeweb_login_got_ppft, sa);
+	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, NULL, TRUE, 524288, skypeweb_login_got_ppft, sa);
 	
 	purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTING);
 	purple_connection_update_progress(sa->pc, _("Connecting"), 1, 4);

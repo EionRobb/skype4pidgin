@@ -272,6 +272,8 @@ struct _SkypeWebAccount {
 	gchar *registration_token;
 	gchar *endpoint;
 	gint registration_expiry;
+
+	GSList *url_datas; /**< PurpleUtilFetchUrlData to be cancelled on logout */
 };
 
 struct _SkypeWebBuddy {
