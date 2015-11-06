@@ -247,3 +247,24 @@ find_acct(const char *prpl, const char *acct_id)
 	
 	return acct;
 }
+
+
+/* Wrapper of purple_util_fetch_url_request_len_with_account()
+ * that takes a SkypeWebAccount instead of a PurpleAccount,
+ * and keeps track of requests in sa->url_datas to cancel them on logout. */
+
+PurpleUtilFetchUrlData *
+skypeweb_fetch_url_request(SkypeWebAccount *sa,
+		const char *url, gboolean full, const char *user_agent, gboolean http11,
+		const char *request, gboolean include_headers, gssize max_len,
+		PurpleUtilFetchUrlCallback callback, void *user_data)
+{
+	PurpleUtilFetchUrlData *url_data;
+
+	url_data = purple_util_fetch_url_request(sa->account, url, full, user_agent, http11, request, include_headers, max_len, callback, user_data);
+
+	if (url_data != NULL)
+		sa->url_datas = g_slist_prepend(sa->url_datas, url_data);
+
+	return url_data;
+}
