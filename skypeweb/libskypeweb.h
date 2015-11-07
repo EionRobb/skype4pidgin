@@ -28,8 +28,8 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <sys/types.h>
-#include <sys/time.h>
 #ifdef __GNUC__
+	#include <sys/time.h>
 	#include <unistd.h>
 #endif
 
