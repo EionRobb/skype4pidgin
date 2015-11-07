@@ -676,6 +676,9 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		
 		if (json_object_has_member(name, "surname"))
 			surname = json_object_get_string_member(name, "surname");
+
+		// try to free the sbuddy here. no-op if it's not set before, otherwise prevents a leak.
+		skypeweb_buddy_free(buddy);
 		
 		SkypeWebBuddy *sbuddy = g_new0(SkypeWebBuddy, 1);
 		sbuddy->skypename = g_strdup(id);

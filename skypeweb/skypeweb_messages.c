@@ -987,11 +987,11 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 static void
 skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
-	gchar *registration_token;
-	gchar *endpointId;
-	gchar *expires;
+	gchar *registration_token = NULL;
+	gchar *endpointId = NULL;
+	gchar *expires = NULL;
 	SkypeWebAccount *sa = user_data;
-	gchar *new_messages_host;
+	gchar *new_messages_host = NULL;
 
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
@@ -1023,6 +1023,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 		skypeweb_get_registration_token(sa);
 		return;
 	}
+	g_free(new_messages_host);
 	
 	registration_token = skypeweb_string_get_chunk(url_text, len, "Set-RegistrationToken: ", ";");
 	endpointId = skypeweb_string_get_chunk(url_text, len, "endpointId=", "\r\n");
@@ -1138,6 +1139,7 @@ skypeweb_set_statusid(SkypeWebAccount *sa, const gchar *status)
 		gchar *url = g_strdup_printf("/v1/users/ME/endpoints/%s/presenceDocs/messagingService", purple_url_encode(sa->endpoint));
 		post = "{\"id\":\"messagingService\", \"type\":\"EndpointPresenceDoc\", \"selfLink\":\"uri\", \"privateInfo\":{\"epname\":\"skype\"}, \"publicInfo\":{\"capabilities\":\"\", \"type\":1, \"typ\":1, \"skypeNameVersion\":\"" SKYPEWEB_CLIENTINFO_VERSION "/" SKYPEWEB_CLIENTINFO_NAME "\", \"nodeInfo\":\"xx\", \"version\":\"" SKYPEWEB_CLIENTINFO_VERSION "\"}}";
 		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+		g_free(url);
 	}
 }
 
