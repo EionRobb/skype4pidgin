@@ -23,7 +23,7 @@
 static void
 skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
-	gchar *refresh_token;
+	gchar *refresh_token = NULL;
 	SkypeWebAccount *sa = user_data;
 	
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
@@ -33,7 +33,9 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 		len = url_data->data_len;
 	}
 	
-	refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");
+	if (url_text != NULL)
+		refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");
+	
 	if (refresh_token == NULL) {
 		if (g_strstr_len(url_text, len, "recaptcha_response_field")) {
 			purple_connection_error(sa->pc,
@@ -68,7 +70,7 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 	gchar *request;
 	struct timeval tv;
 	struct timezone tz;
-	guint tzhours, tzminutes;
+	gint tzhours, tzminutes;
 	
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 
