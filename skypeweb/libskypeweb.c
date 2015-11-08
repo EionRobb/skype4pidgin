@@ -230,7 +230,7 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	purple_conversation_present(PURPLE_CONVERSATION(chatconv));
 }
 
-static void
+void
 skypeweb_buddy_free(PurpleBuddy *buddy)
 {
 	SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
@@ -335,6 +335,7 @@ static void
 skypeweb_close(PurpleConnection *pc)
 {
 	SkypeWebAccount *sa;
+	GSList *buddies;
 	
 	g_return_if_fail(pc != NULL);
 	
@@ -371,6 +372,14 @@ skypeweb_close(PurpleConnection *pc)
 	while (sa->url_datas) {
 		purple_util_fetch_url_cancel(sa->url_datas->data);
 		sa->url_datas = g_slist_delete_link(sa->url_datas, sa->url_datas);
+	}
+
+	buddies = purple_find_buddies(sa->account, NULL);
+	while (buddies != NULL) {
+		PurpleBuddy *buddy = buddies->data;
+		skypeweb_buddy_free(buddy);
+		purple_buddy_set_protocol_data(buddy, NULL);
+		buddies = g_slist_delete_link(buddies, buddies);
 	}
 	
 	g_hash_table_destroy(sa->sent_messages_hash);

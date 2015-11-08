@@ -292,6 +292,7 @@ struct _SkypeWebBuddy {
 	gchar *mood;
 };
 
+void skypeweb_buddy_free(PurpleBuddy *buddy);
 
 void skypeweb_do_all_the_things(SkypeWebAccount *sa);
 
