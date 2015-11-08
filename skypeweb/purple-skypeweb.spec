@@ -70,6 +70,12 @@ make install DESTDIR=%{buildroot}
 %files
 
 %changelog
+* Mon Aug 24 2015 jparvela <jparvela@gmail.com> - 0.1-4
+- Added missing files to spec file list.
+
+* Mon Aug 03 2015 BOPOHA <vorona.tolik@gmail.com> - 0.1-3
+- Fixed build with OBS. RPMS can be built from main tarball.
+
 * Sat May 09 2015 V1TSK <vitaly@easycoding.org> - 0.1-2
 - Separated packages. Now can be used with other libpurple-based clients without Pidgin being installed.
 
