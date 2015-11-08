@@ -4,7 +4,7 @@
 %define purplelib_name purple-%{plugin_name}
 
 Name: %{project_name}
-Version: 0.1
+Version: 1.0
 Release: 1
 Summary: Skype plugin for Pidgin/Adium/libpurple
 Group: Applications/Productivity
@@ -14,7 +14,7 @@ Source0: %{project_name}-%{version}.tar.gz
 Requires: pidgin-%{plugin_name}
 
 %description
-meta pkj.
+Skype for Pidgin meta package.
 
 %package -n %{purplelib_name}
 Summary: Adds support for Skype to Pidgin
@@ -70,6 +70,15 @@ make install DESTDIR=%{buildroot}
 %files
 
 %changelog
+* Sun Nov 08 2015 V1TSK <vitaly@easycoding.org> - 1.0-1
+- Updated to version 1.0.
+
+* Mon Aug 24 2015 jparvela <jparvela@gmail.com> - 0.1-4
+- Added missing files to spec file list.
+
+* Mon Aug 03 2015 BOPOHA <vorona.tolik@gmail.com> - 0.1-3
+- Fixed build with OBS. RPMS can be built from main tarball.
+
 * Sat May 09 2015 V1TSK <vitaly@easycoding.org> - 0.1-2
 - Separated packages. Now can be used with other libpurple-based clients without Pidgin being installed.
 

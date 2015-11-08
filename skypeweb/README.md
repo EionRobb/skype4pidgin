@@ -31,7 +31,7 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbui
 	wget https://raw.githubusercontent.com/EionRobb/skype4pidgin/master/skypeweb/purple-skypeweb.spec \
 		-O ~/rpmbuild/SPECS/purple-skypeweb.spec
 	wget https://github.com/EionRobb/skype4pidgin/archive/master.tar.gz \
-		-O ~/rpmbuild/SOURCES/skype4pidgin-0.1.tar.gz
+		-O ~/rpmbuild/SOURCES/skype4pidgin-1.0.tar.gz
 	rpmbuild -ba  ~/rpmbuild/SPECS/purple-skypeweb.spec
 ```
 The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
