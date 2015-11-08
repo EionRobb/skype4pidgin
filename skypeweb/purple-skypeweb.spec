@@ -14,7 +14,7 @@ Source0: %{project_name}-%{version}.tar.gz
 Requires: pidgin-%{plugin_name}
 
 %description
-meta pkj.
+Skype for Pidgin meta package.
 
 %package -n %{purplelib_name}
 Summary: Adds support for Skype to Pidgin
