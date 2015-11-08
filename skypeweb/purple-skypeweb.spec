@@ -4,7 +4,7 @@
 %define purplelib_name purple-%{plugin_name}
 
 Name: %{project_name}
-Version: 0.1
+Version: 1.0
 Release: 1
 Summary: Skype plugin for Pidgin/Adium/libpurple
 Group: Applications/Productivity
@@ -70,6 +70,9 @@ make install DESTDIR=%{buildroot}
 %files
 
 %changelog
+* Sun Nov 08 2015 V1TSK <vitaly@easycoding.org> - 1.0-1
+- Updated to version 1.0.
+
 * Mon Aug 24 2015 jparvela <jparvela@gmail.com> - 0.1-4
 - Added missing files to spec file list.
 
