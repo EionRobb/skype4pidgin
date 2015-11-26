@@ -1,16 +1,14 @@
-%define debug_package %{nil}
-%define plugin_name skypeweb
-%define project_name skype4pidgin
-%define purplelib_name purple-%{plugin_name}
+%global debug_package %{nil}
+%global plugin_name skypeweb
+%global purplelib_name purple-%{plugin_name}
 
-Name: %{project_name}
+Name: skype4pidgin
 Version: 1.0
-Release: 1
+Release: 2%{?dist}
 Summary: Skype plugin for Pidgin/Adium/libpurple
-Group: Applications/Productivity
 License: GPLv3
-URL: https://github.com/EionRobb/skype4pidgin
-Source0: %{project_name}-%{version}.tar.gz
+URL: https://github.com/EionRobb/%{name}
+Source0: https://github.com/EionRobb/%{name}/releases/download/v1.0/%{name}-%{version}.tar.gz
 Requires: pidgin-%{plugin_name}
 
 %description
@@ -18,12 +16,13 @@ Skype for Pidgin meta package.
 
 %package -n %{purplelib_name}
 Summary: Adds support for Skype to Pidgin
-BuildRequires: glib2-devel
-BuildRequires: libpurple-devel
-BuildRequires: json-glib-devel
+BuildRequires: pkgconfig(glib-2.0)
+BuildRequires: pkgconfig(purple)
+BuildRequires: pkgconfig(json-glib-1.0)
+BuildRequires: pkgconfig(zlib)
 BuildRequires: gcc
-Requires: libpurple
-Requires: json-glib
+BuildRequires: perl
+BuildRequires: gettext
 
 %package -n pidgin-%{plugin_name}
 Summary: Adds pixmaps, icons and smileys for Skype protocol.
@@ -37,19 +36,24 @@ based messengers.
 %description -n pidgin-%{plugin_name}
 Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
-%prep -n %{purplelib_name}
-%setup -c
+%prep
+%autosetup
 
-%build -n %{purplelib_name}
-cd %{project_name}-*/%{plugin_name}
-make
+# fix W: wrong-file-end-of-line-encoding
+perl -i -pe 's/\r\n/\n/gs' %{plugin_name}/README.md
+
+%build
+cd %{plugin_name}
+%make_build
 
 %install
-cd %{project_name}-*/%{plugin_name}
-make install DESTDIR=%{buildroot}
+cd %{plugin_name}
+%make_install
 
 %files -n %{purplelib_name}
 %{_libdir}/purple-2/lib%{plugin_name}.so
+%doc %{plugin_name}/README.md CHANGELOG.txt
+%license COPYING.txt
 
 %files -n pidgin-%{plugin_name}
 %dir %{_datadir}/pixmaps/pidgin
@@ -70,6 +74,9 @@ make install DESTDIR=%{buildroot}
 %files
 
 %changelog
+* Thu Nov 26 2015 V1TSK <vitaly@easycoding.org> - 1.0-2
+- Applyed Maxim Orlov's fixes.
+
 * Sun Nov 08 2015 V1TSK <vitaly@easycoding.org> - 1.0-1
 - Updated to version 1.0.
 
