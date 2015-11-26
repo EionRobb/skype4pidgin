@@ -43,7 +43,7 @@ perl -i -pe 's/\r\n/\n/gs' README.md
 
 %build -n %{purplelib_name}
 cd %{project_name}-*/%{plugin_name}
-make
+%make_build
 
 %install
 cd %{project_name}-*/%{plugin_name}
