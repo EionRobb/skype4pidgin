@@ -18,9 +18,9 @@ Skype for Pidgin meta package.
 
 %package -n %{purplelib_name}
 Summary: Adds support for Skype to Pidgin
-BuildRequires: glib2-devel
-BuildRequires: libpurple-devel
-BuildRequires: json-glib-devel
+BuildRequires: pkgconfig(glib-2.0)
+BuildRequires: pkgconfig(purple)
+BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: gcc
 Requires: libpurple
 Requires: json-glib
