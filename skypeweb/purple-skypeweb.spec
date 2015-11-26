@@ -51,8 +51,8 @@ make install DESTDIR=%{buildroot}
 
 %files -n %{purplelib_name}
 %{_libdir}/purple-2/lib%{plugin_name}.so
-%doc README.md CHANGELOG.txt
-%license COPYING.txt
+%doc */%{plugin_name}/README.md */CHANGELOG.txt
+%license */COPYING.txt
 
 %files -n pidgin-%{plugin_name}
 %dir %{_datadir}/pixmaps/pidgin
