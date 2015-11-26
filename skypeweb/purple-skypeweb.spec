@@ -6,7 +6,6 @@ Name: skype4pidgin
 Version: 1.0
 Release: 2%{?dist}
 Summary: Skype plugin for Pidgin/Adium/libpurple
-Group: Applications/Productivity
 License: GPLv3
 URL: https://github.com/EionRobb/%{name}
 Source0: https://github.com/EionRobb/%{name}/releases/download/v1.0/%{name}-%{version}.tar.gz
