@@ -1,7 +1,7 @@
-%define debug_package %{nil}
-%define plugin_name skypeweb
-%define project_name skype4pidgin
-%define purplelib_name purple-%{plugin_name}
+%global debug_package %{nil}
+%global plugin_name skypeweb
+%global project_name skype4pidgin
+%global purplelib_name purple-%{plugin_name}
 
 Name: %{project_name}
 Version: 1.0
