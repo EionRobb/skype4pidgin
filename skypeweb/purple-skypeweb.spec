@@ -22,7 +22,7 @@ BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(zlib)
 BuildRequires: gcc
 BuildRequires: perl
-BuildRequires:  gettext
+BuildRequires: gettext
 
 %package -n pidgin-%{plugin_name}
 Summary: Adds pixmaps, icons and smileys for Skype protocol.
