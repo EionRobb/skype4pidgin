@@ -5,7 +5,7 @@
 
 Name: %{project_name}
 Version: 1.0
-Release: 1
+Release: 1%{?dist}
 Summary: Skype plugin for Pidgin/Adium/libpurple
 Group: Applications/Productivity
 License: GPLv3
