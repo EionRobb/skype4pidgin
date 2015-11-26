@@ -45,7 +45,7 @@ cd %{project_name}-*/%{plugin_name}
 
 %install
 cd %{project_name}-*/%{plugin_name}
-make install DESTDIR=%{buildroot}
+%make_install
 
 %files -n %{purplelib_name}
 %{_libdir}/purple-2/lib%{plugin_name}.so
