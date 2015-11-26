@@ -71,6 +71,9 @@ cd %{project_name}-*/%{plugin_name}
 %files
 
 %changelog
+* Thu Nov 26 2015 V1TSK <vitaly@easycoding.org> - 1.0-2
+- Applyed Maxim Orlov's fixes.
+
 * Sun Nov 08 2015 V1TSK <vitaly@easycoding.org> - 1.0-1
 - Updated to version 1.0.
 
