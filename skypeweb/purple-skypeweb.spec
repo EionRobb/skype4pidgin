@@ -36,22 +36,22 @@ based messengers.
 %description -n pidgin-%{plugin_name}
 Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
-%prep -n %{purplelib_name}
-%setup -c
-perl -i -pe 's/\r\n/\n/gs' */%{plugin_name}/README.md
+%prep
+%setup -q
+perl -i -pe 's/\r\n/\n/gs' %{plugin_name}/README.md
 
-%build -n %{purplelib_name}
-cd %{project_name}-*/%{plugin_name}
+%build
+cd %{plugin_name}
 %make_build
 
 %install
-cd %{project_name}-*/%{plugin_name}
+cd %{plugin_name}
 %make_install
 
 %files -n %{purplelib_name}
 %{_libdir}/purple-2/lib%{plugin_name}.so
-%doc */%{plugin_name}/README.md */CHANGELOG.txt
-%license */COPYING.txt
+%doc %{plugin_name}/README.md CHANGELOG.txt
+%license COPYING.txt
 
 %files -n pidgin-%{plugin_name}
 %dir %{_datadir}/pixmaps/pidgin
