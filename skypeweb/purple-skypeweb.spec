@@ -10,7 +10,7 @@ Summary: Skype plugin for Pidgin/Adium/libpurple
 Group: Applications/Productivity
 License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
-Source0: %{project_name}-%{version}.tar.gz
+Source0: https://github.com/EionRobb/%{name}/archive/v%{version}.tar.gz
 Requires: pidgin-%{plugin_name}
 
 %description
