@@ -37,7 +37,9 @@ based messengers.
 Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
 %prep
-%setup -q
+%autosetup
+
+# fix W: wrong-file-end-of-line-encoding
 perl -i -pe 's/\r\n/\n/gs' %{plugin_name}/README.md
 
 %build
