@@ -1,15 +1,14 @@
 %global debug_package %{nil}
 %global plugin_name skypeweb
-%global project_name skype4pidgin
 %global purplelib_name purple-%{plugin_name}
 
-Name: %{project_name}
+Name: skype4pidgin
 Version: 1.0
 Release: 2%{?dist}
 Summary: Skype plugin for Pidgin/Adium/libpurple
 Group: Applications/Productivity
 License: GPLv3
-URL: https://github.com/EionRobb/skype4pidgin
+URL: https://github.com/EionRobb/%{name}
 Source0: https://github.com/EionRobb/%{name}/archive/v%{version}.tar.gz
 Requires: pidgin-%{plugin_name}
 
