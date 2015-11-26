@@ -39,6 +39,7 @@ Adds pixmaps, icons and smileys for Skype protocol inplemented by libskypeweb.
 
 %prep -n %{purplelib_name}
 %setup -c
+perl -i -pe 's/\r\n/\n/gs' README.md
 
 %build -n %{purplelib_name}
 cd %{project_name}-*/%{plugin_name}
