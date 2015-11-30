@@ -3,7 +3,7 @@ SkypeWeb Plugin for Pidgin
 
 Adds a "Skype (HTTP)" protocol to the accounts list.  Requires libjson-glib.  GPLv3 Licenced.
 
-Until I get MSN/Live logins going there won't be any releases on GitHub.
+Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/releases)
 
 Windows
 -------
