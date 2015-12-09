@@ -37,7 +37,23 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbui
 The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
 
 
+Building DEB package for Debian/Ubuntu/Mint
+---------
+Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
+```
+	sudo apt install libpurple-dev libjson-glib-dev cmake gcc
+	git clone git://github.com/EionRobb/skype4pidgin.git
+	cd skype4pidgin/skypeweb
+	mkdir build
+	cd build
+	cmake ..
+	cpack
+```
+To install do:
+```
+	sudo dpkg -i skypeweb-0.1.0-Linux.deb
+```
+
 Show your appreciation
 ----------------------
 Did this plugin make your life happier?  [Send me $1](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D33N5RV7FEXZU) to say thanks!
-
