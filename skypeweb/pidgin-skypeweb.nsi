@@ -5,8 +5,6 @@ SetCompress off
 
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
-!define PRODUCT_NAME "pidgin-skypeweb"
-!define PRODUCT_VERSION ""
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://eion.robbmob.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -33,7 +31,7 @@ SetCompress off
 !define MUI_FINISHPAGE_SHOWREADME "http://eion.robbmob.com/README.txt"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Run Pidgin"
+!define MUI_FINISHPAGE_RUN_TEXT "Run ${PIDGIN_VARIANT}"
 !define MUI_FINISHPAGE_RUN_FUNCTION "RunPidgin"
 !insertmacro MUI_PAGE_FINISH
 
@@ -46,8 +44,8 @@ SetCompress off
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "${PRODUCT_NAME}-installer.exe"
-InstallDir "$PROGRAMFILES\Pidgin"
+OutFile "${INSTALLER_NAME}.exe"
+InstallDir "$PROGRAMFILES\${PIDGIN_VARIANT}"
 
 Var "PidginDir"
 
@@ -62,7 +60,7 @@ Section "MainSection" SEC01
     SetOverwrite try
 	
 	SetOutPath "$PidginDir"
-	File "libjson-glib-1.0.dll"
+	File "${JSON_GLIB_DLL}"
     
 	SetOutPath "$PidginDir\pixmaps\pidgin"
 	File "/oname=protocols\16\skype.png" "icons\16\skype.png"
@@ -84,7 +82,7 @@ Section "MainSection" SEC01
 	dllbusy:
 		Delete "$PidginDir\plugins\libskypeweb.dllold"
 		Rename  "$PidginDir\plugins\libskypeweb.dll" "$PidginDir\plugins\libskypeweb.dllold"
-		MessageBox MB_OK "Old version of plugin detected.  You will need to restart Pidgin to complete installation"
+		MessageBox MB_OK "Old version of plugin detected.  You will need to restart ${PIDGIN_VARIANT} to complete installation"
 		Goto copy
 	after_copy:
 		Call RegisterURIHandler
@@ -103,12 +101,12 @@ FunctionEnd
 
 Function GetPidginInstPath
   Push $0
-  ReadRegStr $0 HKLM "Software\pidgin" ""
+  ReadRegStr $0 HKLM "Software\${PIDGIN_VARIANT}" ""
 	IfFileExists "$0\pidgin.exe" cont
-	ReadRegStr $0 HKCU "Software\pidgin" ""
+	ReadRegStr $0 HKCU "Software\${PIDGIN_VARIANT}" ""
 	IfFileExists "$0\pidgin.exe" cont
-		MessageBox MB_OK|MB_ICONINFORMATION "Failed to find Pidgin installation."
-		Abort "Failed to find Pidgin installation. Please install Pidgin first."
+		MessageBox MB_OK|MB_ICONINFORMATION "Failed to find ${PIDGIN_VARIANT} installation."
+		Abort "Failed to find ${PIDGIN_VARIANT} installation. Please install ${PIDGIN_VARIANT} first."
   cont:
 	StrCpy $PidginDir $0
 FunctionEnd

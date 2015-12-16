@@ -41,7 +41,13 @@ install:
 
 installers:	libskypeweb.dll pidgin-skypeweb.nsi
 	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i pidgin-skypeweb.nsi
-	$(MAKENSIS) pidgin-skypeweb.nsi > /dev/null
+	$(MAKENSIS) \
+		-DPIDGIN_VARIANT="Pidgin" \
+		-DPRODUCT_NAME="pidgin-skypeweb" \
+		-DINSTALLER_NAME="pidgin-skypeweb-installer" \
+		-DPRODUCT_VERSION="$(shell date +%d-%b-%Y)" \
+		-JSON_GLIB_DLL="libjson-glib-1.0.dll" \
+		pidgin-skypeweb.nsi > /dev/null
 
 clean:
 	rm -f libskypeweb.dll
