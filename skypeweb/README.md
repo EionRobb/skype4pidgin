@@ -26,12 +26,10 @@ Building RPM package for Fedora/openSUSE/CentOS/RHEL
 ---------
 Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbuild tool
 ```
-	sudo yum install rpm-build gcc json-glib-devel libpurple-devel zlib-devel make automake glib2-devel -y
+	sudo yum install rpm-build gcc json-glib-devel libpurple-devel zlib-devel make automake glib2-devel spectool -y
 	mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-	wget https://raw.githubusercontent.com/EionRobb/skype4pidgin/master/skypeweb/purple-skypeweb.spec \
-		-O ~/rpmbuild/SPECS/purple-skypeweb.spec
-	wget https://github.com/EionRobb/skype4pidgin/archive/master.tar.gz \
-		-O ~/rpmbuild/SOURCES/skype4pidgin-1.0.tar.gz
+	wget https://github.com/EionRobb/skype4pidgin/raw/master/skypeweb/purple-skypeweb.spec -O ~/rpmbuild/SPECS/purple-skypeweb.spec
+	spectool --all --get-files ~/rpmbuild/SPECS/purple-skypeweb.spec --directory ~/rpmbuild/SOURCES/
 	rpmbuild -ba  ~/rpmbuild/SPECS/purple-skypeweb.spec
 ```
 The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
