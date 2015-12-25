@@ -118,7 +118,7 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	if (error_message && *error_message)
 		return;
 	
-	icon_id = purple_imgstore_add_with_id((gpointer)url_text, len, NULL);
+	icon_id = purple_imgstore_add_with_id(g_memdup(url_text, len), len, NULL);
 	
 	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
 	purple_conversation_write(conv, conv->name, msg_tmp, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_IMAGES, time(NULL));
