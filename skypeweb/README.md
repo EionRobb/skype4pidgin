@@ -54,7 +54,7 @@ To install do:
 
 Contact me
 ----------
-I (Eion) normally hang out on [Freenode in #pidgin](irc://chat.freenode.net/pidgin) or you can [Skype me](skype:bigbrownchunx) directly or send me [an email](mailto:eionrobb+skype%40gmail.com) or [open an issue](https://github.com/EionRobb/skype4pidgin/issues/new) if you prefer.  I'm always happy to hear from you :)
+I (Eion) normally hang out on Freenode in #pidgin (irc://chat.freenode.net/pidgin) or you can Skype me (skype:bigbrownchunx) directly or send me [an email](mailto:eionrobb+skype%40gmail.com) or [open an issue](https://github.com/EionRobb/skype4pidgin/issues/new) if you prefer.  I'm always happy to hear from you :)
 
 Show your appreciation
 ----------------------
