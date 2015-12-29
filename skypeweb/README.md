@@ -7,7 +7,7 @@ Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/re
 
 Windows
 -------
-Windows users can download latest builds from [libskypeweb-debug.dll](http://eion.robbmob.com/libskypeweb-debug.dll) or [pidgin-skypeweb-installer.exe](http://eion.robbmob.com/pidgin-skypeweb-installer.exe)
+Windows users can download latest builds from [here](https://github.com/EionRobb/skype4pidgin/releases)
 
 The plugin requires libjson-glib which is part of the installer exe or can be downloaded [from github](https://github.com/EionRobb/skype4pidgin/raw/master/skypeweb/libjson-glib-1.0.dll) and copied to the Program Files\Pidgin folder (not the plugins subfolder)
 
