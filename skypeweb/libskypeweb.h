@@ -173,6 +173,15 @@
 	#define purple_hash_append purple_cipher_context_append
 	#define purple_hash_digest(hash, data, len) purple_cipher_context_digest(hash, len, data, NULL)
 	#define purple_hash_destroy purple_cipher_context_destroy
+	#define purple_xfer_set_protocol_data(xfer, proto_data) ((xfer)->data = (proto_data))
+	#define purple_xfer_get_protocol_data(xfer) ((xfer)->data)
+static inline gboolean
+purple_xfer_write_file(PurpleXfer *xfer, const guchar *buffer, gsize size) {
+	PurpleXferUiOps *ui_ops = purple_xfer_get_ui_ops(xfer);
+	purple_xfer_set_bytes_sent(xfer, purple_xfer_get_bytes_sent(xfer) + 
+		(ui_ops && ui_ops->ui_write ? ui_ops->ui_write(xfer, buffer, size) : fwrite(buffer, 1, size, xfer->dest_fp)));
+	return TRUE;
+}
 	#define PURPLE_CMD_FLAG_PROTOCOL_ONLY PURPLE_CMD_FLAG_PRPL_ONLY
 	#define PURPLE_CMD_P_PLUGIN PURPLE_CMD_P_PRPL
 	

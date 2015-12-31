@@ -221,7 +221,7 @@ skypeweb_got_vm_download_info(SkypeWebAccount *sa, JsonNode *node, gpointer user
 			purple_xfer_set_size(xfer, fileSize);
 			purple_xfer_set_filename(xfer, filename);
 			json_object_ref(file);
-			xfer->data = file;
+			purple_xfer_set_protocol_data(xfer, file);
 			purple_xfer_set_init_fnc(xfer, skypeweb_init_vm_download);
 			purple_xfer_set_cancel_recv_fnc(xfer, skypeweb_cancel_vm_download);
 			purple_xfer_add(xfer);
@@ -270,6 +270,187 @@ skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, PurpleCon
 	g_free(url);
 	g_free(username_encoded);
 	
+}
+
+
+static void
+skypeweb_cancel_file_download(PurpleXfer *xfer)
+{
+	SkypeWebFileTransfer *swft;
+	
+	swft = purple_xfer_get_protocol_data(xfer);
+	
+	json_object_unref(swft->info);
+	g_free(swft->url);
+	g_free(swft->from);
+	g_free(swft);
+	
+	purple_xfer_set_protocol_data(xfer, NULL);
+}
+
+static void
+skypeweb_got_file(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	SkypeWebFileTransfer *swft = user_data;
+	PurpleXfer *xfer = swft->xfer;
+	SkypeWebAccount *sa = swft->sa;
+
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+	
+	if (error_message) {
+		purple_xfer_error(purple_xfer_get_type(xfer), sa->account, swft->from, error_message);
+		purple_xfer_cancel_local(xfer);
+	} else {
+		purple_xfer_write_file(xfer, (guchar *)url_text, len);
+		purple_xfer_set_bytes_sent(xfer, len);
+		purple_xfer_set_completed(xfer, TRUE);
+	}
+	
+	//cleanup
+	skypeweb_cancel_file_download(xfer);
+}
+
+static void
+skypeweb_init_file_download(PurpleXfer *xfer)
+{
+	SkypeWebFileTransfer *swft;
+	const gchar *view_location;
+	gint64 content_full_length;
+	PurpleHttpURL *httpurl;
+	gchar *headers;
+	
+	swft = purple_xfer_get_protocol_data(xfer);
+	
+	view_location = json_object_get_string_member(swft->info, "view_location");
+	content_full_length = json_object_get_int_member(swft->info, "content_full_length");
+	
+	purple_xfer_start(xfer, -1, NULL, 0);
+	
+	httpurl = purple_http_url_parse(view_location);
+	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Cookie: skypetoken_asm=%s\r\n"
+			"Host: %s\r\n"
+			"\r\n\r\n",
+			purple_http_url_get_path(httpurl), 
+			swft->sa->skype_token, 
+			purple_http_url_get_host(httpurl));
+	
+	skypeweb_fetch_url_request(swft->sa, view_location, TRUE, NULL, FALSE, headers, FALSE, content_full_length, skypeweb_got_file, swft);
+	
+	g_free(headers);
+	purple_http_url_free(httpurl);
+}
+
+static void
+skypeweb_got_file_info(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	JsonObject *obj;
+	PurpleXfer *xfer;
+	SkypeWebFileTransfer *swft = user_data;
+	SkypeWebAccount *sa = swft->sa;
+	JsonParser *parser;
+	JsonNode *node;
+	
+	parser = json_parser_new();
+	if (!json_parser_load_from_data(parser, url_text, len, NULL)) {
+		g_free(swft->url);
+		g_free(swft->from);
+		g_free(swft);
+		g_object_unref(parser);
+		return;
+	}
+	
+	node = json_parser_get_root(parser);
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) {
+		g_free(swft->url);
+		g_free(swft->from);
+		g_free(swft);
+		g_object_unref(parser);
+		return;
+	}
+	obj = json_node_get_object(node);
+	
+	/* 
+	{
+		"content_length": 40708,
+		"content_full_length": 40708,
+		"view_length": 40708,
+		"content_state": "ready",
+		"view_state": "ready",
+		"view_location": "uri/views/original",
+		"status_location": "uri/views/original/status",
+		"scan": {
+			"status": "passed"
+		},
+		"original_filename": "filename"
+	} */
+	purple_debug_info("skypeweb", "File info: %s\n", url_text);
+	
+	if (!json_object_has_member(obj, "content_state") || !g_str_equal(json_object_get_string_member(obj, "content_state"), "ready")) {
+		skypeweb_present_uri_as_filetransfer(sa, json_object_get_string_member(obj, "status_location"), swft->from);
+		g_free(swft->url);
+		g_free(swft->from);
+		g_free(swft);
+		g_object_unref(parser);
+		return;
+	}
+	
+	json_object_ref(obj);
+	swft->info = obj;
+	
+	xfer = purple_xfer_new(sa->account, PURPLE_XFER_RECEIVE, swft->from);
+	purple_xfer_set_size(xfer, json_object_get_int_member(obj, "content_full_length"));
+	purple_xfer_set_filename(xfer, json_object_get_string_member(obj, "original_filename"));
+	purple_xfer_set_init_fnc(xfer, skypeweb_init_file_download);
+	purple_xfer_set_cancel_recv_fnc(xfer, skypeweb_cancel_file_download);
+	
+	swft->xfer = xfer;
+	purple_xfer_set_protocol_data(xfer, swft);
+	
+	purple_xfer_request(xfer);
+	
+	g_object_unref(parser);
+}
+
+void
+skypeweb_present_uri_as_filetransfer(SkypeWebAccount *sa, const gchar *uri, const gchar *from)
+{
+	PurpleHttpURL *httpurl;
+	const gchar *host;
+	gchar *path;
+	SkypeWebFileTransfer *swft;
+	gchar *headers;
+	
+	
+	httpurl = purple_http_url_parse(uri);
+	host = purple_http_url_get_host(httpurl);
+	
+	if (g_str_has_suffix(uri, "/views/original/status")) {
+		path = g_strconcat(purple_http_url_get_path(httpurl), NULL);
+	} else {
+		path = g_strconcat(purple_http_url_get_path(httpurl), "/views/original/status", NULL);
+	}
+	
+	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Cookie: skypetoken_asm=%s\r\n"
+			"Host: %s\r\n"
+			"\r\n\r\n",
+			path, 
+			sa->skype_token, 
+			host);
+	
+	swft = g_new0(SkypeWebFileTransfer, 1);
+	swft->sa = sa;
+	swft->url = g_strdup(uri);
+	swft->from = g_strdup(from);
+	
+	skypeweb_fetch_url_request(sa, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_file_info, swft);
+	
+	g_free(path);
+	g_free(headers);
+	purple_http_url_free(httpurl);
 }
 
 

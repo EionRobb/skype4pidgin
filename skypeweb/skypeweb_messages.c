@@ -304,6 +304,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} 
 			
 			purple_xmlnode_free(blob);
+		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
+			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
+			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
+			PurpleIMConversation *imconv;
+			
+			skypeweb_download_uri_to_conv(sa, uri, conv);
+			purple_xmlnode_free(blob);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled thread message resource messagetype '%s'\n", messagetype);
 		}
@@ -337,6 +344,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
 			
 			//TODO if (skypeeditedid && *skypeeditedid) { ... }
+			//TODO           if (!content)
 			
 			if (g_str_equal(messagetype, "Text")) {
 				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
@@ -379,6 +387,18 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				
 				conv = PURPLE_CONVERSATION(imconv);
 				skypeweb_download_uri_to_conv(sa, uri, conv);
+			}
+			purple_xmlnode_free(blob);
+		} else if (g_str_equal(messagetype, "RichText/Media_GenericFile")) {
+			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
+			const gchar *uri = purple_xmlnode_get_attrib(blob, "uri");
+			PurpleIMConversation *imconv;
+			
+			if (!skypeweb_is_user_self(sa, from)) {
+				
+				skypeweb_present_uri_as_filetransfer(sa, uri, from);
+				
+				from = convbuddyname;
 			}
 			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "Event/SkypeVideoMessage")) {
@@ -453,6 +473,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}
 			purple_xmlnode_free(partlist);
+		} else if (g_str_equal(messagetype, "RichText/Files")) {
+			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled message resource messagetype '%s'\n", messagetype);
 		}
@@ -1387,3 +1409,11 @@ skypeweb_chat_set_topic(PurpleConnection *pc, int id, const char *topic)
 	json_object_unref(obj);
 }
 
+void
+skypeweb_get_thread_url(SkypeWebAccount *sa, const gchar *thread)
+{
+	//POST https://api.scheduler.skype.com/threads
+	//{"baseDomain":"https://join.skype.com/launch/","threadId":"%s"}
+	
+	// {"Id":"MeMxigEAAAAxOTo5NDZkMjExMGQ4YmU0ZjQzODc3NjMxNDQ3ZTgxYWNmNkB0aHJlYWQuc2t5cGU","Blob":null,"JoinUrl":"https://join.skype.com/ALXsHZ2RFQnk","ThreadId":"19:946d2110d8be4f43877631447e81acf6@thread.skype"}
+}
