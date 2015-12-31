@@ -28,6 +28,24 @@
 #	include "xfer.h"
 #endif
 
+// Check that the conversation hasn't been closed
+static gboolean
+purple_conversation_is_valid(PurpleConversation *conv)
+{
+	GList *convs = purple_get_conversations();
+	
+	return (g_list_find(convs, conv) != NULL);
+}
+
+
+typedef struct {
+	PurpleXfer *xfer;
+	JsonObject *info;
+	gchar *from;
+	gchar *url;
+	SkypeWebAccount *sa;
+} SkypeWebFileTransfer;
+
 static guint active_icon_downloads = 0;
 
 static void
@@ -95,11 +113,18 @@ static void
 skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
 {
 	PurpleConversation *conv = user_data;
-	PurpleConnection *pc = purple_conversation_get_connection(conv);
-	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
+	PurpleConnection *pc;
+	SkypeWebAccount *sa;
 	gint icon_id;
 	gchar *msg_tmp;
 	
+	// Conversation could have been closed before we retrieved the image
+	if (!purple_conversation_is_valid(conv)) {
+		return;
+	}
+	
+	pc = purple_conversation_get_connection(conv);
+	sa = purple_connection_get_protocol_data(pc);
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 
 	if (url_text == NULL && url_data->data_len) {
