@@ -52,6 +52,27 @@ To install do:
 	sudo dpkg -i skypeweb-0.1.0-Linux.deb
 ```
 
+
+Building AUR package for Arch Linux
+----------
+[AUR Package Site](https://aur.archlinux.org/packages/purple-skypeweb)
+First you will need to get the [build deps](https://wiki.archlinux.org/index.php/Arch_User_Repository#Prerequisites) unless you already have them
+```
+# pacman -S --needed base-devel
+```
+Next, clone the package's [AUR git repo](https://aur.archlinux.org/purple-skypeweb.git)
+```
+$ git clone https://aur.archlinux.org/purple-skypeweb.git
+```
+Finally, [build and install](https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package)
+```
+$ cd purple-skypeweb
+$ makepkg -sri
+```
+
+For more information about the Arch User Repository and how installs work, documentation can be found on the [ArchWiki AUR Page](https://wiki.archlinux.org/index.php/AUR)
+
+
 Contact me
 ----------
 I (Eion) normally hang out on Freenode in #pidgin (irc://chat.freenode.net/pidgin) or you can Skype me (skype:bigbrownchunx) directly or send me [an email](mailto:eionrobb+skype%40gmail.com) or [open an issue](https://github.com/EionRobb/skype4pidgin/issues/new) if you prefer.  I'm always happy to hear from you :)
