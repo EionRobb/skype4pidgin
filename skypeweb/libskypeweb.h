@@ -175,7 +175,7 @@
 	#define purple_hash_destroy purple_cipher_context_destroy
 	#define purple_xfer_set_protocol_data(xfer, proto_data) ((xfer)->data = (proto_data))
 	#define purple_xfer_get_protocol_data(xfer) ((xfer)->data)
-#if !PURPLE_VERSION_CHECK(2, 11, 0) && !FEDORA
+#if !PURPLE_VERSION_CHECK(2, 10, 12) && !FEDORA
 static inline gboolean
 purple_xfer_write_file(PurpleXfer *xfer, const guchar *buffer, gsize size) {
 	PurpleXferUiOps *ui_ops = purple_xfer_get_ui_ops(xfer);
