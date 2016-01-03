@@ -249,6 +249,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_DEFAULT_MESSAGES_HOST "client-s.gateway.messenger.live.com"
 #define SKYPEWEB_LOGIN_HOST "login.skype.com"
 #define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
+#define SKYPEWEB_XFER_HOST "api.asm.skype.com"
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
 #define SKYPEWEB_CLIENTINFO_VERSION "908/1.13.79"

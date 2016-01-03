@@ -1207,7 +1207,11 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	obj = json_object_new();
 	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
 	json_object_set_string_member(obj, "content", stripped);
-	json_object_set_string_member(obj, "messagetype", "RichText");
+	if (G_UNLIKELY(g_str_has_prefix(message, "<URIObject "))) {
+		json_object_set_string_member(obj, "messagetype", "RichText/Media_GenericFile"); //hax!
+	} else {
+		json_object_set_string_member(obj, "messagetype", "RichText");
+	}
 	json_object_set_string_member(obj, "contenttype", "text");
 	
 	if (g_str_has_prefix(message, "/me ")) {

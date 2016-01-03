@@ -843,6 +843,24 @@ skypeweb_protocol_privacy_iface_init(PurpleProtocolPrivacyIface *prpl_info)
 }
 
 static void 
+skypeweb_protocol_xfer_iface_init(PurpleProtocolXferIface *prpl_info) 
+{
+#endif
+	
+	//PurpleProtocolXferIface
+	prpl_info->new_xfer = skypeweb_new_xfer;
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	prpl_info->send_file = skypeweb_send_file;
+	prpl_info->can_receive_file = skypeweb_can_receive_file;
+#else
+	prpl_info->send = skypeweb_send_file;
+	prpl_info->can_receive = skypeweb_can_receive_file;
+#endif
+	
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+}
+
+static void 
 skypeweb_protocol_roomlist_iface_init(PurpleProtocolRoomlistIface *prpl_info) 
 {
 #endif
@@ -906,6 +924,9 @@ PURPLE_DEFINE_TYPE_EXTENDED(
 
 	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_ROOMLIST_IFACE,
 	                                  skypeweb_protocol_roomlist_iface_init)
+
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_XFER_IFACE,
+	                                  skypeweb_protocol_xfer_iface_init)
 );
 
 static PurplePluginInfo *

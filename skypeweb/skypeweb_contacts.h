@@ -26,6 +26,10 @@ void skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, Purple
 void skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, PurpleConversation *conv);
 void skypeweb_present_uri_as_filetransfer(SkypeWebAccount *sa, const gchar *uri, const gchar *from);
 
+PurpleXfer *skypeweb_new_xfer(PurpleConnection *pc, const char *who);
+void skypeweb_send_file(PurpleConnection *pc, const gchar *who, const gchar *filename);
+gboolean skypeweb_can_receive_file(PurpleConnection *pc, const gchar *who);
+
 void skypeweb_search_users(PurplePluginAction *action);
 
 void skypeweb_get_friend_profiles(SkypeWebAccount *sa, GSList *contacts);
