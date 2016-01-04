@@ -167,7 +167,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 			"Accept: image/*\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
 			"Host: %s\r\n"
-			"\r\n\r\n",
+			"\r\n",
 			purple_http_url_get_path(httpurl), sa->skype_token, 
 			purple_http_url_get_host(httpurl));
 	
@@ -363,7 +363,7 @@ skypeweb_init_file_download(PurpleXfer *xfer)
 			"Connection: close\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
 			"Host: %s\r\n"
-			"\r\n\r\n",
+			"\r\n",
 			purple_http_url_get_path(httpurl), 
 			swft->sa->skype_token, 
 			purple_http_url_get_host(httpurl));
@@ -470,7 +470,7 @@ skypeweb_present_uri_as_filetransfer(SkypeWebAccount *sa, const gchar *uri, cons
 			"Connection: close\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
 			"Host: %s\r\n"
-			"\r\n\r\n",
+			"\r\n",
 			path, 
 			sa->skype_token, 
 			host);
@@ -497,6 +497,16 @@ skypeweb_xfer_send_write(const guchar *buf, size_t len, PurpleXfer *xfer)
 }
 
 static void
+skypeweb_read_stuff(gpointer user_data, PurpleSslConnection *ssl_connection, PurpleInputCondition cond)
+{
+	gchar buf[1024];
+	
+	//Flush the server buffer
+	purple_ssl_read(ssl_connection, buf, 1024);
+	//purple_debug_info("skypeweb", "Server file send response was %s\n", buf);
+}
+
+static void
 skypeweb_xfer_send_connect_cb(gpointer user_data, PurpleSslConnection *ssl_connection, PurpleInputCondition cond)
 {
 	SkypeWebFileTransfer *swft = user_data;
@@ -510,7 +520,7 @@ skypeweb_xfer_send_connect_cb(gpointer user_data, PurpleSslConnection *ssl_conne
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
 			"Content-Length: %d\r\n"
 			"Content-Type: application/json\r\n"
-			"\r\n\r\n",
+			"\r\n",
 			purple_url_encode(swft->id),
 			sa->skype_token, 
 			purple_xfer_get_size(xfer));
@@ -518,14 +528,15 @@ skypeweb_xfer_send_connect_cb(gpointer user_data, PurpleSslConnection *ssl_conne
 	purple_ssl_write(ssl_connection, headers, strlen(headers));
 	
 	swft->conn = ssl_connection;
+	purple_ssl_input_add(swft->conn, skypeweb_read_stuff, swft);
+	
 	purple_xfer_ref(xfer);
 	purple_xfer_start(xfer, ssl_connection->fd, NULL, 0);
 	
-	//TODO add input watcher that calls this repeatedly
 	purple_xfer_prpl_ready(xfer);
-	//purple_ssl_input_add(
-			
+	
 	g_free(headers);
+	
 }
 
 static gboolean poll_file_send_progress(gpointer user_data);
@@ -631,7 +642,7 @@ poll_file_send_progress(gpointer user_data)
 			"Connection: close\r\n"
 			"Cookie: skypetoken_asm=%s\r\n"
 			"Host: %s\r\n"
-			"\r\n\r\n",
+			"\r\n",
 			path, 
 			sa->skype_token, 
 			host);
@@ -642,6 +653,23 @@ poll_file_send_progress(gpointer user_data)
 	purple_http_url_free(httpurl);
 	
 	return FALSE;
+}
+
+static void
+skypeweb_xfer_send_end(PurpleXfer *xfer)
+{
+	SkypeWebFileTransfer *swft = purple_xfer_get_protocol_data(xfer);
+	gchar buf[1024];
+	
+	//Flush the server buffer
+	purple_ssl_read(swft->conn, buf, 1024);
+	//purple_debug_info("skypeweb", "Server file send response was %s\n", buf);
+	
+	purple_ssl_close(swft->conn);
+	swft->conn = NULL;
+	
+	//poll swft->url for progress
+	purple_timeout_add_seconds(1, poll_file_send_progress, swft);
 }
 
 static void
@@ -694,8 +722,6 @@ skypeweb_got_object_for_file(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	//TODO make an error handler callback func
 	purple_ssl_connect(sa->account, SKYPEWEB_XFER_HOST, 443, skypeweb_xfer_send_connect_cb, NULL, swft);
 	
-	//poll swft->url for progress
-	purple_timeout_add_seconds(1, poll_file_send_progress, swft);
 }
 
 static void
@@ -735,7 +761,7 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
 			"Content-Length: %d\r\n"
 			"Content-Type: application/json\r\n"
-			"\r\n\r\n%s",
+			"\r\n%s",
 			sa->skype_token, 
 			strlen(post), post);
 	
@@ -764,7 +790,7 @@ skypeweb_new_xfer(PurpleConnection *pc, const char *who)
 	
 	purple_xfer_set_init_fnc(xfer, skypeweb_xfer_send_init);
 	purple_xfer_set_write_fnc(xfer, skypeweb_xfer_send_write);
-	purple_xfer_set_end_fnc(xfer, skypeweb_free_xfer);
+	purple_xfer_set_end_fnc(xfer, skypeweb_xfer_send_end);
 	purple_xfer_set_request_denied_fnc(xfer, skypeweb_free_xfer);
 	purple_xfer_set_cancel_send_fnc(xfer, skypeweb_free_xfer);
 	
@@ -785,6 +811,9 @@ skypeweb_send_file(PurpleConnection *pc, const gchar *who, const gchar *filename
 gboolean
 skypeweb_can_receive_file(PurpleConnection *pc, const gchar *who)
 {
+	if (!who || g_str_equal(who, purple_account_get_username(purple_connection_get_account(pc))))
+		return FALSE;
+	
 	return TRUE;
 }
 
