@@ -166,7 +166,7 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	g_string_append(postdata, "redirect_uri=https%3A%2F%2Fweb.skype.com");
 	
 	// post the t to https://login.skype.com/login/oauth?client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com
-	request = g_strdup_printf("POST /login/oauth?client_id=578134&redirect_uri=https%%3A%%2F%%2Fweb.skype.com HTTP/1.0\r\n"
+	request = g_strdup_printf("POST /login/microsoft?client_id=578134&redirect_uri=https%%3A%%2F%%2Fweb.skype.com HTTP/1.0\r\n"
 			"Connection: close\r\n"
 			"Accept: */*\r\n"
 			"BehaviorOverride: redirectAs404\r\n"
