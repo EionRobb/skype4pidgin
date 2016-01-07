@@ -5,6 +5,11 @@ Adds a "Skype (HTTP)" protocol to the accounts list.  Requires libjson-glib.  GP
 
 Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/releases)
 
+Change Log
+----------
+  * 1.1 - Support file transfers, fix for Live logins, fix for other crashes
+  * 1.0 - Support Live (email address) logins
+
 Windows
 -------
 Windows users can download latest builds from [here](https://github.com/EionRobb/skype4pidgin/releases)
