@@ -5,6 +5,8 @@ SetCompress off
 
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
+!define PRODUCT_NAME "pidgin-skypeweb"
+!define PRODUCT_VERSION "v1.1"
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://eion.robbmob.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"

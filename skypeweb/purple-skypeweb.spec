@@ -1,7 +1,7 @@
 %global plugin_name skypeweb
 
 Name: purple-%{plugin_name}
-Version: 1.0
+Version: 1.1
 Release: 2%{?dist}
 License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
