@@ -491,8 +491,7 @@ static gssize
 skypeweb_xfer_send_write(const guchar *buf, size_t len, PurpleXfer *xfer)
 {
 	SkypeWebFileTransfer *swft = purple_xfer_get_protocol_data(xfer);
-	SkypeWebAccount *sa = swft->sa;
-	
+
 	return purple_ssl_write(swft->conn, buf, len);
 }
 
@@ -681,8 +680,7 @@ skypeweb_got_object_for_file(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	JsonParser *parser;
 	JsonNode *node;
 	JsonObject *obj;
-	gchar *id;
-	
+
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	//Get back {"id": "0-cus-d3-deadbeefdeadbeef012345678"}
