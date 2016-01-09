@@ -59,10 +59,12 @@ Section "MainSection" SEC01
     ;Check for pidgin installation
     Call GetPidginInstPath
     
-    SetOverwrite try
+    SetOverwrite off
 	
 	SetOutPath "$PidginDir"
 	File "${JSON_GLIB_DLL}"
+    
+    SetOverwrite try
     
 	SetOutPath "$PidginDir\pixmaps\pidgin"
 	File "/oname=protocols\16\skype.png" "icons\16\skype.png"
