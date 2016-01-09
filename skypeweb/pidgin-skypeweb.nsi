@@ -5,12 +5,19 @@ SetCompress off
 
 ; todo: SetBrandingImage
 ; HM NIS Edit Wizard helper defines
+!ifndef PRODUCT_NAME
 !define PRODUCT_NAME "pidgin-skypeweb"
+!endif
+!ifndef PRODUCT_VERSION
 !define PRODUCT_VERSION "v1.1"
+!endif
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://eion.robbmob.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!ifndef JSON_GLIB_DLL
+!define JSON_GLIB_DLL "libjson-glib-1.0.dll"
+!endif
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
