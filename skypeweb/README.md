@@ -16,6 +16,17 @@ Windows users can download latest builds from [here](https://github.com/EionRobb
 
 The plugin requires libjson-glib which is part of the installer exe or can be downloaded [from github](https://github.com/EionRobb/skype4pidgin/raw/master/skypeweb/libjson-glib-1.0.dll) and copied to the Program Files\Pidgin folder (not the plugins subfolder)
 
+Installing package on Fedora
+---------
+On Fedora you can use [purple-skypeweb](https://copr.fedoraproject.org/coprs/xvitaly/purple-skypeweb/) COPR repository. [Later](https://bugzilla.redhat.com/show_bug.cgi?id=1294523), after package review, it will be added to main Fedora repository.
+At first time you should add COPR repository and enable it:
+```
+	sudo dnf copr enable xvitaly/purple-skypeweb
+```
+Now you can install packages:
+```
+	sudo dnf install purple-skypeweb pidgin-skypeweb
+```
 
 Compiling
 ---------
