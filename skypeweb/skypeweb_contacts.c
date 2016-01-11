@@ -518,7 +518,7 @@ skypeweb_xfer_send_connect_cb(gpointer user_data, PurpleSslConnection *ssl_conne
 			"Connection: close\r\n"
 			"Authorization: skype_token %s\r\n" //slightly different to normal!
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
-			"Content-Length: %d\r\n"
+			"Content-Length: %" G_GSIZE_FORMAT "\r\n"
 			"Content-Type: application/json\r\n"
 			"\r\n",
 			purple_url_encode(swft->id),
@@ -602,7 +602,7 @@ got_file_send_progress(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 		xmlnode_insert_data(anchor, temp, -1);
 		g_free(temp);
 		xmlnode_set_attrib(originalname, "v", purple_xfer_get_filename(xfer));
-		temp = g_strdup_printf("%d", purple_xfer_get_size(xfer));
+		temp = g_strdup_printf("%" G_GSIZE_FORMAT, purple_xfer_get_size(xfer));
 		xmlnode_set_attrib(filesize, "v", temp);
 		g_free(temp);
 		
@@ -759,7 +759,7 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 			"Connection: close\r\n"
 			"Authorization: skype_token %s\r\n" //slightly different to normal!
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
-			"Content-Length: %d\r\n"
+			"Content-Length: %" G_GSIZE_FORMAT "\r\n"
 			"Content-Type: application/json\r\n"
 			"\r\n%s",
 			sa->skype_token, 

@@ -582,7 +582,7 @@ skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		} else {
 			g_string_append_printf(request, "Content-Type: application/x-www-form-urlencoded\r\n");
 		}
-		g_string_append_printf(request, "Content-length: %zu\r\n", strlen(postdata));
+		g_string_append_printf(request, "Content-length: %" G_GSIZE_FORMAT "\r\n", strlen(postdata));
 	}
 	
 	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST) || g_str_equal(host, SKYPEWEB_VIDEOMAIL_HOST) || g_str_equal(host, SKYPEWEB_NEW_CONTACTS_HOST)) {
