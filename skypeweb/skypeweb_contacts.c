@@ -491,8 +491,7 @@ static gssize
 skypeweb_xfer_send_write(const guchar *buf, size_t len, PurpleXfer *xfer)
 {
 	SkypeWebFileTransfer *swft = purple_xfer_get_protocol_data(xfer);
-	SkypeWebAccount *sa = swft->sa;
-	
+
 	return purple_ssl_write(swft->conn, buf, len);
 }
 
@@ -518,7 +517,7 @@ skypeweb_xfer_send_connect_cb(gpointer user_data, PurpleSslConnection *ssl_conne
 			"Connection: close\r\n"
 			"Authorization: skype_token %s\r\n" //slightly different to normal!
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
-			"Content-Length: %d\r\n"
+			"Content-Length: %zu\r\n"
 			"Content-Type: application/json\r\n"
 			"\r\n",
 			purple_url_encode(swft->id),
@@ -602,7 +601,7 @@ got_file_send_progress(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 		xmlnode_insert_data(anchor, temp, -1);
 		g_free(temp);
 		xmlnode_set_attrib(originalname, "v", purple_xfer_get_filename(xfer));
-		temp = g_strdup_printf("%d", purple_xfer_get_size(xfer));
+		temp = g_strdup_printf("%zu", purple_xfer_get_size(xfer));
 		xmlnode_set_attrib(filesize, "v", temp);
 		g_free(temp);
 		
@@ -681,8 +680,7 @@ skypeweb_got_object_for_file(PurpleUtilFetchUrlData *url_data, gpointer user_dat
 	JsonParser *parser;
 	JsonNode *node;
 	JsonObject *obj;
-	gchar *id;
-	
+
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	//Get back {"id": "0-cus-d3-deadbeefdeadbeef012345678"}
@@ -759,7 +757,7 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 			"Connection: close\r\n"
 			"Authorization: skype_token %s\r\n" //slightly different to normal!
 			"Host: " SKYPEWEB_XFER_HOST "\r\n"
-			"Content-Length: %d\r\n"
+			"Content-Length: %zu\r\n"
 			"Content-Type: application/json\r\n"
 			"\r\n%s",
 			sa->skype_token, 
