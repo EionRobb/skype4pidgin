@@ -29,7 +29,7 @@ msgid "You have the latest version of Skype"
 msgstr "У Вас самая свежая версия Skype"
 
 msgid "You have the latest version of the Skype plugin"
-msgstr "У Вас самая свежия версия Pidgin/Skype плагина"
+msgstr "У Вас самая свежая версия Pidgin/Skype плагина"
 
 msgid "Your version:"
 msgstr "Ваша версия:"
