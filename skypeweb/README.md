@@ -89,6 +89,10 @@ $ makepkg -sri
 
 For more information about the Arch User Repository and how installs work, documentation can be found on the [ArchWiki AUR Page](https://wiki.archlinux.org/index.php/AUR)
 
+Adium
+-----
+The magical [tripplet](https://github.com/tripplet) (who ported the [Steam prpl to Adium](https://github.com/tripplet/Adium-Steam-IM)) has ported [SkypeWeb to Adium](https://github.com/tripplet/skypeweb4adium) too.  Releases for this are at https://github.com/tripplet/skypeweb4adium/releases
+
 
 Contact me
 ----------
