@@ -56,7 +56,7 @@ Building DEB package for Debian/Ubuntu/Mint
 ---------
 Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
 ```
-	sudo apt install libpurple-dev libjson-glib-dev cmake gcc
+	sudo apt-get install libpurple-dev libjson-glib-dev cmake gcc
 	git clone git://github.com/EionRobb/skype4pidgin.git
 	cd skype4pidgin/skypeweb
 	mkdir build
