@@ -832,6 +832,7 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	
 	username = json_object_get_string_member(userobj, "username");
 	g_free(sa->username); sa->username = g_strdup(username);
+	purple_connection_set_display_name(sa->pc, sa->username);
 	
 	old_alias = purple_account_get_private_alias(sa->account);
 	if (!old_alias || !*old_alias) {
