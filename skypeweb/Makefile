@@ -5,8 +5,8 @@ PKG_CONFIG  ?= pkg-config
 DIR_PERM	= 0755
 FILE_PERM	= 0644
 
-LIBPURPLE_CFLAGS	+= $(shell $(PKG_CONFIG) --cflags glib-2.0 json-glib-1.0 purple)
-LIBPURPLE_LIBS		+= $(shell $(PKG_CONFIG) --libs glib-2.0 json-glib-1.0 purple)
+LIBPURPLE_CFLAGS	+= $(shell $(PKG_CONFIG) --cflags glib-2.0 json-glib-1.0 purple zlib)
+LIBPURPLE_LIBS		+= $(shell $(PKG_CONFIG) --libs glib-2.0 json-glib-1.0 purple zlib)
 PLUGIN_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=plugindir purple)
 DATA_ROOT_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=datarootdir purple)
 
