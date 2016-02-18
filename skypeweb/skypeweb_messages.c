@@ -1053,7 +1053,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	
 	if (registration_token == NULL) {
 		purple_connection_error (sa->pc,
-								PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
+								PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
 								_("Failed getting Registration Token"));
 		return;
 	}
