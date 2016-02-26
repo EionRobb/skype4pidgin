@@ -66,7 +66,7 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
 ```
 To install do:
 ```
-	sudo dpkg -i skypeweb-0.1.0-Linux.deb
+	sudo dpkg -i skypeweb-1.1.0-Linux.deb
 ```
 
 
