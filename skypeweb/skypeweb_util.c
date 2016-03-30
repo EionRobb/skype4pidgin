@@ -81,6 +81,7 @@ skypeweb_contact_url_to_name(const gchar *url)
 	
 	start = g_strrstr(url, "/8:");
 	if (!start) start = g_strrstr(url, "/1:");
+	if (!start) start = g_strrstr(url, "/4:");
 	if (!start) return NULL;
 	start = start + 3;
 	
@@ -267,4 +268,16 @@ skypeweb_fetch_url_request(SkypeWebAccount *sa,
 		sa->url_datas = g_slist_prepend(sa->url_datas, url_data);
 
 	return url_data;
+}
+
+const gchar *
+skypeweb_user_url_prefix(const gchar *who)
+{
+	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
+		return "1:";
+	} else if(SKYPEWEB_BUDDY_IS_PHONE(who)) {
+		return "4:";
+	} else {
+		return "8:";
+	}
 }

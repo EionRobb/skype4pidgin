@@ -255,6 +255,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_CLIENTINFO_VERSION "908/1.22.117"
 
 #define SKYPEWEB_BUDDY_IS_MSN(a) G_UNLIKELY((a) != NULL && strchr((a), '@') != NULL)
+#define SKYPEWEB_BUDDY_IS_PHONE(a) G_UNLIKELY((a) != NULL && *(a) == '+')
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;

@@ -320,11 +320,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		// This is a One-to-one/IM message
 		
 		convbuddyname = g_strdup(skypeweb_contact_url_to_name(conversationLink));
-		if (SKYPEWEB_BUDDY_IS_MSN(convbuddyname)) {
-			convname = g_strconcat("1:", convbuddyname, NULL);
-		} else {
-			convname = g_strconcat("8:", convbuddyname, NULL);
-		}
+		convname = g_strconcat(skypeweb_user_url_prefix(convbuddyname), convbuddyname, NULL);
 		
 		from = skypeweb_contact_url_to_name(from);
 		g_return_if_fail(from);
@@ -638,6 +634,9 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 				// Dammit, Jim; I'm a programmer, not a surgeon!
 				skypeweb_get_registration_token(sa);
 				return;
+			} else if (errorCode == 450) {
+				// "Subscription requested could not be found."
+				// No more Womens Weekly? :O
 			}
 		}
 		
@@ -670,11 +669,7 @@ skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType t
 			
 			if (PURPLE_IS_IM_CONVERSATION(conv)) {
 				const gchar *buddyname = purple_conversation_get_name(conv);
-				if (SKYPEWEB_BUDDY_IS_MSN(buddyname)) {
-					convname = g_strconcat("1:", buddyname, NULL);
-				} else {
-					convname = g_strconcat("8:", buddyname, NULL);
-				}
+				convname = g_strconcat(skypeweb_user_url_prefix(buddyname), buddyname, NULL);
 			} else {
 				convname = g_strdup(purple_conversation_get_data(conv, "chatname"));
 			}
@@ -907,11 +902,7 @@ skypeweb_unsubscribe_from_contact_status(SkypeWebAccount *sa, const gchar *who)
 	const gchar *contacts_url = "/v1/users/ME/contacts";
 	gchar *url;
 	
-	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
-		url = g_strconcat(contacts_url, "/1:", purple_url_encode(who), NULL);
-	} else {
-		url = g_strconcat(contacts_url, "/8:", purple_url_encode(who), NULL);
-	}
+	url = g_strconcat(contacts_url, "/", skypeweb_user_url_prefix(who), purple_url_encode(who), NULL);
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, NULL, NULL, TRUE);
 	
@@ -938,11 +929,7 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		JsonObject *contact = json_object_new();
 		gchar *id;
 		
-		if (SKYPEWEB_BUDDY_IS_MSN(cur->data)) {
-			id = g_strconcat("1:", cur->data, NULL);
-		} else {
-			id = g_strconcat("8:", cur->data, NULL);
-		}
+		id = g_strconcat(skypeweb_user_url_prefix(cur->data), cur->data, NULL);
 		json_object_set_string_member(contact, "id", id);
 		json_array_add_object_element(contacts_array, contact);
 		
@@ -1122,11 +1109,7 @@ skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleIMTypingStat
 	gchar *post, *url;
 	JsonObject *obj;
 	
-	if (SKYPEWEB_BUDDY_IS_MSN(name)) {
-		url = g_strdup_printf("/v1/users/ME/conversations/1:%s/messages", purple_url_encode(name));
-	} else {
-		url = g_strdup_printf("/v1/users/ME/conversations/8:%s/messages", purple_url_encode(name));
-	}
+	url = g_strdup_printf("/v1/users/ME/conversations/%s%s/messages", skypeweb_user_url_prefix(name), purple_url_encode(name));
 	
 	obj = json_object_new();
 	json_object_set_int_member(obj, "clientmessageid", time(NULL));
@@ -1261,11 +1244,7 @@ skypeweb_send_im(PurpleConnection *pc, const gchar *who, const gchar *message, P
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *convname;
 	
-	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
-		convname = g_strconcat("1:", who, NULL);
-	} else {
-		convname = g_strconcat("8:", who, NULL);
-	}
+	convname = g_strconcat(skypeweb_user_url_prefix(who), who, NULL);
 	skypeweb_send_message(sa, convname, message);
 	g_free(convname);
 	
@@ -1288,11 +1267,7 @@ skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const ch
 	url = g_string_new("/v1/threads/");
 	g_string_append_printf(url, "%s", purple_url_encode(chatname));
 	g_string_append(url, "/members/");
-	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
-		g_string_append_printf(url, "1:%s", purple_url_encode(who));
-	} else {
-		g_string_append_printf(url, "8:%s", purple_url_encode(who));
-	}
+	g_string_append_printf(url, "%s%s", skypeweb_user_url_prefix(who), purple_url_encode(who));
 	
 	post = "{\"role\":\"User\"}";
 	
@@ -1316,11 +1291,7 @@ skypeweb_chat_kick(PurpleConnection *pc, int id, const char *who)
 	url = g_string_new("/v1/threads/");
 	g_string_append_printf(url, "%s", purple_url_encode(chatname));
 	g_string_append(url, "/members/");
-	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
-		g_string_append_printf(url, "1:%s", purple_url_encode(who));
-	} else {
-		g_string_append_printf(url, "8:%s", purple_url_encode(who));
-	}
+	g_string_append_printf(url, "%s%s", skypeweb_user_url_prefix(who), purple_url_encode(who));
 	
 	post = "";
 	
@@ -1340,11 +1311,7 @@ skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who)
 	members = json_array_new();
 	
 	contact = json_object_new();
-	if (SKYPEWEB_BUDDY_IS_MSN(who)) {
-		id = g_strconcat("1:", who, NULL);
-	} else {
-		id = g_strconcat("8:", who, NULL);
-	}
+	id = g_strconcat(skypeweb_user_url_prefix(who), who, NULL);
 	json_object_set_string_member(contact, "id", id);
 	json_object_set_string_member(contact, "role", "User");
 	json_array_add_object_element(members, contact);

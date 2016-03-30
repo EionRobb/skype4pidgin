@@ -742,11 +742,7 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 	json_object_set_string_member(obj, "type", "sharing/file");
 	json_object_set_string_member(obj, "filename", basename);
 	
-	if (SKYPEWEB_BUDDY_IS_MSN(swft->from)) {
-		id = g_strconcat("1:", swft->from, NULL);
-	} else {
-		id = g_strconcat("8:", swft->from, NULL);
-	}
+	id = g_strconcat(skypeweb_user_url_prefix(swft->from), swft->from, NULL);
 	json_array_add_string_element(userpermissions, "read");
 	json_object_set_array_member(permissions, id, userpermissions);
 	json_object_set_object_member(obj, "permissions", permissions);
