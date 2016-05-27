@@ -30,7 +30,7 @@ To compile from source, the easiest way is extract libskype.zip into the ${PIDGI
 Known Issues
 ============
 
-* No notification popup on file being received/notificaitons (Windows)
+* No notification popup on file being received/notifications (Windows)
 
 * Skype sounds still play even when it's hidden
 
