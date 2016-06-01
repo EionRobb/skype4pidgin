@@ -38,3 +38,5 @@ skypeweb_fetch_url_request(SkypeWebAccount *sa,
 		PurpleUtilFetchUrlCallback callback, void *user_data);
 
 const gchar *skypeweb_user_url_prefix(const gchar *who);
+
+gchar *g_str_replace_substr(gchar *str, gchar *orig, gchar *rep);
