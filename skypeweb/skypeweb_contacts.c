@@ -157,7 +157,7 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 void
 skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
 {
-	gchar *headers;
+	gchar *headers, *url, *text;
 	PurpleUtilFetchUrlData *requestdata;
 	PurpleHttpURL *httpurl;
 	
@@ -178,6 +178,10 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	
 	g_free(headers);
 	purple_http_url_free(httpurl);
+
+	url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
+	text = g_strdup_printf("<a href=\"%s\">Click here to view full version</a>", url);
+	purple_conversation_write(conv, conv->name, text, PURPLE_MESSAGE_SYSTEM, time(NULL));
 }
 
 
