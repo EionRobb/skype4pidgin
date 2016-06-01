@@ -281,22 +281,3 @@ skypeweb_user_url_prefix(const gchar *who)
 		return "8:";
 	}
 }
-
-// [M] Replace substring in string
-gchar *g_str_replace_substr(gchar *str, gchar *orig, gchar *rep)
-{
-	static gchar buffer[4096];
-	gchar *p;
-
-	// Is 'orig' even in 'str'?
-	if(!(p = strstr(str, orig)))
-		return str;
-
-	// Copy characters from 'str' start to 'orig' st$
-	strncpy(buffer, str, p-str);
-	buffer[p-str] = '\0';
-
-	sprintf(buffer+(p-str), "%s%s", rep, p+strlen(orig));
-
-	return buffer;
-}
