@@ -161,6 +161,7 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	// postdata: t=...&oauthPartner=999&client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com
 	postdata = g_string_new("");
 	g_string_append_printf(postdata, "t=%s&", purple_url_encode(magic_t_value));
+	g_string_append(postdata, "site_name=lw.skype.com&");
 	g_string_append(postdata, "oauthPartner=999&");
 	g_string_append(postdata, "client_id=578134&");
 	g_string_append(postdata, "redirect_uri=https%3A%2F%2Fweb.skype.com");
