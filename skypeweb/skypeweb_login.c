@@ -154,6 +154,27 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	// <input type="hidden" name="t" id="t" value="...">
 	magic_t_value = skypeweb_string_get_chunk(url_text, len, "=\"t\" value=\"", "\"");
 	if (!magic_t_value) {
+		//No Magic T????  Maybe it be the mighty 2fa-beast
+		
+		if (FALSE)
+		/*if (g_strnstr(url_text, len, "Set-Cookie: LOpt=0;"))*/ {
+			//XX - Would this be better retrieved with JSON decoding the "var ServerData = {...}" code?
+			//     <script type="text/javascript">var ServerData = {...};</script>
+			gchar *session_state = skypeweb_string_get_chunk(url_text, len, ":'https://login.live.com/GetSessionState.srf?", "',");
+			if (session_state) {
+				//These two appear to have different object keys each request :(
+				gchar *PPFT = skypeweb_string_get_chunk(url_text, len, ",sFT:'", "',");
+				gchar *SLK = skypeweb_string_get_chunk(url_text, len, ",aB:'", "',");
+				gchar *ppauth_cookie = skypeweb_string_get_chunk(url_text, len, "Set-Cookie: PPAuth=", ";");
+				gchar *mspok_cookie = skypeweb_string_get_chunk(url_text, len, "Set-Cookie: MSPOK=", "; domain=");
+				
+				//Poll https://login.live.com/GetSessionState.srv?{session_state} to retrieve GIF(!!) of 2fa status
+				//1x1 size GIF means pending, 2x2 rejected, 1x2 approved
+				//Then re-request the MagicT, if approved with a slightly different GET parameters
+				//purpose=eOTT_OneTimePassword&PPFT={ppft}&login={email}&SLK={slk}
+				return;
+			}
+		}
 		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting Magic T value"));
 		return;
 	}
