@@ -2,7 +2,7 @@
 LINUX32_COMPILER = i686-pc-linux-gnu-gcc
 LINUX64_COMPILER = x86_64-pc-linux-gnu-gcc
 #WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
-WIN32_COMPILER = gcc.exe
+WIN32_COMPILER = /home/Eion/win32-dev/mingw/bin/gcc.exe
 WIN32_WINDRES = i586-mingw32-windres
 #WIN32_OBJCOPY = i586-mingw32-objcopy
 WIN32_OBJCOPY = objcopy.exe
@@ -11,12 +11,12 @@ LINUX_ARM_COMPILER = arm-none-linux-gnueabi-gcc
 LINUX_PPC_COMPILER = powerpc-unknown-linux-gnu-gcc
 FREEBSD60_COMPILER = i686-pc-freebsd6.0-gcc
 MACPORT_COMPILER = i686-apple-darwin10-gcc-4.0.1
-MAKENSIS ?= /cygdrive/C/Program\ Files\ \(x86\)/NSIS/makensis.exe
+MAKENSIS ?= "$(PROGRAMFILES)/NSIS/makensis.exe"
 
 LIBPURPLE_CFLAGS = -I/usr/include/libpurple -I/usr/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include -I/usr/local/include -I/usr/include/json-glib-1.0 -ljson-glib-1.0
 WIN32_DEV_DIR = C:/cygwin/home/Eion/win32-dev
-WIN32_PIDGIN_DIR = C:/cygwin/home/Eion/pidgin-2.10.4
+WIN32_PIDGIN_DIR = C:/cygwin/home/Eion/pidgin-2.10.12
 WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0-2.14/lib/glib-2.0/include -I${WIN32_DEV_DIR}/json-glib-0.8.0 -Wno-format -I${WIN32_PIDGIN_DIR}/libpurple -I${WIN32_DEV_DIR}/nss-3.12.5-nspr-4.8.2/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0-2.14/lib -L${WIN32_PIDGIN_DIR}/libpurple -L${WIN32_DEV_DIR}/nss-3.12.5-nspr-4.8.2/lib -lglib-2.0 -lgobject-2.0 -lintl -lpurple -lws2_32 -L. -ljson-glib-1.0 -lz -lnss3
 MACPORT_CFLAGS = -I/opt/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include -I/opt/local/include -I/opt/local/include/json-glib-1.0 -arch i386 -arch ppc -dynamiclib -L/opt/local/lib -ljson-glib-1.0 -lpurple -lglib-2.0 -lgobject-2.0 -lintl -lz -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
@@ -37,27 +37,21 @@ SKYPEWEB_SOURCES = \
 
 all:	libskypeweb.dll
 
-install:
+install:	libskypeweb-debug.dll
+	cp libskypeweb-debug.dll "$(PROGRAMFILES)/Pidgin/plugins/"
 
 installers:	libskypeweb.dll pidgin-skypeweb.nsi
-	date=`date +%d-%b-%Y` && sed "s/PRODUCT_VERSION \"[-a-z0-9A-Z]*\"/PRODUCT_VERSION \"$$date\"/" -i pidgin-skypeweb.nsi
-	$(MAKENSIS) \
-		-DPIDGIN_VARIANT="Pidgin" \
-		-DPRODUCT_NAME="pidgin-skypeweb" \
-		-DINSTALLER_NAME="pidgin-skypeweb-installer" \
-		-DPRODUCT_VERSION="$(shell date +%d-%b-%Y)" \
-		-JSON_GLIB_DLL="libjson-glib-1.0.dll" \
-		pidgin-skypeweb.nsi > /dev/null
+	$(MAKENSIS) "/DPIDGIN_VARIANT"="Pidgin" "/DPRODUCT_NAME"="pidgin-skypeweb" "/DINSTALLER_NAME"="pidgin-skypeweb-installer" "/DJSON_GLIB_DLL"="libjson-glib-1.0.dll" pidgin-skypeweb.nsi
 
 clean:
 	rm -f libskypeweb.dll
 
 libskypeweb.dll:	${SKYPEWEB_SOURCES}
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O2 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
+	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -static-libgcc -Wall -I. -g -ggdb -O2 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared ${WIN32_CFLAGS} ${WIN32_LIBS}
 	${WIN32_OBJCOPY} --only-keep-debug $@ $@.dbg
 	${WIN32_OBJCOPY} --strip-debug $@
 	${WIN32_OBJCOPY} --add-gnu-debuglink=$@.dbg $@
 	upx libskypeweb.dll
 
 libskypeweb-debug.dll:	${SKYPEWEB_SOURCES}
-	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -Wall -I. -g -O0 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared -mno-cygwin ${WIN32_CFLAGS} ${WIN32_LIBS}
+	${WIN32_COMPILER} ${LIBPURPLE_CFLAGS} -static-libgcc -Wall -Wno-unused-but-set-variable -Wno-unused-variable -I. -g -ggdb -O0 -pipe ${SKYPEWEB_SOURCES} -o $@ -shared ${WIN32_CFLAGS} ${WIN32_LIBS}
