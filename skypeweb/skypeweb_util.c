@@ -216,11 +216,15 @@ skypeweb_hmac_sha256(char *input)
 gint64
 skypeweb_get_js_time()
 {
+#if GLIB_CHECK_VERSION(2, 28, 0)
+	return (g_get_real_time() / 1000);
+#else
 	GTimeVal val;
 	
 	g_get_current_time (&val);
 	
 	return (((gint64) val.tv_sec) * 1000) + (val.tv_usec / 1000);
+#endif
 }
 
 /* copied from oscar.c to be libpurple 2.1 compatible */
