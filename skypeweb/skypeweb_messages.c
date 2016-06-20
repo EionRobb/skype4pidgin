@@ -1005,11 +1005,6 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	if (url_text == NULL) {
-		url_text = url_data->webdata;
-		len = url_data->data_len;
-	}
-	
-	if (url_text == NULL) {
 		if (purple_major_version == 2 && (
 			purple_minor_version < 10 ||
 			(purple_minor_version == 10 && purple_micro_version < 11))
@@ -1063,7 +1058,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	gchar *request;
 	gchar *curtime;
 	gchar *response;
-	PurpleUtilFetchUrlData *requestdata;
+	gpointer requestdata;
 	
 	g_free(sa->registration_token); sa->registration_token = NULL;
 	g_free(sa->endpoint); sa->endpoint = NULL;
@@ -1089,8 +1084,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	
 	requestdata = skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
 
-	if (requestdata != NULL)
-		requestdata->num_times_redirected = 10; /* Prevent following redirects */
+	skypeweb_url_prevent_follow_redirects(requestdata);
 
 	g_free(request);
 	g_free(curtime);

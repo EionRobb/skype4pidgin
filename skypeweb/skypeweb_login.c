@@ -27,11 +27,6 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	SkypeWebAccount *sa = user_data;
 	
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
-
-	if (url_text == NULL) {
-		url_text = url_data->webdata;
-		len = url_data->data_len;
-	}
 	
 	if (url_text != NULL)
 		refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");

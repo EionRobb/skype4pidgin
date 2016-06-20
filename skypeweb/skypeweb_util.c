@@ -254,6 +254,112 @@ find_acct(const char *prpl, const char *acct_id)
 }
 
 
+/* Hack needed to stop redirect */
+struct _PurpleUtilFetchUrlData
+{
+	PurpleUtilFetchUrlCallback callback;
+	void *user_data;
+
+	struct
+	{
+		char *user;
+		char *passwd;
+		char *address;
+		int port;
+		char *page;
+
+	} website;
+
+	char *url;
+	int num_times_redirected;
+	gboolean full;
+	char *user_agent;
+	gboolean http11;
+	char *request;
+	gsize request_written;
+	gboolean include_headers;
+
+	gboolean is_ssl;
+	PurpleSslConnection *ssl_connection;
+	PurpleProxyConnectData *connect_data;
+	int fd;
+	guint inpa;
+
+	gboolean got_headers;
+	gboolean has_explicit_data_len;
+	char *webdata;
+	gsize len;
+	unsigned long data_len;
+	gssize max_len;
+	gboolean chunked;
+	PurpleAccount *account;
+};
+
+/* Hack needed to stop redirect */
+struct _PurpleUtilFetchUrlDataTwoEleven
+{
+	PurpleUtilFetchUrlCallback callback;
+	void *user_data;
+
+	struct
+	{
+		char *user;
+		char *passwd;
+		char *address;
+		int port;
+		char *page;
+
+	} website;
+
+	char *url;
+	int num_times_redirected;
+	gboolean full;
+	char *user_agent;
+	gboolean http11;
+	char *request;
+	gsize request_len;
+	gsize request_written;
+	gboolean include_headers;
+
+	gboolean is_ssl;
+	PurpleSslConnection *ssl_connection;
+	PurpleProxyConnectData *connect_data;
+	int fd;
+	guint inpa;
+
+	gboolean got_headers;
+	gboolean has_explicit_data_len;
+	char *webdata;
+	gsize len;
+	unsigned long data_len;
+	gssize max_len;
+	gboolean chunked;
+	PurpleAccount *account;
+};
+
+static void
+skypeweb_fetch_url_request_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message) {
+	
+	PurpleUtilFetchUrlCallback callback;
+	
+	if (url_text == NULL) {
+		if (purple_major_version == 2 && purple_minor_version >= 11) {
+			struct _PurpleUtilFetchUrlDataTwoEleven *two_eleven_url_data = (struct _PurpleUtilFetchUrlDataTwoEleven *) url_data;
+			
+			url_text = two_eleven_url_data->webdata;
+			len = two_eleven_url_data->data_len;
+		} else {
+			url_text = url_data->webdata;
+			len = url_data->data_len;
+		}
+	}
+	
+	callback = g_dataset_get_data(url_data, "real_callback");
+	callback(url_data, user_data, url_text, len, error_message);
+	
+	g_dataset_destroy(url_data);
+}
+
 /* Wrapper of purple_util_fetch_url_request_len_with_account()
  * that takes a SkypeWebAccount instead of a PurpleAccount,
  * and keeps track of requests in sa->url_datas to cancel them on logout. */
@@ -266,12 +372,21 @@ skypeweb_fetch_url_request(SkypeWebAccount *sa,
 {
 	PurpleUtilFetchUrlData *url_data;
 
-	url_data = purple_util_fetch_url_request(sa->account, url, full, user_agent, http11, request, include_headers, max_len, callback, user_data);
+	url_data = purple_util_fetch_url_request(sa->account, url, full, user_agent, http11, request, include_headers, max_len, skypeweb_fetch_url_request_cb, user_data);
+	g_dataset_set_data(url_data, "real_callback", callback);
 
 	if (url_data != NULL)
 		sa->url_datas = g_slist_prepend(sa->url_datas, url_data);
 
 	return url_data;
+}
+
+void
+skypeweb_url_prevent_follow_redirects(PurpleUtilFetchUrlData *requestdata)
+{
+	if (requestdata != NULL) {
+		requestdata->num_times_redirected = 10;
+	}
 }
 
 const gchar *

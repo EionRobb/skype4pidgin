@@ -56,15 +56,20 @@ skypeweb_get_icon_cb(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 	PurpleBuddy *buddy = user_data;
 	SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
 	SkypeWebAccount *sa = sbuddy->sa;
+	gchar *url = g_dataset_get_data(url_data, "url");
 
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
 	active_icon_downloads--;
 	
-	if (!buddy)
+	if (!buddy) {
+		g_dataset_destroy(url_data);
 		return;
+	}
 	
-	purple_buddy_icons_set_for_user(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy), g_memdup(url_text, len), len, url_data->url);
+	purple_buddy_icons_set_for_user(purple_buddy_get_account(buddy), purple_buddy_get_name(buddy), g_memdup(url_text, len), len, url);
+	
+	g_dataset_destroy(url_data);
 }
 
 static void
@@ -72,6 +77,7 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 {
 	SkypeWebBuddy *sbuddy;
 	gchar *url;
+	gpointer url_data;
 	
 	purple_debug_info("skypeweb", "getting new buddy icon for %s\n", purple_buddy_get_name(buddy));
 	
@@ -82,9 +88,8 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 		url = g_strdup_printf("https://api.skype.com/users/%s/profile/avatar", purple_url_encode(purple_buddy_get_name(buddy)));
 	}
 	
-	skypeweb_fetch_url_request(sbuddy->sa, url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_get_icon_cb, buddy);
-
-	g_free(url);
+	url_data = skypeweb_fetch_url_request(sbuddy->sa, url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_get_icon_cb, buddy);
+	g_dataset_set_data_full(url_data, "url", url, g_free);
 
 	active_icon_downloads++;
 }
@@ -119,6 +124,7 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	SkypeWebAccount *sa;
 	gint icon_id;
 	gchar *msg_tmp;
+	gchar *location;
 	
 	// Conversation could have been closed before we retrieved the image
 	if (!purple_conversation_is_valid(conv)) {
@@ -129,13 +135,10 @@ skypeweb_got_imagemessage(PurpleUtilFetchUrlData *url_data, gpointer user_data, 
 	sa = purple_connection_get_protocol_data(pc);
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 
-	if (url_text == NULL && url_data->data_len) {
-		gchar *location;
-		location = skypeweb_string_get_chunk(url_data->webdata, url_data->data_len, "Location: https://", "/");
-		if (location && *location) {
-			skypeweb_download_uri_to_conv(sa, location, conv);
-			g_free(location);
-		}
+	location = skypeweb_string_get_chunk(url_text, len, "Location: https://", "/");
+	if (location && *location) {
+		skypeweb_download_uri_to_conv(sa, location, conv);
+		g_free(location);
 		return;
 	}
 	
@@ -158,7 +161,7 @@ void
 skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
 {
 	gchar *headers, *url, *text;
-	PurpleUtilFetchUrlData *requestdata;
+	gpointer requestdata;
 	PurpleHttpURL *httpurl;
 	
 	httpurl = purple_http_url_parse(uri);
@@ -173,8 +176,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	
 	requestdata = skypeweb_fetch_url_request(sa, uri, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
 
-	if (requestdata != NULL)
-		requestdata->num_times_redirected = 10; /* Prevent following redirects */
+	skypeweb_url_prevent_follow_redirects(requestdata);
 	
 	g_free(headers);
 	purple_http_url_free(httpurl);

@@ -37,4 +37,6 @@ skypeweb_fetch_url_request(SkypeWebAccount *sa,
 		const char *request, gboolean include_headers, gssize max_len,
 		PurpleUtilFetchUrlCallback callback, void *user_data);
 
+void skypeweb_url_prevent_follow_redirects(PurpleUtilFetchUrlData *requestdata);
+
 const gchar *skypeweb_user_url_prefix(const gchar *who);
