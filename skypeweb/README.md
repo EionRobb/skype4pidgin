@@ -29,6 +29,13 @@ Now you can install packages:
 	sudo dnf install purple-skypeweb pidgin-skypeweb
 ```
 
+Arch Linux
+----------
+On Arch Linux package available in [Community](https://wiki.archlinux.org/index.php/official_repositories#community) repository. Installation is usual:
+```
+	sudo pacman -S purple-skypeweb
+```
+
 Compiling
 ---------
 Requires devel headers/libs for libpurple and libjson-glib [libglib2.0-dev, libjson-glib-dev and libpurple-dev]
@@ -69,22 +76,21 @@ To install do:
 	sudo dpkg -i skypeweb-1.1.0-Linux.deb
 ```
 
-
 Building AUR package for Arch Linux
 ----------
 [AUR Package Site](https://aur.archlinux.org/packages/purple-skypeweb)
 First you will need to get the [build deps](https://wiki.archlinux.org/index.php/Arch_User_Repository#Prerequisites) unless you already have them
 ```
-# pacman -S --needed base-devel
+	sudo pacman -S --needed base-devel
 ```
 Next, clone the package's [AUR git repo](https://aur.archlinux.org/purple-skypeweb.git)
 ```
-$ git clone https://aur.archlinux.org/purple-skypeweb.git
+	git clone https://aur.archlinux.org/purple-skypeweb.git
 ```
 Finally, [build and install](https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package)
 ```
-$ cd purple-skypeweb
-$ makepkg -sri
+	cd purple-skypeweb
+	makepkg -sri
 ```
 
 For more information about the Arch User Repository and how installs work, documentation can be found on the [ArchWiki AUR Page](https://wiki.archlinux.org/index.php/AUR)
