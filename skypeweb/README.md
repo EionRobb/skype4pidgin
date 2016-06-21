@@ -22,32 +22,39 @@ On Fedora you can use [purple-skypeweb](https://copr.fedoraproject.org/coprs/xvi
 
 At first time you should add COPR repository and enable it:
 ```
-	sudo dnf copr enable xvitaly/purple-skypeweb
+	$ sudo dnf copr enable xvitaly/purple-skypeweb
 ```
 Now you can install packages:
 ```
-	sudo dnf install purple-skypeweb pidgin-skypeweb
+	$ sudo dnf install purple-skypeweb pidgin-skypeweb
+```
+
+Arch Linux
+----------
+On Arch Linux package available in [Community](https://wiki.archlinux.org/index.php/official_repositories#community) repository. Installation is usual:
+```
+	$ sudo pacman -S purple-skypeweb
 ```
 
 Compiling
 ---------
 Requires devel headers/libs for libpurple and libjson-glib [libglib2.0-dev, libjson-glib-dev and libpurple-dev]
 ```	
-	git clone git://github.com/EionRobb/skype4pidgin.git
-	cd skype4pidgin/skypeweb
-	make
-	sudo make install
+	$ git clone git://github.com/EionRobb/skype4pidgin.git
+	$ cd skype4pidgin/skypeweb
+	$ make
+	$ sudo make install
 ```
 
 Building RPM package for Fedora/openSUSE/CentOS/RHEL
 ---------
 Requires devel headers/libs for libpurple and json-glib, gcc compiler and rpmbuild tool
 ```
-	sudo yum install rpm-build gcc json-glib-devel libpurple-devel zlib-devel make automake glib2-devel spectool -y
-	mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-	wget https://github.com/EionRobb/skype4pidgin/raw/master/skypeweb/purple-skypeweb.spec -O ~/rpmbuild/SPECS/purple-skypeweb.spec
-	spectool --all --get-files ~/rpmbuild/SPECS/purple-skypeweb.spec --directory ~/rpmbuild/SOURCES/
-	rpmbuild -ba  ~/rpmbuild/SPECS/purple-skypeweb.spec
+	$ sudo yum install rpm-build gcc json-glib-devel libpurple-devel zlib-devel make automake glib2-devel spectool -y
+	$ mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+	$ wget https://github.com/EionRobb/skype4pidgin/raw/master/skypeweb/purple-skypeweb.spec -O ~/rpmbuild/SPECS/purple-skypeweb.spec
+	$ spectool --all --get-files ~/rpmbuild/SPECS/purple-skypeweb.spec --directory ~/rpmbuild/SOURCES/
+	$ rpmbuild -ba  ~/rpmbuild/SPECS/purple-skypeweb.spec
 ```
 The result can be found in ``~/rpmbuild/RPMS/`uname -m`/`` directory.
 
@@ -56,38 +63,18 @@ Building DEB package for Debian/Ubuntu/Mint
 ---------
 Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
 ```
-	sudo apt-get install libpurple-dev libjson-glib-dev cmake gcc
-	git clone git://github.com/EionRobb/skype4pidgin.git
-	cd skype4pidgin/skypeweb
-	mkdir build
-	cd build
-	cmake ..
-	cpack
+	$ sudo apt-get install libpurple-dev libjson-glib-dev cmake gcc
+	$ git clone git://github.com/EionRobb/skype4pidgin.git
+	$ cd skype4pidgin/skypeweb
+	$ mkdir build
+	$ cd build
+	$ cmake ..
+	$ cpack
 ```
 To install do:
 ```
-	sudo dpkg -i skypeweb-1.1.0-Linux.deb
+	$ sudo dpkg -i skypeweb-1.1.0-Linux.deb
 ```
-
-
-Building AUR package for Arch Linux
-----------
-[AUR Package Site](https://aur.archlinux.org/packages/purple-skypeweb)
-First you will need to get the [build deps](https://wiki.archlinux.org/index.php/Arch_User_Repository#Prerequisites) unless you already have them
-```
-# pacman -S --needed base-devel
-```
-Next, clone the package's [AUR git repo](https://aur.archlinux.org/purple-skypeweb.git)
-```
-$ git clone https://aur.archlinux.org/purple-skypeweb.git
-```
-Finally, [build and install](https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package)
-```
-$ cd purple-skypeweb
-$ makepkg -sri
-```
-
-For more information about the Arch User Repository and how installs work, documentation can be found on the [ArchWiki AUR Page](https://wiki.archlinux.org/index.php/AUR)
 
 Adium
 -----
