@@ -23,6 +23,14 @@ On Fedora you can install [package](https://apps.fedoraproject.org/packages/purp
 	sudo dnf install purple-skypeweb pidgin-skypeweb
 ```
 
+CentOS/RHEL
+---------
+On CentOS/RHEL you can install [package](https://apps.fedoraproject.org/packages/purple-skypeweb) from Fedora's [EPEL7](http://fedoraproject.org/wiki/EPEL) repository:
+
+```
+  sudo yum install purple-skypeweb pidgin-skypeweb
+```
+
 Arch Linux
 ----------
 On Arch Linux package available in [Community](https://wiki.archlinux.org/index.php/official_repositories#community) repository. Installation is usual:
