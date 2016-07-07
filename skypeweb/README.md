@@ -9,6 +9,10 @@ Change Log
 ----------
   * 1.1 - Support file transfers, fix for Live logins, fix for other crashes
   * 1.0 - Support Live (email address) logins
+  
+Issues
+------
+Before posting an issue, please check ![Error message flow chart](http://dequis.org/skypeweb.png)
 
 Windows
 -------
