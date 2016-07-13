@@ -51,12 +51,12 @@ link_directories(
 
 
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
-exec_program("pkg-config --variable=plugindir purple 2>/dev/null"
+exec_program("${PKG_CONFIG_EXECUTABLE} --variable=plugindir purple 2>/dev/null"
         OUTPUT_VARIABLE LIB_INSTALL_DIR)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
 
-exec_program("pkg-config --variable=datadir purple 2>/dev/null"
+exec_program("${PKG_CONFIG_EXECUTABLE} --variable=datadir purple 2>/dev/null"
         OUTPUT_VARIABLE PURPLE_DATADIR)
 
 install(DIRECTORY "icons/"
