@@ -63,6 +63,10 @@ install(DIRECTORY "icons/"
     DESTINATION "${PURPLE_DATADIR}/pixmaps/pidgin/protocols/"
     )
 
+install(FILES "theme"
+    DESTINATION "${PURPLE_DATADIR}/pixmaps/pidgin/emotes/skype/"
+    )
+
 # package settings
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Skype protocol plug-in for libpurple")
 set(CPACK_PACKAGE_VENDOR "Eionrobb")
