@@ -879,15 +879,16 @@ skypeweb_search_results_add_buddy(PurpleConnection *pc, GList *row, void *user_d
 void
 skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
+	JsonObject *response = NULL;
 	JsonArray *resultsarray = NULL;
 	gint index, length;
-	GString *userids;
 	gchar *search_term = user_data;
 
 	PurpleNotifySearchResults *results;
 	PurpleNotifySearchColumn *column;
 	
-	resultsarray = json_node_get_array(node);
+	response = json_node_get_object(node);
+	resultsarray = json_object_get_array_member(response, "results");
 	length = json_array_get_length(resultsarray);
 	
 	if (length == 0)
@@ -898,16 +899,6 @@ skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user
 		g_free(search_term);
 		return;
 	}
-	
-	userids = g_string_new("");
-	
-	resultsarray = json_node_get_array(node);
-	for(index = 0; index < length; index++)
-	{
-		JsonObject *result = json_array_get_object_element(resultsarray, index);
-		g_string_append_printf(userids, "%s,", json_object_get_string_member(result, "skypewebid"));
-	}
-
 	
 	results = purple_notify_searchresults_new();
 	if (results == NULL)
@@ -932,39 +923,42 @@ skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user
 	
 	for(index = 0; index < length; index++)
 	{
-		JsonObject *contact = json_array_get_object_element(resultsarray, index);
-		JsonObject *contactcards = json_object_get_object_member(contact, "ContactCards");
-		JsonObject *skypecontact = json_object_get_object_member(contactcards, "Skype");
-		JsonObject *currentlocation = json_object_get_object_member(contactcards, "CurrentLocation");
+		JsonObject *result = json_array_get_object_element(resultsarray, index);
+		JsonObject *skypecontact = json_object_get_object_member(result, "nodeProfileData");
 		
 		/* the row in the search results table */
 		/* prepend to it backwards then reverse to speed up adds */
 		GList *row = NULL;
-		
-		row = g_list_prepend(row, g_strdup(json_object_get_string_member(skypecontact, "SkypeName")));
-		row = g_list_prepend(row, g_strdup(json_object_get_string_member(skypecontact, "DisplayName")));
-		row = g_list_prepend(row, g_strdup(json_object_get_string_member(currentlocation, "City")));
-		row = g_list_prepend(row, g_strdup(json_object_get_string_member(currentlocation, "Country")));
+
+#define add_skypecontact_row(value) (\
+		row = g_list_prepend(row, \
+			!json_object_has_member(skypecontact, (value)) ? NULL : \
+			g_strdup(json_object_get_string_member(skypecontact, (value)))\
+		) \
+)		
+		add_skypecontact_row("skypeId");
+		add_skypecontact_row("name");
+		add_skypecontact_row("city");
+		add_skypecontact_row("country");
 		
 		row = g_list_reverse(row);
 		
 		purple_notify_searchresults_row_add(results, row);
 	}
 	
-	purple_notify_searchresults(sa->pc, NULL, search_term, NULL,
-			results, NULL, NULL);
+	purple_notify_searchresults(sa->pc, NULL, search_term, NULL, results, NULL, NULL);
 }
 
 void
 skypeweb_search_users_text(gpointer user_data, const gchar *text)
 {
 	SkypeWebAccount *sa = user_data;
-	GString *url = g_string_new("/search/users/any?");
+	GString *url = g_string_new("/search/v1.1/namesearch/swx/?");
 	
-	g_string_append_printf(url, "keyWord=%s&", purple_url_encode(text));
-	g_string_append(url, "contactTypes[]=skype&");
+	g_string_append_printf(url, "searchstring=%s&", purple_url_encode(text));
+	g_string_append(url, "requestId=1&");
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url->str, NULL, skypeweb_search_users_text_cb, g_strdup(text), FALSE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, "skypegraph.skype.com", url->str, NULL, skypeweb_search_users_text_cb, g_strdup(text), FALSE);
 	
 	g_string_free(url, TRUE);
 }
