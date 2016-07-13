@@ -52,12 +52,22 @@ link_directories(
 
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
 exec_program("${PKG_CONFIG_EXECUTABLE} --variable=plugindir purple 2>/dev/null"
-        OUTPUT_VARIABLE LIB_INSTALL_DIR)
+        OUTPUT_VARIABLE LIB_INSTALL_DIR
+        RETURN_VALUE PURPLE_PLUGINDIR_RET)
+
+if (NOT PURPLE_PLUGINDIR_RET EQUAL 0)
+	message( FATAL_ERROR "${PKG_CONFIG_EXECUTABLE} --variable=plugindir purple -- returned a non-null error code")
+endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
 
 exec_program("${PKG_CONFIG_EXECUTABLE} --variable=datadir purple 2>/dev/null"
-        OUTPUT_VARIABLE PURPLE_DATADIR)
+        OUTPUT_VARIABLE PURPLE_DATADIR
+        RETURN_VALUE PURPLE_DATADIR_RET)
+
+if (NOT PURPLE_DATADIR_RET EQUAL 0)
+	message( FATAL_ERROR "${PKG_CONFIG_EXECUTABLE} --variable=datadir purple -- returned a non-null error code")
+endif()
 
 install(DIRECTORY "icons/"
     DESTINATION "${PURPLE_DATADIR}/pixmaps/pidgin/protocols/"
