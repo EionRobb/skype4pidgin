@@ -250,7 +250,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_MAX_MSG_RETRY 2
 
 #define SKYPEWEB_PLUGIN_ID "prpl-skypeweb"
-#define SKYPEWEB_PLUGIN_VERSION "1.1"
+#define SKYPEWEB_PLUGIN_VERSION "1.2"
 
 #define SKYPEWEB_LOCKANDKEY_APPID "msmsgs@msnmsgr.com"
 #define SKYPEWEB_LOCKANDKEY_SECRET "Q1P7W2E4J9R8U3S5"
@@ -263,7 +263,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_XFER_HOST "api.asm.skype.com"
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
-#define SKYPEWEB_CLIENTINFO_VERSION "908/1.22.117"
+#define SKYPEWEB_CLIENTINFO_VERSION "908/1.50.53"
 
 #define SKYPEWEB_BUDDY_IS_MSN(a) G_UNLIKELY((a) != NULL && strchr((a), '@') != NULL)
 #define SKYPEWEB_BUDDY_IS_PHONE(a) G_UNLIKELY((a) != NULL && *(a) == '+')
