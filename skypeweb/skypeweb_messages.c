@@ -1149,6 +1149,7 @@ skypeweb_set_status(PurpleAccount *account, PurpleStatus *status)
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
 	skypeweb_set_statusid(sa, purple_status_get_id(status));
+	skypeweb_set_mood_message(sa, purple_status_get_attr_string(status, "message"));
 }
 
 void

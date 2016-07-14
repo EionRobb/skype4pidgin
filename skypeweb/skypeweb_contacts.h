@@ -47,4 +47,6 @@ void skypeweb_buddy_unblock(PurpleConnection *pc, const char *name);
 
 gboolean skypeweb_check_authrequests(SkypeWebAccount *sa);
 
+void skypeweb_set_mood_message(SkypeWebAccount *sa, const gchar *mood);
+
 #endif /* SKYPEWEB_CONTACTS_H */
