@@ -32,6 +32,7 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 		refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");
 	
 	if (refresh_token == NULL) {
+		purple_account_set_string(sa->account, "refresh-token", NULL);
 		if (g_strstr_len(url_text, len, "recaptcha_response_field")) {
 			purple_connection_error(sa->pc,
 									PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
@@ -49,6 +50,7 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	sa->skype_token = refresh_token;
 	
 	skypeweb_update_cookies(sa, url_text);
+	purple_account_set_string(sa->account, "refresh-token", g_hash_table_lookup(sa->cookie_table, "refresh-token"));
 	
 	skypeweb_do_all_the_things(sa);
 }
@@ -110,8 +112,8 @@ skypeweb_login_got_pie(PurpleUtilFetchUrlData *url_data, gpointer user_data, con
 			"BehaviorOverride: redirectAs404\r\n"
 			"Host: " SKYPEWEB_LOGIN_HOST "\r\n"
 			"Content-Type: application/x-www-form-urlencoded; charset=UTF-8\r\n"
-			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
-			strlen(postdata->str), postdata->str);
+			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%.*s\0",
+			postdata->len, postdata->len, postdata->str);
 	
 	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
 
@@ -189,8 +191,8 @@ skypeweb_login_got_t(PurpleUtilFetchUrlData *url_data, gpointer user_data, const
 			"BehaviorOverride: redirectAs404\r\n"
 			"Host: " SKYPEWEB_LOGIN_HOST "\r\n"
 			"Content-Type: application/x-www-form-urlencoded; charset=UTF-8\r\n"
-			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
-			strlen(postdata->str), postdata->str);
+			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%.*s\0",
+			postdata->len, postdata->len, postdata->str);
 	
 	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
 	
@@ -249,8 +251,8 @@ skypeweb_login_got_ppft(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 			"Host: login.live.com\r\n"
 			"Content-Type: application/x-www-form-urlencoded; charset=UTF-8\r\n"
 			"Cookie: MSPRequ=%s;MSPOK=%s;CkTst=%s;\r\n"
-			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%s",
-			msprequ_cookie, mspok_cookie, cktst_cookie, strlen(postdata->str), postdata->str);
+			"Content-Length: %" G_GSIZE_FORMAT "\r\n\r\n%.*s\0",
+			msprequ_cookie, mspok_cookie, cktst_cookie, postdata->len, postdata->len, postdata->str);
 	
 	skypeweb_fetch_url_request(sa, live_login_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_login_got_t, sa);
 	
@@ -280,4 +282,28 @@ void
 skypeweb_logout(SkypeWebAccount *sa)
 {
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_LOGIN_HOST, "/logout", NULL, NULL, NULL, TRUE);
+}
+
+
+
+void
+skypeweb_refresh_token_login(SkypeWebAccount *sa)
+{
+	PurpleAccount *account = sa->account;
+	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST;// "/login?client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
+	gchar *request;
+	
+	request = g_strdup_printf("GET /login?client_id=578134&redirect_uri=https%%3A%%2F%%2Fweb.skype.com HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Accept: */*\r\n"
+			"BehaviorOverride: redirectAs404\r\n"
+			"Host: " SKYPEWEB_LOGIN_HOST "\r\n"
+			"Cookie: refresh-token=%s\r\n\r\n",
+			purple_account_get_string(account, "refresh-token", ""));
+	
+	skypeweb_fetch_url_request(sa, login_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_login_did_auth, sa);
+
+	g_free(request);
+	
+	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
 }

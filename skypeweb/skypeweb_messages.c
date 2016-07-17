@@ -20,6 +20,7 @@
 #include "skypeweb_util.h"
 #include "skypeweb_connection.h"
 #include "skypeweb_contacts.h"
+#include "skypeweb_login.h"
 
 static gboolean
 skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username) {
@@ -1034,9 +1035,13 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	expires = skypeweb_string_get_chunk(url_text, len, "expires=", ";");
 	
 	if (registration_token == NULL) {
-		purple_connection_error (sa->pc,
-								PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-								_("Failed getting Registration Token"));
+		if (purple_account_get_string(sa->account, "refresh-token", NULL)) {
+			skypeweb_refresh_token_login(sa);
+		} else {
+			purple_connection_error (sa->pc,
+									PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+									_("Failed getting Registration Token"));
+		}
 		return;
 	}
 	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
