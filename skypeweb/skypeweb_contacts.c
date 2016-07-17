@@ -958,7 +958,7 @@ skypeweb_search_users_text(gpointer user_data, const gchar *text)
 	g_string_append_printf(url, "searchstring=%s&", purple_url_encode(text));
 	g_string_append(url, "requestId=1&");
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, "skypegraph.skype.com", url->str, NULL, skypeweb_search_users_text_cb, g_strdup(text), FALSE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_GRAPH_HOST, url->str, NULL, skypeweb_search_users_text_cb, g_strdup(text), FALSE);
 	
 	g_string_free(url, TRUE);
 }
