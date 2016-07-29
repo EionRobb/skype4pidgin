@@ -45,7 +45,7 @@ On Arch Linux package available in [Community](https://wiki.archlinux.org/index.
 
 openSUSE
 --------
-On openSUSE you can install the [package](https://software.opensuse.org/package/skype4pidgin) using
+On openSUSE you can install the [package](https://software.opensuse.org/package/pidgin-plugin-skypeweb) using
 ```
 	sudo zypper in pidgin-plugin-skypeweb
 ```
