@@ -43,6 +43,13 @@ On Arch Linux package available in [Community](https://wiki.archlinux.org/index.
 	sudo pacman -S purple-skypeweb
 ```
 
+openSUSE
+--------
+On openSUSE you can install the [package](https://software.opensuse.org/package/skype4pidgin) using
+```
+	sudo zypper in pidgin-plugin-skypeweb
+```
+
 Compiling
 ---------
 Requires devel headers/libs for libpurple and libjson-glib [libglib2.0-dev, libjson-glib-dev and libpurple-dev]
