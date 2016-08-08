@@ -1185,6 +1185,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		gboolean authorized = json_object_get_boolean_member(contact, "authorized");
 		gboolean blocked = json_object_get_boolean_member(contact, "blocked");
 		const gchar *type = json_object_get_string_member(contact, "type");
+		const gchar *mood = json_object_get_string_member(contact, "mood");
 		
 		JsonObject *name = json_object_get_object_member(contact, "name");
 		const gchar *firstname = json_object_get_string_member(name, "first");
@@ -1230,6 +1231,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		sbuddy->authorized = authorized;
 		sbuddy->blocked = blocked;
 		sbuddy->avatar_url = g_strdup(purple_buddy_icons_get_checksum_for_user(buddy));
+		sbuddy->mood = g_strdup(mood);
 		
 		sbuddy->buddy = buddy;
 		purple_buddy_set_protocol_data(buddy, sbuddy);
