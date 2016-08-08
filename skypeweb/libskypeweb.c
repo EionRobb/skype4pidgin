@@ -320,12 +320,17 @@ skypeweb_login(PurpleAccount *account)
 	sa->sent_messages_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sa->waiting_conns = g_queue_new();
 	sa->messages_host = g_strdup(SKYPEWEB_DEFAULT_MESSAGES_HOST);
+	sa->url_datas = NULL;
 	
-	if(strchr(purple_account_get_username(account), '@')) {
-		//Has an email address for a username, probably a microsoft account?
-		skypeweb_begin_oauth_login(sa);
+	if (purple_account_get_string(account, "refresh-token", NULL)) {
+		skypeweb_refresh_token_login(sa);
 	} else {
-		skypeweb_begin_web_login(sa);
+		if (strchr(purple_account_get_username(account), '@')) {
+			//Has an email address for a username, probably a microsoft account?
+			skypeweb_begin_oauth_login(sa);
+		} else {
+			skypeweb_begin_web_login(sa);
+		}
 	}
 	
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
