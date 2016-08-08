@@ -250,7 +250,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_MAX_MSG_RETRY 2
 
 #define SKYPEWEB_PLUGIN_ID "prpl-skypeweb"
-#define SKYPEWEB_PLUGIN_VERSION "1.2"
+#define SKYPEWEB_PLUGIN_VERSION "1.2.1"
 
 #define SKYPEWEB_LOCKANDKEY_APPID "msmsgs@msnmsgr.com"
 #define SKYPEWEB_LOCKANDKEY_SECRET "Q1P7W2E4J9R8U3S5"
