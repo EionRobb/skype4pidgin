@@ -334,6 +334,7 @@ skypeweb_login(PurpleAccount *account)
 	}
 	
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
+	purple_signal_connect(purple_conversations_get_handle(), "chat-conversation-typing", account, PURPLE_CALLBACK(skypeweb_conv_send_typing), sa);
 }
 
 static void

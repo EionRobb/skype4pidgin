@@ -1100,6 +1100,30 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 
 
 
+guint
+skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state, SkypeWebAccount *sa)
+{
+	gchar *post, *url;
+	JsonObject *obj;
+	
+	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(purple_conversation_get_name(conv)));
+	
+	obj = json_object_new();
+	json_object_set_int_member(obj, "clientmessageid", time(NULL));
+	json_object_set_string_member(obj, "content", "");
+	json_object_set_string_member(obj, "messagetype", state == PURPLE_IM_TYPING ? "Control/Typing" : "Control/ClearTyping");
+	json_object_set_string_member(obj, "contenttype", "text");
+	
+	post = skypeweb_jsonobj_to_string(obj);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+	
+	g_free(post);
+	json_object_unref(obj);
+	g_free(url);
+	
+	return 5;
+}
 
 guint
 skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleIMTypingState state)
