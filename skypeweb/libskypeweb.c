@@ -325,12 +325,7 @@ skypeweb_login(PurpleAccount *account)
 	if (purple_account_get_string(account, "refresh-token", NULL)) {
 		skypeweb_refresh_token_login(sa);
 	} else {
-		if (strchr(purple_account_get_username(account), '@')) {
-			//Has an email address for a username, probably a microsoft account?
-			skypeweb_begin_oauth_login(sa);
-		} else {
-			skypeweb_begin_web_login(sa);
-		}
+		skypeweb_begin_oauth_login(sa);
 	}
 	
 	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
