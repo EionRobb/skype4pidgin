@@ -322,7 +322,7 @@ skypeweb_login(PurpleAccount *account)
 	sa->messages_host = g_strdup(SKYPEWEB_DEFAULT_MESSAGES_HOST);
 	sa->url_datas = NULL;
 	
-	if (purple_account_get_string(account, "refresh-token", NULL)) {
+	if (purple_account_get_string(account, "refresh-token", NULL) && purple_account_get_remember_password(account)) {
 		skypeweb_refresh_token_login(sa);
 	} else {
 		skypeweb_begin_oauth_login(sa);

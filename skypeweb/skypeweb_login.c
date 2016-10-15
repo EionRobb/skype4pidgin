@@ -50,7 +50,9 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	sa->skype_token = refresh_token;
 	
 	skypeweb_update_cookies(sa, url_text);
-	purple_account_set_string(sa->account, "refresh-token", g_hash_table_lookup(sa->cookie_table, "refresh-token"));
+	if (purple_account_get_remember_password(sa->account)) {
+		purple_account_set_string(sa->account, "refresh-token", g_hash_table_lookup(sa->cookie_table, "refresh-token"));
+	}
 	
 	skypeweb_do_all_the_things(sa);
 }
