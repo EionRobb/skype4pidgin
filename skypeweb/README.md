@@ -7,6 +7,7 @@ Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/re
 
 Change Log
 ----------
+  * 1.2.2 - Fixes non-Live logins
   * 1.2.1 - Fixes support for Live logins again, fixes setting mood message setting, fixes friend search, hopefully less disconnects
   * 1.2 - Adds support for libpurple 2.11.0, allows setting "mood" messages
   * 1.1 - Support file transfers, fix for Live logins, fix for other crashes
