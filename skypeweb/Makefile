@@ -1,5 +1,6 @@
 CC	?= cc
 CFLAGS	?= -O2 -g -pipe
+LDFLAGS ?= -Wl,-z,relro
 PKG_CONFIG  ?= pkg-config
 
 DIR_PERM	= 0755
@@ -41,4 +42,4 @@ clean:
 	rm -f libskypeweb.so
 
 $(PRPL_NAME): $(SKYPEWEB_SOURCES)
-	$(CC) -Wall -I. -fPIC $(CFLAGS) $(SKYPEWEB_SOURCES) -o $@ $(LIBPURPLE_CFLAGS) $(LIBPURPLE_LIBS) -shared
+	$(CC) -Wall -I. -fPIC $(CFLAGS) $(SKYPEWEB_SOURCES) -o $@ $(LIBPURPLE_CFLAGS) $(LDFLAGS) $(LIBPURPLE_LIBS) -shared
