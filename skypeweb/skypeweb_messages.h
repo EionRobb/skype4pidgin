@@ -25,7 +25,7 @@ gint skypeweb_send_im(PurpleConnection *pc, const gchar *who, const gchar *msg, 
 gint skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMessageFlags flags);
 void skypeweb_set_idle(PurpleConnection *pc, int time);
 void skypeweb_set_status(PurpleAccount *account, PurpleStatus *status);
-guint skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state, SkypeWebAccount *sa);
+guint skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state);
 guint skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleIMTypingState state);
 void skypeweb_poll(SkypeWebAccount *sa);
 void skypeweb_get_registration_token(SkypeWebAccount *sa);

@@ -118,6 +118,7 @@
 	#define purple_connection_set_protocol_data(pc, data) ((pc)->proto_data = (data))
 	#define purple_connection_set_flags(pc, flags) (pc->flags = flags)
 	#define purple_connection_get_flags(pc) (pc->flags)
+	#define purple_connection_get_protocol purple_connection_get_prpl
 	#define purple_conversation_present_error purple_conv_present_error
 	#define purple_account_privacy_check purple_privacy_check
 	#define purple_account_get_private_alias purple_account_get_alias
@@ -154,6 +155,7 @@
 	#define purple_chat_conversation_add_user purple_conv_chat_add_user
 	#define purple_chat_conversation_remove_user purple_conv_chat_remove_user
 	#define purple_chat_conversation_clear_users purple_conv_chat_clear_users
+	#define purple_protocol_get_id purple_plugin_get_id
 	#define purple_chat_conversation_get_id purple_conv_chat_get_id
 	#define purple_protocol_got_user_status purple_prpl_got_user_status
 	#define purple_protocol_got_user_idle purple_prpl_got_user_idle

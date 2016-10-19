@@ -290,6 +290,9 @@ skypeweb_node_menu(PurpleBlistNode *node)
 	return m;
 }
 
+static gulong conversation_updated_signal = 0;
+static gulong chat_conversation_typing_signal = 0;
+
 static void
 skypeweb_login(PurpleAccount *account)
 {
@@ -328,8 +331,12 @@ skypeweb_login(PurpleAccount *account)
 		skypeweb_begin_oauth_login(sa);
 	}
 	
-	purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
-	purple_signal_connect(purple_conversations_get_handle(), "chat-conversation-typing", account, PURPLE_CALLBACK(skypeweb_conv_send_typing), sa);
+	if (!conversation_updated_signal) {
+		conversation_updated_signal = purple_signal_connect(purple_conversations_get_handle(), "conversation-updated", purple_connection_get_protocol(pc), PURPLE_CALLBACK(skypeweb_mark_conv_seen), NULL);
+	}
+	if (!chat_conversation_typing_signal) {
+		chat_conversation_typing_signal = purple_signal_connect(purple_conversations_get_handle(), "chat-conversation-typing", purple_connection_get_protocol(pc), PURPLE_CALLBACK(skypeweb_conv_send_typing), NULL);
+	}
 }
 
 static void
@@ -348,7 +355,6 @@ skypeweb_close(PurpleConnection *pc)
 	purple_timeout_remove(sa->watchdog_timeout);
 
 	skypeweb_logout(sa);
-	purple_signal_disconnect(purple_conversations_get_handle(), "conversation-updated", pc, PURPLE_CALLBACK(skypeweb_mark_conv_seen));
 	purple_debug_info("skypeweb", "destroying %d waiting connections\n",
 					  g_queue_get_length(sa->waiting_conns));
 	
@@ -667,6 +673,7 @@ plugin_unload(PurplePlugin *plugin
 	if (!purple_protocols_remove(skypeweb_protocol, error))
 		return FALSE;
 #endif
+	purple_signals_disconnect_by_handle(plugin);
 	
 	return TRUE;
 }

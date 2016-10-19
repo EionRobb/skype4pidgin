@@ -661,6 +661,9 @@ skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType t
 	if (!PURPLE_CONNECTION_IS_CONNECTED(pc))
 		return;
 	
+	if (g_strcmp0(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
+		return;
+	
 	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN) {
 		gchar *last_skypeweb_id = purple_conversation_get_data(conv, "last_skypeweb_id");
 		
@@ -1101,10 +1104,18 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 
 
 guint
-skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state, SkypeWebAccount *sa)
+skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state)
 {
+	PurpleConnection *pc = purple_conversation_get_connection(conv);
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *post, *url;
 	JsonObject *obj;
+	
+	if (!PURPLE_CONNECTION_IS_CONNECTED(pc))
+		return 0;
+	
+	if (g_strcmp0(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
+		return 0;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(purple_conversation_get_name(conv)));
 	
