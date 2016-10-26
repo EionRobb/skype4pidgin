@@ -270,6 +270,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 
 #define SKYPEWEB_BUDDY_IS_MSN(a) G_UNLIKELY((a) != NULL && strchr((a), '@') != NULL)
 #define SKYPEWEB_BUDDY_IS_PHONE(a) G_UNLIKELY((a) != NULL && *(a) == '+')
+#define SKYPEWEB_BUDDY_IS_S4B(a) G_UNLIKELY((a) != NULL && g_str_has_prefix((a), "2:"))
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;
