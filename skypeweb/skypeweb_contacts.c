@@ -1293,8 +1293,8 @@ skypeweb_auth_accept_cb(gpointer sender)
 	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
 	buddy_name = g_strdup(purple_buddy_get_name(buddy));
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/accept", purple_url_encode(buddy_name));
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
+	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s/accept", purple_url_encode(buddy_name));
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	g_free(url);
 	
 	// Subscribe to status/message updates
@@ -1313,9 +1313,9 @@ skypeweb_auth_reject_cb(gpointer sender)
 	
 	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
 	
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s/decline", purple_url_encode(purple_buddy_get_name(buddy)));
+	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s/decline", purple_url_encode(purple_buddy_get_name(buddy)));
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
 }
@@ -1323,19 +1323,33 @@ skypeweb_auth_reject_cb(gpointer sender)
 static void
 skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
-	JsonArray *requests;
+	JsonObject *requests;
+	JsonArray *invite_list;
 	guint index, length;
 	time_t latest_timestamp = 0;
 	
-	requests = json_node_get_array(node);
-	length = json_array_get_length(requests);
+	/* {
+	"invite_list": [{
+		"mri": "2:daniel.soderlund@lindab.com",
+		"invites": [{
+			"time": "2016-10-26T07:14:52.653Z"
+		}],
+		"displayname": "Söderlund, Daniel"
+	}]
+} */
+	
+	requests = json_node_get_object(node);
+	invite_list = json_object_get_array_member(requests, "invite_list");
+	length = json_array_get_length(invite_list);
 	for(index = 0; index < length; index++)
 	{
-		JsonObject *request = json_array_get_object_element(requests, index);
-		const gchar *event_time_iso = json_object_get_string_member(request, "event_time_iso");
-		const gchar *sender = json_object_get_string_member(request, "sender");
-		const gchar *greeting = json_object_get_string_member(request, "greeting");
+		JsonObject *invite = json_array_get_object_element(invite_list, index);
+		JsonArray *invites = json_object_get_array_member(invite, "invites");
+		const gchar *event_time_iso = json_object_get_string_member(json_array_get_object_element(invites, 0), "time");
 		time_t event_timestamp = purple_str_to_time(event_time_iso, TRUE, NULL, NULL, NULL);
+		const gchar *sender = json_object_get_string_member(invite, "mri");
+		const gchar *greeting = json_object_get_string_member(invite, "greeting");
+		const gchar *displayname = json_object_get_string_member(invite, "displayname");
 		
 		latest_timestamp = MAX(latest_timestamp, event_timestamp);
 		if (sa->last_authrequest && event_timestamp <= sa->last_authrequest)
@@ -1343,8 +1357,8 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 		
 		purple_account_request_authorization(
 				sa->account, sender, NULL,
-				NULL, greeting, FALSE,
-				skypeweb_auth_accept_cb, skypeweb_auth_reject_cb, purple_buddy_new(sa->account, sender, NULL));
+				displayname, greeting, FALSE,
+				skypeweb_auth_accept_cb, skypeweb_auth_reject_cb, purple_buddy_new(sa->account, sender, displayname));
 		
 	}
 	
@@ -1354,7 +1368,7 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 gboolean
 skypeweb_check_authrequests(SkypeWebAccount *sa)
 {
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/contacts/auth-request", NULL, skypeweb_got_authrequests, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, "/contacts/v2/users/SELF/invites", NULL, skypeweb_got_authrequests, NULL, TRUE);
 	return TRUE;
 }
 
