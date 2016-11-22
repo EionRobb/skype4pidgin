@@ -28,8 +28,13 @@ skypeweb_login_did_auth(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 	
 	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
 	
-	if (url_text != NULL)
+	if (url_text != NULL) {
 		refresh_token = skypeweb_string_get_chunk(url_text, len, "=\"skypetoken\" value=\"", "\"");
+	} else {
+		purple_connection_error(sa->pc,
+								PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
+								_("Failed getting Skype Token"));
+	}
 	
 	if (refresh_token == NULL) {
 		purple_account_set_string(sa->account, "refresh-token", NULL);
