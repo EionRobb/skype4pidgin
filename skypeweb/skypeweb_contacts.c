@@ -1273,6 +1273,8 @@ skypeweb_get_friend_list(SkypeWebAccount *sa)
 		return;
 	}
 	
+	//https://contacts.skype.com/contacts/v2/users/SELF?delta=&reason=default
+	
 	url = g_strdup_printf("/contacts/v1/users/%s/contacts", purple_url_encode(sa->username));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, skypeweb_get_friend_list_cb, NULL, TRUE);
 	
@@ -1328,16 +1330,6 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	guint index, length;
 	time_t latest_timestamp = 0;
 	
-	/* {
-	"invite_list": [{
-		"mri": "2:daniel.soderlund@lindab.com",
-		"invites": [{
-			"time": "2016-10-26T07:14:52.653Z"
-		}],
-		"displayname": "Söderlund, Daniel"
-	}]
-} */
-	
 	requests = json_node_get_object(node);
 	invite_list = json_object_get_array_member(requests, "invite_list");
 	length = json_array_get_length(invite_list);
@@ -1380,6 +1372,9 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 	gchar *url, *postdata;
 	GSList *users_to_fetch;
 	gchar *buddy_name;
+	
+	//https://contacts.skype.com/contacts/v2/users/bigbrownchunx/contacts
+	// POST {"mri":"2:eionrobb@dequis.onmicrosoft.com","greeting":"Hi, eionrobb@dequis.onmicrosoft.com, I'd like to add you as a contact."}
 	
 	buddy_name = g_strdup(purple_buddy_get_name(buddy));
 	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(buddy_name));
