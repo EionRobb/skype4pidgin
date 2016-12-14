@@ -40,3 +40,4 @@ skypeweb_fetch_url_request(SkypeWebAccount *sa,
 void skypeweb_url_prevent_follow_redirects(PurpleUtilFetchUrlData *requestdata);
 
 const gchar *skypeweb_user_url_prefix(const gchar *who);
+const gchar *skypeweb_strip_user_prefix(const gchar *who);

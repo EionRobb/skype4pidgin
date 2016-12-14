@@ -1206,6 +1206,29 @@ skypeweb_set_idle(PurpleConnection *pc, int time)
 
 
 static void
+skypeweb_sent_message_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	gchar *convname = user_data;
+	JsonObject *obj = NULL;
+	
+	if (node != NULL && json_node_get_node_type(node) == JSON_NODE_OBJECT)
+		obj = json_node_get_object(node);
+	
+	if (obj != NULL) {
+		if (json_object_has_member(obj, "errorCode")) {
+			PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, convname, sa->account);
+			if (conv == NULL) {
+				purple_conv_present_error(skypeweb_strip_user_prefix(convname), sa->account, json_object_get_string_member(obj, "message"));
+			} else {
+				purple_conversation_write(conv, NULL, json_object_get_string_member(obj, "message"), PURPLE_MESSAGE_ERROR, time(NULL));
+			}
+		}
+	}
+	
+	g_free(convname);
+}
+
+static void
 skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *message)
 {
 	gchar *post, *url;
@@ -1238,7 +1261,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	
 	post = skypeweb_jsonobj_to_string(obj);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, skypeweb_sent_message_cb, g_strdup(convname), TRUE);
 	
 	g_free(post);
 	json_object_unref(obj);

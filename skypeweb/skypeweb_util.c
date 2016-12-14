@@ -404,3 +404,15 @@ skypeweb_user_url_prefix(const gchar *who)
 		return "8:";
 	}
 }
+
+const gchar *
+skypeweb_strip_user_prefix(const gchar *who)
+{
+	if (who[1] == ':') {
+		if (who[0] != '2') {
+			return who + 2;
+		}
+	}
+	
+	return who;
+}
