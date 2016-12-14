@@ -1217,7 +1217,7 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 			purple_blist_add_buddy(buddy, NULL, group, NULL);
 		}
 		
-		if (json_object_has_member(name, "surname"))
+		if (name && json_object_has_member(name, "surname"))
 			surname = json_object_get_string_member(name, "surname");
 
 		// try to free the sbuddy here. no-op if it's not set before, otherwise prevents a leak.
