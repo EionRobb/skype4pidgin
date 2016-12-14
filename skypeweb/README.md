@@ -89,23 +89,23 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
 ```
 To install do:
 ```
-	sudo dpkg -i skypeweb-1.1.0-Linux.deb
+	sudo dpkg -i skypeweb-1.2.2-Linux.deb
 ```
 
 Building AUR package for Arch Linux
 ----------
-[AUR Package Site](https://aur.archlinux.org/packages/purple-skypeweb)
+[AUR Package Site](https://aur.archlinux.org/packages/purple-skypeweb-git)
 First you will need to get the [build deps](https://wiki.archlinux.org/index.php/Arch_User_Repository#Prerequisites) unless you already have them
 ```
 	sudo pacman -S --needed base-devel
 ```
-Next, clone the package's [AUR git repo](https://aur.archlinux.org/purple-skypeweb.git)
+Next, clone the package's [AUR git repo](https://aur.archlinux.org/purple-skypeweb-git.git)
 ```
-	git clone https://aur.archlinux.org/purple-skypeweb.git
+	git clone https://aur.archlinux.org/purple-skypeweb-git.git
 ```
 Finally, [build and install](https://wiki.archlinux.org/index.php/Arch_User_Repository#Build_and_install_the_package)
 ```
-	cd purple-skypeweb
+	cd purple-skypeweb-git
 	makepkg -sri
 ```
 

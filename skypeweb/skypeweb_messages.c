@@ -308,7 +308,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
-			PurpleIMConversation *imconv;
 			
 			skypeweb_download_uri_to_conv(sa, uri, conv);
 			purple_xmlnode_free(blob);
@@ -389,7 +388,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		} else if (g_str_equal(messagetype, "RichText/Media_GenericFile")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "uri");
-			PurpleIMConversation *imconv;
 			
 			if (!skypeweb_is_user_self(sa, from)) {
 				
