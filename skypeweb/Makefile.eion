@@ -2,7 +2,7 @@
 LINUX32_COMPILER = i686-pc-linux-gnu-gcc
 LINUX64_COMPILER = x86_64-pc-linux-gnu-gcc
 #WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
-WIN32_COMPILER = /home/Eion/win32-dev/mingw/bin/gcc.exe
+WIN32_COMPILER = /home/Eion/win32-dev/mingw-4.7.2/bin/gcc.exe
 WIN32_WINDRES = i586-mingw32-windres
 #WIN32_OBJCOPY = i586-mingw32-objcopy
 WIN32_OBJCOPY = objcopy.exe
@@ -16,7 +16,7 @@ MAKENSIS ?= "$(PROGRAMFILES)/NSIS/makensis.exe"
 LIBPURPLE_CFLAGS = -I/usr/include/libpurple -I/usr/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB
 GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include -I/usr/local/include -I/usr/include/json-glib-1.0 -ljson-glib-1.0
 WIN32_DEV_DIR = C:/cygwin/home/Eion/win32-dev
-WIN32_PIDGIN_DIR = C:/cygwin/home/Eion/pidgin-2.10.12
+WIN32_PIDGIN_DIR = C:/cygwin/home/Eion/pidgin-2.10.11
 WIN32_CFLAGS = -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include -I${WIN32_DEV_DIR}/gtk_2_0-2.14/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0-2.14/lib/glib-2.0/include -I${WIN32_DEV_DIR}/json-glib-0.8.0 -Wno-format -I${WIN32_PIDGIN_DIR}/libpurple -I${WIN32_DEV_DIR}/nss-3.12.5-nspr-4.8.2/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0-2.14/lib -L${WIN32_PIDGIN_DIR}/libpurple -L${WIN32_DEV_DIR}/nss-3.12.5-nspr-4.8.2/lib -lglib-2.0 -lgobject-2.0 -lintl -lpurple -lws2_32 -L. -ljson-glib-1.0 -lz -lnss3
 MACPORT_CFLAGS = -I/opt/local/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS -DHAVE_ZLIB -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include -I/opt/local/include -I/opt/local/include/json-glib-1.0 -arch i386 -arch ppc -dynamiclib -L/opt/local/lib -ljson-glib-1.0 -lpurple -lglib-2.0 -lgobject-2.0 -lintl -lz -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
@@ -38,7 +38,7 @@ SKYPEWEB_SOURCES = \
 all:	libskypeweb.dll
 
 install:	libskypeweb-debug.dll
-	cp libskypeweb-debug.dll "$(PROGRAMFILES)/Pidgin/plugins/"
+	install -p libskypeweb-debug.dll "$(PROGRAMFILES)/Pidgin/plugins/"
 
 installers:	libskypeweb.dll pidgin-skypeweb.nsi
 	$(MAKENSIS) "/DPIDGIN_VARIANT"="Pidgin" "/DPRODUCT_NAME"="pidgin-skypeweb" "/DINSTALLER_NAME"="pidgin-skypeweb-installer" "/DJSON_GLIB_DLL"="libjson-glib-1.0.dll" pidgin-skypeweb.nsi
