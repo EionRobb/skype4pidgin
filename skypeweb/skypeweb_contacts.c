@@ -1437,24 +1437,22 @@ skypeweb_buddy_unblock(PurpleConnection *pc, const char *name)
 void
 skypeweb_set_mood_message(SkypeWebAccount *sa, const gchar *mood)
 {
-	if (mood != NULL) {
-		JsonObject *obj, *payload;
-		gchar *post;
+	if (!mood) {return;}
+	
+	JsonObject *obj, *payload;
+	gchar *post;
 		
-		g_return_if_fail(mood);
+	g_return_if_fail(mood);
 		
-		obj = json_object_new();
-		payload = json_object_new();
+	obj = json_object_new();
+	payload = json_object_new();
 		
-		json_object_set_string_member(payload, "mood", mood);
-		json_object_set_object_member(obj, "payload", payload);
-		post = skypeweb_jsonobj_to_string(obj);
+	json_object_set_string_member(payload, "mood", mood);
+	json_object_set_object_member(obj, "payload", payload);
+	post = skypeweb_jsonobj_to_string(obj);
 		
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/profile/partial", post, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, "/users/self/profile/partial", post, NULL, NULL, TRUE);
 		
-		g_free(post);
-		json_object_unref(obj);
-	} else {
-		return;
-	}
+	g_free(post);
+	json_object_unref(obj);
 }
