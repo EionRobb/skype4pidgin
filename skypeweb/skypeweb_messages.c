@@ -222,9 +222,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			#else
 				purple_chat_user_set_flags(cb, cbflags);
 			#endif
-
-			//TODO if (skypeeditedid && *skypeeditedid) { ... }
-			(void) skypeeditedid;
 			
 			if (content && *content) {
 				if (g_str_equal(messagetype, "Text")) {
@@ -234,6 +231,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				} else {
 					html = skypeweb_meify(content, skypeemoteoffset);
 				}
+
+				if (skypeeditedid && *skypeeditedid) {
+					gchar *temp = g_strconcat(_("Edited: "), html, NULL);
+					g_free(html);
+					html = temp;
+				}
+				
 				purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, skypeweb_is_user_self(sa, from) ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, html, composetimestamp);
 						
 				g_free(html);
@@ -339,9 +343,6 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			if (json_object_has_member(resource, "skypeemoteoffset"))
 				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
 			
-			//TODO if (skypeeditedid && *skypeeditedid) { ... }
-			//TODO           if (!content)
-			
 			if (g_str_equal(messagetype, "Text")) {
 				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
 				html = purple_markup_escape_text(temp, -1);
@@ -349,6 +350,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} else {
 				html = skypeweb_meify(content, skypeemoteoffset);
 			}
+
+			if (skypeeditedid && *skypeeditedid) {
+				gchar *temp = g_strconcat(_("Edited: "), html, NULL);
+				g_free(html);
+				html = temp;
+			}
+			
 			if (skypeweb_is_user_self(sa, from)) {
 				if (!g_str_has_prefix(html, "?OTR")) {
 					imconv = purple_conversations_find_im_with_account(convbuddyname, sa->account);
