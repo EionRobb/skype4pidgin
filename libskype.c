@@ -78,9 +78,9 @@
 #include <mediamanager.h>
 gboolean skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSessionType type);
 PurpleMediaCaps skype_get_media_caps(PurpleAccount *account, const char *who);
-static void skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string);
-static void skype_handle_call_got_ended(char *callnumber_string);
-static void skype_send_call_end(char *callnumber_string);
+static void skype_handle_incoming_call(PurpleConnection *gc, const char *callnumber_string);
+static void skype_handle_call_got_ended(const char *callnumber_string);
+static void skype_send_call_end(const char *callnumber_string);
 
 static GHashTable *call_media_hash = NULL;
 
@@ -3351,7 +3351,7 @@ Have to sniff for video window/object, very platform dependant
 
 //our call to someone else got ended
 static void
-skype_handle_call_got_ended(char *callnumber_string)
+skype_handle_call_got_ended(const char *callnumber_string)
 {
 	PurpleMedia *media;
 	
@@ -3369,7 +3369,7 @@ skype_handle_call_got_ended(char *callnumber_string)
 
 //called when the user accepts an incomming call from the ui
 static void 
-skype_send_call_accept(char *callnumber_string)
+skype_send_call_accept(const char *callnumber_string)
 {
 	char *temp;
 	
@@ -3385,7 +3385,7 @@ skype_send_call_accept(char *callnumber_string)
 
 //called when the user rejects an incomming call from the ui
 static void 
-skype_send_call_reject(char *callnumber_string)
+skype_send_call_reject(const char *callnumber_string)
 {
 	if (!callnumber_string || !strlen(callnumber_string))
 		return;
@@ -3394,7 +3394,7 @@ skype_send_call_reject(char *callnumber_string)
 
 //called when the user ends a call from the ui
 static void 
-skype_send_call_end(char *callnumber_string)
+skype_send_call_end(const char *callnumber_string)
 {
 	if (!callnumber_string || !strlen(callnumber_string))
 		return;
@@ -3403,7 +3403,7 @@ skype_send_call_end(char *callnumber_string)
 
 //purple_smarshal_VOID__ENUM_STRING_STRING
 static void
-skype_media_state_changed(PurpleMedia *media, PurpleMediaState state, gchar *session_id, gchar *participant, gchar *callnumber_string)
+skype_media_state_changed(PurpleMedia *media, PurpleMediaState state, gchar *session_id, gchar *participant, const gchar *callnumber_string)
 {
 	if (state == PURPLE_MEDIA_STATE_END)
 	{
@@ -3413,7 +3413,7 @@ skype_media_state_changed(PurpleMedia *media, PurpleMediaState state, gchar *ses
 
 static void
 skype_stream_info_changed(PurpleMedia *media, PurpleMediaInfoType type, gchar *session_id, gchar *participant, gboolean local,
-		gchar *callnumber_string)
+		const gchar *callnumber_string)
 {
 	if (type == PURPLE_MEDIA_INFO_ACCEPT) {
 		skype_send_call_accept(callnumber_string);
@@ -3430,7 +3430,6 @@ skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSession
 {
 	PurpleMedia *media;
 	gchar *temp;
-	gchar *callnumber_string;
 	
 	if (call_media_hash == NULL)
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
@@ -3444,11 +3443,13 @@ skype_media_initiate(PurpleAccount *account, const char *who, PurpleMediaSession
 		g_free(temp);
 		return FALSE;
 	}
-	callnumber_string = g_new(gchar, 10+1);
-	sscanf(temp, "CALL %s ", callnumber_string);
-	
 	if (media != NULL)
 	{
+		gchar *callnumber_string;
+
+		callnumber_string = g_new(gchar, 10+1);
+		sscanf(temp, "CALL %s ", callnumber_string);
+
 		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
 
@@ -3481,7 +3482,7 @@ skype_get_media_caps(PurpleAccount *account, const char *who)
 
 //there's an incoming call... deal with it
 static void
-skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
+skype_handle_incoming_call(PurpleConnection *gc, const char *callnumber_str)
 {
 	PurpleMedia *media;
 	gchar *temp;
@@ -3491,7 +3492,7 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 	{
 		call_media_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	} else {
-		media = g_hash_table_lookup(call_media_hash, callnumber_string);
+		media = g_hash_table_lookup(call_media_hash, callnumber_str);
 		if (media != NULL)
 		{
 			//we've already dealt with this
@@ -3499,17 +3500,19 @@ skype_handle_incoming_call(PurpleConnection *gc, char *callnumber_string)
 		}
 	}
 	
-	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_string);
+	temp = skype_send_message("GET CALL %s PARTNER_HANDLE", callnumber_str);
 	if (!temp || !strlen(temp))
 		return;
 	
-	who = g_strdup(&temp[21+strlen(callnumber_string)]);
+	who = g_strdup(&temp[21+strlen(callnumber_str)]);
 	g_free(temp);
 	
 	media = purple_media_manager_create_media(purple_media_manager_get(), purple_connection_get_account(gc), "fsrtpconference", who, FALSE);
 	
 	if (media != NULL)
 	{
+		gchar *callnumber_string = g_strdup(callnumber_str);
+
 		purple_media_set_prpl_data(media, callnumber_string);
 		g_hash_table_insert(call_media_hash, callnumber_string, media);
 		
