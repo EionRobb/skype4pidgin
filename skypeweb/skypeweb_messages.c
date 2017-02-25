@@ -484,6 +484,18 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 
 			purple_xmlnode_free(partlist);
+		} else if (g_str_equal(messagetype, "Signal/Flamingo")) {
+			const gchar *message = NULL;
+
+			if (skypeweb_is_user_self(sa, from)) {
+				from = convbuddyname;
+			}
+
+			if (from != NULL) {
+				message = _("Unsupported call received");
+
+				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
+			}
 		} else if (g_str_equal(messagetype, "RichText/Files")) {
 			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
 		} else {
