@@ -496,6 +496,24 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 
 				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}
+		} else if (g_str_equal(messagetype, "RichText/Contacts")) {
+			PurpleXmlNode *contacts = purple_xmlnode_from_str(content, -1);
+			PurpleXmlNode *contact;
+
+			for(contact = purple_xmlnode_get_child(contacts, "c"); contact;
+				contact = purple_xmlnode_get_next_twin(contact))
+			{
+				const gchar *contact_id = purple_xmlnode_get_attrib(contact, "s");
+				const gchar *contact_name = purple_xmlnode_get_attrib(contact, "f");
+
+				gchar *message = g_strdup_printf(_("The user sent a contact: %s"), contact_id); 
+
+				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
+
+				g_free(message);
+			}
+
+			skypeweb_received_contacts(sa, contacts);
 		} else if (g_str_equal(messagetype, "RichText/Files")) {
 			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
 		} else {

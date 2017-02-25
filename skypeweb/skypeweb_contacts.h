@@ -32,6 +32,8 @@ gboolean skypeweb_can_receive_file(PurpleConnection *pc, const gchar *who);
 
 void skypeweb_search_users(PurplePluginAction *action);
 
+void skypeweb_received_contacts(SkypeWebAccount *sa, PurpleXmlNode *contacts);
+
 void skypeweb_get_friend_profiles(SkypeWebAccount *sa, GSList *contacts);
 void skypeweb_get_friend_profile(SkypeWebAccount *sa, const gchar *who);
 
