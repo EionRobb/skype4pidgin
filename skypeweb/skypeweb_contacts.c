@@ -186,6 +186,36 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	purple_conversation_write(conv, conv->name, text, PURPLE_MESSAGE_SYSTEM, time(NULL));
 }
 
+void
+skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gchar *url_thumbnail, PurpleConversation *conv)
+{
+	gchar *headers, *cdn_url_thumbnail;
+	gpointer requestdata;
+	PurpleHttpURL *httpurl;
+
+	httpurl = purple_http_url_parse(url_thumbnail);
+
+	cdn_url_thumbnail = g_strdup_printf("https://%s/%s", SKYPEWEB_STATIC_CDN_HOST, purple_http_url_get_path(httpurl));
+
+	headers = g_strdup_printf("GET /%s HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Accept: image/*\r\n"
+			"Cookie: vdms-skype-token=%s\r\n"
+			"Host: %s\r\n"
+			"\r\n",
+			purple_http_url_get_path(httpurl), sa->vdms_token, 
+			SKYPEWEB_STATIC_CDN_HOST);
+
+	requestdata = skypeweb_fetch_url_request(sa, cdn_url_thumbnail, TRUE, NULL, FALSE, headers, FALSE, -1, skypeweb_got_imagemessage, conv);
+
+	skypeweb_url_prevent_follow_redirects(requestdata);
+	
+	purple_conversation_write(conv, conv->name, text, PURPLE_MESSAGE_SYSTEM, time(NULL));
+
+	g_free(headers);
+	g_free(cdn_url_thumbnail);
+	purple_http_url_free(httpurl);
+}
 
 static void
 skypeweb_got_vm_file(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)

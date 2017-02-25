@@ -26,6 +26,8 @@
 void
 skypeweb_do_all_the_things(SkypeWebAccount *sa)
 {
+	skypeweb_get_vdms_token(sa);
+	
 	if (!sa->username) {
 		skypeweb_get_self_details(sa);
 	} else
@@ -48,6 +50,8 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 		//Too soon!
 		skypeweb_get_registration_token(sa);
 	}
+
+
 }
 
 
