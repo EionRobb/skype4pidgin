@@ -875,6 +875,44 @@ skypeweb_search_results_add_buddy(PurpleConnection *pc, GList *row, void *user_d
 }
 
 void
+skypeweb_received_contacts(SkypeWebAccount *sa, PurpleXmlNode *contacts)
+{
+	PurpleNotifySearchResults *results;
+	PurpleNotifySearchColumn *column;
+
+	PurpleXmlNode *contact;
+	
+	results = purple_notify_searchresults_new();
+	if (results == NULL) {
+		return;
+	}
+		
+	/* columns: Friend ID, Name, Network */
+	column = purple_notify_searchresults_column_new(_("Skype Name"));
+	purple_notify_searchresults_column_add(results, column);
+	column = purple_notify_searchresults_column_new(_("Display Name"));
+	purple_notify_searchresults_column_add(results, column);
+
+	
+	purple_notify_searchresults_button_add(results,
+			PURPLE_NOTIFY_BUTTON_ADD,
+			skypeweb_search_results_add_buddy);
+	
+	for(contact = purple_xmlnode_get_child(contacts, "c"); contact;
+		contact = purple_xmlnode_get_next_twin(contact))
+	{
+		GList *row = NULL;
+
+		row = g_list_prepend(row, g_strdup(purple_xmlnode_get_attrib(contact, "f")));
+		row = g_list_prepend(row, g_strdup(purple_xmlnode_get_attrib(contact, "s")));
+
+		purple_notify_searchresults_row_add(results, row);
+	}
+	
+	purple_notify_searchresults(sa->pc, _("Recived contacts"), NULL, NULL, results, NULL, NULL);
+}
+
+void
 skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 {
 	JsonObject *response = NULL;
