@@ -514,6 +514,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 
 			skypeweb_received_contacts(sa, contacts);
+			purple_xmlnode_free(contacts);
 		} else if (g_str_equal(messagetype, "RichText/Files")) {
 			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
 		} else {

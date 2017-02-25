@@ -887,7 +887,7 @@ skypeweb_received_contacts(SkypeWebAccount *sa, PurpleXmlNode *contacts)
 		return;
 	}
 		
-	/* columns: Friend ID, Name, Network */
+	/* columns: Friend ID, Name */
 	column = purple_notify_searchresults_column_new(_("Skype Name"));
 	purple_notify_searchresults_column_add(results, column);
 	column = purple_notify_searchresults_column_new(_("Display Name"));
@@ -903,13 +903,16 @@ skypeweb_received_contacts(SkypeWebAccount *sa, PurpleXmlNode *contacts)
 	{
 		GList *row = NULL;
 
-		row = g_list_prepend(row, g_strdup(purple_xmlnode_get_attrib(contact, "f")));
-		row = g_list_prepend(row, g_strdup(purple_xmlnode_get_attrib(contact, "s")));
+		gchar *contact_id = g_strdup(purple_xmlnode_get_attrib(contact, "s"));
+		gchar *contact_name = g_strdup(purple_xmlnode_get_attrib(contact, "f"));
+
+		row = g_list_append(row, contact_id);
+		row = g_list_append(row, contact_name);
 
 		purple_notify_searchresults_row_add(results, row);
 	}
 	
-	purple_notify_searchresults(sa->pc, _("Recived contacts"), NULL, NULL, results, NULL, NULL);
+	purple_notify_searchresults(sa->pc, _("Received contacts"), NULL, NULL, results, NULL, NULL);
 }
 
 void
