@@ -437,44 +437,52 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				(void) incoming;
 				from = convbuddyname;
 			}
-			if (partlisttype && from != NULL) {
-				imconv = purple_conversations_find_im_with_account(from, sa->account);
-				if (imconv == NULL)
-				{
-					imconv = purple_im_conversation_new(sa->account, from);
-				}
-				
-				conv = PURPLE_CONVERSATION(imconv);
-				if (g_str_equal(partlisttype, "started")) {
-					message = _("Call started");
-				} else if (g_str_equal(partlisttype, "ended")) {
-					PurpleXmlNode *part;
-					gint duration_int = -1;
-					
-					for(part = purple_xmlnode_get_child(partlist, "part");
-						part;
-						part = purple_xmlnode_get_next_twin(part))
+
+			if (from != NULL) {
+				if (partlisttype) {
+					imconv = purple_conversations_find_im_with_account(from, sa->account);
+					if (imconv == NULL)
 					{
-						const gchar *identity = purple_xmlnode_get_attrib(part, "identity");
-						if (identity && skypeweb_is_user_self(sa, identity)) {
-							PurpleXmlNode *duration = purple_xmlnode_get_child(part, "duration");
-							if (duration != NULL) {
-								gchar *duration_str;
-								duration_str = purple_xmlnode_get_data(duration);
-								duration_int = atoi(duration_str);
-								break;
+						imconv = purple_im_conversation_new(sa->account, from);
+					}
+					
+					conv = PURPLE_CONVERSATION(imconv);
+					if (g_str_equal(partlisttype, "started")) {
+						message = _("Call started");
+					} else if (g_str_equal(partlisttype, "ended")) {
+						PurpleXmlNode *part;
+						gint duration_int = -1;
+						
+						for(part = purple_xmlnode_get_child(partlist, "part");
+							part;
+							part = purple_xmlnode_get_next_twin(part))
+						{
+							const gchar *identity = purple_xmlnode_get_attrib(part, "identity");
+							if (identity && skypeweb_is_user_self(sa, identity)) {
+								PurpleXmlNode *duration = purple_xmlnode_get_child(part, "duration");
+								if (duration != NULL) {
+									gchar *duration_str;
+									duration_str = purple_xmlnode_get_data(duration);
+									duration_int = atoi(duration_str);
+									break;
+								}
 							}
 						}
-					}
-					if (duration_int < 0) {
-						message = _("Call missed");
-					} else {
-						//TODO report how long the call was
-						message = _("Call ended");
+						if (duration_int < 0) {
+							message = _("Call missed");
+						} else {
+							//TODO report how long the call was
+							message = _("Call ended");
+						}
 					}
 				}
+				else {
+					message = _("Unsupported call received");
+				}
+
 				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 			}
+
 			purple_xmlnode_free(partlist);
 		} else if (g_str_equal(messagetype, "RichText/Files")) {
 			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
