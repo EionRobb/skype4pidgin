@@ -27,7 +27,7 @@ void
 skypeweb_do_all_the_things(SkypeWebAccount *sa)
 {
 	skypeweb_get_vdms_token(sa);
-	
+
 	if (!sa->username) {
 		skypeweb_get_self_details(sa);
 	} else
@@ -126,17 +126,17 @@ skypeweb_status_types(PurpleAccount *account)
 	status = purple_status_type_new_full(PURPLE_STATUS_OFFLINE, NULL, NULL, FALSE, FALSE, FALSE);
 	types = g_list_append(types, status);
 	
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, "Online", _("Online"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AVAILABLE, SKYPEWEB_STATUS_ONLINE, _("Online"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AWAY, "Idle", _("Away"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_AWAY, SKYPEWEB_STATUS_AWAY, _("Away"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_EXTENDED_AWAY, "Away", _("Not Available"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+//	status = purple_status_type_new_with_attrs(PURPLE_STATUS_EXTENDED_AWAY, SKYPEWEB_STATUS_AWAY, _("Not Available"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+//	types = g_list_append(types, status);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_UNAVAILABLE, SKYPEWEB_STATUS_BUSY, _("Do Not Disturb"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_UNAVAILABLE, "Busy", _("Do Not Disturb"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_INVISIBLE, SKYPEWEB_STATUS_HIDDEN, _("Invisible"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_INVISIBLE, "Hidden", _("Invisible"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
-	types = g_list_append(types, status);
-	status = purple_status_type_new_with_attrs(PURPLE_STATUS_OFFLINE, "Offline", _("Offline"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
+	status = purple_status_type_new_with_attrs(PURPLE_STATUS_OFFLINE, SKYPEWEB_STATUS_OFFLINE, _("Offline"), TRUE, TRUE, FALSE, "message", "Mood", purple_value_new(PURPLE_TYPE_STRING), NULL);
 	types = g_list_append(types, status);
 	
 	return types;
