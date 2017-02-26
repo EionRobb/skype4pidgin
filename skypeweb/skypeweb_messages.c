@@ -1148,6 +1148,8 @@ skypeweb_got_vdms_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 
 	SkypeWebAccount *sa = user_data;
 
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+
 	JsonParser *parser = json_parser_new();
 
 	if (json_parser_load_from_data(parser, url_text, -1, NULL)) {
