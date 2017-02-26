@@ -514,6 +514,38 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 
 			skypeweb_received_contacts(sa, contacts);
+			purple_xmlnode_free(contacts);
+		} else if (g_str_equal(messagetype, "RichText/Media_FlikMsg")) {
+			
+			
+			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
+
+			const gchar *url_thumbnail = purple_xmlnode_get_attrib(blob, "url_thumbnail");
+			gchar *text = purple_markup_strip_html(content); //purple_xmlnode_get_data_unescaped doesn't work properly in this situation
+			
+			PurpleIMConversation *imconv;
+			
+			if (skypeweb_is_user_self(sa, from)) {
+				from = convbuddyname;
+			}
+			if (from != NULL) {
+				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				if (imconv == NULL) {
+					imconv = purple_im_conversation_new(sa->account, from);
+				}
+				
+				conv = PURPLE_CONVERSATION(imconv);
+
+				skypeweb_download_moji_to_conv(sa, text, url_thumbnail, conv);
+
+				const gchar *message = _("The user sent a Moji");
+
+				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_NO_LOG, composetimestamp);
+
+				g_free(text);
+			}
+
+			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "RichText/Files")) {
 			purple_serv_got_im(sa->pc, convbuddyname, _("The user sent files in an unsupported way"), PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_ERROR, composetimestamp);
 		} else {
@@ -634,10 +666,16 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	gint index, length;
 	JsonObject *obj = NULL;
 	
+
+	if (((int)time(NULL)) > sa->vdms_expiry) {
+		skypeweb_get_vdms_token(sa);
+	}
+
 	if (node == NULL && ((int)time(NULL)) > sa->registration_expiry) {
 		skypeweb_get_registration_token(sa);
 		return;
-	}
+	} 
+
 	
 	if (node != NULL && json_node_get_node_type(node) == JSON_NODE_OBJECT)
 		obj = json_node_get_object(node);
@@ -1103,6 +1141,28 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	skypeweb_subscribe(sa);
 }
 
+static void
+skypeweb_got_vdms_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+{
+	const gchar *token;
+
+	SkypeWebAccount *sa = user_data;
+
+	JsonParser *parser = json_parser_new();
+
+	if (json_parser_load_from_data(parser, url_text, -1, NULL)) {
+		JsonNode *root = json_parser_get_root(parser);
+		JsonObject *obj = json_node_get_object(root);
+
+		token = json_object_get_string_member(obj, "token");
+		sa->vdms_token = g_strdup(token); 
+		sa->vdms_expiry = (int)time(NULL) + SKYPEWEB_VDMS_TTL;
+	}
+
+	g_object_unref(parser);
+	
+}
+
 void
 skypeweb_get_registration_token(SkypeWebAccount *sa)
 {
@@ -1144,7 +1204,27 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	g_free(messages_url);
 }
 
+void
+skypeweb_get_vdms_token(SkypeWebAccount *sa)
+{
+	gchar *request;
 
+	const gchar *messages_url = "https://" SKYPEWEB_STATIC_HOST "/pes/v1/petoken";
+
+	request = g_strdup_printf("GET /pes/v1/petoken HTTP/1.0\r\n"
+			"Connection: close\r\n"
+			"Accept: */*\r\n"
+			"Host: %s\r\n"
+			"Origin: https://web.skype.com\r\n"
+			"Authorization: skype_token %s\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n"
+			"Content-Length: 2\r\n\r\n{}",
+			SKYPEWEB_STATIC_HOST, sa->skype_token);
+
+	skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_got_vdms_token, sa);
+
+	g_free(request);
+}
 
 
 guint

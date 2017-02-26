@@ -29,6 +29,7 @@ guint skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState st
 guint skypeweb_send_typing(PurpleConnection *pc, const gchar *name, PurpleIMTypingState state);
 void skypeweb_poll(SkypeWebAccount *sa);
 void skypeweb_get_registration_token(SkypeWebAccount *sa);
+void skypeweb_get_vdms_token(SkypeWebAccount *sa);
 void skypeweb_chat_kick(PurpleConnection *pc, int id, const char *who);
 void skypeweb_chat_invite(PurpleConnection *pc, int id, const char *message, const char *who);
 void skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who);

@@ -179,6 +179,7 @@
 	#define purple_xmlnode_get_child xmlnode_get_child
 	#define purple_xmlnode_get_next_twin xmlnode_get_next_twin
 	#define purple_xmlnode_get_data xmlnode_get_data
+	#define purple_xmlnode_get_data_unescaped xmlnode_get_data_unescaped
 	#define purple_xmlnode_get_attrib xmlnode_get_attrib
 	#define purple_xmlnode_free xmlnode_free
 	#define PurpleHash PurpleCipherContext
@@ -264,6 +265,10 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_VIDEOMAIL_HOST "vm.skype.com"
 #define SKYPEWEB_XFER_HOST "api.asm.skype.com"
 #define SKYPEWEB_GRAPH_HOST "skypegraph.skype.com"
+#define SKYPEWEB_STATIC_HOST "static.asm.skype.com"
+#define SKYPEWEB_STATIC_CDN_HOST "static-asm.secure.skypeassets.com"
+
+#define SKYPEWEB_VDMS_TTL 300
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
 #define SKYPEWEB_CLIENTINFO_VERSION "908/1.63.51"
@@ -298,8 +303,10 @@ struct _SkypeWebAccount {
 	
 	gchar *skype_token;
 	gchar *registration_token;
+	gchar *vdms_token;
 	gchar *endpoint;
 	gint registration_expiry;
+	gint vdms_expiry;
 
 	GSList *url_datas; /**< PurpleUtilFetchUrlData to be cancelled on logout */
 };
