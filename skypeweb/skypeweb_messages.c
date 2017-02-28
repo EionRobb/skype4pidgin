@@ -1148,6 +1148,8 @@ skypeweb_got_vdms_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, co
 
 	SkypeWebAccount *sa = user_data;
 
+	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+
 	JsonParser *parser = json_parser_new();
 
 	if (json_parser_load_from_data(parser, url_text, -1, NULL)) {
@@ -1224,6 +1226,7 @@ skypeweb_get_vdms_token(SkypeWebAccount *sa)
 	skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_got_vdms_token, sa);
 
 	g_free(request);
+
 }
 
 
@@ -1319,12 +1322,21 @@ skypeweb_set_status(PurpleAccount *account, PurpleStatus *status)
 void
 skypeweb_set_idle(PurpleConnection *pc, int time)
 {
+	const gchar *status_id;
+	PurpleStatus *status;
+
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
-	if (time < 30) {
-		skypeweb_set_statusid(sa, "Online");
-	} else {
-		skypeweb_set_statusid(sa, "Idle");
+	status = purple_account_get_active_status(purple_connection_get_account(pc));
+	status_id = purple_status_get_id(status);
+
+	/* Only go idle if active status is online  */
+	if (!strcmp(status_id, SKYPEWEB_STATUS_ONLINE)) {
+		if (time < 30) {
+			skypeweb_set_statusid(sa, SKYPEWEB_STATUS_ONLINE);
+		} else {
+			skypeweb_set_statusid(sa, SKYPEWEB_STATUS_IDLE);
+		}
 	}
 }
 

@@ -273,6 +273,14 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
 #define SKYPEWEB_CLIENTINFO_VERSION "908/1.63.51"
 
+#define SKYPEWEB_STATUS_ONLINE "Online"
+#define SKYPEWEB_STATUS_IDLE "Idle"
+#define SKYPEWEB_STATUS_AWAY "Away"
+#define SKYPEWEB_STATUS_BUSY "Busy"
+#define SKYPEWEB_STATUS_HIDDEN "Hidden"
+#define SKYPEWEB_STATUS_OFFLINE "Offline"
+
+
 #define SKYPEWEB_BUDDY_IS_MSN(a) G_UNLIKELY((a) != NULL && strchr((a), '@') != NULL)
 #define SKYPEWEB_BUDDY_IS_PHONE(a) G_UNLIKELY((a) != NULL && *(a) == '+')
 #define SKYPEWEB_BUDDY_IS_S4B(a) G_UNLIKELY((a) != NULL && g_str_has_prefix((a), "2:"))
