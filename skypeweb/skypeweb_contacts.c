@@ -1364,7 +1364,7 @@ skypeweb_auth_accept_cb(gpointer sender)
 	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
 	buddy_name = g_strdup(purple_buddy_get_name(buddy));
 	
-	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s/accept", purple_url_encode(buddy_name));
+	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s%s/accept", skypeweb_user_url_prefix(buddy_name), purple_url_encode(buddy_name));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	g_free(url);
 	
@@ -1381,14 +1381,17 @@ skypeweb_auth_reject_cb(gpointer sender)
 	PurpleBuddy *buddy = sender;
 	SkypeWebAccount *sa;
 	gchar *url = NULL;
+	gchar *buddy_name;
 	
 	sa = purple_connection_get_protocol_data(purple_account_get_connection(purple_buddy_get_account(buddy)));
+	buddy_name = g_strdup(purple_buddy_get_name(buddy));
 	
-	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s/decline", purple_url_encode(purple_buddy_get_name(buddy)));
+	url = g_strdup_printf("/contacts/v2/users/SELF/invites/%s%s/decline", skypeweb_user_url_prefix(buddy_name), purple_url_encode(buddy_name));
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
+	g_free(buddy_name);
 }
 
 static void
@@ -1415,6 +1418,10 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 		latest_timestamp = MAX(latest_timestamp, event_timestamp);
 		if (sa->last_authrequest && event_timestamp <= sa->last_authrequest)
 			continue;
+		
+		if (sender == NULL)
+			continue;
+		sender = skypeweb_strip_user_prefix(sender);
 		
 		purple_account_request_authorization(
 				sa->account, sender, NULL,
