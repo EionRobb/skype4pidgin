@@ -79,7 +79,12 @@ skypeweb_status_text(PurpleBuddy *buddy)
 
 	if (sbuddy && sbuddy->mood && *(sbuddy->mood))
 	{
-		return g_markup_printf_escaped("%s", sbuddy->mood);
+		gchar *stripped = purple_markup_strip_html(sbuddy->mood);
+		gchar *escaped = g_markup_printf_escaped("%s", stripped);
+		
+		g_free(stripped);
+		
+		return escaped;
 	}
 
 	return NULL;
@@ -99,8 +104,15 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 		presence = purple_buddy_get_presence(buddy);
 		status = purple_presence_get_active_status(presence);
 		purple_notify_user_info_add_pair_html(user_info, _("Status"), purple_status_get_name(status));
-		if (sbuddy->mood && *sbuddy->mood)
-			purple_notify_user_info_add_pair_html(user_info, _("Message"), sbuddy->mood);
+		if (sbuddy->mood && *sbuddy->mood) {
+			gchar *stripped = purple_markup_strip_html(sbuddy->mood);
+			gchar *escaped = g_markup_printf_escaped("%s", stripped);
+			
+			purple_notify_user_info_add_pair_html(user_info, _("Message"), escaped);
+			
+			g_free(stripped);
+			g_free(escaped);
+		}
 			
 		if (sbuddy->display_name && *sbuddy->display_name)
 			purple_notify_user_info_add_pair_html(user_info, "Alias", sbuddy->display_name);
