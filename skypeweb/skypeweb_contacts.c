@@ -85,7 +85,7 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 	if (sbuddy != NULL && sbuddy->avatar_url && sbuddy->avatar_url[0]) {
 		url = g_strdup(sbuddy->avatar_url);
 	} else {
-		url = g_strdup_printf("https://api.skype.com/users/%s/profile/avatar", purple_url_encode(purple_buddy_get_name(buddy)));
+		url = g_strdup_printf("https://avatar.skype.com/v1/avatars/%s/public?returnDefaultImage=false", purple_url_encode(purple_buddy_get_name(buddy)));
 	}
 	
 	url_data = skypeweb_fetch_url_request(sbuddy->sa, url, TRUE, NULL, FALSE, NULL, FALSE, 524288, skypeweb_get_icon_cb, buddy);
@@ -1138,7 +1138,11 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	SkypeWebBuddy *sbuddy;
 	const gchar *new_avatar;
 	
-	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+	if (node == NULL)
+		return;
+	if (json_node_get_node_type(node) == JSON_NODE_ARRAY)
+		node = json_array_get_element(json_node_get_array(node), 0);
+	if (json_node_get_node_type(node) != JSON_NODE_OBJECT)
 		return;
 	userobj = json_node_get_object(node);
 	
@@ -1206,13 +1210,22 @@ void
 skypeweb_get_info(PurpleConnection *pc, const gchar *username)
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
-	gchar *url;
+	gchar *post;
+	const gchar *url = "/users/batch/profiles";
+	JsonObject *obj;
+	JsonArray *usernames_array;
 	
-	url = g_strdup_printf("/users/%s/profile", purple_url_encode(username));
+	obj = json_object_new();
+	usernames_array = json_array_new();
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, skypeweb_got_info, g_strdup(username), TRUE);
+	json_array_add_string_element(usernames_array, username);
+	json_object_set_array_member(obj, "usernames", usernames_array);
+	post = skypeweb_jsonobj_to_string(obj);
 	
-	g_free(url);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, post, skypeweb_got_info, g_strdup(username), TRUE);
+	
+	g_free(post);
+	json_object_unref(obj);
 }
 
 void
