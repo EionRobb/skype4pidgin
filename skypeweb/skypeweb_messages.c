@@ -506,7 +506,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				const gchar *contact_id = purple_xmlnode_get_attrib(contact, "s");
 				const gchar *contact_name = purple_xmlnode_get_attrib(contact, "f");
 
-				gchar *message = g_strdup_printf(_("The user sent a contact: %s"), contact_id); 
+				gchar *message = g_strdup_printf(_("The user sent a contact: %s (%s)"), contact_id, contact_name); 
 
 				purple_serv_got_im(sa->pc, from, message, PURPLE_MESSAGE_RECV | PURPLE_MESSAGE_SYSTEM, composetimestamp);
 
