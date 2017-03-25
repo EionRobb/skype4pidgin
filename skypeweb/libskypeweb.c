@@ -114,10 +114,16 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 			g_free(escaped);
 		}
 			
-		if (sbuddy->display_name && *sbuddy->display_name)
-			purple_notify_user_info_add_pair_html(user_info, "Alias", sbuddy->display_name);
-		if (sbuddy->fullname && *sbuddy->fullname)
+		if (sbuddy->display_name && *sbuddy->display_name) {
+			gchar *escaped = g_markup_printf_escaped(sbuddy->display_name);
+			purple_notify_user_info_add_pair_html(user_info, "Alias", escaped);
+			g_free(escaped);
+		}
+		if (sbuddy->fullname && *sbuddy->fullname) {
+			gchar *escaped = g_markup_printf_escaped(sbuddy->display_name);
 			purple_notify_user_info_add_pair_html(user_info, "Full Name", sbuddy->fullname);
+			g_free(escaped);
+		}
 	}
 }
 
