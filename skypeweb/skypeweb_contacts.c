@@ -1156,15 +1156,25 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	_SKYPE_USER_INFO("birthday", "Birthday");
 	//_SKYPE_USER_INFO("gender", "Gender");
 	if (json_object_has_member(userobj, "gender") && !json_object_get_null_member(userobj, "gender")) {
-		const gchar *gender = json_object_get_string_member(userobj, "gender");
-		const gchar *gender_output;
-		if (*gender == '1') {
-			gender_output = _("Male");
-		} else if (*gender == '2') {
-			gender_output = _("Female");
+		const gchar *gender_output = _("Unknown");
+		
+		// Can be presented as either a string of a number or as a number argh
+		if (json_node_get_value_type(json_object_get_member(userobj, "gender")) == G_TYPE_STRING) {
+			const gchar *gender = json_object_get_string_member(userobj, "gender");
+			if (*gender == '1') {
+				gender_output = _("Male");
+			} else if (*gender == '2') {
+				gender_output = _("Female");
+			}
 		} else {
-			gender_output = _("Unknown");
+			gint64 gender = json_object_get_int_member(userobj, "gender");
+			if (gender == 1) {
+				gender_output = _("Male");
+			} else if (gender == 2) {
+				gender_output = _("Female");
+			}
 		}
+		
 		purple_notify_user_info_add_pair_html(user_info, _("Gender"), gender_output);
 	}
 	_SKYPE_USER_INFO("language", "Language");
