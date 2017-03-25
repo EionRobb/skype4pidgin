@@ -57,6 +57,7 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	// const gchar *capabilities = json_object_get_string_member(resource, "capabilities");
 	// const gchar *lastSeenAt = json_object_get_string_member(resource, "lastSeenAt");
 	const gchar *from;
+	gboolean is_idle;
 	
 	from = skypeweb_contact_url_to_name(selfLink);
 	g_return_if_fail(from);
@@ -77,8 +78,14 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 		// purple_protocol_got_user_status(sa->account, from, "mobile", NULL);
 	// }
 	
-	purple_protocol_got_user_status(sa->account, from, status, NULL);
-	purple_protocol_got_user_idle(sa->account, from, g_str_equal(status, "Idle"), 0);
+	is_idle = purple_strequal(status, SKYPEWEB_STATUS_IDLE);
+	if (!is_idle) {
+		purple_protocol_got_user_status(sa->account, from, status, NULL);
+	} else {
+		purple_protocol_got_user_status(sa->account, from, SKYPEWEB_STATUS_ONLINE, NULL);
+	}
+	
+	purple_protocol_got_user_idle(sa->account, from, is_idle, 0);
 }
 
 // static gboolean
