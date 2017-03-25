@@ -394,8 +394,8 @@ skypeweb_url_prevent_follow_redirects(PurpleUtilFetchUrlData *requestdata)
 const gchar *
 skypeweb_user_url_prefix(const gchar *who)
 {
-	if(SKYPEWEB_BUDDY_IS_S4B(who)) {
-		return ""; // already has the 2: prefix!
+	if(SKYPEWEB_BUDDY_IS_S4B(who) || SKYPEWEB_BUDDY_IS_BOT(who)) {
+		return ""; // already has a prefix
 	} else if (SKYPEWEB_BUDDY_IS_MSN(who)) {
 		return "1:";
 	} else if(SKYPEWEB_BUDDY_IS_PHONE(who)) {

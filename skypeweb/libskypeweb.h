@@ -271,7 +271,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_VDMS_TTL 300
 
 #define SKYPEWEB_CLIENTINFO_NAME "swx-skype.com"
-#define SKYPEWEB_CLIENTINFO_VERSION "908/1.63.51"
+#define SKYPEWEB_CLIENTINFO_VERSION "908/1.85.0.29"
 
 #define SKYPEWEB_STATUS_ONLINE "Online"
 #define SKYPEWEB_STATUS_IDLE "Idle"
@@ -284,6 +284,7 @@ G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
 #define SKYPEWEB_BUDDY_IS_MSN(a) G_UNLIKELY((a) != NULL && strchr((a), '@') != NULL)
 #define SKYPEWEB_BUDDY_IS_PHONE(a) G_UNLIKELY((a) != NULL && *(a) == '+')
 #define SKYPEWEB_BUDDY_IS_S4B(a) G_UNLIKELY((a) != NULL && g_str_has_prefix((a), "2:"))
+#define SKYPEWEB_BUDDY_IS_BOT(a) G_UNLIKELY((a) != NULL && g_str_has_prefix((a), "28:"))
 
 typedef struct _SkypeWebAccount SkypeWebAccount;
 typedef struct _SkypeWebBuddy SkypeWebBuddy;

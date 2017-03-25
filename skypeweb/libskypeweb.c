@@ -130,8 +130,14 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 const gchar *
 skypeweb_list_emblem(PurpleBuddy *buddy)
 {
-	//SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
-	
+	if (buddy != NULL) {
+		//SkypeWebBuddy *sbuddy = purple_buddy_get_protocol_data(buddy);
+		const gchar *buddy_name = purple_buddy_get_name(buddy);
+		
+		if (buddy_name && SKYPEWEB_BUDDY_IS_BOT(buddy_name)) {
+			return "bot";
+		}
+	}
 	return NULL;
 }
 
