@@ -34,6 +34,12 @@ skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username) {
 		}
 	}
 	
+	if (sa->primary_member_name) {
+		if (g_str_equal(username, sa->primary_member_name)) {
+			return TRUE;
+		}
+	}
+	
 	return !g_ascii_strcasecmp(username, purple_account_get_username(sa->account));
 }
 
@@ -1158,6 +1164,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 		g_free(expires);
 	}
 	
+	skypeweb_gather_self_properties(sa);	
 	skypeweb_subscribe(sa);
 }
 
@@ -1533,7 +1540,7 @@ skypeweb_initiate_chat(SkypeWebAccount *sa, const gchar *who)
 	g_free(id);
 	
 	contact = json_object_new();
-	id = g_strconcat("8:", sa->username, NULL);
+	id = g_strconcat(skypeweb_user_url_prefix(sa->username), sa->username, NULL);
 	json_object_set_string_member(contact, "id", id);
 	json_object_set_string_member(contact, "role", "Admin");
 	json_array_add_object_element(members, contact);
@@ -1602,4 +1609,24 @@ skypeweb_get_thread_url(SkypeWebAccount *sa, const gchar *thread)
 	//{"baseDomain":"https://join.skype.com/launch/","threadId":"%s"}
 	
 	// {"Id":"MeMxigEAAAAxOTo5NDZkMjExMGQ4YmU0ZjQzODc3NjMxNDQ3ZTgxYWNmNkB0aHJlYWQuc2t5cGU","Blob":null,"JoinUrl":"https://join.skype.com/ALXsHZ2RFQnk","ThreadId":"19:946d2110d8be4f43877631447e81acf6@thread.skype"}
+}
+
+
+static void
+skypeweb_got_self_properties(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	JsonObject *userobj;
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT)
+		return;
+	userobj = json_node_get_object(node);
+	
+	if (json_object_has_member(userobj, "primaryMemberName")) {
+		g_free(sa->primary_member_name); sa->primary_member_name = g_strdup(json_object_get_string_member(userobj, "primaryMemberName"));
+	}
+}
+
+void
+skypeweb_gather_self_properties(SkypeWebAccount *sa)
+{
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/properties", NULL, skypeweb_got_self_properties, NULL, TRUE);
 }

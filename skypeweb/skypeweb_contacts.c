@@ -878,6 +878,8 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	if (!PURPLE_CONNECTION_IS_CONNECTED(sa->pc)) {
 		skypeweb_do_all_the_things(sa);
 	}
+	
+	skypeweb_gather_self_properties(sa);
 }
 
 
