@@ -1022,6 +1022,11 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		JsonObject *contact = json_object_new();
 		gchar *id;
 		
+		if (SKYPEWEB_BUDDY_IS_BOT(cur->data)) {
+			purple_protocol_got_user_status(sa->account, cur->data, SKYPEWEB_STATUS_ONLINE, NULL);
+			continue;
+		}
+		
 		id = g_strconcat(skypeweb_user_url_prefix(cur->data), cur->data, NULL);
 		json_object_set_string_member(contact, "id", id);
 		json_array_add_object_element(contacts_array, contact);
@@ -1206,7 +1211,7 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 			"Host: %s\r\n"
 			"Content-Type: application/json\r\n"
 			"Authentication: skypetoken=%s\r\n"
-			"Content-Length: 2\r\n\r\n{}",
+			"Content-Length: 28\r\n\r\n{\"endpointFeatures\":\"Agent\"}",
 			curtime, response, sa->messages_host, sa->skype_token);
 	
 	//purple_debug_info("skypeweb", "reg token request is %s\n", request);
