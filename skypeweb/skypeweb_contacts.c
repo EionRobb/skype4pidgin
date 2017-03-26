@@ -1541,12 +1541,10 @@ skypeweb_set_mood_message(SkypeWebAccount *sa, const gchar *mood)
 	JsonObject *obj, *payload;
 	gchar *post;
 	
-	g_return_if_fail(mood);
-	
 	obj = json_object_new();
 	payload = json_object_new();
 	
-	json_object_set_string_member(payload, "mood", mood);
+	json_object_set_string_member(payload, "mood", mood ? mood : "");
 	json_object_set_object_member(obj, "payload", payload);
 	post = skypeweb_jsonobj_to_string(obj);
 	
