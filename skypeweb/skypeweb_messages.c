@@ -1403,6 +1403,8 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	gint64 clientmessageid;
 	gchar *clientmessageid_str;
 	gchar *stripped;
+	static GRegex *font_strip_regex = NULL;
+	gchar *font_stripped;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(convname));
 	
@@ -1411,6 +1413,16 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	
 	// Some clients don't receive messages with <br>'s in them
 	stripped = purple_strreplace(message, "<br>", "\r\n");
+	
+	// Pidgin has a nasty habit of sending <font size="3"> when copy-pasting text
+	if (font_strip_regex == NULL) {
+		font_strip_regex = g_regex_new("(<font [^>]*)size=\"[0-9]+\"([^>]*>)", G_REGEX_CASELESS | G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, NULL);
+	}
+	font_stripped = g_regex_replace(font_strip_regex, stripped, -1, 0, "\\1\\2", 0, NULL);
+	if (font_stripped != NULL) {
+		g_free(stripped);
+		stripped = font_stripped;
+	}
 	
 	obj = json_object_new();
 	json_object_set_string_member(obj, "clientmessageid", clientmessageid_str);
