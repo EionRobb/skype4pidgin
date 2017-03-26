@@ -1163,9 +1163,9 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		// Can be presented as either a string of a number or as a number argh
 		if (json_node_get_value_type(json_object_get_member(userobj, "gender")) == G_TYPE_STRING) {
 			const gchar *gender = json_object_get_string_member(userobj, "gender");
-			if (*gender == '1') {
+			if (gender && *gender == '1') {
 				gender_output = _("Male");
-			} else if (*gender == '2') {
+			} else if (gender && *gender == '2') {
 				gender_output = _("Female");
 			}
 		} else {
@@ -1360,12 +1360,9 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 void
 skypeweb_get_friend_list(SkypeWebAccount *sa)
 {
-	gchar *url;
+	const gchar *url = "/contacts/v2/users/SELF?delta=&reason=default";
 	
-	url = g_strdup_printf("/contacts/v2/users/SELF?delta=&reason=default", purple_url_encode(sa->username));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, skypeweb_get_friend_list_cb, NULL, TRUE);
-	
-	g_free(url);
 }
 
 

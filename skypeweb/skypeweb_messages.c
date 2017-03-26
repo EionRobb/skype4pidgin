@@ -141,7 +141,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	if (json_object_has_member(resource, "content"))
 		content = json_object_get_string_member(resource, "content");
 	
-	if (strstr(conversationLink, "/19:")) {
+	if (conversationLink && strstr(conversationLink, "/19:")) {
 		// This is a Thread/Group chat message
 		const gchar *chatname, *topic;
 		PurpleChatConversation *chatconv;
@@ -216,8 +216,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleChatUserFlags cbflags;
 			PurpleChatUser *cb;
 			
-			if (json_object_has_member(resource, "skypeemoteoffset"))
-				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+			if (json_object_has_member(resource, "skypeemoteoffset")) {
+				skypeemoteoffset = g_ascii_strtoll(json_object_get_string_member(resource, "skypeemoteoffset"), NULL, 10);
+			}
 			
 			from = skypeweb_contact_url_to_name(from);
 			g_return_if_fail(from);
@@ -357,8 +358,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			gint64 skypeemoteoffset = 0;
 			PurpleIMConversation *imconv;
 			
-			if (json_object_has_member(resource, "skypeemoteoffset"))
-				skypeemoteoffset = atoi(json_object_get_string_member(resource, "skypeemoteoffset"));
+			if (json_object_has_member(resource, "skypeemoteoffset")) {
+				skypeemoteoffset = g_ascii_strtoll(json_object_get_string_member(resource, "skypeemoteoffset"), NULL, 10);
+			}
 			
 			if (g_str_equal(messagetype, "Text")) {
 				gchar *temp = skypeweb_meify(content, skypeemoteoffset);
