@@ -68,7 +68,6 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 	from = skypeweb_contact_url_to_name(selfLink);
 	g_return_if_fail(from);
 	
-	//TODO not need me
 	if (!purple_blist_find_buddy(sa->account, from))
 	{
 		PurpleGroup *group = purple_blist_find_group("Skype");
@@ -77,6 +76,11 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 			group = purple_group_new("Skype");
 			purple_blist_add_group(group, NULL);
 		}
+		
+		if (skypeweb_is_user_self(sa, from)) {
+			return;
+		}
+		
 		purple_blist_add_buddy(purple_buddy_new(sa->account, from, NULL), NULL, group, NULL);
 	}
 	
@@ -1077,6 +1081,8 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 	JsonObject *obj;
 	JsonArray *interested;
 	gchar *post;
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, "/v1/users/ME/endpoints/SELF/properties?name=supportsMessageProperties", "{\"supportsMessageProperties\":true}", NULL, NULL, TRUE);
 
 	interested = json_array_new();
 	json_array_add_string_element(interested, "/v1/users/ME/conversations/ALL/properties");
