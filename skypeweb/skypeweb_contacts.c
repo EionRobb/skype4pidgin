@@ -1271,27 +1271,27 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 	for(index = 0; index < length; index++)
 	{
 		JsonObject *contact = json_array_get_object_element(contacts, index);
-		const gchar *id = json_object_get_string_member(contact, "id");
+		JsonObject *profile = json_object_get_object_member(contact, "profile");
+		const gchar *mri = json_object_get_string_member(contact, "mri");
 		const gchar *display_name = json_object_get_string_member(contact, "display_name");
 		const gchar *avatar_url = NULL;
 		gboolean authorized = json_object_get_boolean_member(contact, "authorized");
 		gboolean blocked = json_object_get_boolean_member(contact, "blocked");
-		const gchar *type = json_object_get_string_member(contact, "type");
-		const gchar *mood = json_object_get_string_member(contact, "mood");
 		
-		JsonObject *name = json_object_get_object_member(contact, "name");
+		const gchar *mood = json_object_get_string_member(profile, "mood");
+		JsonObject *name = json_object_get_object_member(profile, "name");
 		const gchar *firstname = json_object_get_string_member(name, "first");
 		const gchar *surname = NULL;
-		PurpleBuddy *buddy;
 		
-		//TODO make this work for "pstn"
-		if (!g_str_equal(type, "skype") && !g_str_equal(type, "msn"))
-			continue;
+		PurpleBuddy *buddy;
+		const gchar *id;
 		
 		if (json_object_has_member(contact, "suggested") && json_object_get_boolean_member(contact, "suggested") && !authorized) {
 			// suggested buddies wtf? some kind of advertising?
 			continue;
 		}
+		
+		id = skypeweb_strip_user_prefix(mri);
 		
 		buddy = purple_find_buddy(sa->account, id);
 		if (!buddy)
@@ -1331,8 +1331,8 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		purple_serv_got_alias(sa->pc, id, sbuddy->display_name);
 		purple_blist_server_alias_buddy(buddy, sbuddy->fullname);
 		
-		if (json_object_has_member(contact, "avatar_url")) {
-			avatar_url = json_object_get_string_member(contact, "avatar_url");
+		if (json_object_has_member(profile, "avatar_url")) {
+			avatar_url = json_object_get_string_member(profile, "avatar_url");
 			if (avatar_url && *avatar_url && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, avatar_url))) {
 				g_free(sbuddy->avatar_url);
 				sbuddy->avatar_url = g_strdup(avatar_url);			
@@ -1360,14 +1360,7 @@ skypeweb_get_friend_list(SkypeWebAccount *sa)
 {
 	gchar *url;
 	
-	if (!sa->username) {
-		//purple_debug_error("skypeweb", "Can't fetch contacts yet, don't have local username");
-		return;
-	}
-	
-	//https://contacts.skype.com/contacts/v2/users/SELF?delta=&reason=default
-	
-	url = g_strdup_printf("/contacts/v1/users/%s/contacts", purple_url_encode(sa->username));
+	url = g_strdup_printf("/contacts/v2/users/SELF?delta=&reason=default", purple_url_encode(sa->username));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, skypeweb_get_friend_list_cb, NULL, TRUE);
 	
 	g_free(url);

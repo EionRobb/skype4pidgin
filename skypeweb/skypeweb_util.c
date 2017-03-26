@@ -84,6 +84,7 @@ skypeweb_contact_url_to_name(const gchar *url)
 	if (!start) start = g_strrstr(url, "/4:");
 	if (start) start = start + 2;
 	if (!start) start = g_strrstr(url, "/2:");
+	if (!start) start = g_strrstr(url, "/28:");
 	if (start) start = start + 1;
 	if (!start) return NULL;
 	

@@ -868,7 +868,7 @@ void
 skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convname, gint since)
 {
 	gchar *url;
-	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%d000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", purple_url_encode(convname), since);
+	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages?startTime=%d000&pageSize=30&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread|PSTN|Agent", purple_url_encode(convname), since);
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_conv_history, GINT_TO_POINTER(since), TRUE);
 	
@@ -914,7 +914,7 @@ void
 skypeweb_get_all_conversations_since(SkypeWebAccount *sa, gint since)
 {
 	gchar *url;
-	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%d000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread", since);
+	url = g_strdup_printf("/v1/users/ME/conversations?startTime=%d000&pageSize=100&view=msnp24Equivalent&targetType=Passport|Skype|Lync|Thread|PSTN|Agent", since);
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_all_convs, GINT_TO_POINTER(since), TRUE);
 	
@@ -1084,6 +1084,14 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 	
 	g_free(post);
 	json_object_unref(obj);
+	
+	if (sa->endpoint) { //TODO setting?
+		gchar *feature_url = g_strdup_printf("/v1/users/ME/endpoints/%s", purple_url_encode(sa->endpoint));
+		
+		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, feature_url, "{\"endpointFeatures\":\"Agent\"}", NULL, NULL, TRUE);
+		
+		g_free(feature_url);
+	}
 }
 
 static void
@@ -1397,6 +1405,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 		json_object_set_string_member(obj, "messagetype", "RichText");
 	}
 	json_object_set_string_member(obj, "contenttype", "text");
+	//json_object_set_string_member(obj, "imdisplayname", self name);
 	
 	if (g_str_has_prefix(message, "/me ")) {
 		json_object_set_string_member(obj, "skypeemoteoffset", "4"); //Why is this a string :(
