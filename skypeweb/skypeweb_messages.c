@@ -374,6 +374,10 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				html = temp;
 			}
 			
+			if (json_object_has_member(resource, "imdisplayname")) {
+				//TODO use this for an alias
+			}
+			
 			if (skypeweb_is_user_self(sa, from)) {
 				if (!g_str_has_prefix(html, "?OTR")) {
 					imconv = purple_conversations_find_im_with_account(convbuddyname, sa->account);
@@ -1101,14 +1105,6 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 	
 	g_free(post);
 	json_object_unref(obj);
-	
-	if (sa->endpoint) { //TODO setting?
-		gchar *feature_url = g_strdup_printf("/v1/users/ME/endpoints/%s", purple_url_encode(sa->endpoint));
-		
-		skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, feature_url, "{\"endpointFeatures\":\"Agent\"}", NULL, NULL, TRUE);
-		
-		g_free(feature_url);
-	}
 }
 
 static void
