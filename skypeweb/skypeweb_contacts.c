@@ -1330,8 +1330,12 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		sbuddy->buddy = buddy;
 		purple_buddy_set_protocol_data(buddy, sbuddy);
 		
-		purple_serv_got_alias(sa->pc, id, sbuddy->display_name);
-		purple_blist_server_alias_buddy(buddy, sbuddy->fullname);
+		if (!purple_strequal(purple_buddy_get_local_buddy_alias(buddy), sbuddy->display_name)) {
+			purple_serv_got_alias(sa->pc, id, sbuddy->display_name);
+		}
+		if (!purple_strequal(purple_buddy_get_server_alias(buddy), sbuddy->fullname)) {
+			purple_blist_server_alias_buddy(buddy, sbuddy->fullname);
+		}
 		
 		if (json_object_has_member(profile, "avatar_url")) {
 			avatar_url = json_object_get_string_member(profile, "avatar_url");
