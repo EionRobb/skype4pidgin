@@ -1138,7 +1138,6 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	JsonObject *userobj;
 	PurpleBuddy *buddy;
 	SkypeWebBuddy *sbuddy;
-	const gchar *new_avatar;
 	
 	if (node == NULL)
 		return;
@@ -1201,13 +1200,6 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 			purple_buddy_set_protocol_data(buddy, sbuddy);
 			sbuddy->skypename = g_strdup(username);
 			sbuddy->sa = sa;
-		}
-		
-		new_avatar = json_object_get_string_member(userobj, "avatarUrl");
-		if (new_avatar && (!sbuddy->avatar_url || !g_str_equal(sbuddy->avatar_url, new_avatar))) {
-			g_free(sbuddy->avatar_url);
-			sbuddy->avatar_url = g_strdup(new_avatar);			
-			skypeweb_get_icon(buddy);
 		}
 		
 		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(userobj, "mood"));
