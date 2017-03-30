@@ -370,12 +370,12 @@ skypeweb_got_file(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gc
 		purple_xfer_cancel_local(xfer);
 	} else {
 		purple_xfer_write_file(xfer, (guchar *)url_text, len);
-		purple_xfer_set_bytes_sent(xfer, len);
 		purple_xfer_set_completed(xfer, TRUE);
 	}
 	
 	//cleanup
 	skypeweb_free_xfer(xfer);
+	purple_xfer_end(xfer);
 }
 
 static void
