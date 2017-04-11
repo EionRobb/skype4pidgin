@@ -26,6 +26,7 @@ include_directories(
     ${JSON-GLIB_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/purple2compat
     )
 
 set(SRC_LIST
@@ -35,6 +36,8 @@ set(SRC_LIST
     skypeweb_messages.c
     skypeweb_util.c
     libskypeweb.c 
+	purple2compat/http.c
+	purple2compat/purple-socket.c
     )
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
@@ -79,7 +82,7 @@ install(FILES "theme"
 
 # package settings
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Skype protocol plug-in for libpurple")
-set(CPACK_PACKAGE_VENDOR "Eionrobb")
+set(CPACK_PACKAGE_VENDOR "Eion Robb")
 set(CPACK_PACKAGE_DESCRIPTION "libskypeweb is a Skype protocol plug-in for libpurple based on the Skype Web client")
 set(CPACK_PACKAGE_CONTACT "edhelas@movim.eu")
 set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
