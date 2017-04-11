@@ -21,8 +21,22 @@
 
 #include "libskypeweb.h"
 
-gint skypeweb_send_im(PurpleConnection *pc, const gchar *who, const gchar *msg, PurpleMessageFlags flags);
-gint skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMessageFlags flags);
+gint skypeweb_send_im(PurpleConnection *pc, 
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+	PurpleMessage *msg
+#else
+	const gchar *who, const gchar *message, PurpleMessageFlags flags
+#endif
+);
+
+gint skypeweb_chat_send(PurpleConnection *pc, gint id, 
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleMessage *msg
+#else
+const gchar *message, PurpleMessageFlags flags
+#endif
+);
+
 void skypeweb_set_idle(PurpleConnection *pc, int time);
 void skypeweb_set_status(PurpleAccount *account, PurpleStatus *status);
 guint skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state);

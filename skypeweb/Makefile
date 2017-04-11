@@ -1,45 +1,119 @@
-CC	?= cc
+
+PIDGIN_TREE_TOP ?= ../../pidgin-2.10.11
+PIDGIN3_TREE_TOP ?= ../../pidgin-main
+LIBPURPLE_DIR ?= $(PIDGIN_TREE_TOP)/libpurple
+WIN32_DEV_TOP ?= $(PIDGIN_TREE_TOP)/../win32-dev
+
+WIN32_CC ?= $(WIN32_DEV_TOP)/mingw-4.7.2/bin/gcc
+
+PKG_CONFIG ?= pkg-config
+
 CFLAGS	?= -O2 -g -pipe
-LDFLAGS ?= -Wl,-z,relro
-PKG_CONFIG  ?= pkg-config
+LDFLAGS ?= 
 
-DIR_PERM	= 0755
-FILE_PERM	= 0644
+# Do some nasty OS and purple version detection
+ifeq ($(OS),Windows_NT)
+  SKYPEWEB_TARGET = libskypeweb.dll
+  SKYPEWEB_DEST = "$(PROGRAMFILES)/Pidgin/plugins"
+  SKYPEWEB_ICONS_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/protocols"
+  SKYPEWEB_THEME_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/emotes/skype"
+else
 
-LIBPURPLE_CFLAGS	+= $(shell $(PKG_CONFIG) --cflags glib-2.0 json-glib-1.0 purple zlib)
-LIBPURPLE_LIBS		+= $(shell $(PKG_CONFIG) --libs glib-2.0 json-glib-1.0 purple zlib)
-PLUGIN_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=plugindir purple)
-DATA_ROOT_DIR_PURPLE	=  $(shell $(PKG_CONFIG) --variable=datarootdir purple)
+  UNAME_S := $(shell uname -s)
 
-PRPL_NAME	= libskypeweb.so
-PRPL_LIBNAME	= ${PRPL_NAME}
+  #.. There are special flags we need for OSX
+  ifeq ($(UNAME_S), Darwin)
+    #
+    #.. /opt/local/include and subdirs are included here to ensure this compiles
+    #   for folks using Macports.  I believe Homebrew uses /usr/local/include
+    #   so things should "just work".  You *must* make sure your packages are
+    #   all up to date or you will most likely get compilation errors.
+    #
+    INCLUDES = -I/opt/local/include -lz $(OS)
 
-SKYPEWEB_SOURCES = \
+    CC = gcc
+  else
+    INCLUDES = 
+    CC ?= gcc
+  endif
+
+  ifeq ($(shell $(PKG_CONFIG) --exists purple-3 2>/dev/null && echo "true"),)
+    ifeq ($(shell $(PKG_CONFIG) --exists purple 2>/dev/null && echo "true"),)
+      SKYPEWEB_TARGET = FAILNOPURPLE
+      SKYPEWEB_DEST =
+	  SKYPEWEB_ICONS_DEST =
+	  SKYPEWEB_THEME_DEST =
+    else
+      SKYPEWEB_TARGET = libskypeweb.so
+      SKYPEWEB_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=plugindir purple`
+	  SKYPEWEB_ICONS_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=datadir purple`/pixmaps/pidgin/protocols
+	  SKYPEWEB_THEME_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=datadir purple`/pixmaps/pidgin/emotes/skype
+    endif
+  else
+    SKYPEWEB_TARGET = libskypeweb3.so
+    SKYPEWEB_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=plugindir purple-3`
+	SKYPEWEB_ICONS_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=datadir purple-3`/pixmaps/pidgin/protocols
+	SKYPEWEB_THEME_DEST = $(DESTDIR)`$(PKG_CONFIG) --variable=datadir purple-3`/pixmaps/pidgin/emotes/skype
+  endif
+endif
+
+WIN32_CFLAGS = -I$(WIN32_DEV_TOP)/glib-2.28.8/include -I$(WIN32_DEV_TOP)/glib-2.28.8/include/glib-2.0 -I$(WIN32_DEV_TOP)/glib-2.28.8/lib/glib-2.0/include -I$(WIN32_DEV_TOP)/json-glib-0.14/include/json-glib-1.0 -DENABLE_NLS -DPACKAGE_VERSION='"$(PLUGIN_VERSION)"' -Wall -Wextra -Werror -Wno-deprecated-declarations -Wno-unused-parameter -fno-strict-aliasing -Wformat -Wno-sign-compare
+WIN32_LDFLAGS = -L$(WIN32_DEV_TOP)/glib-2.28.8/lib -L$(PROTOBUF_C_DIR)/bin -L$(WIN32_DEV_TOP)/json-glib-0.14/lib -lpurple -lintl -lglib-2.0 -lgobject-2.0 -ljson-glib-1.0 -g -ggdb -static-libgcc -lz
+WIN32_PIDGIN2_CFLAGS = -I$(PIDGIN_TREE_TOP)/libpurple -I$(PIDGIN_TREE_TOP) $(WIN32_CFLAGS)
+WIN32_PIDGIN3_CFLAGS = -I$(PIDGIN3_TREE_TOP)/libpurple -I$(PIDGIN3_TREE_TOP) -I$(WIN32_DEV_TOP)/gplugin-dev/gplugin $(WIN32_CFLAGS)
+WIN32_PIDGIN2_LDFLAGS = -L$(PIDGIN_TREE_TOP)/libpurple $(WIN32_LDFLAGS)
+WIN32_PIDGIN3_LDFLAGS = -L$(PIDGIN3_TREE_TOP)/libpurple -L$(WIN32_DEV_TOP)/gplugin-dev/gplugin $(WIN32_LDFLAGS) -lgplugin
+
+C_FILES = \
 	skypeweb_connection.c \
 	skypeweb_contacts.c \
 	skypeweb_login.c \
 	skypeweb_messages.c \
 	skypeweb_util.c \
 	libskypeweb.c 
+PURPLE_COMPAT_FILES := purple2compat/http.c purple2compat/purple-socket.c
+PURPLE_C_FILES := libskypeweb.c $(C_FILES)
 
-.PHONY:	all clean install
-all: $(PRPL_NAME)
-install:
-	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(PLUGIN_DIR_PURPLE)
-	install -m $(FILE_PERM) $(PRPL_LIBNAME) $(DESTDIR)$(PLUGIN_DIR_PURPLE)/$(PRPL_NAME)
-	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/16
-	install -m $(FILE_PERM) icons/16/skype.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/16/skype.png
-	install -m $(FILE_PERM) icons/16/skypeout.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/16/skypeout.png
-	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/22
-	install -m $(FILE_PERM) icons/22/skype.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/22/skype.png
-	install -m $(FILE_PERM) icons/22/skypeout.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/22/skypeout.png
-	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48
-	install -m $(FILE_PERM) icons/48/skype.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48/skype.png
-	install -m $(FILE_PERM) icons/48/skypeout.png $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/protocols/48/skypeout.png
-	mkdir -m $(DIR_PERM) -p $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/emotes/skype
-	install -m $(FILE_PERM) theme $(DESTDIR)$(DATA_ROOT_DIR_PURPLE)/pixmaps/pidgin/emotes/skype/theme
+
+
+.PHONY:	all install FAILNOPURPLE clean
+
+all: $(SKYPEWEB_TARGET)
+
+libskypeweb.so: $(PURPLE_C_FILES) $(PURPLE_COMPAT_FILES)
+	$(CC) -fPIC $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(PROTOBUF_OPTS) `$(PKG_CONFIG) purple glib-2.0 json-glib-1.0 zlib --libs --cflags`  $(INCLUDES) -Ipurple2compat -g -ggdb
+
+libskypeweb3.so: $(PURPLE_C_FILES)
+	$(CC) -fPIC $(CFLAGS) -shared -o $@ $^ $(LDFLAGS) $(PROTOBUF_OPTS) `$(PKG_CONFIG) purple-3 glib-2.0 json-glib-1.0 zlib --libs --cflags` $(INCLUDES)  -g -ggdb
+
+libskypeweb.dll: $(PURPLE_C_FILES) $(PURPLE_COMPAT_FILES)
+	$(WIN32_CC) -shared -o $@ $^ $(WIN32_PIDGIN2_CFLAGS) $(WIN32_PIDGIN2_LDFLAGS) -Ipurple2compat
+
+libskypeweb3.dll: $(PURPLE_C_FILES)
+	$(WIN32_CC) -shared -o $@ $^ $(WIN32_PIDGIN3_CFLAGS) $(WIN32_PIDGIN3_LDFLAGS)
+
+install: $(SKYPEWEB_TARGET) install-icons install-theme
+	mkdir -p $(SKYPEWEB_DEST)
+	install -p $(SKYPEWEB_TARGET) $(SKYPEWEB_DEST)
+
+install-icons: icons/16/skype.png icons/22/skype.png icons/48/skype.png icons/16/skypeout.png icons/22/skypeout.png icons/48/skypeout.png
+	mkdir -p $(SKYPEWEB_ICONS_DEST)/16
+	mkdir -p $(SKYPEWEB_ICONS_DEST)/22
+	mkdir -p $(SKYPEWEB_ICONS_DEST)/48
+	install icons/16/skype.png $(SKYPEWEB_ICONS_DEST)/16/skype.png
+	install icons/22/skype.png $(SKYPEWEB_ICONS_DEST)/22/skype.png
+	install icons/48/skype.png $(SKYPEWEB_ICONS_DEST)/48/skype.png
+	install icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
+	install icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
+	install icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
+	
+install-theme: theme
+	mkdir -p $(SKYPEWEB_THEME_DEST)
+	install theme $(SKYPEWEB_THEME_DEST)/theme
+
+FAILNOPURPLE:
+	echo "You need libpurple development headers installed to be able to compile this plugin"
+
 clean:
-	rm -f libskypeweb.so
+	rm -f $(SKYPEWEB_TARGET)
 
-$(PRPL_NAME): $(SKYPEWEB_SOURCES)
-	$(CC) -Wall -I. -fPIC $(CFLAGS) $(SKYPEWEB_SOURCES) -o $@ $(LIBPURPLE_CFLAGS) $(LDFLAGS) $(LIBPURPLE_LIBS) -shared

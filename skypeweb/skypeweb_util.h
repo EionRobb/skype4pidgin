@@ -31,13 +31,5 @@ gint64 skypeweb_get_js_time();
 
 PurpleAccount *find_acct(const char *prpl, const char *acct_id);
 
-PurpleUtilFetchUrlData *
-skypeweb_fetch_url_request(SkypeWebAccount *sa,
-		const char *url, gboolean full, const char *user_agent, gboolean http11,
-		const char *request, gboolean include_headers, gssize max_len,
-		PurpleUtilFetchUrlCallback callback, void *user_data);
-
-void skypeweb_url_prevent_follow_redirects(PurpleUtilFetchUrlData *requestdata);
-
 const gchar *skypeweb_user_url_prefix(const gchar *who);
 const gchar *skypeweb_strip_user_prefix(const gchar *who);

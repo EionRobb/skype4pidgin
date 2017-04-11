@@ -39,27 +39,13 @@ typedef enum
 typedef struct _SkypeWebConnection SkypeWebConnection;
 struct _SkypeWebConnection {
 	SkypeWebAccount *sa;
-	SkypeWebMethod method;
-	gchar *hostname;
 	gchar *url;
-	GString *request;
 	SkypeWebProxyCallbackFunc callback;
 	gpointer user_data;
-	char *rx_buf;
-	size_t rx_len;
-	PurpleProxyConnectData *connect_data;
-	PurpleSslConnection *ssl_conn;
-	int fd;
-	guint input_watcher;
-	gboolean connection_keepalive;
-	time_t request_time;
-	guint retry_count;
-	guint timeout_watcher;
+	PurpleHttpConnection *http_conn;
 	SkypeWebProxyCallbackErrorFunc error_callback;
 };
 
-void skypeweb_connection_destroy(SkypeWebConnection *skypewebcon);
-void skypeweb_connection_close(SkypeWebConnection *skypewebcon);
 SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod method,
 		const gchar *host, const gchar *url, const gchar *postdata,
 		SkypeWebProxyCallbackFunc callback_func, gpointer user_data,
@@ -68,5 +54,6 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 void skypeweb_update_cookies(SkypeWebAccount *sa, const gchar *headers);		
 gchar *skypeweb_cookies_to_string(SkypeWebAccount *sa);
 
+//SkypeWebConnection *skypeweb_fetch_url_request();
 
 #endif /* SKYPEWEB_CONNECTION_H */

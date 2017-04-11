@@ -176,24 +176,22 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				const gchar *last_message = NULL;
 
 				// get last message (first in GList)
-				if (conv && g_list_length(conv->message_history)) {
-					PurpleMessage *last = g_list_nth_data(g_list_first(conv->message_history),0);
-					last_message = g_strdup(last->what);
+				if (conv && g_list_length(purple_conversation_get_message_history(conv))) {
+					PurpleMessage *last = g_list_nth_data(g_list_first(purple_conversation_get_message_history(conv)),0);
+					last_message = g_strdup(purple_message_get_contents(last));
 				}
 
 				// add typing notification to chat
 				if (last_message && !g_str_equal(last_message, message)) {
-					purple_conversation_write(conv, NULL, message, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_NOTIFY | PURPLE_MESSAGE_ACTIVE_ONLY , composetimestamp);
+					PurpleMessage *msg = purple_message_new_system(message, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_NOTIFY | PURPLE_MESSAGE_ACTIVE_ONLY);
+					purple_message_set_time(msg, composetimestamp);
+					purple_conversation_write_message(conv, msg);
+					purple_message_destroy(msg);
 				}
 			}
 			
-			#if !PURPLE_VERSION_CHECK(3, 0, 0)
-				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
-				(void) cb;
-			#else
-				cb = purple_chat_conversation_find_user(chatconv, from);
-				cbflags = purple_chat_user_get_flags(cb);
-			#endif
+			cb = purple_chat_conversation_find_user(chatconv, from);
+			cbflags = purple_chat_user_get_flags(cb);
 			
 			cbflags |= PURPLE_CHAT_USER_TYPING;
 			
@@ -202,11 +200,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				cbflags |= PURPLE_CHAT_USER_VOICE;
 			}
 			
-			#if !PURPLE_VERSION_CHECK(3, 0, 0)
-				purple_conv_chat_user_set_flags(chatconv, from, cbflags);
-			#else
-				purple_chat_user_set_flags(cb, cbflags);
-			#endif
+			purple_chat_user_set_flags(cb, cbflags);
 			
 			//purple_timeout_add_seconds(7, skypeweb_clear_typing_hack, cb);
 			
@@ -382,13 +376,18 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			if (skypeweb_is_user_self(sa, from)) {
 				if (!g_str_has_prefix(html, "?OTR")) {
+					PurpleMessage *msg;
 					imconv = purple_conversations_find_im_with_account(convbuddyname, sa->account);
 					if (imconv == NULL)
 					{
 						imconv = purple_im_conversation_new(sa->account, convbuddyname);
 					}
 					conv = PURPLE_CONVERSATION(imconv);
-					purple_conversation_write(conv, convbuddyname, html, PURPLE_MESSAGE_SEND, composetimestamp);
+					
+					msg = purple_message_new_outgoing(convbuddyname, html, PURPLE_MESSAGE_SEND);
+					purple_message_set_time(msg, composetimestamp);
+					purple_conversation_write_message(conv, msg);
+					purple_message_destroy(msg);
 				}
 			} else {
 				purple_serv_got_im(sa->pc, from, html, PURPLE_MESSAGE_RECV, composetimestamp);
@@ -1110,17 +1109,19 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 }
 
 static void
-skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	gchar *registration_token = NULL;
 	gchar *endpointId = NULL;
 	gchar *expires = NULL;
 	SkypeWebAccount *sa = user_data;
 	gchar *new_messages_host = NULL;
-
-	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
+	const gchar *data;
+	gsize len;
 	
-	if (url_text == NULL) {
+	data = purple_http_response_get_data(response, &len);
+	
+	if (data == NULL) {
 		if (purple_major_version == 2 && (
 			purple_minor_version < 10 ||
 			(purple_minor_version == 10 && purple_micro_version < 11))
@@ -1132,7 +1133,7 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 		}
 	}
 	
-	new_messages_host = skypeweb_string_get_chunk(url_text, len, "Location: https://", "/");
+	new_messages_host = skypeweb_string_get_chunk(data, len, "Location: https://", "/");
 	if (new_messages_host != NULL && !g_str_equal(sa->messages_host, new_messages_host)) {
 		g_free(sa->messages_host);
 		sa->messages_host = new_messages_host;
@@ -1145,9 +1146,9 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 	}
 	g_free(new_messages_host);
 	
-	registration_token = skypeweb_string_get_chunk(url_text, len, "Set-RegistrationToken: ", ";");
-	endpointId = skypeweb_string_get_chunk(url_text, len, "endpointId=", "\r\n");
-	expires = skypeweb_string_get_chunk(url_text, len, "expires=", ";");
+	registration_token = skypeweb_string_get_chunk(data, len, "Set-RegistrationToken: ", ";");
+	endpointId = skypeweb_string_get_chunk(data, len, "endpointId=", "\r\n");
+	expires = skypeweb_string_get_chunk(data, len, "expires=", ";");
 	
 	if (registration_token == NULL) {
 		if (purple_account_get_string(sa->account, "refresh-token", NULL)) {
@@ -1173,17 +1174,17 @@ skypeweb_got_registration_token(PurpleUtilFetchUrlData *url_data, gpointer user_
 }
 
 static void
-skypeweb_got_vdms_token(PurpleUtilFetchUrlData *url_data, gpointer user_data, const gchar *url_text, gsize len, const gchar *error_message)
+skypeweb_got_vdms_token(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	const gchar *token;
-
 	SkypeWebAccount *sa = user_data;
-
-	sa->url_datas = g_slist_remove(sa->url_datas, url_data);
-
 	JsonParser *parser = json_parser_new();
+	const gchar *data;
+	gsize len;
+	
+	data = purple_http_response_get_data(response, &len);
 
-	if (json_parser_load_from_data(parser, url_text, -1, NULL)) {
+	if (json_parser_load_from_data(parser, data, len, NULL)) {
 		JsonNode *root = json_parser_get_root(parser);
 		JsonObject *obj = json_node_get_object(root);
 
@@ -1200,10 +1201,9 @@ void
 skypeweb_get_registration_token(SkypeWebAccount *sa)
 {
 	gchar *messages_url;
-	gchar *request;
+	PurpleHttpRequest *request;
 	gchar *curtime;
 	gchar *response;
-	gpointer requestdata;
 	
 	g_free(sa->registration_token); sa->registration_token = NULL;
 	g_free(sa->endpoint); sa->endpoint = NULL;
@@ -1213,25 +1213,20 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 	
 	messages_url = g_strdup_printf("https://%s/v1/users/ME/endpoints", sa->messages_host);
 	
-	request = g_strdup_printf("POST /v1/users/ME/endpoints HTTP/1.0\r\n"
-			"Connection: close\r\n"
-			"Accept: */*\r\n"
-			"BehaviorOverride: redirectAs404\r\n"
-			"LockAndKey: appId=" SKYPEWEB_LOCKANDKEY_APPID "; time=%s; lockAndKeyResponse=%s\r\n"
-			"ClientInfo: os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=" SKYPEWEB_CLIENTINFO_NAME "; clientVer=" SKYPEWEB_CLIENTINFO_VERSION "\r\n"
-			"Host: %s\r\n"
-			"Content-Type: application/json\r\n"
-			"Authentication: skypetoken=%s\r\n"
-			"Content-Length: 28\r\n\r\n{\"endpointFeatures\":\"Agent\"}",
-			curtime, response, sa->messages_host, sa->skype_token);
+	request = purple_http_request_new(messages_url);
+	purple_http_request_set_method(request, "POST");
+	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
+	purple_http_request_set_max_redirects(request, 0);
+	purple_http_request_header_set(request, "Accept", "*/*");
+	purple_http_request_header_set(request, "BehaviorOverride", "redirectAs404");
+	purple_http_request_header_set_printf(request, "LockAndKey", "appId=" SKYPEWEB_LOCKANDKEY_APPID "; time=%s; lockAndKeyResponse=%s", curtime, response);
+	purple_http_request_header_set(request, "ClientInfo", "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=" SKYPEWEB_CLIENTINFO_NAME "; clientVer=" SKYPEWEB_CLIENTINFO_VERSION);
+	purple_http_request_header_set(request, "Content-Type", "application/json");
+	purple_http_request_header_set_printf(request, "Authentication", "skypetoken=%s", sa->skype_token);
+	purple_http_request_set_contents(request, "{\"endpointFeatures\":\"Agent\"}", -1);
+	purple_http_request(sa->pc, request, skypeweb_got_registration_token, sa);
+	purple_http_request_unref(request);
 	
-	//purple_debug_info("skypeweb", "reg token request is %s\n", request);
-	
-	requestdata = skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, TRUE, 524288, skypeweb_got_registration_token, sa);
-
-	skypeweb_url_prevent_follow_redirects(requestdata);
-
-	g_free(request);
 	g_free(curtime);
 	g_free(response);
 	g_free(messages_url);
@@ -1240,24 +1235,18 @@ skypeweb_get_registration_token(SkypeWebAccount *sa)
 void
 skypeweb_get_vdms_token(SkypeWebAccount *sa)
 {
-	gchar *request;
-
 	const gchar *messages_url = "https://" SKYPEWEB_STATIC_HOST "/pes/v1/petoken";
-
-	request = g_strdup_printf("GET /pes/v1/petoken HTTP/1.0\r\n"
-			"Connection: close\r\n"
-			"Accept: */*\r\n"
-			"Host: %s\r\n"
-			"Origin: https://web.skype.com\r\n"
-			"Authorization: skype_token %s\r\n"
-			"Content-Type: application/x-www-form-urlencoded\r\n"
-			"Content-Length: 2\r\n\r\n{}",
-			SKYPEWEB_STATIC_HOST, sa->skype_token);
-
-	skypeweb_fetch_url_request(sa, messages_url, TRUE, NULL, FALSE, request, FALSE, 524288, skypeweb_got_vdms_token, sa);
-
-	g_free(request);
-
+	PurpleHttpRequest *request;
+	
+	request = purple_http_request_new(messages_url);
+	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
+	purple_http_request_header_set(request, "Accept", "*/*");
+	purple_http_request_header_set(request, "Origin", "https://web.skype.com");
+	purple_http_request_header_set_printf(request, "Authorization", "skype_token %s", sa->skype_token);
+	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded");
+	purple_http_request_set_contents(request, "{}", -1);
+	purple_http_request(sa->pc, request, skypeweb_got_vdms_token, sa);
+	purple_http_request_unref(request);
 }
 
 
@@ -1383,11 +1372,13 @@ skypeweb_sent_message_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data
 	
 	if (obj != NULL) {
 		if (json_object_has_member(obj, "errorCode")) {
-			PurpleConversation *conv = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, convname, sa->account);
-			if (conv == NULL) {
-				purple_conv_present_error(skypeweb_strip_user_prefix(convname), sa->account, json_object_get_string_member(obj, "message"));
+			PurpleChatConversation *chatconv = purple_conversations_find_chat_with_account(convname, sa->account);
+			if (chatconv == NULL) {
+				purple_conversation_present_error(skypeweb_strip_user_prefix(convname), sa->account, json_object_get_string_member(obj, "message"));
 			} else {
-				purple_conversation_write(conv, NULL, json_object_get_string_member(obj, "message"), PURPLE_MESSAGE_ERROR, time(NULL));
+				PurpleMessage *msg = purple_message_new_system(json_object_get_string_member(obj, "message"), PURPLE_MESSAGE_ERROR);
+				purple_conversation_write_message(PURPLE_CONVERSATION(chatconv), msg);
+				purple_message_destroy(msg);
 			}
 		}
 	}
@@ -1453,8 +1444,16 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 
 
 gint
-skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMessageFlags flags)
+skypeweb_chat_send(PurpleConnection *pc, gint id, 
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleMessage *msg)
 {
+	const gchar *message = purple_message_get_contents(msg);
+#else
+const gchar *message, PurpleMessageFlags flags)
+{
+#endif
+	
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	
 	PurpleChatConversation *chatconv;
@@ -1477,8 +1476,17 @@ skypeweb_chat_send(PurpleConnection *pc, gint id, const gchar *message, PurpleMe
 }
 
 gint
-skypeweb_send_im(PurpleConnection *pc, const gchar *who, const gchar *message, PurpleMessageFlags flags)
+skypeweb_send_im(PurpleConnection *pc, 
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleMessage *msg)
 {
+	const gchar *who = purple_message_get_recipient(msg);
+	const gchar *message = purple_message_get_contents(msg);
+#else
+const gchar *who, const gchar *message, PurpleMessageFlags flags)
+{
+#endif
+
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *convname;
 	

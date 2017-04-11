@@ -329,13 +329,6 @@ skypeweb_login(PurpleAccount *account)
 	PurpleConnectionFlags flags;
 	
 	purple_connection_set_protocol_data(pc, sa);
-	
-	if (!purple_ssl_is_supported()) {
-		purple_connection_error (pc,
-								PURPLE_CONNECTION_ERROR_NO_SSL_SUPPORT,
-								_("Server requires TLS/SSL for login.  No TLS/SSL support found."));
-		return;
-	}
 
 	flags = purple_connection_get_flags(pc);
 	flags |= PURPLE_CONNECTION_FLAG_HTML | PURPLE_CONNECTION_FLAG_NO_BGCOLOR | PURPLE_CONNECTION_FLAG_NO_FONTSIZE;
@@ -346,12 +339,12 @@ skypeweb_login(PurpleAccount *account)
 	}
 	sa->account = account;
 	sa->pc = pc;
-	sa->cookie_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-	sa->hostname_ip_cache = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+	sa->cookie_jar = purple_http_cookie_jar_new();
 	sa->sent_messages_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-	sa->waiting_conns = g_queue_new();
 	sa->messages_host = g_strdup(SKYPEWEB_DEFAULT_MESSAGES_HOST);
-	sa->url_datas = NULL;
+	sa->keepalive_pool = purple_http_keepalive_pool_new();
+	purple_http_keepalive_pool_set_limit_per_host(sa->keepalive_pool, SKYPEWEB_MAX_CONNECTIONS);
+	sa->conns = purple_http_connection_set_new();
 	
 	if (purple_account_get_string(account, "refresh-token", NULL) && purple_account_get_remember_password(account)) {
 		skypeweb_refresh_token_login(sa);
@@ -383,33 +376,15 @@ skypeweb_close(PurpleConnection *pc)
 	purple_timeout_remove(sa->watchdog_timeout);
 
 	skypeweb_logout(sa);
-	purple_debug_info("skypeweb", "destroying %d waiting connections\n",
-					  g_queue_get_length(sa->waiting_conns));
 	
-	while (!g_queue_is_empty(sa->waiting_conns))
-		skypeweb_connection_destroy(g_queue_pop_tail(sa->waiting_conns));
-	g_queue_free(sa->waiting_conns);
-	
-	purple_debug_info("skypeweb", "destroying %d incomplete connections\n",
-			g_slist_length(sa->conns));
+	purple_debug_info("skypeweb", "destroying incomplete connections\n");
 
-	while (sa->conns != NULL)
-		skypeweb_connection_destroy(sa->conns->data);
-		
-	while (sa->dns_queries != NULL) {
-		PurpleDnsQueryData *dns_query = sa->dns_queries->data;
-		purple_debug_info("skypeweb", "canceling dns query for %s\n",
-					purple_dnsquery_get_host(dns_query));
-		sa->dns_queries = g_slist_remove(sa->dns_queries, dns_query);
-		purple_dnsquery_destroy(dns_query);
-	}
+	purple_http_conn_cancel_all(pc);
+	purple_http_connection_set_destroy(sa->conns);
+	purple_http_keepalive_pool_unref(sa->keepalive_pool);
+	purple_http_cookie_jar_unref(sa->cookie_jar);
 
-	while (sa->url_datas) {
-		purple_util_fetch_url_cancel(sa->url_datas->data);
-		sa->url_datas = g_slist_delete_link(sa->url_datas, sa->url_datas);
-	}
-
-	buddies = purple_find_buddies(sa->account, NULL);
+	buddies = purple_blist_find_buddies(sa->account, NULL);
 	while (buddies != NULL) {
 		PurpleBuddy *buddy = buddies->data;
 		skypeweb_buddy_free(buddy);
@@ -418,8 +393,6 @@ skypeweb_close(PurpleConnection *pc)
 	}
 	
 	g_hash_table_destroy(sa->sent_messages_hash);
-	g_hash_table_destroy(sa->cookie_table);
-	g_hash_table_destroy(sa->hostname_ip_cache);
 	
 	g_free(sa->messages_host);
 	g_free(sa->skype_token);
@@ -529,7 +502,7 @@ skypeweb_cmd_topic(PurpleConversation *conv, const gchar *cmd, gchar **args, gch
 			buf = g_strdup(_("No topic is set"));
 		}
 		
-		purple_conv_chat_write(chat, NULL, buf, PURPLE_MESSAGE_SYSTEM | PURPLE_MESSAGE_NO_LOG, time(NULL));
+		purple_conversation_write_system_message(conv, buf, PURPLE_MESSAGE_NO_LOG);
 		
 		g_free(buf);
 		return PURPLE_CMD_RET_OK;
@@ -622,6 +595,24 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 }
 
 #if PURPLE_VERSION_CHECK(3, 0, 0)
+	typedef struct _SkypeWebProtocol
+	{
+		PurpleProtocol parent;
+	} SkypeWebProtocol;
+
+	typedef struct _SkypeWebProtocolClass
+	{
+		PurpleProtocolClass parent_class;
+	} SkypeWebProtocolClass;
+
+	G_MODULE_EXPORT GType skypeweb_protocol_get_type(void);
+	#define SKYPEWEB_TYPE_PROTOCOL             (skypeweb_protocol_get_type())
+	#define SKYPEWEB_PROTOCOL(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocol))
+	#define SKYPEWEB_PROTOCOL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocolClass))
+	#define SKYPEWEB_IS_PROTOCOL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), SKYPEWEB_TYPE_PROTOCOL))
+	#define SKYPEWEB_IS_PROTOCOL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), SKYPEWEB_TYPE_PROTOCOL))
+	#define SKYPEWEB_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocolClass))
+
 	static PurpleProtocol *skypeweb_protocol;
 #endif
 
@@ -717,10 +708,9 @@ PurpleConnection *pc
 )
 {
 	GList *m = NULL;
-	PurplePluginAction *act;
+	PurpleProtocolAction *act;
 
-	act = purple_plugin_action_new(_("Search for friends..."),
-			skypeweb_search_users);
+	act = purple_protocol_action_new(_("Search for friends..."), skypeweb_search_users);
 	m = g_list_append(m, act);
 
 	return m;
