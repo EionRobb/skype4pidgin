@@ -72,21 +72,18 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 	PurpleHttpRequest *request;
 	const gchar* const *languages;
 	gchar *language_names;
+	gchar *real_url = g_strdup_printf("%s://%s%s", method & SKYPEWEB_METHOD_SSL ? "https" : "http", host, url);
 	
-	request = purple_http_request_new(url);
-	switch(method) {
-		case SKYPEWEB_METHOD_POST:
-			purple_http_request_set_method(request, "POST");
-			break;
-		case SKYPEWEB_METHOD_PUT:
-			purple_http_request_set_method(request, "PUT");
-			break;
-		default:
-			break;
+	request = purple_http_request_new(real_url);
+	if (method & SKYPEWEB_METHOD_POST) {
+		purple_http_request_set_method(request, "POST");
+	} else if (method & SKYPEWEB_METHOD_PUT) {
+		purple_http_request_set_method(request, "PUT");
 	}
 	if (keepalive) {
 		purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	}
+	purple_http_request_set_max_redirects(request, 0);
 	
 	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) {		
 		if (postdata && (postdata[0] == '[' || postdata[0] == '{')) {
@@ -127,7 +124,8 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 	conn = g_new0(SkypeWebConnection, 1);
 	conn->sa = sa;
 	conn->user_data = user_data;
-	conn->url = g_strdup(url);
+	conn->url = real_url;
+	conn->callback = callback_func;
 	
 	conn->http_conn = purple_http_request(sa->pc, request, skypeweb_post_or_get_cb, conn);
 	purple_http_connection_set_add(sa->conns, conn->http_conn);

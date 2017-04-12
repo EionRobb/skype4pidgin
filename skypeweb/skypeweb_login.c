@@ -122,7 +122,6 @@ skypeweb_login_got_pie(PurpleHttpConnection *http_conn, PurpleHttpResponse *resp
 	
 	request = purple_http_request_new(login_url);
 	purple_http_request_set_method(request, "POST");
-	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_set_cookie_jar(request, sa->cookie_jar);
 	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	purple_http_request_header_set(request, "Accept", "*/*");
@@ -153,7 +152,7 @@ static void
 skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
-	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login/oauth?client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
+	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login/microsoft";
 	PurpleHttpRequest *request;
 	GString *postdata;
 	gchar *magic_t_value; // T is for tasty
@@ -208,12 +207,12 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 	
 	request = purple_http_request_new(login_url);
 	purple_http_request_set_method(request, "POST");
-	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_set_cookie_jar(request, sa->cookie_jar);
 	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	purple_http_request_header_set(request, "Accept", "*/*");
 	purple_http_request_header_set(request, "BehaviorOverride", "redirectAs404");
 	purple_http_request_set_contents(request, postdata->str, tmplen);
+	purple_http_request_set_max_redirects(request, 0);
 	purple_http_request(sa->pc, request, skypeweb_login_did_auth, sa);
 	purple_http_request_unref(request);
 	
@@ -227,9 +226,7 @@ static void
 skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
-	const gchar *live_login_url = "https://login.live.com" "/ppsecure/post.srf?wa=wsignin1.0&wreply=https%3A%2F%2Fsecure.skype.com%2Flogin%2Foauth%2Fproxy%3Fclient_id%3D578134%26redirect_uri%3Dhttps%253A%252F%252Fweb.skype.com";
-	gchar *msprequ_cookie;
-	gchar *mspok_cookie;
+	const gchar *live_login_url = "https://login.live.com" "/ppsecure/post.srf?wa=wsignin1.0&wp=MBI_SSL&wreply=https%3A%2F%2Flw.skype.com%2Flogin%2Foauth%2Fproxy%3Fsite_name%3Dlw.skype.com";
 	gchar *cktst_cookie;
 	gchar *ppft;
 	GString *postdata;
@@ -237,20 +234,9 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	int tmplen;
 	const gchar *data;
 	gsize len;
-	
+
 	data = purple_http_response_get_data(response, &len);
 	
-	// grab PPFT and cookies (MSPRequ, MSPOK)
-	msprequ_cookie = skypeweb_string_get_chunk(data, len, "Set-Cookie: MSPRequ=", ";");
-	if (!msprequ_cookie) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting MSPRequ cookie"));
-		return;
-	}
-	mspok_cookie = skypeweb_string_get_chunk(data, len, "Set-Cookie: MSPOK=", ";");
-	if (!mspok_cookie) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting MSPOK cookie"));
-		return;
-	}
 	// <input type="hidden" name="PPFT" id="i0327" value="..."/>
 	ppft = skypeweb_string_get_chunk(data, len, "name=\"PPFT\" id=\"i0327\" value=\"", "\"");
 	if (!ppft) {
@@ -259,12 +245,14 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	}
 	// CkTst=G + timestamp   e.g. G1422309314913
 	cktst_cookie = g_strdup_printf("G%" G_GINT64_FORMAT, skypeweb_get_js_time());
+	purple_http_cookie_jar_set(sa->cookie_jar, "CkTst", cktst_cookie);
 	
 	// postdata: login={username}&passwd={password}&PPFT={ppft value}
 	postdata = g_string_new("");
 	g_string_append_printf(postdata, "login=%s&", purple_url_encode(purple_account_get_username(sa->account)));
 	g_string_append_printf(postdata, "passwd=%s&", purple_url_encode(purple_connection_get_password(sa->pc)));
 	g_string_append_printf(postdata, "PPFT=%s&", purple_url_encode(ppft));
+	g_string_append(postdata, "loginoptions=3&");
 
 	tmplen = postdata->len;
 	if (postdata->len > INT_MAX) tmplen = INT_MAX;
@@ -273,19 +261,15 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	
 	request = purple_http_request_new(live_login_url);
 	purple_http_request_set_method(request, "POST");
-	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_set_cookie_jar(request, sa->cookie_jar);
 	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	purple_http_request_header_set(request, "Accept", "*/*");
-	purple_http_request_header_set_printf(request, "Cookie", "MSPRequ=%s;MSPOK=%s;CkTst=%s;", msprequ_cookie, mspok_cookie, cktst_cookie);
 	purple_http_request_set_contents(request, postdata->str, tmplen);
 	purple_http_request(sa->pc, request, skypeweb_login_got_t, sa);
 	purple_http_request_unref(request);
 	
 	g_string_free(postdata, TRUE);
 	
-	g_free(msprequ_cookie);
-	g_free(mspok_cookie);
 	g_free(cktst_cookie);
 	g_free(ppft);
 	
@@ -296,8 +280,12 @@ void
 skypeweb_begin_oauth_login(SkypeWebAccount *sa)
 {
 	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login/oauth/microsoft?client_id=578134&redirect_uri=https%3A%2F%2Fweb.skype.com";
+	PurpleHttpRequest *request;
 	
-	purple_http_get(sa->pc, skypeweb_login_got_ppft, sa, login_url);
+	request = purple_http_request_new(login_url);
+	purple_http_request_set_cookie_jar(request, sa->cookie_jar);
+	purple_http_request(sa->pc, request, skypeweb_login_got_ppft, sa);
+	purple_http_request_unref(request);
 	
 	purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTING);
 	purple_connection_update_progress(sa->pc, _("Connecting"), 1, 4);

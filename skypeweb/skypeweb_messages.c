@@ -1111,7 +1111,7 @@ skypeweb_subscribe(SkypeWebAccount *sa)
 static void
 skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
-	gchar *registration_token = NULL;
+	const gchar *registration_token = NULL;
 	gchar *endpointId = NULL;
 	gchar *expires = NULL;
 	SkypeWebAccount *sa = user_data;
@@ -1133,7 +1133,7 @@ skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpRespo
 		}
 	}
 	
-	new_messages_host = skypeweb_string_get_chunk(data, len, "Location: https://", "/");
+	new_messages_host = skypeweb_string_get_chunk(purple_http_response_get_header(response, "Location"), -1, "https://", "/");
 	if (new_messages_host != NULL && !g_str_equal(sa->messages_host, new_messages_host)) {
 		g_free(sa->messages_host);
 		sa->messages_host = new_messages_host;
@@ -1146,9 +1146,7 @@ skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpRespo
 	}
 	g_free(new_messages_host);
 	
-	registration_token = skypeweb_string_get_chunk(data, len, "Set-RegistrationToken: ", ";");
-	endpointId = skypeweb_string_get_chunk(data, len, "endpointId=", "\r\n");
-	expires = skypeweb_string_get_chunk(data, len, "expires=", ";");
+	registration_token = purple_http_response_get_header(response, "Set-RegistrationToken");
 	
 	if (registration_token == NULL) {
 		if (purple_account_get_string(sa->account, "refresh-token", NULL)) {
@@ -1161,8 +1159,10 @@ skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpRespo
 		return;
 	}
 	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
+	endpointId = skypeweb_string_get_chunk(registration_token, -1, "endpointId=", "\0");
+	expires = skypeweb_string_get_chunk(registration_token, -1, "expires=", ";");
 	
-	g_free(sa->registration_token); sa->registration_token = registration_token;
+	g_free(sa->registration_token); sa->registration_token = g_strndup(registration_token, strchr(registration_token, ';') - registration_token);
 	g_free(sa->endpoint); sa->endpoint = endpointId;
 	if (expires && *expires) {
 		sa->registration_expiry = atoi(expires);

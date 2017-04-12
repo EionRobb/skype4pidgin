@@ -614,6 +614,12 @@ skypeweb_uri_handler(const char *proto, const char *cmd, GHashTable *params)
 	#define SKYPEWEB_PROTOCOL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), SKYPEWEB_TYPE_PROTOCOL, SkypeWebProtocolClass))
 
 	static PurpleProtocol *skypeweb_protocol;
+#else
+	
+// Normally set in core.c in purple3
+void _purple_socket_init(void);
+void _purple_socket_uninit(void);
+
 #endif
 
 
@@ -629,6 +635,9 @@ plugin_load(PurplePlugin *plugin
 	skypeweb_protocol = purple_protocols_add(SKYPEWEB_TYPE_PROTOCOL, error);
 	if (!skypeweb_protocol)
 		return FALSE;
+#else
+	_purple_socket_init();
+	purple_http_init();
 #endif
 	
 	
@@ -692,6 +701,9 @@ plugin_unload(PurplePlugin *plugin
 #if PURPLE_VERSION_CHECK(3, 0, 0)
 	if (!purple_protocols_remove(skypeweb_protocol, error))
 		return FALSE;
+#else
+	_purple_socket_uninit();
+	purple_http_uninit();
 #endif
 	purple_signals_disconnect_by_handle(plugin);
 	
