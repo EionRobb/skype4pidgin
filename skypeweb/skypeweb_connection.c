@@ -83,7 +83,9 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 	if (keepalive) {
 		purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	}
+	
 	purple_http_request_set_max_redirects(request, 0);
+	purple_http_request_set_timeout(request, 120);
 	
 	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) {		
 		if (postdata && (postdata[0] == '[' || postdata[0] == '{')) {
