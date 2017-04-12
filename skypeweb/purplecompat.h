@@ -243,9 +243,9 @@ purple_xfer_write_file(PurpleXfer *xfer, const guchar *buffer, gsize size) {
 		(ui_ops && ui_ops->ui_write ? ui_ops->ui_write(xfer, buffer, size) : fwrite(buffer, 1, size, xfer->dest_fp)));
 	return TRUE;
 }
+#endif
 #define PURPLE_XFER_TYPE_RECEIVE  PURPLE_XFER_RECEIVE
 #define PURPLE_XFER_TYPE_SEND     PURPLE_XFER_SEND
-#endif
 
 #endif
 
