@@ -19,6 +19,10 @@
 #ifndef LIBSKYPEWEB_H
 #define LIBSKYPEWEB_H
 
+#ifndef PURPLE_PLUGINS
+#	define PURPLE_PLUGINS
+#endif
+
 /* Maximum number of simultaneous connections to a server */
 #define SKYPEWEB_MAX_CONNECTIONS 16
 
@@ -71,10 +75,6 @@
 	(JSON_ARRAY ? json_array_get_length(JSON_ARRAY) : 0)
 #define json_node_get_array(JSON_NODE) \
 	(JSON_NODE && JSON_NODE_TYPE(JSON_NODE) == JSON_NODE_ARRAY ? json_node_get_array(JSON_NODE) : NULL)
-
-#ifndef PURPLE_PLUGINS
-#	define PURPLE_PLUGINS
-#endif
 
 #include "accountopt.h"
 #include "core.h"
