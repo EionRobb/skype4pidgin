@@ -34,14 +34,18 @@ skypeweb_string_get_chunk(const gchar *haystack, gsize len, const gchar *start, 
 	g_return_val_if_fail(chunk_start, NULL);
 	chunk_start += strlen(start);
 	
-	if (len > 0) {
-		chunk_end = g_strstr_len(chunk_start, len - (chunk_start - haystack), end);
+	if (end != NULL) {
+		if (len > 0) {
+			chunk_end = g_strstr_len(chunk_start, len - (chunk_start - haystack), end);
+		} else {
+			chunk_end = strstr(chunk_start, end);
+		}
+		g_return_val_if_fail(chunk_end, NULL);
+		
+		return g_strndup(chunk_start, chunk_end - chunk_start);
 	} else {
-		chunk_end = strstr(chunk_start, end);
+		return g_strdup(chunk_start);
 	}
-	g_return_val_if_fail(chunk_end, NULL);
-	
-	return g_strndup(chunk_start, chunk_end - chunk_start);
 }
 
 gchar *

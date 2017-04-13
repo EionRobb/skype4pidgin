@@ -1159,7 +1159,7 @@ skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpRespo
 		return;
 	}
 	//purple_debug_info("skypeweb", "New RegistrationToken is %s\n", registration_token);
-	endpointId = skypeweb_string_get_chunk(registration_token, -1, "endpointId=", "\0");
+	endpointId = skypeweb_string_get_chunk(registration_token, -1, "endpointId=", NULL);
 	expires = skypeweb_string_get_chunk(registration_token, -1, "expires=", ";");
 	
 	g_free(sa->registration_token); sa->registration_token = g_strndup(registration_token, strchr(registration_token, ';') - registration_token);
