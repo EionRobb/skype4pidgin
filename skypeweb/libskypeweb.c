@@ -367,6 +367,9 @@ skypeweb_close(PurpleConnection *pc)
 	GSList *buddies;
 	
 	g_return_if_fail(pc != NULL);
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
+	purple_connection_set_state(pc, PURPLE_CONNECTION_DISCONNECTING);
+#endif
 	
 	sa = purple_connection_get_protocol_data(pc);
 	g_return_if_fail(sa != NULL);
@@ -379,8 +382,8 @@ skypeweb_close(PurpleConnection *pc)
 	
 	purple_debug_info("skypeweb", "destroying incomplete connections\n");
 
-	purple_http_conn_cancel_all(pc);
 	purple_http_connection_set_destroy(sa->conns);
+	purple_http_conn_cancel_all(pc);
 	purple_http_keepalive_pool_unref(sa->keepalive_pool);
 	purple_http_cookie_jar_unref(sa->cookie_jar);
 

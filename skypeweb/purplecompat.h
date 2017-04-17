@@ -62,6 +62,7 @@ purple_blist_node_set_transient(PurpleBlistNode *node, gboolean transient)
 #define PURPLE_IS_CONNECTION	PURPLE_CONNECTION_IS_VALID
 
 #define PURPLE_CONNECTION_DISCONNECTED     PURPLE_DISCONNECTED
+#define PURPLE_CONNECTION_DISCONNECTING    4
 #define PURPLE_CONNECTION_CONNECTING       PURPLE_CONNECTING
 #define PURPLE_CONNECTION_CONNECTED        PURPLE_CONNECTED
 #define PURPLE_CONNECTION_FLAG_HTML        PURPLE_CONNECTION_HTML
@@ -72,7 +73,7 @@ purple_blist_node_set_transient(PurpleBlistNode *node, gboolean transient)
 #define purple_request_cpar_from_connection(a)  purple_connection_get_account(a), NULL, NULL
 #define purple_connection_get_protocol          purple_connection_get_prpl
 #define purple_connection_error                 purple_connection_error_reason
-#define purple_connection_is_disconnecting(c)   FALSE
+#define purple_connection_is_disconnecting(c)   (purple_connection_get_state(c) == PURPLE_DISCONNECTED || purple_connection_get_state(c) == PURPLE_CONNECTION_DISCONNECTING)
 #define purple_connection_set_flags(pc, f)      ((pc)->flags = (f))
 #define purple_connection_get_flags(pc)         ((pc)->flags)
 

@@ -748,8 +748,9 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 		//TODO record id of highest recieved id to make sure we dont process the same id twice
 	}
 	
-	sa->poll_timeout = purple_timeout_add_seconds(1, skypeweb_timeout, sa);
-			
+	if (!purple_connection_is_disconnecting(sa->pc)) {
+		sa->poll_timeout = purple_timeout_add_seconds(1, skypeweb_timeout, sa);
+	}
 }
 
 void
