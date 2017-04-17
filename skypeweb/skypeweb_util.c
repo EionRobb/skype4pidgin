@@ -24,7 +24,7 @@ gchar *
 skypeweb_string_get_chunk(const gchar *haystack, gsize len, const gchar *start, const gchar *end)
 {
 	const gchar *chunk_start, *chunk_end;
-	g_return_val_if_fail(haystack && start && end, NULL);
+	g_return_val_if_fail(haystack && start, NULL);
 	
 	if (len > 0) {
 		chunk_start = g_strstr_len(haystack, len, start);

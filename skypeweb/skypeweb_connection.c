@@ -34,34 +34,30 @@ skypeweb_post_or_get_cb(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	const gchar *data;
 	gsize len;
 	
-	if (purple_http_response_is_successful(response)) {
-		data = purple_http_response_get_data(response, &len);
-		
-		if (conn->callback != NULL) {
-			if (!len)
+	data = purple_http_response_get_data(response, &len);
+	
+	if (conn->callback != NULL) {
+		if (!len)
+		{
+			purple_debug_info("skypeweb", "No data in response\n");
+			conn->callback(conn->sa, NULL, conn->user_data);
+		} else {
+			JsonParser *parser = json_parser_new();
+			if (!json_parser_load_from_data(parser, data, len, NULL))
 			{
-				purple_debug_info("skypeweb", "No data in response\n");
-				conn->callback(conn->sa, NULL, conn->user_data);
-			} else {
-				JsonParser *parser = json_parser_new();
-				if (!json_parser_load_from_data(parser, data, len, NULL))
-				{
-					if (conn->error_callback != NULL) {
-						conn->error_callback(conn->sa, data, len, conn->user_data);
-					} else {
-						purple_debug_error("skypeweb", "Error parsing response: %s\n", data);
-					}
+				if (conn->error_callback != NULL) {
+					conn->error_callback(conn->sa, data, len, conn->user_data);
 				} else {
-					JsonNode *root = json_parser_get_root(parser);
-					
-					purple_debug_info("skypeweb", "executing callback for %s\n", conn->url);
-					conn->callback(conn->sa, root, conn->user_data);
+					purple_debug_error("skypeweb", "Error parsing response: %s\n", data);
 				}
-				g_object_unref(parser);
+			} else {
+				JsonNode *root = json_parser_get_root(parser);
+				
+				purple_debug_info("skypeweb", "executing callback for %s\n", conn->url);
+				conn->callback(conn->sa, root, conn->user_data);
 			}
+			g_object_unref(parser);
 		}
-	} else {
-		purple_debug_error("skypeweb", "error in response: %s\n", purple_http_response_get_error(response));
 	}
 	
 	skypeweb_destroy_connection(conn);
