@@ -1416,24 +1416,32 @@ skypeweb_check_authrequests(SkypeWebAccount *sa)
 
 
 void
-skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char* message)
+skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group, const char *message)
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
-	gchar *url, *postdata;
+	gchar *postdata;
+	const gchar *url = "/contacts/v2/users/SELF/contacts";
 	GSList *users_to_fetch;
-	gchar *buddy_name;
+	JsonObject *obj;
+	gchar *buddy_name, *mri;
 	
-	//https://contacts.skype.com/contacts/v2/users/bigbrownchunx/contacts
+	//https://contacts.skype.com/contacts/v2/users/SELF/contacts
 	// POST {"mri":"2:eionrobb@dequis.onmicrosoft.com","greeting":"Hi, eionrobb@dequis.onmicrosoft.com, I'd like to add you as a contact."}
 	
 	buddy_name = g_strdup(purple_buddy_get_name(buddy));
-	url = g_strdup_printf("/users/self/contacts/auth-request/%s", purple_url_encode(buddy_name));
-	postdata = g_strdup_printf("greeting=%s", message ? purple_url_encode(message) : "");
+	mri = g_strconcat(skypeweb_user_url_prefix(buddy_name), buddy_name, NULL);
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
+	obj = json_object_new();
 	
+	json_object_set_string_member(obj, "mri", mri);
+	json_object_set_string_member(obj, "greeting", message ? message : _("Please authorize me so I can add you to my buddy list."));
+	postdata = skypeweb_jsonobj_to_string(obj);
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
+	
+	g_free(mri);
 	g_free(postdata);
-	g_free(url);
+	json_object_unref(obj);
 	
 	// Subscribe to status/message updates
 	users_to_fetch = g_slist_prepend(NULL, buddy_name);
@@ -1444,9 +1452,9 @@ skypeweb_add_buddy_with_invite(PurpleConnection *pc, PurpleBuddy *buddy, PurpleG
 }
 
 void 
-skypeweb_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group)
+skypeweb_add_buddy(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *group)
 {
-	skypeweb_add_buddy_with_invite(gc, buddy, group, _("Please authorize me so I can add you to my buddy list."));
+	skypeweb_add_buddy_with_invite(pc, buddy, group, NULL);
 }
 
 void
@@ -1454,28 +1462,29 @@ skypeweb_buddy_remove(PurpleConnection *pc, PurpleBuddy *buddy, PurpleGroup *gro
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url;
+	const gchar *buddy_name = purple_buddy_get_name(buddy);
 	
-	url = g_strdup_printf("/users/self/contacts/%s", purple_url_encode(purple_buddy_get_name(buddy)));
+	url = g_strdup_printf("/contacts/v2/users/SELF/contacts/%s%s", skypeweb_user_url_prefix(buddy_name), purple_url_encode(buddy_name));
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
 	
-	skypeweb_unsubscribe_from_contact_status(sa, purple_buddy_get_name(buddy));
+	skypeweb_unsubscribe_from_contact_status(sa, buddy_name);
 }
 
 void
 skypeweb_buddy_block(PurpleConnection *pc, const char *name)
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
-	gchar *url, *postdata;
+	gchar *url;
+	const gchar *postdata;
 	
-	url = g_strdup_printf("/users/self/contacts/%s/block", purple_url_encode(name));
-	postdata = g_strdup_printf("reporterIp=127.0.0.1&uiVersion=" SKYPEWEB_CLIENTINFO_VERSION "/" SKYPEWEB_CLIENTINFO_NAME);
+	url = g_strdup_printf("/contacts/v2/users/SELF/contacts/blocklist/%s%s", skypeweb_user_url_prefix(name), purple_url_encode(name));
+	postdata = "{\"report_abuse\":\"false\",\"ui_version\":\"skype.com\"}";
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, postdata, NULL, NULL, TRUE);
 	
-	g_free(postdata);
 	g_free(url);
 }
 
@@ -1485,9 +1494,9 @@ skypeweb_buddy_unblock(PurpleConnection *pc, const char *name)
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	gchar *url;
 	
-	url = g_strdup_printf("/users/self/contacts/%s/unblock", purple_url_encode(name));
+	url = g_strdup_printf("/contacts/v2/users/SELF/contacts/blocklist/%s%s", skypeweb_user_url_prefix(name), purple_url_encode(name));
 	
-	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, SKYPEWEB_CONTACTS_HOST, url, "", NULL, NULL, TRUE);
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_DELETE | SKYPEWEB_METHOD_SSL, SKYPEWEB_NEW_CONTACTS_HOST, url, NULL, NULL, NULL, TRUE);
 	
 	g_free(url);
 }
