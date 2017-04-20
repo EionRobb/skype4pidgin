@@ -191,18 +191,20 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 			
 			cb = purple_chat_conversation_find_user(chatconv, from);
-			cbflags = purple_chat_user_get_flags(cb);
-			
-			cbflags |= PURPLE_CHAT_USER_TYPING;
-			
-			// typing notification icon
-			if (purple_account_get_bool(sa->account, "show-typing-as-icon", FALSE)) {
-				cbflags |= PURPLE_CHAT_USER_VOICE;
+			if (cb != NULL) {
+				cbflags = purple_chat_user_get_flags(cb);
+				
+				cbflags |= PURPLE_CHAT_USER_TYPING;
+				
+				// typing notification icon
+				if (purple_account_get_bool(sa->account, "show-typing-as-icon", FALSE)) {
+					cbflags |= PURPLE_CHAT_USER_VOICE;
+				}
+				
+				purple_chat_user_set_flags(cb, cbflags);
+				
+				//purple_timeout_add_seconds(7, skypeweb_clear_typing_hack, cb);
 			}
-			
-			purple_chat_user_set_flags(cb, cbflags);
-			
-			//purple_timeout_add_seconds(7, skypeweb_clear_typing_hack, cb);
 			
 		} else if ((g_str_equal(messagetype, "RichText") || g_str_equal(messagetype, "Text"))) {
 			gchar *html;
@@ -219,21 +221,15 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			
 			// Remove typing notification icon w/o "show-typing-as-icon" option check.
 			// Hard reset cbflags even if user changed settings while someone typing message.
-			#if !PURPLE_VERSION_CHECK(3, 0, 0)
-				cbflags = purple_conv_chat_user_get_flags(chatconv, from);
-				(void) cb;
-			#else
-				cb = purple_chat_conversation_find_user(chatconv, from);
+			
+			cb = purple_chat_conversation_find_user(chatconv, from);
+			if (cb != NULL) {
 				cbflags = purple_chat_user_get_flags(cb);
-			#endif
-			
-			cbflags &= ~PURPLE_CHAT_USER_TYPING & ~PURPLE_CHAT_USER_VOICE;
-			
-			#if !PURPLE_VERSION_CHECK(3, 0, 0)
-				purple_conv_chat_user_set_flags(chatconv, from, cbflags);
-			#else
+				
+				cbflags &= ~PURPLE_CHAT_USER_TYPING & ~PURPLE_CHAT_USER_VOICE;
+				
 				purple_chat_user_set_flags(cb, cbflags);
-			#endif
+			}
 			
 			if (content && *content) {
 				if (g_str_equal(messagetype, "Text")) {
