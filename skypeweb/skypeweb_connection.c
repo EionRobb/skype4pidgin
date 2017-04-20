@@ -84,6 +84,8 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 		purple_http_request_set_method(request, "POST");
 	} else if (method & SKYPEWEB_METHOD_PUT) {
 		purple_http_request_set_method(request, "PUT");
+	} else if (method & SKYPEWEB_METHOD_DELETE) {
+		purple_http_request_set_method(request, "DELETE");
 	}
 	if (keepalive) {
 		purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
