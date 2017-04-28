@@ -103,16 +103,16 @@ install-icons: icons/16/skype.png icons/22/skype.png icons/48/skype.png icons/16
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/16
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/22
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/48
-	install -m $(FILE_PERM) icons/16/skype.png $(SKYPEWEB_ICONS_DEST)/16/skype.png
-	install -m $(FILE_PERM) icons/22/skype.png $(SKYPEWEB_ICONS_DEST)/22/skype.png
-	install -m $(FILE_PERM) icons/48/skype.png $(SKYPEWEB_ICONS_DEST)/48/skype.png
-	install -m $(FILE_PERM) icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
-	install -m $(FILE_PERM) icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
-	install -m $(FILE_PERM) icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
+	install -m $(FILE_PERM) -p icons/16/skype.png $(SKYPEWEB_ICONS_DEST)/16/skype.png
+	install -m $(FILE_PERM) -p icons/22/skype.png $(SKYPEWEB_ICONS_DEST)/22/skype.png
+	install -m $(FILE_PERM) -p icons/48/skype.png $(SKYPEWEB_ICONS_DEST)/48/skype.png
+	install -m $(FILE_PERM) -p icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
+	install -m $(FILE_PERM) -p icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
+	install -m $(FILE_PERM) -p icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
 	
 install-theme: theme
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_THEME_DEST)
-	install -m $(FILE_PERM) theme $(SKYPEWEB_THEME_DEST)/theme
+	install -m $(FILE_PERM) -p theme $(SKYPEWEB_THEME_DEST)/theme
 
 FAILNOPURPLE:
 	echo "You need libpurple development headers installed to be able to compile this plugin"
