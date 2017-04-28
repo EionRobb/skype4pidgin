@@ -7,6 +7,9 @@ WIN32_DEV_TOP ?= $(PIDGIN_TREE_TOP)/../win32-dev
 WIN32_CC ?= $(WIN32_DEV_TOP)/mingw-4.7.2/bin/gcc
 
 PKG_CONFIG ?= pkg-config
+DIR_PERM = 0755
+LIB_PERM = 0755
+FILE_PERM = 0644
 
 CFLAGS	?= -O2 -g -pipe
 LDFLAGS ?= 
@@ -93,23 +96,23 @@ libskypeweb3.dll: $(PURPLE_C_FILES)
 	$(WIN32_CC) -shared -o $@ $^ $(WIN32_PIDGIN3_CFLAGS) $(WIN32_PIDGIN3_LDFLAGS)
 
 install: $(SKYPEWEB_TARGET) install-icons install-theme
-	mkdir -p $(SKYPEWEB_DEST)
-	install -p $(SKYPEWEB_TARGET) $(SKYPEWEB_DEST)
+	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_DEST)
+	install -m $(LIB_PERM) -p $(SKYPEWEB_TARGET) $(SKYPEWEB_DEST)
 
 install-icons: icons/16/skype.png icons/22/skype.png icons/48/skype.png icons/16/skypeout.png icons/22/skypeout.png icons/48/skypeout.png
-	mkdir -p $(SKYPEWEB_ICONS_DEST)/16
-	mkdir -p $(SKYPEWEB_ICONS_DEST)/22
-	mkdir -p $(SKYPEWEB_ICONS_DEST)/48
-	install icons/16/skype.png $(SKYPEWEB_ICONS_DEST)/16/skype.png
-	install icons/22/skype.png $(SKYPEWEB_ICONS_DEST)/22/skype.png
-	install icons/48/skype.png $(SKYPEWEB_ICONS_DEST)/48/skype.png
-	install icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
-	install icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
-	install icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
+	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/16
+	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/22
+	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_ICONS_DEST)/48
+	install -m $(FILE_PERM) icons/16/skype.png $(SKYPEWEB_ICONS_DEST)/16/skype.png
+	install -m $(FILE_PERM) icons/22/skype.png $(SKYPEWEB_ICONS_DEST)/22/skype.png
+	install -m $(FILE_PERM) icons/48/skype.png $(SKYPEWEB_ICONS_DEST)/48/skype.png
+	install -m $(FILE_PERM) icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
+	install -m $(FILE_PERM) icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
+	install -m $(FILE_PERM) icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
 	
 install-theme: theme
-	mkdir -p $(SKYPEWEB_THEME_DEST)
-	install theme $(SKYPEWEB_THEME_DEST)/theme
+	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_THEME_DEST)
+	install -m $(FILE_PERM) theme $(SKYPEWEB_THEME_DEST)/theme
 
 FAILNOPURPLE:
 	echo "You need libpurple development headers installed to be able to compile this plugin"
