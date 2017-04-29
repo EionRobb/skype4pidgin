@@ -634,11 +634,7 @@ plugin_load(PurplePlugin *plugin
 )
 {
 	
-#if PURPLE_VERSION_CHECK(3, 0, 0)
-	skypeweb_protocol = purple_protocols_add(SKYPEWEB_TYPE_PROTOCOL, error);
-	if (!skypeweb_protocol)
-		return FALSE;
-#else
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
 	_purple_socket_init();
 	purple_http_init();
 #endif
@@ -701,10 +697,7 @@ plugin_unload(PurplePlugin *plugin
 #endif
 )
 {
-#if PURPLE_VERSION_CHECK(3, 0, 0)
-	if (!purple_protocols_remove(skypeweb_protocol, error))
-		return FALSE;
-#else
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
 	_purple_socket_uninit();
 	purple_http_uninit();
 #endif
@@ -947,7 +940,7 @@ skypeweb_protocol_roomlist_iface_init(PurpleProtocolRoomlistIface *prpl_info)
 
 
 PURPLE_DEFINE_TYPE_EXTENDED(
-	SkypeWebProtocol, skypeweb_protocol, PURPLE_TYPE_PROTOCOL, G_TYPE_FLAG_ABSTRACT,
+	SkypeWebProtocol, skypeweb_protocol, PURPLE_TYPE_PROTOCOL, 0,
 
 	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_CLIENT_IFACE,
 	                                  skypeweb_protocol_client_iface_init)
@@ -971,6 +964,29 @@ PURPLE_DEFINE_TYPE_EXTENDED(
 	                                  skypeweb_protocol_xfer_iface_init)
 );
 
+static gboolean
+libpurple3_plugin_load(PurplePlugin *plugin, GError **error)
+{
+	skypeweb_protocol_register_type(plugin);
+	skypeweb_protocol = purple_protocols_add(SKYPEWEB_TYPE_PROTOCOL, error);
+	if (!skypeweb_protocol)
+		return FALSE;
+	
+	return plugin_load(plugin, error);
+}
+
+static gboolean
+libpurple3_plugin_unload(PurplePlugin *plugin, GError **error)
+{
+	if (!plugin_unload(plugin, error))
+		return FALSE;
+
+	if (!purple_protocols_remove(skypeweb_protocol, error))
+		return FALSE;
+
+	return TRUE;
+}
+
 static PurplePluginInfo *
 plugin_query(GError **error)
 {
@@ -990,7 +1006,7 @@ plugin_query(GError **error)
 }
 
 
-PURPLE_PLUGIN_INIT(skypeweb, plugin_query, plugin_load, plugin_unload);
+PURPLE_PLUGIN_INIT(skypeweb, plugin_query, libpurple3_plugin_load, libpurple3_plugin_unload);
 #else
 	
 static PurplePluginInfo aLovelyBunchOfCoconuts;
