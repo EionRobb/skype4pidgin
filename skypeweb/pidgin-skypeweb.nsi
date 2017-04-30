@@ -9,7 +9,7 @@ SetCompress off
 !define PRODUCT_NAME "pidgin-skypeweb"
 !endif
 !ifndef PRODUCT_VERSION
-!define PRODUCT_VERSION "v1.3"
+!define PRODUCT_VERSION "v1.4"
 !endif
 !define PRODUCT_PUBLISHER "Eion Robb"
 !define PRODUCT_WEB_SITE "http://eion.robbmob.com/"
