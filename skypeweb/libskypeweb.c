@@ -910,8 +910,8 @@ skypeweb_protocol_roomlist_iface_init(PurpleProtocolRoomlistIface *prpl_info)
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
 	// Plugin info
 	info->magic = PURPLE_PLUGIN_MAGIC;
-	info->major_version = PURPLE_MAJOR_VERSION;
-	info->minor_version = PURPLE_MINOR_VERSION;
+	info->major_version = 2;
+	info->minor_version = MIN(PURPLE_MINOR_VERSION, 8);
 	info->type = PURPLE_PLUGIN_PROTOCOL;
 	info->priority = PURPLE_PRIORITY_DEFAULT;
 	info->version = SKYPEWEB_PLUGIN_VERSION;
