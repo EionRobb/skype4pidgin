@@ -5,15 +5,17 @@ LINUX64_COMPILER = x86_64-pc-linux-gnu-gcc
 WIN32_COMPILER = /usr/bin/i586-mingw32-gcc
 LINUX_ARM_COMPILER = arm-none-linux-gnueabi-gcc
 
+PKG_CONFIG = pkg-config
+
 LIBPURPLE_CFLAGS = -I/usr/include/libpurple -DPURPLE_PLUGINS -DENABLE_NLS
-GLIB_CFLAGS = `pkg-config --cflags glib-2.0` -I/usr/include
-DBUS_CFLAGS = -DSKYPE_DBUS `pkg-config --cflags dbus-1`
+GLIB_CFLAGS = `${PKG_CONFIG} --cflags glib-2.0` -I/usr/include
+DBUS_CFLAGS = -DSKYPE_DBUS `${PKG_CONFIG} --cflags dbus-1`
 WIN32_DEV_DIR = /root/pidgin/win32-dev
 WIN32_PIDGIN_DIR = /root/pidgin/pidgin-2.6.1
 WIN32_CFLAGS = -DPURPLE_PLUGINS -DENABLE_NLS -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_PIDGIN_DIR}/libpurple/win32 -I${WIN32_PIDGIN_DIR}/libpurple -I${WIN32_DEV_DIR}/gtk_2_0/include -I${WIN32_DEV_DIR}/gtk_2_0/include/glib-2.0 -I${WIN32_DEV_DIR}/gtk_2_0/lib/glib-2.0/include
 WIN32_LIBS = -L${WIN32_DEV_DIR}/gtk_2_0/lib -L${WIN32_PIDGIN_DIR}/libpurple -lglib-2.0 -lgobject-2.0 -lgthread-2.0 -lintl -lpurple
 XUL_LIBS = -I/usr/lib/xulrunner/include xpcomModule.cpp -I/usr/include/nspr
-X11_LIBS = `pkg-config --libs x11`
+X11_LIBS = `${PKG_CONFIG} --libs x11`
 
 VV_CFLAGS = -I/usr/include/gstreamer-0.10 -DUSE_VV -I/usr/include/libxml2
 WIN32_VV_CFLAGS = -I${WIN32_DEV_DIR}/libxml2/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include -I${WIN32_DEV_DIR}/gstreamer-0.10/include/gstreamer-0.10 
