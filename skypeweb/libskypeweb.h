@@ -141,6 +141,7 @@ typedef void (*SkypeWebFunc)(SkypeWebAccount *swa);
 struct _SkypeWebAccount {
 	gchar *username;
 	gchar *primary_member_name;
+	gchar *self_display_name;
 	
 	PurpleAccount *account;
 	PurpleConnection *pc;

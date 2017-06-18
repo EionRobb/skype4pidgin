@@ -1421,7 +1421,7 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 		json_object_set_string_member(obj, "messagetype", "RichText");
 	}
 	json_object_set_string_member(obj, "contenttype", "text");
-	//json_object_set_string_member(obj, "imdisplayname", self name);
+	json_object_set_string_member(obj, "imdisplayname", sa->self_display_name ? sa->self_display_name : sa->username);
 	
 	if (g_str_has_prefix(message, "/me ")) {
 		json_object_set_string_member(obj, "skypeemoteoffset", "4"); //Why is this a string :(

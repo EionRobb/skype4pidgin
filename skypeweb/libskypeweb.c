@@ -402,6 +402,7 @@ skypeweb_close(PurpleConnection *pc)
 	g_free(sa->registration_token);
 	g_free(sa->endpoint);
 	g_free(sa->primary_member_name);
+	g_free(sa->self_display_name);
 	g_free(sa->username);
 	g_free(sa);
 }

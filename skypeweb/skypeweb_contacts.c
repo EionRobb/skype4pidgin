@@ -1298,6 +1298,11 @@ skypeweb_get_friend_list_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 		} else {
 			users_to_fetch = g_slist_prepend(users_to_fetch, sbuddy->skypename);
 		}
+		
+		if (purple_strequal(skypeweb_strip_user_prefix(id), sa->primary_member_name)) {
+			g_free(sa->self_display_name);
+			sa->self_display_name = g_strdup(display_name);
+		}
 	}
 	
 	if (users_to_fetch)
