@@ -345,11 +345,19 @@ skypeweb_login(PurpleAccount *account)
 	sa->keepalive_pool = purple_http_keepalive_pool_new();
 	purple_http_keepalive_pool_set_limit_per_host(sa->keepalive_pool, SKYPEWEB_MAX_CONNECTIONS);
 	sa->conns = purple_http_connection_set_new();
-	
-	if (purple_account_get_string(account, "refresh-token", NULL) && purple_account_get_remember_password(account)) {
-		skypeweb_refresh_token_login(sa);
+
+	if (purple_account_get_bool(account, "alt-login", FALSE)) {
+		if (!SKYPEWEB_BUDDY_IS_MSN(purple_account_get_username(account))) {
+			skypeweb_begin_skyper_login(sa);
+		} else {
+			skypeweb_begin_soapy_login(sa);
+		}
 	} else {
-		skypeweb_begin_oauth_login(sa);
+		if (purple_account_get_string(account, "refresh-token", NULL) && purple_account_get_remember_password(account)) {
+			skypeweb_refresh_token_login(sa);
+		} else {
+			skypeweb_begin_oauth_login(sa);
+		}
 	}
 	
 	if (!conversation_updated_signal) {
@@ -743,7 +751,7 @@ skypeweb_protocol_init(PurpleProtocol *prpl_info)
 {
 	PurpleProtocol *info = prpl_info;
 #endif
-	PurpleAccountOption *option,  *typing_type1, *typing_type2;
+	PurpleAccountOption *option,  *typing_type1, *typing_type2, *alt_login;
 	PurpleBuddyIconSpec icon_spec = {"jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_DISPLAY};
 
 	//PurpleProtocol
@@ -753,16 +761,19 @@ skypeweb_protocol_init(PurpleProtocol *prpl_info)
 	option = purple_account_option_bool_new("", "", FALSE);
 	typing_type1 = purple_account_option_bool_new(N_("Show 'Typing' status as system message in chat window."), "show-typing-as-text", FALSE);
 	typing_type2 = purple_account_option_bool_new(N_("Show 'Typing' status with 'Voice' icon near buddy name."), "show-typing-as-icon", FALSE);
+	alt_login = purple_account_option_bool_new(N_("Use alternative login method"), "alt-login", FALSE);
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, typing_type1);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, typing_type2);
+	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, alt_login);
 	prpl_info->icon_spec = icon_spec;
 #else
 	prpl_info->account_options = g_list_append(prpl_info->account_options, option);
 	prpl_info->account_options = g_list_append(prpl_info->account_options, typing_type1);
 	prpl_info->account_options = g_list_append(prpl_info->account_options, typing_type2);
+	prpl_info->account_options = g_list_append(prpl_info->account_options, alt_login);
 	prpl_info->icon_spec = &icon_spec;
 #endif
 	

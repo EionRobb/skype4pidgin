@@ -317,3 +317,250 @@ skypeweb_refresh_token_login(SkypeWebAccount *sa)
 	
 	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
 }
+
+
+static void
+skypeweb_login_did_got_api_skypetoken(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
+{
+	SkypeWebAccount *sa = user_data;
+	const gchar *data;
+	gsize len;
+	JsonParser *parser = NULL;
+	JsonNode *node;
+	JsonObject *obj;
+	gchar *error = NULL;
+	PurpleConnectionError error_type = PURPLE_CONNECTION_ERROR_NETWORK_ERROR;
+
+	data = purple_http_response_get_data(response, &len);
+
+	parser = json_parser_new();
+	if (!json_parser_load_from_data(parser, data, len, NULL)) {
+		goto fail;
+	}
+
+	node = json_parser_get_root(parser);
+	if (node == NULL || json_node_get_node_type(node) != JSON_NODE_OBJECT) {
+		goto fail;
+	}
+	obj = json_node_get_object(node);
+
+	if (!json_object_has_member(obj, "skypetoken")) {
+		JsonObject *status = json_object_get_object_member(obj, "status");
+		if (status) {
+			//{"status":{"code":40120,"text":"Authentication failed. Bad username or password."}}
+			error = g_strdup_printf(_("Login error: %s (code %d)"),
+				json_object_get_string_member(status, "text"),
+				json_object_get_int_member(status, "code")
+			);
+			error_type = PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED;
+		}
+		goto fail;
+	}
+
+	sa->skype_token = g_strdup(json_object_get_string_member(obj, "skypetoken"));
+
+	skypeweb_do_all_the_things(sa);
+
+	g_object_unref(parser);
+	return;
+fail:
+	if (parser) {
+		g_object_unref(parser);
+	}
+
+	purple_connection_error(sa->pc, error_type,
+		error ? error : _("Failed getting Skype Token (alt)"));
+
+	g_free(error);
+}
+
+/* base64(md5(user + "\nskyper\n" + pass)) */
+static gchar *
+skypeweb_skyper_hash(const gchar *username, const gchar *password)
+{
+	guint8 hashed[16];
+	gsize len = sizeof(hashed);
+	GChecksum *gc;
+
+	gc = g_checksum_new(G_CHECKSUM_MD5);
+	g_checksum_update(gc, username, -1);
+	g_checksum_update(gc, "\nskyper\n", -1);
+	g_checksum_update(gc, password, -1);
+	g_checksum_get_digest(gc, hashed, &len);
+	g_checksum_free(gc);
+
+	return purple_base64_encode(hashed, len);
+}
+
+static void
+skypeweb_login_get_api_skypetoken(SkypeWebAccount *sa, const gchar *url, const gchar *username, const gchar *password)
+{
+	PurpleAccount *account = sa->account;
+	PurpleHttpRequest *request;
+	JsonObject *obj;
+	gchar *postdata;
+
+	obj = json_object_new();
+
+	if (username) {
+		json_object_set_string_member(obj, "username", username);
+		json_object_set_string_member(obj, "passwordHash", password);
+	} else {
+		json_object_set_int_member(obj, "partner", 999);
+		json_object_set_string_member(obj, "access_token", password);
+	}
+	json_object_set_string_member(obj, "scopes", "client");
+	postdata = skypeweb_jsonobj_to_string(obj);
+
+	request = purple_http_request_new(url);
+	purple_http_request_set_method(request, "POST");
+	purple_http_request_set_contents(request, postdata, -1);
+	purple_http_request_header_set(request, "Accept", "application/json; ver=1.0");
+	purple_http_request_header_set(request, "Content-Type", "application/json");
+	purple_http_request(sa->pc, request, skypeweb_login_did_got_api_skypetoken, sa);
+	purple_http_request_unref(request);
+
+	g_free(postdata);
+	json_object_unref(obj);
+}
+
+static void
+skypeweb_login_soap_got_token(SkypeWebAccount *sa, gchar *token)
+{
+	const gchar *login_url = "https://api.skype.com/rps/skypetoken";
+
+	skypeweb_login_get_api_skypetoken(sa, login_url, NULL, token);
+}
+
+static void
+skypeweb_login_did_soap(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
+{
+	SkypeWebAccount *sa = user_data;
+	const gchar *data;
+	gsize len;
+	PurpleXmlNode *envelope, *main, *node, *fault;
+	gchar *token;
+	const char *error = NULL;
+
+	data = purple_http_response_get_data(response, &len);
+	envelope = purple_xmlnode_from_str(data, len);
+
+	if (!data) {
+		error = _("Error parsing SOAP response");
+		goto fail;
+	}
+
+	main = purple_xmlnode_get_child(envelope, "Body/RequestSecurityTokenResponseCollection/RequestSecurityTokenResponse");
+
+	if ((fault = purple_xmlnode_get_child(envelope, "Fault")) ||
+	    (main && (fault = purple_xmlnode_get_child(main, "Fault")))) {
+		gchar *code, *string, *error_;
+
+		code = purple_xmlnode_get_data(purple_xmlnode_get_child(fault, "faultcode"));
+		string = purple_xmlnode_get_data(purple_xmlnode_get_child(fault, "faultstring"));
+
+		if (purple_strequal(code, "wsse:FailedAuthentication")) {
+			error_ = g_strdup_printf(_("Login error: Bad username or password (%s)"), string);
+		} else {
+			error_ = g_strdup_printf(_("Login error: %s - %s"), code, string);
+		}
+
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, error_);
+
+		g_free(code);
+		g_free(string);
+		g_free(error_);
+		goto fail;
+	}
+
+	node = purple_xmlnode_get_child(main, "RequestedSecurityToken/BinarySecurityToken");
+
+	if (!node) {
+		error = _("Error getting BinarySecurityToken");
+		goto fail;
+	}
+
+	token = purple_xmlnode_get_data(node);
+	skypeweb_login_soap_got_token(sa, token);
+	g_free(token);
+
+fail:
+	if (error) {
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, error);
+	}
+	purple_xmlnode_free(envelope);
+	return;
+}
+
+#define SIMPLE_OBJECT_ACCESS_PROTOCOL \
+"<Envelope xmlns='http://schemas.xmlsoap.org/soap/envelope/'\n" \
+"   xmlns:wsse='http://schemas.xmlsoap.org/ws/2003/06/secext'\n" \
+"   xmlns:wsp='http://schemas.xmlsoap.org/ws/2002/12/policy'\n" \
+"   xmlns:wsa='http://schemas.xmlsoap.org/ws/2004/03/addressing'\n" \
+"   xmlns:wst='http://schemas.xmlsoap.org/ws/2004/04/trust'\n" \
+"   xmlns:ps='http://schemas.microsoft.com/Passport/SoapServices/PPCRL'>\n" \
+"   <Header>\n" \
+"       <wsse:Security>\n" \
+"           <wsse:UsernameToken Id='user'>\n" \
+"               <wsse:Username>%s</wsse:Username>\n" \
+"               <wsse:Password>%s</wsse:Password>\n" \
+"           </wsse:UsernameToken>\n" \
+"       </wsse:Security>\n" \
+"   </Header>\n" \
+"   <Body>\n" \
+"       <ps:RequestMultipleSecurityTokens Id='RSTS'>\n" \
+"           <wst:RequestSecurityToken Id='RST0'>\n" \
+"               <wst:RequestType>http://schemas.xmlsoap.org/ws/2004/04/security/trust/Issue</wst:RequestType>\n" \
+"               <wsp:AppliesTo>\n" \
+"                   <wsa:EndpointReference>\n" \
+"                       <wsa:Address>wl.skype.com</wsa:Address>\n" \
+"                   </wsa:EndpointReference>\n" \
+"               </wsp:AppliesTo>\n" \
+"               <wsse:PolicyReference URI='MBI_SSL'></wsse:PolicyReference>\n" \
+"           </wst:RequestSecurityToken>\n" \
+"       </ps:RequestMultipleSecurityTokens>\n" \
+"   </Body>\n" \
+"</Envelope>" \
+
+void
+skypeweb_begin_soapy_login(SkypeWebAccount *sa)
+{
+	PurpleAccount *account = sa->account;
+	const gchar *login_url = "https://login.live.com/RST.srf";
+	const gchar *template = SIMPLE_OBJECT_ACCESS_PROTOCOL;
+	gchar *postdata;
+	PurpleHttpRequest *request;
+
+	postdata = g_markup_printf_escaped(template,
+		purple_account_get_username(account),
+		purple_connection_get_password(sa->pc)
+	);
+
+	request = purple_http_request_new(login_url);
+	purple_http_request_set_method(request, "POST");
+	purple_http_request_set_contents(request, postdata, -1);
+	purple_http_request_header_set(request, "Accept", "*/*");
+	purple_http_request_header_set(request, "Content-Type", "text/xml; charset=UTF-8");
+	purple_http_request(sa->pc, request, skypeweb_login_did_soap, sa);
+	purple_http_request_unref(request);
+
+	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
+
+	g_free(postdata);
+}
+
+void
+skypeweb_begin_skyper_login(SkypeWebAccount *sa)
+{
+	gchar *hash;
+	const gchar *login_url = "https://api.skype.com/login/skypetoken";
+	const gchar *username = purple_account_get_username(sa->account);
+
+	hash = skypeweb_skyper_hash(username, purple_connection_get_password(sa->pc));
+
+	skypeweb_login_get_api_skypetoken(sa, login_url, username, hash);
+
+	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
+
+	g_free(hash);
+}
