@@ -348,7 +348,7 @@ skypeweb_login_did_got_api_skypetoken(PurpleHttpConnection *http_conn, PurpleHtt
 		JsonObject *status = json_object_get_object_member(obj, "status");
 		if (status) {
 			//{"status":{"code":40120,"text":"Authentication failed. Bad username or password."}}
-			error = g_strdup_printf(_("Login error: %s (code %d)"),
+			error = g_strdup_printf(_("Login error: %s (code %" G_GINT64_FORMAT ")"),
 				json_object_get_string_member(status, "text"),
 				json_object_get_int_member(status, "code")
 			);
@@ -383,9 +383,9 @@ skypeweb_skyper_hash(const gchar *username, const gchar *password)
 	GChecksum *gc;
 
 	gc = g_checksum_new(G_CHECKSUM_MD5);
-	g_checksum_update(gc, username, -1);
-	g_checksum_update(gc, "\nskyper\n", -1);
-	g_checksum_update(gc, password, -1);
+	g_checksum_update(gc, (guchar *)username, -1);
+	g_checksum_update(gc, (guchar *)"\nskyper\n", -1);
+	g_checksum_update(gc, (guchar *)password, -1);
 	g_checksum_get_digest(gc, hashed, &len);
 	g_checksum_free(gc);
 
@@ -395,7 +395,6 @@ skypeweb_skyper_hash(const gchar *username, const gchar *password)
 static void
 skypeweb_login_get_api_skypetoken(SkypeWebAccount *sa, const gchar *url, const gchar *username, const gchar *password)
 {
-	PurpleAccount *account = sa->account;
 	PurpleHttpRequest *request;
 	JsonObject *obj;
 	gchar *postdata;
@@ -438,7 +437,7 @@ skypeweb_login_did_soap(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	SkypeWebAccount *sa = user_data;
 	const gchar *data;
 	gsize len;
-	PurpleXmlNode *envelope, *main, *node, *fault;
+	PurpleXmlNode *envelope, *main_node, *node, *fault;
 	gchar *token;
 	const char *error = NULL;
 
@@ -450,10 +449,10 @@ skypeweb_login_did_soap(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 		goto fail;
 	}
 
-	main = purple_xmlnode_get_child(envelope, "Body/RequestSecurityTokenResponseCollection/RequestSecurityTokenResponse");
+	main_node = purple_xmlnode_get_child(envelope, "Body/RequestSecurityTokenResponseCollection/RequestSecurityTokenResponse");
 
 	if ((fault = purple_xmlnode_get_child(envelope, "Fault")) ||
-	    (main && (fault = purple_xmlnode_get_child(main, "Fault")))) {
+	    (main_node && (fault = purple_xmlnode_get_child(main_node, "Fault")))) {
 		gchar *code, *string, *error_;
 
 		code = purple_xmlnode_get_data(purple_xmlnode_get_child(fault, "faultcode"));
@@ -473,7 +472,7 @@ skypeweb_login_did_soap(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 		goto fail;
 	}
 
-	node = purple_xmlnode_get_child(main, "RequestedSecurityToken/BinarySecurityToken");
+	node = purple_xmlnode_get_child(main_node, "RequestedSecurityToken/BinarySecurityToken");
 
 	if (!node) {
 		error = _("Error getting BinarySecurityToken");
