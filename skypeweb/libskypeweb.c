@@ -751,26 +751,23 @@ skypeweb_protocol_init(PurpleProtocol *prpl_info)
 {
 	PurpleProtocol *info = prpl_info;
 #endif
-	PurpleAccountOption *option,  *typing_type1, *typing_type2, *alt_login;
+	PurpleAccountOption *typing_type1, *typing_type2, *alt_login;
 	PurpleBuddyIconSpec icon_spec = {"jpeg", 0, 0, 96, 96, 0, PURPLE_ICON_SCALE_DISPLAY};
 
 	//PurpleProtocol
 	info->id = SKYPEWEB_PLUGIN_ID;
 	info->name = "Skype (HTTP)";
 	prpl_info->options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_INVITE_MESSAGE /*| OPT_PROTO_IM_IMAGE*/;
-	option = purple_account_option_bool_new("", "", FALSE);
 	typing_type1 = purple_account_option_bool_new(N_("Show 'Typing' status as system message in chat window."), "show-typing-as-text", FALSE);
 	typing_type2 = purple_account_option_bool_new(N_("Show 'Typing' status with 'Voice' icon near buddy name."), "show-typing-as-icon", FALSE);
 	alt_login = purple_account_option_bool_new(N_("Use alternative login method"), "alt-login", FALSE);
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
-	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, option);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, typing_type1);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, typing_type2);
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, alt_login);
 	prpl_info->icon_spec = icon_spec;
 #else
-	prpl_info->account_options = g_list_append(prpl_info->account_options, option);
 	prpl_info->account_options = g_list_append(prpl_info->account_options, typing_type1);
 	prpl_info->account_options = g_list_append(prpl_info->account_options, typing_type2);
 	prpl_info->account_options = g_list_append(prpl_info->account_options, alt_login);
