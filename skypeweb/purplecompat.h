@@ -28,12 +28,6 @@
 //TODO remove this when dx adds this to the PurpleMessageFlags enum
 #define PURPLE_MESSAGE_REMOTE_SEND  0x10000
 
-static inline void purple_conversation_write_system_message_ts(PurpleConversation *conv, const gchar *msg, PurpleMessageFlags flags, time_t ts) {
-	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
-	purple_message_set_time(pmsg, ts);
-	purple_conversation_write_message(conv, pmsg);
-}
-
 #else /*!PURPLE_VERSION_CHECK(3, 0, 0)*/
 
 #include "connection.h"
@@ -149,7 +143,6 @@ purple_message_destroy(PurpleMessage *message)
 #	define PURPLE_MESSAGE_REMOTE_SEND  0x10000
 #endif
 
-#define purple_conversation_write_system_message_ts(conv, msg, flags, ts)  purple_conversation_write((conv), NULL, (msg), (flags) | PURPLE_MESSAGE_SYSTEM, (ts));
 #define purple_conversation_write_system_message(conv, msg, flags)  purple_conversation_write((conv), NULL, (msg), (flags) | PURPLE_MESSAGE_SYSTEM, time(NULL));
 
 #define PurpleProtocolChatEntry  struct proto_chat_entry

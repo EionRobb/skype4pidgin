@@ -26,6 +26,14 @@
 #include "xfer.h"
 #include "image-store.h"
 
+static void purple_conversation_write_system_message_ts(
+		PurpleConversation *conv, const gchar *msg, PurpleMessageFlags flags,
+		time_t ts) {
+	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
+	purple_message_set_time(pmsg, ts);
+	purple_conversation_write_message(conv, pmsg);
+}
+
 // Check that the conversation hasn't been closed
 static gboolean
 purple_conversation_is_valid(PurpleConversation *conv)
