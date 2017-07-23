@@ -94,13 +94,18 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 	purple_http_request_set_max_redirects(request, 0);
 	purple_http_request_set_timeout(request, 120);
 	
-	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) {		
+	if (method & (SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_PUT)) {
 		if (postdata && (postdata[0] == '[' || postdata[0] == '{')) {
 			purple_http_request_header_set(request, "Content-Type", "application/json"); // hax
 		} else {
 			purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded");
 		}
 		purple_http_request_set_contents(request, postdata, -1);
+		
+		//Zero-length PUT's dont get the content-length header set
+		if ((method & SKYPEWEB_METHOD_PUT) && (!postdata || !*postdata)) {
+			purple_http_request_header_set(request, "Content-Length", "0");
+		}
 	}
 	
 	if (g_str_equal(host, SKYPEWEB_CONTACTS_HOST) || g_str_equal(host, SKYPEWEB_VIDEOMAIL_HOST) || g_str_equal(host, SKYPEWEB_NEW_CONTACTS_HOST)) {
