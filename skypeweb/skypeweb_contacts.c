@@ -26,6 +26,14 @@
 #include "xfer.h"
 #include "image-store.h"
 
+static void purple_conversation_write_system_message_ts(
+		PurpleConversation *conv, const gchar *msg, PurpleMessageFlags flags,
+		time_t ts) {
+	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
+	purple_message_set_time(pmsg, ts);
+	purple_conversation_write_message(conv, pmsg);
+}
+
 // Check that the conversation hasn't been closed
 static gboolean
 purple_conversation_is_valid(PurpleConversation *conv)
@@ -117,16 +125,24 @@ skypeweb_get_icon(PurpleBuddy *buddy)
 	purple_timeout_add(100, skypeweb_get_icon_queuepop, (gpointer)buddy);
 }
 
+typedef struct SkypeImgMsgContext_ {
+	PurpleConversation *conv;
+	time_t composetimestamp;
+} SkypeImgMsgContext;
 
 static void
 skypeweb_got_imagemessage(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
-	PurpleConversation *conv = user_data;
 	gint icon_id;
 	gchar *msg_tmp;
 	const gchar *url_text;
 	gsize len;
 	PurpleImage *image;
+	
+	SkypeImgMsgContext *ctx = user_data;
+	PurpleConversation *conv = ctx->conv;
+	time_t ts = ctx->composetimestamp;
+	g_free(ctx);
 	
 	// Conversation could have been closed before we retrieved the image
 	if (!purple_conversation_is_valid(conv)) {
@@ -144,12 +160,12 @@ skypeweb_got_imagemessage(PurpleHttpConnection *http_conn, PurpleHttpResponse *r
 	image = purple_image_new_from_data(g_memdup(url_text, len), len);
 	icon_id = purple_image_store_add(image);
 	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
-	purple_conversation_write_system_message(conv, msg_tmp, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_IMAGES);
+	purple_conversation_write_system_message_ts(conv, msg_tmp, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_IMAGES, ts);
 	g_free(msg_tmp);
 }
 
 void
-skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv)
+skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv, time_t ts)
 {
 	gchar *url, *text;
 	PurpleHttpRequest *request;
@@ -158,16 +174,19 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_header_set_printf(request, "Cookie", "skypetoken_asm=%s", sa->skype_token);
 	purple_http_request_header_set(request, "Accept", "image/*");
-	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, conv);
+	SkypeImgMsgContext *ctx = g_new(SkypeImgMsgContext, 1);
+	ctx->composetimestamp = ts;
+	ctx->conv = conv;
+	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, ctx);
 	purple_http_request_unref(request);
 
 	url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
 	text = g_strdup_printf("<a href=\"%s\">Click here to view full version</a>", url);
-	purple_conversation_write_system_message(conv, text, PURPLE_MESSAGE_SYSTEM);
+	purple_conversation_write_system_message_ts(conv, text, PURPLE_MESSAGE_SYSTEM, ts);
 }
 
 void
-skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gchar *url_thumbnail, PurpleConversation *conv)
+skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gchar *url_thumbnail, PurpleConversation *conv, time_t ts)
 {
 	gchar *cdn_url_thumbnail;
 	PurpleHttpURL *httpurl;
@@ -181,10 +200,13 @@ skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gch
 	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_header_set_printf(request, "Cookie", "vdms-skype-token=%s", sa->vdms_token);
 	purple_http_request_header_set(request, "Accept", "image/*");
-	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, conv);
+	SkypeImgMsgContext *ctx = g_new(SkypeImgMsgContext, 1);
+	ctx->composetimestamp = ts;
+	ctx->conv = conv;
+	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, ctx);
 	purple_http_request_unref(request);
 	
-	purple_conversation_write_system_message(conv, text, PURPLE_MESSAGE_SYSTEM);
+	purple_conversation_write_system_message_ts(conv, text, PURPLE_MESSAGE_SYSTEM, ts);
 
 	g_free(cdn_url_thumbnail);
 	purple_http_url_free(httpurl);
