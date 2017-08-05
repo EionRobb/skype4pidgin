@@ -22,6 +22,12 @@
 #include "skypeweb_contacts.h"
 #include "skypeweb_login.h"
 
+static GString* make_last_timestamp_setting(const gchar *convname) {
+	GString *rv = g_string_new(NULL);
+	g_string_printf(rv, "%s_last_message_timestamp", convname);
+	return rv;
+}
+
 static gboolean
 skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username) {
 	if (!username || *username == 0) {
@@ -161,6 +167,10 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			skypeweb_get_conversation_history(sa, chatname);
 			skypeweb_get_thread_users(sa, chatname);
 		}
+		GString *chat_last_timestamp = make_last_timestamp_setting(convname);
+		purple_account_set_int(sa->account, chat_last_timestamp->str, composetimestamp);
+		g_string_free(chat_last_timestamp, TRUE);
+		
 		conv = PURPLE_CONVERSATION(chatconv);
 		
 		if (g_str_equal(messagetype, "Control/Typing")) {
@@ -890,7 +900,9 @@ skypeweb_get_conversation_history_since(SkypeWebAccount *sa, const gchar *convna
 void
 skypeweb_get_conversation_history(SkypeWebAccount *sa, const gchar *convname)
 {
-	skypeweb_get_conversation_history_since(sa, convname, 0);
+	GString *timestamp_key = make_last_timestamp_setting(convname);
+	skypeweb_get_conversation_history_since(sa, convname, purple_account_get_int(sa->account, timestamp_key->str, 0));
+	g_string_free(timestamp_key, TRUE);
 }
 
 static void
