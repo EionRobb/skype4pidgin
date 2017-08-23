@@ -1414,6 +1414,8 @@ skypeweb_got_authrequests(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 		time_t event_timestamp = purple_str_to_time(event_time_iso, TRUE, NULL, NULL, NULL);
 		const gchar *sender = json_object_get_string_member(invite, "mri");
 		const gchar *greeting = json_object_get_string_member(invite, "greeting");
+		if (!greeting)
+			greeting = json_object_get_string_member(json_array_get_object_element(invites, 0), "message");
 		const gchar *displayname = json_object_get_string_member(invite, "displayname");
 		
 		latest_timestamp = MAX(latest_timestamp, event_timestamp);
