@@ -10,6 +10,7 @@ PKG_CONFIG ?= pkg-config
 DIR_PERM = 0755
 LIB_PERM = 0755
 FILE_PERM = 0644
+MAKENSIS ?= makensis
 
 CFLAGS	?= -O2 -g -pipe
 LDFLAGS ?= 
@@ -20,6 +21,7 @@ ifeq ($(OS),Windows_NT)
   SKYPEWEB_DEST = "$(PROGRAMFILES)/Pidgin/plugins"
   SKYPEWEB_ICONS_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/protocols"
   SKYPEWEB_THEME_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/emotes/skype"
+  MAKENSIS = "$(PROGRAMFILES)/NSIS/makensis.exe"
 else
 
   UNAME_S := $(shell uname -s)
@@ -109,7 +111,10 @@ install-icons: icons/16/skype.png icons/22/skype.png icons/48/skype.png icons/16
 	install -m $(FILE_PERM) -p icons/16/skypeout.png $(SKYPEWEB_ICONS_DEST)/16/skypeout.png
 	install -m $(FILE_PERM) -p icons/22/skypeout.png $(SKYPEWEB_ICONS_DEST)/22/skypeout.png
 	install -m $(FILE_PERM) -p icons/48/skypeout.png $(SKYPEWEB_ICONS_DEST)/48/skypeout.png
-	
+
+installer: pidgin-skypeweb.nsi libskypeweb.dll
+	$(MAKENSIS) "/DPIDGIN_VARIANT"="Pidgin" "/DPRODUCT_NAME"="pidgin-skypeweb" "/DINSTALLER_NAME"="pidgin-skypeweb-installer" "/DJSON_GLIB_DLL"="libjson-glib-1.0.dll" pidgin-skypeweb.nsi
+
 install-theme: theme
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_THEME_DEST)
 	install -m $(FILE_PERM) -p theme $(SKYPEWEB_THEME_DEST)/theme
