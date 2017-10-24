@@ -1719,7 +1719,9 @@ void purple_http_conn_cancel(PurpleHttpConnection *http_conn)
 			http_conn);
 	}
 
-	http_conn->response->code = 0;
+	if (http_conn->response) {
+		http_conn->response->code = 0;
+	}
 	_purple_http_disconnect(http_conn, FALSE);
 	purple_http_connection_terminate(http_conn);
 }
@@ -1732,7 +1734,9 @@ purple_http_conn_retry(PurpleHttpConnection *http_conn)
 
 	purple_debug_info("http", "Retrying connection %p...\n", http_conn);
 
-	http_conn->response->code = 0;
+	if (http_conn->response) {
+		http_conn->response->code = 0;
+	}
 	_purple_http_disconnect(http_conn, FALSE);
 	_purple_http_reconnect(http_conn);
 }
