@@ -240,7 +240,7 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	// <input type="hidden" name="PPFT" id="i0327" value="..."/>
 	ppft = skypeweb_string_get_chunk(data, len, "name=\"PPFT\" id=\"i0327\" value=\"", "\"");
 	if (!ppft) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PPFT value"));
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, _("Failed getting PPFT value"));
 		return;
 	}
 	// CkTst=G + timestamp   e.g. G1422309314913
