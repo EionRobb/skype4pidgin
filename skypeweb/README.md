@@ -91,7 +91,7 @@ Requires devel headers/libs for libpurple and json-glib, gcc compiler and cmake
 ```
 To install do:
 ```
-	sudo dpkg -i skypeweb-1.2.2-Linux.deb
+	sudo dpkg -i *.deb
 ```
 
 Building AUR package for Arch Linux
