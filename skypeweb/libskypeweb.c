@@ -405,6 +405,7 @@ skypeweb_close(PurpleConnection *pc)
 	
 	g_hash_table_destroy(sa->sent_messages_hash);
 	
+	g_free(sa->vdms_token);
 	g_free(sa->messages_host);
 	g_free(sa->skype_token);
 	g_free(sa->registration_token);

@@ -1043,13 +1043,15 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 	contacts_array = json_array_new();
 	
 	do {
-		JsonObject *contact = json_object_new();
+		JsonObject *contact;
 		gchar *id;
 		
 		if (SKYPEWEB_BUDDY_IS_BOT(cur->data)) {
 			purple_protocol_got_user_status(sa->account, cur->data, SKYPEWEB_STATUS_ONLINE, NULL);
 			continue;
 		}
+
+		contact = json_object_new();
 		
 		id = g_strconcat(skypeweb_user_url_prefix(cur->data), cur->data, NULL);
 		json_object_set_string_member(contact, "id", id);
@@ -1205,6 +1207,7 @@ skypeweb_got_vdms_token(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 		JsonObject *obj = json_node_get_object(root);
 
 		token = json_object_get_string_member(obj, "token");
+		g_free(sa->vdms_token);
 		sa->vdms_token = g_strdup(token); 
 		sa->vdms_expiry = (int)time(NULL) + SKYPEWEB_VDMS_TTL;
 	}
