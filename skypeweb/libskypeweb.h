@@ -114,6 +114,7 @@
 #define SKYPEWEB_GRAPH_HOST "skypegraph.skype.com"
 #define SKYPEWEB_STATIC_HOST "static.asm.skype.com"
 #define SKYPEWEB_STATIC_CDN_HOST "static-asm.secure.skypeassets.com"
+#define SKYPEWEB_DEFAULT_CONTACT_SUGGESTIONS_HOST "peoplerecommendations.skype.com"
 
 #define SKYPEWEB_VDMS_TTL 300
 
