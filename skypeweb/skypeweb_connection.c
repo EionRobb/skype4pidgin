@@ -123,6 +123,12 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 		purple_http_request_header_set(request, "Referer", "https://web.skype.com/main");
 		purple_http_request_header_set(request, "Accept", "application/json; ver=1.0");
 		purple_http_request_header_set(request, "ClientInfo", "os=Windows; osVer=8.1; proc=Win32; lcid=en-us; deviceType=1; country=n/a; clientName=" SKYPEWEB_CLIENTINFO_NAME "; clientVer=" SKYPEWEB_CLIENTINFO_VERSION);
+	} else if (g_str_equal(host, SKYPEWEB_DEFAULT_CONTACT_SUGGESTIONS_HOST)) {
+		purple_http_request_header_set(request, "X-RecommenderServiceSettings", "{\"experiment\":\"default\",\"recommend\":\"true\"}");
+		purple_http_request_header_set(request, "X-ECS-ETag", SKYPEWEB_CLIENTINFO_NAME);
+		purple_http_request_header_set(request, "X-Skypetoken", sa->skype_token);
+		purple_http_request_header_set(request, "Accept", "application/json");
+		purple_http_request_header_set(request, "X-Skype-Client", SKYPEWEB_CLIENTINFO_VERSION);
 	} else {
 		purple_http_request_header_set(request, "Accept", "*/*");
 		purple_http_request_set_cookie_jar(request, sa->cookie_jar);

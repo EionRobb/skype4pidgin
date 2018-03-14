@@ -924,35 +924,26 @@ skypeweb_received_contacts(SkypeWebAccount *sa, PurpleXmlNode *contacts)
 	purple_notify_searchresults(sa->pc, _("Received contacts"), NULL, NULL, results, NULL, NULL);
 }
 
-void
-skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+static PurpleNotifySearchResults*
+create_search_results(JsonNode *node, gint *olength)
 {
+	PurpleNotifySearchColumn *column;
+	gint index, length;
 	JsonObject *response = NULL;
 	JsonArray *resultsarray = NULL;
-	gint index, length;
-	gchar *search_term = user_data;
-
-	PurpleNotifySearchResults *results;
-	PurpleNotifySearchColumn *column;
 	
 	response = json_node_get_object(node);
 	resultsarray = json_object_get_array_member(response, "results");
 	length = json_array_get_length(resultsarray);
 	
-	if (length == 0)
+	PurpleNotifySearchResults *results = purple_notify_searchresults_new();
+	if (results == NULL || length == 0)
 	{
-		gchar *primary_text = g_strdup_printf("Your search for the user \"%s\" returned no results", search_term);
-		purple_notify_warning(sa->pc, "No users found", primary_text, "", purple_request_cpar_from_connection(sa->pc));
-		g_free(primary_text);
-		g_free(search_term);
-		return;
-	}
-	
-	results = purple_notify_searchresults_new();
-	if (results == NULL)
-	{
-		g_free(search_term);
-		return;
+		if (olength)
+		{
+			*olength = 0;
+		}
+		return NULL;
 	}
 		
 	/* columns: Friend ID, Name, Network */
@@ -994,7 +985,45 @@ skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user
 		purple_notify_searchresults_row_add(results, row);
 	}
 	
+	if (olength)
+	{
+		*olength = length;
+	}
+	return results;
+}
+
+static void
+skypeweb_search_users_text_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	gint length;
+	gchar *search_term = user_data;
+	PurpleNotifySearchResults *results = create_search_results(node, &length);
+	
+	if (results == NULL || length == 0)
+	{
+		gchar *primary_text = g_strdup_printf("Your search for the user \"%s\" returned no results", search_term);
+		purple_notify_warning(sa->pc, _("No users found"), primary_text, "", purple_request_cpar_from_connection(sa->pc));
+		g_free(primary_text);
+		g_free(search_term);
+		return;
+	}
+	
 	purple_notify_searchresults(sa->pc, NULL, search_term, NULL, results, NULL, NULL);
+}
+
+static void
+skypeweb_contact_suggestions_received_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	gint length;
+	PurpleNotifySearchResults *results = create_search_results(node, &length);
+	
+	if (results == NULL || length == 0)
+	{
+		purple_notify_warning(sa->pc, _("No results"), _("There are no contact suggestions available for you"), "", purple_request_cpar_from_connection(sa->pc));
+		return;
+	}
+	
+	purple_notify_searchresults(sa->pc, _("Contact suggestions"), NULL, NULL, results, NULL, NULL);
 }
 
 void
@@ -1028,8 +1057,18 @@ skypeweb_search_users(PurpleProtocolAction *action)
 
 }
 
-
-
+void
+skypeweb_contact_suggestions(PurpleProtocolAction *action)
+{
+	PurpleConnection *pc = purple_protocol_action_get_connection(action);
+	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
+	
+	GString *url = g_string_new("/v1.1/recommend?requestId=1&locale=en-US&count=20");
+	
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, SKYPEWEB_DEFAULT_CONTACT_SUGGESTIONS_HOST, url->str, NULL, skypeweb_contact_suggestions_received_cb, 0, FALSE);
+	
+	g_string_free(url, TRUE);
+}
 
 static void
 skypeweb_got_friend_profiles(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)

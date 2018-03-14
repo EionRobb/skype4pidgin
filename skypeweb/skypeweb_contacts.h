@@ -52,4 +52,6 @@ gboolean skypeweb_check_authrequests(SkypeWebAccount *sa);
 
 void skypeweb_set_mood_message(SkypeWebAccount *sa, const gchar *mood);
 
+void skypeweb_contact_suggestions(PurpleProtocolAction *action);
+
 #endif /* SKYPEWEB_CONTACTS_H */
