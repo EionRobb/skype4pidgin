@@ -939,7 +939,10 @@ create_search_results(JsonNode *node, gint *olength)
 	PurpleNotifySearchResults *results = purple_notify_searchresults_new();
 	if (results == NULL || length == 0)
 	{
-		*olength = 0;
+		if (olength)
+		{
+			*olength = 0;
+		}
 		return NULL;
 	}
 		
@@ -982,7 +985,10 @@ create_search_results(JsonNode *node, gint *olength)
 		purple_notify_searchresults_row_add(results, row);
 	}
 	
-	*olength = length;
+	if (olength)
+	{
+		*olength = length;
+	}
 	return results;
 }
 
