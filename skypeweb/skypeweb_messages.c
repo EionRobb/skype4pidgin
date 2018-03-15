@@ -975,6 +975,8 @@ skypeweb_got_roomlist_threads(SkypeWebAccount *sa, JsonNode *node, gpointer user
 		if (json_object_has_member(conversation, "threadProperties")) {
 			JsonObject *threadProperties = json_object_get_object_member(conversation, "threadProperties");
 			if (threadProperties != NULL) {
+				const gchar *num_members = json_object_get_string_member(threadProperties, "membercount");
+				purple_roomlist_room_add_field(roomlist, room, num_members);
 				const gchar *topic = json_object_get_string_member(threadProperties, "topic");
 				purple_roomlist_room_add_field(roomlist, room, topic);
 			}
@@ -999,8 +1001,8 @@ skypeweb_roomlist_get_list(PurpleConnection *pc)
 	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("ID"), "chatname", TRUE);
 	fields = g_list_append(fields, f);
 
-	//f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Users"), "users", FALSE);
-	//fields = g_list_append(fields, f);
+	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Users"), "users", FALSE);
+	fields = g_list_append(fields, f);
 
 	f = purple_roomlist_field_new(PURPLE_ROOMLIST_FIELD_STRING, _("Topic"), "topic", FALSE);
 	fields = g_list_append(fields, f);
