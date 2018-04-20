@@ -1218,7 +1218,10 @@ skypeweb_got_info(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 			sbuddy->sa = sa;
 		}
 		
-		g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(userobj, "mood"));
+		//At the moment, "mood" field is present but always null via this call. Do not clear it.
+		if (json_object_has_member(userobj, ("mood")) && !json_object_get_null_member(userobj, ("mood")))) {
+			g_free(sbuddy->mood); sbuddy->mood = g_strdup(json_object_get_string_member(userobj, "mood"));
+		}
 	}
 	
 	purple_notify_userinfo(sa->pc, username, user_info, NULL, NULL);
