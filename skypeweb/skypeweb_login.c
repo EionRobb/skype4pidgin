@@ -188,7 +188,7 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 				return;
 			}
 		}
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting Magic T value"));
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting Magic T value, please try logging in via browser first"));
 		return;
 	}
 	
