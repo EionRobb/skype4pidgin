@@ -35,7 +35,7 @@ skypeweb_login_did_auth(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	} else {
 		purple_connection_error(sa->pc,
 								PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
-								_("Failed getting Skype Token"));
+								_("Failed getting Skype Token, please try logging in via browser first"));
 	}
 	
 	if (refresh_token == NULL) {
@@ -49,7 +49,7 @@ skypeweb_login_did_auth(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 			purple_debug_info("skypeweb", "login response was %s\r\n", data);
 			purple_connection_error(sa->pc,
 									PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED,
-									_("Failed getting Skype Token"));
+									_("Failed getting Skype Token, please try logging in via browser first"));
 			return;
 		}
 	}
@@ -96,13 +96,13 @@ skypeweb_login_got_pie(PurpleHttpConnection *http_conn, PurpleHttpResponse *resp
 	
 	pie = skypeweb_string_get_chunk(data, len, "=\"pie\" value=\"", "\"");
 	if (!pie) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PIE value"));
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PIE value, please try logging in via browser first"));
 		return;
 	}
 	
 	etm = skypeweb_string_get_chunk(data, len, "=\"etm\" value=\"", "\"");
 	if (!etm) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting ETM value"));
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting ETM value, please try logging in via browser first"));
 		return;
 	}
 	
@@ -240,7 +240,7 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	// <input type="hidden" name="PPFT" id="i0327" value="..."/>
 	ppft = skypeweb_string_get_chunk(data, len, "name=\"PPFT\" id=\"i0327\" value=\"", "\"");
 	if (!ppft) {
-		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PPFT value"));
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PPFT value, please try logging in via browser first"));
 		return;
 	}
 	// CkTst=G + timestamp   e.g. G1422309314913
