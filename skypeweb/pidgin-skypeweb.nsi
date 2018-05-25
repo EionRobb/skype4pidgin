@@ -9,10 +9,10 @@ SetCompress off
 !define PRODUCT_NAME "pidgin-skypeweb"
 !endif
 !ifndef PRODUCT_VERSION
-!define PRODUCT_VERSION "v1.4"
+!define PRODUCT_VERSION "v1.5"
 !endif
 !define PRODUCT_PUBLISHER "Eion Robb"
-!define PRODUCT_WEB_SITE "http://eion.robbmob.com/"
+!define PRODUCT_WEB_SITE "https://eion.robbmob.com/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !ifndef JSON_GLIB_DLL
@@ -37,7 +37,7 @@ SetCompress off
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
-!define MUI_FINISHPAGE_SHOWREADME "http://eion.robbmob.com/README.txt"
+!define MUI_FINISHPAGE_SHOWREADME "https://eion.robbmob.com/README.txt"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "Run ${PIDGIN_VARIANT}"

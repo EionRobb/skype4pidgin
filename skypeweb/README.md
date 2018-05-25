@@ -7,6 +7,7 @@ Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/re
 
 Change Log
 ----------
+  * 1.5 - Adds 'alternative auth' support, adds support for suggested contacts, fixes 'deny' friend requests
   * 1.4 - libpurple3.0 support, newer HTTP library which uses less CPU, fix for adding/removing/blocking contacts
   * 1.3 - S4B and Bot support, receive contacts, updated status icons, fixed auth requests, auto reconnects, call improvements, tooltips, can remove self from the buddy list, fixes tiny-text pasting
   * 1.2.2 - Fixes non-Live logins
