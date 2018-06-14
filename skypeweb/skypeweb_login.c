@@ -389,7 +389,7 @@ skypeweb_skyper_hash(const gchar *username, const gchar *password)
 	g_checksum_get_digest(gc, hashed, &len);
 	g_checksum_free(gc);
 
-	return purple_base64_encode(hashed, len);
+	return g_base64_encode(hashed, len);
 }
 
 static void

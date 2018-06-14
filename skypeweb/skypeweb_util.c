@@ -18,8 +18,6 @@
  
 #include "skypeweb_util.h"
 
-#include "ciphers/sha256hash.h"
-
 gchar *
 skypeweb_string_get_chunk(const gchar *haystack, gsize len, const gchar *start, const gchar *end)
 {
@@ -126,12 +124,13 @@ skypeweb_thread_url_to_name(const gchar *url)
 char *
 skypeweb_hmac_sha256(char *input)
 {
-	PurpleHash *hash;
+	GChecksum *hash;
 	const guchar productKey[] = SKYPEWEB_LOCKANDKEY_SECRET;
 	const guchar productID[]  = SKYPEWEB_LOCKANDKEY_APPID;
 	const char hexChars[]     = "0123456789abcdef";
 	char buf[BUFSIZE];
 	unsigned char sha256Hash[32];
+	gsize sha256HashLen = sizeof(sha256Hash);
 	unsigned char *newHash;
 	unsigned int *sha256Parts;
 	unsigned int *chlStringParts;
@@ -143,11 +142,11 @@ skypeweb_hmac_sha256(char *input)
 	int len;
 	int i;
 	
-	hash = purple_sha256_hash_new();
-	purple_hash_append(hash, (guchar *)input, strlen(input));
-	purple_hash_append(hash, productKey, sizeof(productKey) - 1);
-	purple_hash_digest(hash, (guchar *)sha256Hash, sizeof(sha256Hash));
-	purple_hash_destroy(hash);
+	hash = g_checksum_new(G_CHECKSUM_SHA256);
+	g_checksum_update(hash, (guchar *)input, strlen(input));
+	g_checksum_update(hash, productKey, sizeof(productKey) - 1);
+	g_checksum_get_digest(hash, (guchar *)sha256Hash, &sha256HashLen);
+	g_checksum_free(hash);
 	
 	/* Split it into four integers */
 	sha256Parts = (unsigned int *)sha256Hash;
