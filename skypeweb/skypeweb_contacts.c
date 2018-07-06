@@ -770,6 +770,7 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 	purple_http_request_set_keepalive_pool(request, sa->keepalive_pool);
 	purple_http_request_header_set_printf(request, "Authorization", "skype_token %s", sa->skype_token); //slightly different to normal!
 	purple_http_request_header_set(request, "Content-Type", "application/json");
+	purple_http_request_header_set(request, "X-Client-Version", SKYPEWEB_CLIENTINFO_VERSION);
 	purple_http_request_set_contents(request, post, -1);
 	purple_http_request(sa->pc, request, skypeweb_got_object_for_file, swft);
 	purple_http_request_unref(request);
