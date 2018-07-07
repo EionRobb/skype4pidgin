@@ -615,10 +615,10 @@ skypeweb_xfer_send_contents_reader(PurpleHttpConnection *con, gchar *buf, size_t
 	SkypeWebFileTransfer *swft = user_data;
 	PurpleXfer *xfer = swft->xfer;
 	gsize read;
-	//printf("Asked %d bytes from offset %d\n", len, offset);
+	purple_debug_info("skypeweb", "Asked %d bytes from offset %d\n", len, offset);
 	purple_xfer_set_bytes_sent(xfer, offset);
 	read = purple_xfer_read_file(xfer, buf, len);
-	//printf("Read %d bytes\n");
+	purple_debug_info("skypeweb", "Read %d bytes\n");
 	cb(con, TRUE, read != len, read);
 }
 
@@ -626,11 +626,11 @@ static void
 skypeweb_xfer_send_done(PurpleHttpConnection *conn, PurpleHttpResponse *resp, gpointer user_data)
 {
 	gsize len;
-	//const gchar *data = purple_http_response_get_data(resp, &len);
-	//const gchar *error = purple_http_response_get_error(resp);
-	//int code = purple_http_response_get_code(resp);
-	//printf("Finished [%d]: %s\n", code, error);
-	//printf("Server message: %s\n", data);
+	const gchar *data = purple_http_response_get_data(resp, &len);
+	const gchar *error = purple_http_response_get_error(resp);
+	int code = purple_http_response_get_code(resp);
+	purple_debug_info("skypeweb", "Finished [%d]: %s\n", code, error);
+	purple_debug_info("skypeweb", "Server message: %s\n", data);
 	purple_timeout_add_seconds(1, poll_file_send_progress, user_data);
 }
 
