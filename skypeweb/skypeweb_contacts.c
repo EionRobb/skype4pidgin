@@ -637,7 +637,9 @@ skypeweb_xfer_send_done(PurpleHttpConnection *conn, PurpleHttpResponse *resp, gp
 static void
 skypeweb_xfer_send_watcher(PurpleHttpConnection *http_conn, gboolean state, int processed, int total, gpointer user_data)
 {
-	//if (!state) poll_file_send_progress(user_data);
+	SkypeWebFileTransfer *swft = user_data;
+	PurpleXfer *xfer = swft->xfer;
+	if (!state) purple_xfer_update_progress(xfer);
 }
 
 static void
