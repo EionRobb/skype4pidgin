@@ -659,7 +659,6 @@ skypeweb_xfer_send_begin(gpointer user_data)
 	purple_http_request_header_set_printf(request, "Authorization", "skype_token %s", sa->skype_token);
 	purple_http_request_set_contents_reader(request, skypeweb_xfer_send_contents_reader, purple_xfer_get_size(xfer), user_data);
 	purple_http_request_set_http11(request, TRUE);
-	purple_xfer_ref(xfer);
 	purple_xfer_start(xfer, -1, NULL, 0);
 	http_conn = purple_http_request(sa->pc, request, skypeweb_xfer_send_done, user_data);
 	purple_http_conn_set_progress_watcher(http_conn, skypeweb_xfer_send_watcher, user_data, 1);
