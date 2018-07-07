@@ -566,7 +566,9 @@ got_file_send_progress(PurpleHttpConnection *http_conn, PurpleHttpResponse *resp
 		purple_xmlnode_set_attrib(filesize, "v", temp);
 		g_free(temp);
 		
-		message = purple_xmlnode_to_str(uriobject, NULL);
+		temp = purple_xmlnode_to_str(uriobject, NULL);
+		message = purple_strreplace(temp, "'", "\"");
+		g_free(temp);
 #if PURPLE_VERSION_CHECK(3, 0, 0)
 		PurpleMessage *msg = purple_message_new_outgoing(swft->from, message, PURPLE_MESSAGE_SEND);
 		skypeweb_send_im(sa->pc, msg);
