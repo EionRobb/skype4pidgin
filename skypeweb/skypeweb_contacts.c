@@ -615,10 +615,12 @@ skypeweb_xfer_send_contents_reader(PurpleHttpConnection *con, gchar *buf, size_t
 	SkypeWebFileTransfer *swft = user_data;
 	PurpleXfer *xfer = swft->xfer;
 	gsize read;
+	
 	purple_debug_info("skypeweb", "Asked %d bytes from offset %d\n", len, offset);
 	purple_xfer_set_bytes_sent(xfer, offset);
-	read = purple_xfer_read_file(xfer, buf, len);
-	purple_debug_info("skypeweb", "Read %d bytes\n");
+	read = purple_xfer_read_file(xfer, (guchar *)buf, len);
+	purple_debug_info("skypeweb", "Read %d bytes\n", read);
+	
 	cb(con, TRUE, read != len, read);
 }
 
@@ -670,7 +672,6 @@ static void
 skypeweb_got_object_for_file(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebFileTransfer *swft = user_data;
-	SkypeWebAccount *sa = swft->sa;
 	PurpleXfer *xfer = swft->xfer;
 	JsonParser *parser;
 	JsonNode *node;

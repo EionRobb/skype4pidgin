@@ -244,6 +244,13 @@ purple_xfer_write_file(PurpleXfer *xfer, const guchar *buffer, gsize size) {
 		(ui_ops && ui_ops->ui_write ? ui_ops->ui_write(xfer, buffer, size) : fwrite(buffer, 1, size, xfer->dest_fp)));
 	return TRUE;
 }
+static inline gssize
+purple_xfer_read_file(PurpleXfer *xfer, guchar *buffer, gsize size) {
+	PurpleXferUiOps *ui_ops = purple_xfer_get_ui_ops(xfer);
+	gssize got_len = (ui_ops && ui_ops->ui_read ? ui_ops->ui_read(xfer, &buffer, size) : fread(buffer, 1, size, xfer->dest_fp));
+	purple_xfer_set_bytes_sent(xfer, purple_xfer_get_bytes_sent(xfer) + got_len);
+	return got_len;
+}
 #endif
 #define PURPLE_XFER_TYPE_RECEIVE  PURPLE_XFER_RECEIVE
 #define PURPLE_XFER_TYPE_SEND     PURPLE_XFER_SEND

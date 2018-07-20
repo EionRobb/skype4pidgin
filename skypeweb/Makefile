@@ -17,11 +17,16 @@ LDFLAGS ?=
 
 # Do some nasty OS and purple version detection
 ifeq ($(OS),Windows_NT)
+  #only defined on 64-bit windows
+  PROGFILES32 = ${ProgramFiles(x86)}
+  ifndef PROGFILES32
+    PROGFILES32 = $(PROGRAMFILES)
+  endif
   SKYPEWEB_TARGET = libskypeweb.dll
-  SKYPEWEB_DEST = "$(PROGRAMFILES)/Pidgin/plugins"
-  SKYPEWEB_ICONS_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/protocols"
-  SKYPEWEB_THEME_DEST = "$(PROGRAMFILES)/Pidgin/pixmaps/pidgin/emotes/skype"
-  MAKENSIS = "$(PROGRAMFILES)/NSIS/makensis.exe"
+  SKYPEWEB_DEST = "$(PROGFILES32)/Pidgin/plugins"
+  SKYPEWEB_ICONS_DEST = "$(PROGFILES32)/Pidgin/pixmaps/pidgin/protocols"
+  SKYPEWEB_THEME_DEST = "$(PROGFILES32)/Pidgin/pixmaps/pidgin/emotes/skype"
+  MAKENSIS = "$(PROGFILES32)/NSIS/makensis.exe"
 else
 
   UNAME_S := $(shell uname -s)
@@ -81,7 +86,7 @@ PURPLE_C_FILES := libskypeweb.c $(C_FILES)
 
 
 
-.PHONY:	all install FAILNOPURPLE clean
+.PHONY:	all install FAILNOPURPLE clean translations
 
 all: $(SKYPEWEB_TARGET)
 
@@ -119,6 +124,21 @@ install-theme: theme
 	mkdir -m $(DIR_PERM) -p $(SKYPEWEB_THEME_DEST)
 	install -m $(FILE_PERM) -p theme $(SKYPEWEB_THEME_DEST)/theme
 
+translations: po/skypeweb.pot
+
+po/skypeweb.pot: 
+	xgettext $^ -k_ --no-location -o $@
+
+po/%.po: po/skypeweb.pot
+	msgmerge $@ po/skypeweb.pot > tmp-$*
+	mv -f tmp-$* $@
+
+po/%.mo: po/%.po
+	msgfmt -o $@ $^
+
+%-locale-install: po/%.mo
+	install -D -m $(FILE_PERM) -p po/$(*F).mo $(LOCALEDIR)/$(*F)/LC_MESSAGES/purple-discord.mo
+	
 FAILNOPURPLE:
 	echo "You need libpurple development headers installed to be able to compile this plugin"
 
