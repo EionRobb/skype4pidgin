@@ -616,7 +616,7 @@ skypeweb_xfer_send_contents_reader(PurpleHttpConnection *con, gchar *buf, size_t
 	PurpleXfer *xfer = swft->xfer;
 	gsize read;
 	
-	purple_debug_info("skypeweb", "Asked %zu bytes from offset %zu\n", len, offset);
+	purple_debug_info("skypeweb", "Asked %" PRI_SIZET " bytes from offset %" PRI_SIZET "\n", len, offset);
 	purple_xfer_set_bytes_sent(xfer, offset);
 	read = purple_xfer_read_file(xfer, (guchar *)buf, len);
 	purple_debug_info("skypeweb", "Read %" G_GSIZE_FORMAT " bytes\n", read);
