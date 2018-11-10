@@ -28,6 +28,7 @@
 
 #include <glib.h>
 
+#include <inttypes.h>
 #include <errno.h>
 #include <string.h>
 #include <glib/gi18n.h>
@@ -44,6 +45,17 @@
 #		define G_GNUC_NULL_TERMINATED
 #	endif /* __GNUC__ >= 4 */
 #endif /* G_GNUC_NULL_TERMINATED */
+
+// workaround for MinGW32 which doesn't support "%zu"; see also https://stackoverflow.com/a/44383330
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define PRI_SIZET PRIu64
+#  else
+#    define PRI_SIZET PRIu32
+#  endif
+#else
+#  define PRI_SIZET "zu"
+#endif
 
 #include "purplecompat.h"
 
