@@ -33,14 +33,10 @@ static void purple_conversation_write_system_message_ts(
 	purple_message_set_time(pmsg, ts);
 	purple_conversation_write_message(conv, pmsg);
 }
-static void purple_conversation_write_img_message_ts(
-		PurpleConversation *conv, const gchar *msg, PurpleMessageFlags flags,
-		time_t ts, const char* who) {
-	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
-	pmsg->who = g_strdup(who); //to non-const
-	purple_message_set_time(pmsg, ts);
-	purple_conversation_write_message(conv, pmsg);
-	g_free(pmsg->who);
+static void purple_conversation_write_img_message(
+		PurpleConversation *conv, const char* who, const gchar *msg,
+		PurpleMessageFlags flags, time_t ts) {
+	purple_conversation_write(conv, who, msg, flags, ts);
 }
 
 // Check that the conversation hasn't been closed
@@ -171,7 +167,7 @@ skypeweb_got_imagemessage(PurpleHttpConnection *http_conn, PurpleHttpResponse *r
 	image = purple_image_new_from_data(g_memdup(url_text, len), len);
 	icon_id = purple_image_store_add(image);
 	msg_tmp = g_strdup_printf("<img id='%d'>", icon_id);
-	purple_conversation_write_img_message_ts(conv, msg_tmp, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_IMAGES, ts, ctx_from);
+	purple_conversation_write_img_message(conv, ctx_from, msg_tmp, PURPLE_MESSAGE_NO_LOG | PURPLE_MESSAGE_IMAGES, ts);
 	g_free(msg_tmp);
 	g_free(ctx_from);
 }
@@ -205,7 +201,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 
 	url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
 	text = g_strdup_printf("<a href=\"%s\">Click here to view full version</a>", url);
-	purple_conversation_write_img_message_ts(conv, text, PURPLE_MESSAGE_SYSTEM, ts, from);
+	purple_conversation_write_img_message(conv, from, text, 0, ts);
 	
 	g_free(url);
 	g_free(text);
@@ -233,7 +229,7 @@ skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gch
 	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, ctx);
 	purple_http_request_unref(request);
 	
-	purple_conversation_write_img_message_ts(conv, text, PURPLE_MESSAGE_SYSTEM, ts, from);
+	purple_conversation_write_img_message(conv, from, text, 0, ts);
 
 	g_free(cdn_url_thumbnail);
 	purple_http_url_free(httpurl);
