@@ -331,7 +331,10 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
 			
-			skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp);
+			from = skypeweb_contact_url_to_name(from);
+			g_return_if_fail(from);
+			
+			skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp, from);
 			purple_xmlnode_free(blob);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled thread message resource messagetype '%s'\n", messagetype);
@@ -418,7 +421,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				}
 				
 				conv = PURPLE_CONVERSATION(imconv);
-				skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp);
+				skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp, from);
 			}
 			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "RichText/Media_GenericFile")) {
@@ -564,7 +567,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				
 				conv = PURPLE_CONVERSATION(imconv);
 
-				skypeweb_download_moji_to_conv(sa, text, url_thumbnail, conv, composetimestamp);
+				skypeweb_download_moji_to_conv(sa, text, url_thumbnail, conv, composetimestamp, from);
 
 				const gchar *message = _("The user sent a Moji");
 
