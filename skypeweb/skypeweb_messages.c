@@ -684,8 +684,8 @@ skypeweb_timeout(gpointer userdata)
 	skypeweb_poll(sa);
 	
 	// If no response within 3 minutes, assume connection lost and try again
-	purple_timeout_remove(sa->watchdog_timeout);
-	sa->watchdog_timeout = purple_timeout_add_seconds(3 * 60, skypeweb_timeout, sa);
+	g_source_remove(sa->watchdog_timeout);
+	sa->watchdog_timeout = g_timeout_add_seconds(3 * 60, skypeweb_timeout, sa);
 	
 	return FALSE;
 }
@@ -758,7 +758,7 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 	}
 	
 	if (!purple_connection_is_disconnecting(sa->pc)) {
-		sa->poll_timeout = purple_timeout_add_seconds(1, skypeweb_timeout, sa);
+		sa->poll_timeout = g_timeout_add_seconds(1, skypeweb_timeout, sa);
 	}
 }
 

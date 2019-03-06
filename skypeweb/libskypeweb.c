@@ -35,9 +35,9 @@ skypeweb_do_all_the_things(SkypeWebAccount *sa)
 		skypeweb_get_self_details(sa);
 		
 		if (sa->authcheck_timeout) 
-			purple_timeout_remove(sa->authcheck_timeout);
+			g_source_remove(sa->authcheck_timeout);
 		skypeweb_check_authrequests(sa);
-		sa->authcheck_timeout = purple_timeout_add_seconds(120, (GSourceFunc)skypeweb_check_authrequests, sa);
+		sa->authcheck_timeout = g_timeout_add_seconds(120, (GSourceFunc)skypeweb_check_authrequests, sa);
 		purple_connection_set_state(sa->pc, PURPLE_CONNECTION_CONNECTED);
 
 		skypeweb_get_friend_list(sa);
@@ -382,9 +382,9 @@ skypeweb_close(PurpleConnection *pc)
 	sa = purple_connection_get_protocol_data(pc);
 	g_return_if_fail(sa != NULL);
 	
-	purple_timeout_remove(sa->authcheck_timeout);
-	purple_timeout_remove(sa->poll_timeout);
-	purple_timeout_remove(sa->watchdog_timeout);
+	g_source_remove(sa->authcheck_timeout);
+	g_source_remove(sa->poll_timeout);
+	g_source_remove(sa->watchdog_timeout);
 
 	skypeweb_logout(sa);
 	
@@ -891,17 +891,16 @@ skypeweb_protocol_privacy_iface_init(PurpleProtocolPrivacyIface *prpl_info)
 }
 
 static void 
-skypeweb_protocol_xfer_iface_init(PurpleProtocolXferIface *prpl_info) 
+skypeweb_protocol_xfer_iface_init(PurpleProtocolXferInterface *prpl_info) 
 {
 #endif
 	
-	//PurpleProtocolXferIface
+	//PurpleProtocolXferInterface
 	prpl_info->new_xfer = skypeweb_new_xfer;
-#if !PURPLE_VERSION_CHECK(3, 0, 0)
 	prpl_info->send_file = skypeweb_send_file;
+#if !PURPLE_VERSION_CHECK(3, 0, 0)
 	prpl_info->can_receive_file = skypeweb_can_receive_file;
 #else
-	prpl_info->send = skypeweb_send_file;
 	prpl_info->can_receive = skypeweb_can_receive_file;
 #endif
 	
@@ -973,7 +972,7 @@ PURPLE_DEFINE_TYPE_EXTENDED(
 	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_ROOMLIST_IFACE,
 	                                  skypeweb_protocol_roomlist_iface_init)
 
-	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_XFER_IFACE,
+	PURPLE_IMPLEMENT_INTERFACE_STATIC(PURPLE_TYPE_PROTOCOL_XFER,
 	                                  skypeweb_protocol_xfer_iface_init)
 );
 

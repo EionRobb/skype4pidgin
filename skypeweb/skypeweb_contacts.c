@@ -36,7 +36,16 @@ static void purple_conversation_write_system_message_ts(
 static void purple_conversation_write_img_message(
 		PurpleConversation *conv, const char* who, const gchar *msg,
 		PurpleMessageFlags flags, time_t ts) {
-	purple_conversation_write(conv, who, msg, flags, ts);
+	PurpleMessage *pmsg;
+
+	if (flags & PURPLE_MESSAGE_SEND) {
+		pmsg = purple_message_new_outgoing(who, msg, flags);
+		purple_message_set_time(pmsg, ts);
+	} else {
+		pmsg = purple_message_new_incoming(who, msg, flags, ts);
+	}
+		
+	purple_conversation_write_message(conv, pmsg);
 }
 
 // Check that the conversation hasn't been closed
@@ -126,7 +135,7 @@ skypeweb_get_icon(PurpleBuddy *buddy)
 {
 	if (!buddy) return;
 	
-	purple_timeout_add(100, skypeweb_get_icon_queuepop, (gpointer)buddy);
+	g_timeout_add(100, skypeweb_get_icon_queuepop, (gpointer)buddy);
 }
 
 typedef struct SkypeImgMsgContext_ {
@@ -640,7 +649,7 @@ skypeweb_xfer_send_contents_reader(PurpleHttpConnection *con, gchar *buf, size_t
 	PurpleXfer *xfer = swft->xfer;
 	gsize read;
 	
-	purple_debug_info("skypeweb", "Asked %" PRI_SIZET " bytes from offset %" PRI_SIZET "\n", len, offset);
+	purple_debug_info("skypeweb", "Asked %" G_GSIZE_FORMAT " bytes from offset %" G_GSIZE_FORMAT "\n", len, offset);
 	purple_xfer_set_bytes_sent(xfer, offset);
 	read = purple_xfer_read_file(xfer, (guchar *)buf, len);
 	purple_debug_info("skypeweb", "Read %" G_GSIZE_FORMAT " bytes\n", read);
@@ -657,7 +666,7 @@ skypeweb_xfer_send_done(PurpleHttpConnection *conn, PurpleHttpResponse *resp, gp
 	int code = purple_http_response_get_code(resp);
 	purple_debug_info("skypeweb", "Finished [%d]: %s\n", code, error);
 	purple_debug_info("skypeweb", "Server message: %s\n", data);
-	purple_timeout_add_seconds(1, poll_file_send_progress, user_data);
+	g_timeout_add_seconds(1, poll_file_send_progress, user_data);
 }
 
 static void
@@ -788,7 +797,11 @@ skypeweb_xfer_send_init(PurpleXfer *xfer)
 }
 
 PurpleXfer *
-skypeweb_new_xfer(PurpleConnection *pc, const char *who)
+skypeweb_new_xfer(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const char *who)
 {
 	SkypeWebAccount *sa = purple_connection_get_protocol_data(pc);
 	PurpleXfer *xfer;
@@ -812,9 +825,17 @@ skypeweb_new_xfer(PurpleConnection *pc, const char *who)
 }
 
 void
-skypeweb_send_file(PurpleConnection *pc, const gchar *who, const gchar *filename)
+skypeweb_send_file(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const gchar *who, const gchar *filename)
 {
-	PurpleXfer *xfer = skypeweb_new_xfer(pc, who);
+	PurpleXfer *xfer = skypeweb_new_xfer(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+		prplxfer, 
+#endif
+		pc, who);
 	
 	if (filename && *filename)
 		purple_xfer_request_accepted(xfer, filename);
@@ -823,7 +844,11 @@ skypeweb_send_file(PurpleConnection *pc, const gchar *who, const gchar *filename
 }
 
 gboolean
-skypeweb_can_receive_file(PurpleConnection *pc, const gchar *who)
+skypeweb_can_receive_file(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const gchar *who)
 {
 	if (!who || g_str_equal(who, purple_account_get_username(purple_connection_get_account(pc))))
 		return FALSE;

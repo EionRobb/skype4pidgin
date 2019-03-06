@@ -122,6 +122,18 @@ purple_message_new_outgoing(const gchar *who, const gchar *contents, PurpleMessa
 	return message;
 }
 static inline PurpleMessage *
+purple_message_new_incoming(const gchar *who, const gchar *contents, PurpleMessageFlags flags, guint64 timestamp)
+{
+	PurpleMessage *message = g_new0(PurpleMessage, 1);
+	
+	message->who = g_strdup(who);
+	message->what = g_strdup(contents);
+	message->flags = flags | PURPLE_MESSAGE_RECV;
+	message->when = timestamp;
+	
+	return message;
+}
+static inline PurpleMessage *
 purple_message_new_system(const gchar *contents, PurpleMessageFlags flags)
 {
 	PurpleMessage *message = g_new0(PurpleMessage, 1);
@@ -254,6 +266,11 @@ purple_xfer_read_file(PurpleXfer *xfer, guchar *buffer, gsize size) {
 #endif
 #define PURPLE_XFER_TYPE_RECEIVE  PURPLE_XFER_RECEIVE
 #define PURPLE_XFER_TYPE_SEND     PURPLE_XFER_SEND
+
+// Kinda gross, since we can technically use the glib mainloop from purple2
+#define g_timeout_add_seconds  purple_timeout_add_seconds
+#define g_timeout_add          purple_timeout_add
+#define g_source_remove        purple_timeout_remove
 
 #endif
 

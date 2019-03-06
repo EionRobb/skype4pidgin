@@ -27,9 +27,23 @@ void skypeweb_download_video_message(SkypeWebAccount *sa, const gchar *sid, Purp
 void skypeweb_download_moji_to_conv(SkypeWebAccount *sa, const gchar *text, const gchar *url_thumbnail, PurpleConversation *conv, time_t ts, const gchar* from);
 void skypeweb_present_uri_as_filetransfer(SkypeWebAccount *sa, const gchar *uri, const gchar *from);
 
-PurpleXfer *skypeweb_new_xfer(PurpleConnection *pc, const char *who);
-void skypeweb_send_file(PurpleConnection *pc, const gchar *who, const gchar *filename);
-gboolean skypeweb_can_receive_file(PurpleConnection *pc, const gchar *who);
+PurpleXfer *skypeweb_new_xfer(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const char *who);
+
+void skypeweb_send_file(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const gchar *who, const gchar *filename);
+
+gboolean skypeweb_can_receive_file(
+#if PURPLE_VERSION_CHECK(3, 0, 0)
+PurpleProtocolXfer *prplxfer, 
+#endif
+PurpleConnection *pc, const gchar *who);
 
 void skypeweb_search_users(PurpleProtocolAction *action);
 
