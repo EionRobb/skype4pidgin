@@ -29,6 +29,5 @@ void skypeweb_begin_web_login(SkypeWebAccount *sa);
 void skypeweb_begin_oauth_login(SkypeWebAccount *sa);
 void skypeweb_refresh_token_login(SkypeWebAccount *sa);
 void skypeweb_begin_soapy_login(SkypeWebAccount *sa);
-void skypeweb_begin_skyper_login(SkypeWebAccount *sa);
 
 #endif /* SKYPEWEB_LOGIN_H */

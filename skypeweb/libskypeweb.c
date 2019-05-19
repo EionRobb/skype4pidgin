@@ -347,11 +347,7 @@ skypeweb_login(PurpleAccount *account)
 	sa->conns = purple_http_connection_set_new();
 
 	if (purple_account_get_bool(account, "alt-login", FALSE)) {
-		if (!SKYPEWEB_BUDDY_IS_MSN(purple_account_get_username(account))) {
-			skypeweb_begin_skyper_login(sa);
-		} else {
-			skypeweb_begin_soapy_login(sa);
-		}
+		skypeweb_begin_soapy_login(sa);
 	} else {
 		if (purple_account_get_string(account, "refresh-token", NULL) && purple_account_get_remember_password(account)) {
 			skypeweb_refresh_token_login(sa);

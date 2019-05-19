@@ -374,24 +374,6 @@ fail:
 	g_free(error);
 }
 
-/* base64(md5(user + "\nskyper\n" + pass)) */
-static gchar *
-skypeweb_skyper_hash(const gchar *username, const gchar *password)
-{
-	guint8 hashed[16];
-	gsize len = sizeof(hashed);
-	GChecksum *gc;
-
-	gc = g_checksum_new(G_CHECKSUM_MD5);
-	g_checksum_update(gc, (guchar *)username, -1);
-	g_checksum_update(gc, (guchar *)"\nskyper\n", -1);
-	g_checksum_update(gc, (guchar *)password, -1);
-	g_checksum_get_digest(gc, hashed, &len);
-	g_checksum_free(gc);
-
-	return g_base64_encode(hashed, len);
-}
-
 static void
 skypeweb_login_get_api_skypetoken(SkypeWebAccount *sa, const gchar *url, const gchar *username, const gchar *password)
 {
@@ -426,7 +408,7 @@ skypeweb_login_get_api_skypetoken(SkypeWebAccount *sa, const gchar *url, const g
 static void
 skypeweb_login_soap_got_token(SkypeWebAccount *sa, gchar *token)
 {
-	const gchar *login_url = "https://api.skype.com/rps/skypetoken";
+	const gchar *login_url = "https://edge.skype.com/rps/v1/rps/skypetoken";
 
 	skypeweb_login_get_api_skypetoken(sa, login_url, NULL, token);
 }
@@ -546,20 +528,4 @@ skypeweb_begin_soapy_login(SkypeWebAccount *sa)
 	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
 
 	g_free(postdata);
-}
-
-void
-skypeweb_begin_skyper_login(SkypeWebAccount *sa)
-{
-	gchar *hash;
-	const gchar *login_url = "https://api.skype.com/login/skypetoken";
-	const gchar *username = purple_account_get_username(sa->account);
-
-	hash = skypeweb_skyper_hash(username, purple_connection_get_password(sa->pc));
-
-	skypeweb_login_get_api_skypetoken(sa, login_url, username, hash);
-
-	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
-
-	g_free(hash);
 }
