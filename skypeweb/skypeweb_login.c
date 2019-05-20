@@ -165,7 +165,7 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 	data = purple_http_response_get_data(response, &len);
 	
 	// <input type="hidden" name="t" id="t" value="...">
-	error_test = skypeweb_string_get_chunk(data, len, ",sErrTxt:'", "',Am:'");
+	error_text = skypeweb_string_get_chunk(data, len, ",sErrTxt:'", "',Am:'");
 	error_code = skypeweb_string_get_chunk(data, len, ",sErrorCode:'", "',Ag:");
 	magic_t_value = skypeweb_string_get_chunk(data, len, "=\"t\" value=\"", "\"");
 
@@ -194,11 +194,11 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 			}
 		}
 
-		if (error_test) {
+		if (error_text) {
 			GString *new_error;
 			new_error = g_string_new("");
 			g_string_append_printf(new_error, "%s: ", error_code);
-			g_string_append_printf(new_error, "%s", error_test);
+			g_string_append_printf(new_error, "%s", error_text);
 
 			gchar *error_msg = g_string_free(new_error, FALSE);
 
