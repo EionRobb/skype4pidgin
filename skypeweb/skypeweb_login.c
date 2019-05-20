@@ -156,6 +156,8 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 	PurpleHttpRequest *request;
 	GString *postdata;
 	gchar *magic_t_value; // T is for tasty
+	gchar *error_code;
+	gchar *error_text;
 	int tmplen;
 	const gchar *data;
 	gsize len;
@@ -163,7 +165,10 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 	data = purple_http_response_get_data(response, &len);
 	
 	// <input type="hidden" name="t" id="t" value="...">
+	error_test = skypeweb_string_get_chunk(data, len, ",sErrTxt:'", "',Am:'");
+	error_code = skypeweb_string_get_chunk(data, len, ",sErrorCode:'", "',Ag:");
 	magic_t_value = skypeweb_string_get_chunk(data, len, "=\"t\" value=\"", "\"");
+
 	if (!magic_t_value) {
 		//No Magic T????  Maybe it be the mighty 2fa-beast
 		
@@ -188,7 +193,22 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 				return;
 			}
 		}
+
+		if (error_test) {
+			GString *new_error;
+			new_error = g_string_new("");
+			g_string_append_printf(new_error, "%s: ", error_code);
+			g_string_append_printf(new_error, "%s", error_test);
+
+			gchar *error_msg = g_string_free(new_error, FALSE);
+
+			purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, error_msg);
+			g_free (error_msg);
+			return;
+		}
+
 		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting Magic T value, please try logging in via browser first"));
+
 		return;
 	}
 	
