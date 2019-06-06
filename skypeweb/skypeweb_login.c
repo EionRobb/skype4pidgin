@@ -352,6 +352,10 @@ skypeweb_login_did_got_api_skypetoken(PurpleHttpConnection *http_conn, PurpleHtt
 	PurpleConnectionError error_type = PURPLE_CONNECTION_ERROR_NETWORK_ERROR;
 
 	data = purple_http_response_get_data(response, &len);
+	
+	if (purple_debug_is_verbose()) {
+		purple_debug_misc("skype", "Full skypetoken response: %s\n", data);
+	}
 
 	parser = json_parser_new();
 	if (!json_parser_load_from_data(parser, data, len, NULL)) {
