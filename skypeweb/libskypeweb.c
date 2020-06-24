@@ -243,7 +243,10 @@ skypeweb_join_chat(PurpleConnection *pc, GHashTable *data)
 	g_string_append(url, "/members/");
 	g_string_append_printf(url, "8:%s", purple_url_encode(sa->username));
 	
-	post = "{\"role\":\"User\"}";
+	/* Specifying the role does not seem to be required and often result in a users role being
+	 * downgraded from admin to user
+	 * post = "{\"role\":\"User\"}"; */
+	post = "{}";
 	
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url->str, post, NULL, NULL, TRUE);
 	
