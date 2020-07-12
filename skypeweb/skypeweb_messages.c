@@ -1052,7 +1052,11 @@ skypeweb_got_contact_status(SkypeWebAccount *sa, JsonNode *node, gpointer user_d
 static void
 skypeweb_lookup_contact_status(SkypeWebAccount *sa, const gchar *contact)
 {
-	// Allowed to be up to 10 at once, but be lazy and do one at a time
+	if (contact == NULL) {
+		return;
+	}
+	
+	// Allowed to be up to 10 at once
 	gchar *url = g_strdup_printf("/v1/users/ME/contacts/ALL/presenceDocs/messagingService?cMri=%s%s", skypeweb_user_url_prefix(contact), purple_url_encode(contact));
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_contact_status, NULL, TRUE);
 	
@@ -1075,6 +1079,12 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 	obj = json_object_new();
 	contacts_array = json_array_new();
 	
+	JsonArray *interested = json_array_new();
+	json_array_add_string_element(interested, "/v1/users/ME/conversations/ALL/properties");
+	json_array_add_string_element(interested, "/v1/users/ME/conversations/ALL/messages");
+	json_array_add_string_element(interested, "/v1/users/ME/contacts/ALL");
+	json_array_add_string_element(interested, "/v1/threads/ALL");
+	
 	do {
 		JsonObject *contact;
 		gchar *id;
@@ -1090,9 +1100,13 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		json_object_set_string_member(contact, "id", id);
 		json_array_add_object_element(contacts_array, contact);
 		
-		g_free(id);
+		if (id && id[0] == '8') {
+			gchar *contact_url = g_strconcat("/v1/users/ME/contacts/", id, NULL);
+			json_array_add_string_element(interested, contact_url);
+			g_free(contact_url);
+		}
 		
-		skypeweb_lookup_contact_status(sa, cur->data);
+		g_free(id);
 		
 		if (count++ >= 100) {
 			// Send off the current batch and continue
@@ -1115,6 +1129,21 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 
 	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_POST | SKYPEWEB_METHOD_SSL, sa->messages_host, contacts_url, post, NULL, NULL, TRUE);
 	
+	g_free(post);
+	json_object_unref(obj);
+	
+	
+	gchar *url = g_strdup_printf("/v1/users/ME/endpoints/%s/subscriptions/0?name=interestedResources", purple_url_encode(sa->endpoint));
+	
+	obj = json_object_new();
+	json_object_set_array_member(obj, "interestedResources", interested);
+	
+	skypeweb_lookup_contact_status(sa, NULL);
+	post = skypeweb_jsonobj_to_string(obj);
+
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
+	
+	g_free(url);
 	g_free(post);
 	json_object_unref(obj);
 }
