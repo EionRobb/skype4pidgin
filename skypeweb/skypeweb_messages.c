@@ -1031,6 +1031,34 @@ skypeweb_unsubscribe_from_contact_status(SkypeWebAccount *sa, const gchar *who)
 	g_free(url);
 }
 
+static void
+skypeweb_got_contact_status(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
+{
+	JsonObject *obj = json_node_get_object(node);
+	JsonArray *responses = json_object_get_array_member(obj, "Responses");
+	
+	if (responses != NULL) {
+		guint length = json_array_get_length(responses);
+		gint index;
+		for(index = length - 1; index >= 0; index--)
+		{
+			JsonObject *response = json_array_get_object_element(responses, index);
+			JsonObject *payload = json_object_get_object_member(response, "Payload");
+			process_userpresence_resource(sa, payload);
+		}
+	}
+}
+
+static void
+skypeweb_lookup_contact_status(SkypeWebAccount *sa, const gchar *contact)
+{
+	// Allowed to be up to 10 at once, but be lazy and do one at a time
+	gchar *url = g_strdup_printf("/v1/users/ME/contacts/ALL/presenceDocs/messagingService?cMri=%s%s", skypeweb_user_url_prefix(contact), purple_url_encode(contact));
+	skypeweb_post_or_get(sa, SKYPEWEB_METHOD_GET | SKYPEWEB_METHOD_SSL, sa->messages_host, url, NULL, skypeweb_got_contact_status, NULL, TRUE);
+	
+	g_free(url);
+}
+
 void
 skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 {
@@ -1063,6 +1091,8 @@ skypeweb_subscribe_to_contact_status(SkypeWebAccount *sa, GSList *contacts)
 		json_array_add_object_element(contacts_array, contact);
 		
 		g_free(id);
+		
+		skypeweb_lookup_contact_status(sa, cur->data);
 		
 		if (count++ >= 100) {
 			// Send off the current batch and continue
