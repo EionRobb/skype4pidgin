@@ -763,7 +763,7 @@ skypeweb_protocol_init(PurpleProtocol *prpl_info)
 	prpl_info->options = OPT_PROTO_CHAT_TOPIC | OPT_PROTO_INVITE_MESSAGE /*| OPT_PROTO_IM_IMAGE*/;
 	typing_type1 = purple_account_option_bool_new(N_("Show 'Typing' status as system message in chat window."), "show-typing-as-text", FALSE);
 	typing_type2 = purple_account_option_bool_new(N_("Show 'Typing' status with 'Voice' icon near buddy name."), "show-typing-as-icon", FALSE);
-	alt_login = purple_account_option_bool_new(N_("Use alternative login method"), "alt-login", FALSE);
+	alt_login = purple_account_option_bool_new(N_("Use alternative login method"), "alt-login", TRUE);
 
 #if !PURPLE_VERSION_CHECK(3, 0, 0)
 	prpl_info->protocol_options = g_list_append(prpl_info->protocol_options, typing_type1);
