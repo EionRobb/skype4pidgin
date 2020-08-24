@@ -243,6 +243,60 @@ skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *respon
 }
 
 static void
+skypeweb_login_got_opid(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
+{
+	SkypeWebAccount *sa = user_data;
+	const gchar *live_login_url = "https://login.live.com" "/ppsecure/post.srf?wa=wsignin1.0&wp=MBI_SSL&wreply=https%3A%2F%2Flw.skype.com%2Flogin%2Foauth%2Fproxy%3Fsite_name%3Dlw.skype.com";
+	gchar *ppft;
+	gchar *opid;
+	GString *postdata;
+	PurpleHttpRequest *request;
+	int tmplen;
+	const gchar *data;
+	gsize len;
+
+	data = purple_http_response_get_data(response, &len);
+	
+	ppft = skypeweb_string_get_chunk(data, len, ",sFT:'", "',");
+	if (!ppft) {
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting PPFT value, please try logging in via browser first"));
+		return;
+	}
+	opid = skypeweb_string_get_chunk(data, len, "&opid=", "'");
+	if (!opid) {
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting opid value, try using 'Alternate Auth Method' settings"));
+		return;
+	}
+	postdata = g_string_new("");
+	g_string_append_printf(postdata, "opid=%s&", purple_url_encode(opid));
+	g_string_append(postdata, "site_name=lw.skype.com&");
+	g_string_append(postdata, "oauthPartner=999&");
+	g_string_append(postdata, "client_id=578134&");
+	g_string_append(postdata, "redirect_uri=https%3A%2F%2Fweb.skype.com&");
+	g_string_append_printf(postdata, "PPFT=%s&", purple_url_encode(ppft));
+	g_string_append(postdata, "type=28&");
+
+	tmplen = postdata->len;
+	if (postdata->len > INT_MAX) tmplen = INT_MAX;
+	
+	request = purple_http_request_new(live_login_url);
+	purple_http_request_set_method(request, "POST");
+	purple_http_request_set_cookie_jar(request, sa->cookie_jar);
+	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+	purple_http_request_header_set(request, "Accept", "*/*");
+	purple_http_request_set_contents(request, postdata->str, tmplen);
+	purple_http_request(sa->pc, request, skypeweb_login_got_t, sa);
+	purple_http_request_unref(request);
+	
+	g_string_free(postdata, TRUE);
+	
+	g_free(ppft);
+	g_free(opid);
+	
+	purple_connection_update_progress(sa->pc, _("Authenticating"), 2, 4);
+}
+
+static void
 skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
@@ -285,7 +339,7 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	purple_http_request_header_set(request, "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 	purple_http_request_header_set(request, "Accept", "*/*");
 	purple_http_request_set_contents(request, postdata->str, tmplen);
-	purple_http_request(sa->pc, request, skypeweb_login_got_t, sa);
+	purple_http_request(sa->pc, request, skypeweb_login_got_opid, sa);
 	purple_http_request_unref(request);
 	
 	g_string_free(postdata, TRUE);
