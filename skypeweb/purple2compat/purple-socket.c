@@ -78,8 +78,10 @@ handle_remove(PurpleSocket *ps)
 	GSList *l;
 
 	l = g_hash_table_lookup(handles, gc);
-	l = g_slist_remove(l, ps);
-	g_hash_table_insert(handles, gc, l);
+	if (l != NULL) {
+		l = g_slist_remove(l, ps);
+		g_hash_table_insert(handles, gc, l);
+	}
 }
 
 void

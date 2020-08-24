@@ -120,8 +120,8 @@ skypeweb_tooltip_text(PurpleBuddy *buddy, PurpleNotifyUserInfo *user_info, gbool
 			g_free(escaped);
 		}
 		if (sbuddy->fullname && *sbuddy->fullname) {
-			gchar *escaped = g_markup_printf_escaped("%s", sbuddy->display_name);
-			purple_notify_user_info_add_pair_html(user_info, "Full Name", sbuddy->fullname);
+			gchar *escaped = g_markup_printf_escaped("%s", sbuddy->fullname);
+			purple_notify_user_info_add_pair_html(user_info, "Full Name", escaped);
 			g_free(escaped);
 		}
 	}
@@ -520,7 +520,7 @@ skypeweb_cmd_topic(PurpleConversation *conv, const gchar *cmd, gchar **args, gch
 		return PURPLE_CMD_RET_OK;
 	}
 	
-	skypeweb_chat_set_topic(pc, id, args ? args[0] : NULL);
+	skypeweb_chat_set_topic(pc, id, args[0]);
 	
 	return PURPLE_CMD_RET_OK;
 }

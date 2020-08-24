@@ -74,19 +74,19 @@
 #include <json-glib/json-glib.h>
 
 #define json_object_get_int_member(JSON_OBJECT, MEMBER) \
-	(JSON_OBJECT && json_object_has_member(JSON_OBJECT, MEMBER) ? json_object_get_int_member(JSON_OBJECT, MEMBER) : 0)
+	((JSON_OBJECT) && json_object_has_member((JSON_OBJECT), (MEMBER)) ? json_object_get_int_member((JSON_OBJECT), (MEMBER)) : 0)
 #define json_object_get_string_member(JSON_OBJECT, MEMBER) \
-	(JSON_OBJECT && json_object_has_member(JSON_OBJECT, MEMBER) ? json_object_get_string_member(JSON_OBJECT, MEMBER) : NULL)
+	((JSON_OBJECT) && json_object_has_member((JSON_OBJECT), (MEMBER)) ? json_object_get_string_member((JSON_OBJECT), (MEMBER)) : NULL)
 #define json_object_get_array_member(JSON_OBJECT, MEMBER) \
-	(JSON_OBJECT && json_object_has_member(JSON_OBJECT, MEMBER) ? json_object_get_array_member(JSON_OBJECT, MEMBER) : NULL)
+	((JSON_OBJECT) && json_object_has_member((JSON_OBJECT), (MEMBER)) ? json_object_get_array_member((JSON_OBJECT), (MEMBER)) : NULL)
 #define json_object_get_object_member(JSON_OBJECT, MEMBER) \
-	(JSON_OBJECT && json_object_has_member(JSON_OBJECT, MEMBER) ? json_object_get_object_member(JSON_OBJECT, MEMBER) : NULL)
+	((JSON_OBJECT) && json_object_has_member((JSON_OBJECT), (MEMBER)) ? json_object_get_object_member((JSON_OBJECT), (MEMBER)) : NULL)
 #define json_object_get_boolean_member(JSON_OBJECT, MEMBER) \
-	(JSON_OBJECT && json_object_has_member(JSON_OBJECT, MEMBER) ? json_object_get_boolean_member(JSON_OBJECT, MEMBER) : FALSE)
+	((JSON_OBJECT) && json_object_has_member((JSON_OBJECT), (MEMBER)) ? json_object_get_boolean_member((JSON_OBJECT), (MEMBER)) : FALSE)
 #define json_array_get_length(JSON_ARRAY) \
-	(JSON_ARRAY ? json_array_get_length(JSON_ARRAY) : 0)
+	((JSON_ARRAY) ? json_array_get_length(JSON_ARRAY) : 0)
 #define json_node_get_array(JSON_NODE) \
-	(JSON_NODE && JSON_NODE_TYPE(JSON_NODE) == JSON_NODE_ARRAY ? json_node_get_array(JSON_NODE) : NULL)
+	((JSON_NODE) && JSON_NODE_TYPE(JSON_NODE) == (JSON_NODE_ARRAY) ? json_node_get_array(JSON_NODE) : NULL)
 
 #include "accountopt.h"
 #include "core.h"

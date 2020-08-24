@@ -48,7 +48,7 @@
 #define PURPLE_HTTP_REQUEST_DEFAULT_MAX_REDIRECTS 20
 #define PURPLE_HTTP_REQUEST_DEFAULT_TIMEOUT 30
 #define PURPLE_HTTP_REQUEST_DEFAULT_MAX_LENGTH 1048576
-#define PURPLE_HTTP_REQUEST_HARD_MAX_LENGTH G_MAXINT32-1
+#define PURPLE_HTTP_REQUEST_HARD_MAX_LENGTH (G_MAXINT32-1)
 
 #define PURPLE_HTTP_PROGRESS_WATCHER_DEFAULT_INTERVAL 250000
 
@@ -334,7 +334,7 @@ static time_t purple_http_rfc1123_to_time(const gchar *str)
 	g_free(d_time);
 
 	if (month > 12) {
-		purple_debug_warning("http", "Invalid month: %s\n", d_month);
+		purple_debug_warning("http", "Invalid month: %d\n", month);
 		g_free(iso_date);
 		return 0;
 	}
@@ -405,7 +405,6 @@ purple_http_gz_put(PurpleHttpGzStream *gzs, const gchar *buf, gsize len)
 		gsize decompressed_len;
 
 		zs->next_out = (Bytef*)decompressed_buff;
-		zs->avail_out = sizeof(decompressed_buff);
 		decompressed_len = zs->avail_out = sizeof(decompressed_buff);
 		gzres = inflate(zs, Z_FULL_FLUSH);
 		decompressed_len -= zs->avail_out;
@@ -432,6 +431,7 @@ purple_http_gz_put(PurpleHttpGzStream *gzs, const gchar *buf, gsize len)
 				"Decompression failed (%d): %s\n", gzres,
 				zs->msg);
 			gzs->failed = TRUE;
+			g_string_free(ret, TRUE);
 			return NULL;
 		}
 	}
@@ -777,7 +777,7 @@ static void _purple_http_gen_headers(PurpleHttpConnection *hc)
 		purple_http_request_is_method(req, "post")))
 	{
 		g_string_append_printf(h, "Content-Length: %u\r\n",
-			req->contents_length);
+			(unsigned int) req->contents_length);
 	}
 
 	if (proxy_http)
@@ -1602,7 +1602,7 @@ PurpleHttpConnection * purple_http_request(PurpleConnection *gc,
 			hc, request->url);
 	else
 		purple_debug_misc("http", "Performing new request %p to %s.\n",
-			hc, hc->url ? hc->url->host : NULL);
+			hc, hc->url ? hc->url->host : "");
 
 	if (!hc->url || hc->url->host == NULL || hc->url->host[0] == '\0') {
 		purple_debug_error("http", "Invalid URL requested.\n");
@@ -2025,7 +2025,7 @@ void purple_http_cookie_jar_set(PurpleHttpCookieJar *cookie_jar,
 	gchar *escaped_name = g_strdup(purple_url_encode(name));
 	gchar *escaped_value = NULL;
 	
-	if (escaped_value) {
+	if (value) {
 		escaped_value = g_strdup(purple_url_encode(value));
 	}
 	
@@ -3077,7 +3077,7 @@ purple_http_url_print(PurpleHttpURL *parsed_url)
 	if (parsed_url->username || parsed_url->password) {
 		if (parsed_url->username)
 			g_string_append(url, parsed_url->username);
-		g_string_append_printf(url, ":%s", parsed_url->password);
+		g_string_append_printf(url, ":%s", parsed_url->password ? parsed_url->password : "");
 		g_string_append(url, "@");
 		before_host_printed = TRUE;
 	}
@@ -3223,8 +3223,9 @@ void purple_http_uninit(void)
 	g_regex_unref(purple_http_re_rfc1123);
 	purple_http_re_rfc1123 = NULL;
 
-	g_list_foreach(purple_http_hc_list, purple_http_foreach_conn_cancel,
-		NULL);
+	if (purple_http_hc_list != NULL)
+		g_list_foreach(purple_http_hc_list, purple_http_foreach_conn_cancel,
+			NULL);
 
 	if (purple_http_hc_list != NULL ||
 		0 != g_hash_table_size(purple_http_hc_by_ptr) ||

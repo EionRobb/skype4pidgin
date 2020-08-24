@@ -131,6 +131,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 	PurpleConversation *conv = NULL;
 	gchar *convname = NULL;
 	
+	g_return_if_fail(messagetype != NULL);
+	
 	messagetype_parts = g_strsplit(messagetype, "/", -1);
 	
 	if (json_object_has_member(resource, "clientmessageid"))
@@ -178,7 +180,11 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			PurpleChatUser *cb;
 
 			from = skypeweb_contact_url_to_name(from);
-			g_return_if_fail(from);
+			if (from == NULL) {
+				g_strfreev(messagetype_parts);
+				g_return_if_reached();
+				return;
+			}
 
 			// typing notification text, not personalized because of multiple "typing" events
 			if (purple_account_get_bool(sa->account, "show-typing-as-text", FALSE)) {
@@ -188,7 +194,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				// get last message (first in GList)
 				if (conv && g_list_length(purple_conversation_get_message_history(conv))) {
 					PurpleMessage *last = g_list_nth_data(g_list_first(purple_conversation_get_message_history(conv)),0);
-					last_message = g_strdup(purple_message_get_contents(last));
+					last_message = purple_message_get_contents(last);
 				}
 
 				// add typing notification to chat
@@ -227,7 +233,11 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			}
 			
 			from = skypeweb_contact_url_to_name(from);
-			g_return_if_fail(from);
+			if (from == NULL) {
+				g_free(messagetype_parts);
+				g_return_if_reached();
+				return;
+			}
 			
 			// Remove typing notification icon w/o "show-typing-as-icon" option check.
 			// Hard reset cbflags even if user changed settings while someone typing message.
@@ -348,7 +358,12 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 		convname = g_strconcat(skypeweb_user_url_prefix(convbuddyname), convbuddyname, NULL);
 		
 		from = skypeweb_contact_url_to_name(from);
-		g_return_if_fail(from);
+		if (from == NULL) {
+			g_free(convbuddyname);
+			g_free(convname);
+			g_return_if_reached();
+			return;
+		}
 		
 		if (g_str_equal(messagetype_parts[0], "Control")) {
 			if (g_str_equal(messagetype_parts[1], "ClearTyping")) {
@@ -596,7 +611,7 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			gchar *post, *url;
 			
 			url = g_strdup_printf("/v1/users/ME/conversations/%s/properties?name=consumptionhorizon", purple_url_encode(convname));
-			post = g_strdup_printf("{\"consumptionhorizon\":\"%s;%" G_GINT64_FORMAT ";%s\"}", id, skypeweb_get_js_time(), id);
+			post = g_strdup_printf("{\"consumptionhorizon\":\"%s;%" G_GINT64_FORMAT ";%s\"}", id ? id : "", skypeweb_get_js_time(), id ? id : "");
 			
 			skypeweb_post_or_get(sa, SKYPEWEB_METHOD_PUT | SKYPEWEB_METHOD_SSL, sa->messages_host, url, post, NULL, NULL, TRUE);
 			
@@ -669,7 +684,7 @@ process_endpointpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 					case 1:  //SkypeWeb
 						break;
 					default:
-						purple_debug_warning("skypeweb", "Unknown typ %d: %s\n", typ, skypeNameVersion);
+						purple_debug_warning("skypeweb", "Unknown typ %d: %s\n", typ, skypeNameVersion ? skypeNameVersion : "");
 						break;
 				}
 			}
@@ -723,19 +738,19 @@ skypeweb_poll_cb(SkypeWebAccount *sa, JsonNode *node, gpointer user_data)
 				const gchar *resourceType = json_object_get_string_member(message, "resourceType");
 				JsonObject *resource = json_object_get_object_member(message, "resource");
 				
-				if (g_str_equal(resourceType, "NewMessage"))
+				if (purple_strequal(resourceType, "NewMessage"))
 				{
 					process_message_resource(sa, resource);
-				} else if (g_str_equal(resourceType, "UserPresence"))
+				} else if (purple_strequal(resourceType, "UserPresence"))
 				{
 					process_userpresence_resource(sa, resource);
-				} else if (g_str_equal(resourceType, "EndpointPresence"))
+				} else if (purple_strequal(resourceType, "EndpointPresence"))
 				{
 					process_endpointpresence_resource(sa, resource);
-				} else if (g_str_equal(resourceType, "ConversationUpdate"))
+				} else if (purple_strequal(resourceType, "ConversationUpdate"))
 				{
 					process_conversation_resource(sa, resource);
-				} else if (g_str_equal(resourceType, "ThreadUpdate"))
+				} else if (purple_strequal(resourceType, "ThreadUpdate"))
 				{
 					process_thread_resource(sa, resource);
 				}
@@ -775,7 +790,7 @@ skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType t
 	if (!PURPLE_CONNECTION_IS_CONNECTED(pc))
 		return;
 	
-	if (g_strcmp0(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
+	if (!purple_strequal(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
 		return;
 	
 	if (type == PURPLE_CONVERSATION_UPDATE_UNSEEN) {
@@ -1344,7 +1359,7 @@ skypeweb_conv_send_typing(PurpleConversation *conv, PurpleIMTypingState state)
 	if (!PURPLE_CONNECTION_IS_CONNECTED(pc))
 		return 0;
 	
-	if (g_strcmp0(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
+	if (!purple_strequal(purple_protocol_get_id(purple_connection_get_protocol(pc)), SKYPEWEB_PLUGIN_ID))
 		return 0;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(purple_conversation_get_name(conv)));
@@ -1542,7 +1557,7 @@ const gchar *message, PurpleMessageFlags flags)
 		chatname = purple_conversation_get_name(PURPLE_CONVERSATION(chatconv));
 		if (!chatname)
 			return -1;
-        }
+		}
 
 	skypeweb_send_message(sa, chatname, message);
 

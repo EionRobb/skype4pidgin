@@ -36,6 +36,7 @@ skypeweb_login_did_auth(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 		purple_connection_error(sa->pc,
 								PURPLE_CONNECTION_ERROR_NETWORK_ERROR,
 								_("Failed getting Skype Token, please try logging in via browser first"));
+		return;
 	}
 	
 	if (refresh_token == NULL) {

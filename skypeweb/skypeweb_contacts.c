@@ -32,6 +32,7 @@ static void purple_conversation_write_system_message_ts(
 	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
 	purple_message_set_time(pmsg, ts);
 	purple_conversation_write_message(conv, pmsg);
+	purple_message_destroy(pmsg);
 }
 static void purple_conversation_write_img_message(
 		PurpleConversation *conv, const char* who, const gchar *msg,
@@ -46,6 +47,7 @@ static void purple_conversation_write_img_message(
 	}
 		
 	purple_conversation_write_message(conv, pmsg);
+	purple_message_destroy(pmsg);
 }
 
 // Check that the conversation hasn't been closed
@@ -104,11 +106,16 @@ skypeweb_get_icon_now(PurpleBuddy *buddy)
 	purple_debug_info("skypeweb", "getting new buddy icon for %s\n", purple_buddy_get_name(buddy));
 	
 	sbuddy = purple_buddy_get_protocol_data(buddy);
-	if (sbuddy != NULL && sbuddy->avatar_url && sbuddy->avatar_url[0]) {
+	
+	if (!sbuddy || !sbuddy->sa || !sbuddy->sa->pc)
+		return;
+
+	if (sbuddy->avatar_url && sbuddy->avatar_url[0]) {
 		url = g_strdup(sbuddy->avatar_url);
 	} else {
 		url = g_strdup_printf("https://avatar.skype.com/v1/avatars/%s/public?returnDefaultImage=false", purple_url_encode(purple_buddy_get_name(buddy)));
 	}
+
 	sa = sbuddy->sa;
 	
 	purple_http_get(sa->pc, skypeweb_get_icon_cb, buddy, url);
@@ -486,7 +493,7 @@ skypeweb_got_file_info(PurpleHttpConnection *http_conn, PurpleHttpResponse *resp
 	} */
 	purple_debug_info("skypeweb", "File info: %s\n", data);
 	
-	if (!json_object_has_member(obj, "content_state") || !g_str_equal(json_object_get_string_member(obj, "content_state"), "ready")) {
+	if (!json_object_has_member(obj, "content_state") || !purple_strequal(json_object_get_string_member(obj, "content_state"), "ready")) {
 		skypeweb_present_uri_as_filetransfer(sa, json_object_get_string_member(obj, "status_location"), swft->from);
 		g_free(swft->url);
 		g_free(swft->from);
@@ -567,7 +574,7 @@ got_file_send_progress(PurpleHttpConnection *http_conn, PurpleHttpResponse *resp
 		swft->url = g_strdup(json_object_get_string_member(obj, "status_location"));
 	}
 	
-	if (json_object_has_member(obj, "content_state") && g_str_equal(json_object_get_string_member(obj, "content_state"), "ready")) {
+	if (json_object_has_member(obj, "content_state") && purple_strequal(json_object_get_string_member(obj, "content_state"), "ready")) {
 		PurpleXmlNode *uriobject = purple_xmlnode_new("URIObject");
 		PurpleXmlNode *title = purple_xmlnode_new_child(uriobject, "Title");
 		PurpleXmlNode *description = purple_xmlnode_new_child(uriobject, "Description");
@@ -877,7 +884,7 @@ skypeweb_got_self_details(SkypeWebAccount *sa, JsonNode *node, gpointer user_dat
 	if (!old_alias || !*old_alias) {
 		if (json_object_has_member(userobj, "displayname"))
 			displayname = json_object_get_string_member(userobj, "displayname");
-		if (!displayname || g_str_equal(displayname, username))
+		if (!displayname || purple_strequal(displayname, username))
 			displayname = json_object_get_string_member(userobj, "firstname");
 	
 		if (displayname)
