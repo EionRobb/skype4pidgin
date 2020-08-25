@@ -7,6 +7,7 @@ Download latest releases from [here](https://github.com/EionRobb/skype4pidgin/re
 
 Change Log
 ----------
+  * 1.7 - Fixes 'non-alt login' (failed to get Magic T), improves online presences
   * 1.6 - Fixes 'alt login', fixes file transfers, fixes losing admin rights when joining a room
   * 1.5 - Adds 'alternative auth' support, adds support for suggested contacts, fixes 'deny' friend requests
   * 1.4 - libpurple3.0 support, newer HTTP library which uses less CPU, fix for adding/removing/blocking contacts
