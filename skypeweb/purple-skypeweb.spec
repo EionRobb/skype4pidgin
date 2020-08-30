@@ -1,8 +1,8 @@
 %global plugin_name skypeweb
 
 Name: purple-%{plugin_name}
-Version: 1.1
-Release: 2%{?dist}
+Version: 1.7
+Release: 0%{?dist}
 License: GPLv3
 URL: https://github.com/EionRobb/skype4pidgin
 Source0: https://github.com/EionRobb/skype4pidgin/archive/%{version}.tar.gz
@@ -52,8 +52,8 @@ chmod 755 %{buildroot}%{_libdir}/purple-2/lib%{plugin_name}.so
 
 %files
 %{_libdir}/purple-2/lib%{plugin_name}.so
-%doc %{plugin_name}/README.md CHANGELOG.txt
-%license COPYING.txt
+%doc %{plugin_name}/README.md
+%license %{plugin_name}/gpl3.txt
 
 %files -n pidgin-%{plugin_name}
 %dir %{_datadir}/pixmaps/pidgin
