@@ -33,3 +33,10 @@ PurpleAccount *find_acct(const char *prpl, const char *acct_id);
 
 const gchar *skypeweb_user_url_prefix(const gchar *who);
 const gchar *skypeweb_strip_user_prefix(const gchar *who);
+
+#define SKYPEWEB_GET_HTML_FIELD_NAME_ID(target, pc, haystack, len, name, id) \
+	target = skypeweb_string_get_chunk(haystack, len, "name=\"" name "\" id=\"" id "\" value=\"", "\""); \
+	if (!target) { \
+		purple_connection_error(pc, PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED, _("Failed getting " name " value, please try logging in via browser first")); \
+		return; \
+	}
