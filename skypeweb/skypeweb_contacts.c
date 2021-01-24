@@ -26,14 +26,6 @@
 #include "xfer.h"
 #include "image-store.h"
 
-static void purple_conversation_write_system_message_ts(
-		PurpleConversation *conv, const gchar *msg, PurpleMessageFlags flags,
-		time_t ts) {
-	PurpleMessage *pmsg = purple_message_new_system(msg, flags);
-	purple_message_set_time(pmsg, ts);
-	purple_conversation_write_message(conv, pmsg);
-	purple_message_destroy(pmsg);
-}
 static void purple_conversation_write_img_message(
 		PurpleConversation *conv, const char* who, const gchar *msg,
 		PurpleMessageFlags flags, time_t ts) {
@@ -198,7 +190,12 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 		// Bitlbee doesn't support images, so just plop a url to the image instead
 		
 		url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
-		purple_conversation_write_system_message_ts(conv, url, PURPLE_MESSAGE_SYSTEM, ts);
+		if (PURPLE_IS_IM_CONVERSATION(conv)) {
+			purple_serv_got_im(sa->pc, from, url, PURPLE_MESSAGE_RECV, ts);
+		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
+			gchar *chatname = purple_conversation_get_data(conv, "chatname");
+			purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, PURPLE_MESSAGE_RECV, url, ts);
+		}
 		g_free(url);
 		
 		return;
