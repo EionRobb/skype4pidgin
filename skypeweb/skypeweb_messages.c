@@ -1487,14 +1487,17 @@ skypeweb_send_message(SkypeWebAccount *sa, const gchar *convname, const gchar *m
 	gchar *stripped;
 	static GRegex *font_strip_regex = NULL;
 	gchar *font_stripped;
+	char *xhtml;
 	
 	url = g_strdup_printf("/v1/users/ME/conversations/%s/messages", purple_url_encode(convname));
 	
 	clientmessageid = skypeweb_get_js_time();
 	clientmessageid_str = g_strdup_printf("%" G_GINT64_FORMAT "", clientmessageid);
 	
+	purple_markup_html_to_xhtml(message, &xhtml, NULL);
 	// Some clients don't receive messages with <br>'s in them
-	stripped = purple_strreplace(message, "<br>", "\r\n");
+	stripped = purple_strreplace(xhtml, "<br>", "\r\n");
+	g_free(xhtml);
 	
 	// Pidgin has a nasty habit of sending <font size="3"> when copy-pasting text
 	if (font_strip_regex == NULL) {
