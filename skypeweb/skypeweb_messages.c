@@ -117,6 +117,22 @@ process_userpresence_resource(SkypeWebAccount *sa, JsonObject *resource)
 // }
 
 static void
+skypeweb_process_uri_message(const gchar* messagetype, SkypeWebAccount *sa, PurpleConversation* conv, const gchar* uri_content, time_t composetimestamp, const gchar* from) {
+	PurpleXmlNode *blob = purple_xmlnode_from_str(uri_content, -1);
+	const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
+	SkypeWebURIType uri_type;
+	
+	if (g_str_has_suffix(messagetype, "Media_Video")) {
+		uri_type = SKYPEWEB_URI_TYPE_VIDEO;
+	} else {
+		uri_type = SKYPEWEB_URI_TYPE_IMAGE;
+	}
+	
+	skypeweb_download_uri_to_conv(sa, uri, uri_type, conv, composetimestamp, from);
+	purple_xmlnode_free(blob);
+}
+
+static void
 process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 {
 	const gchar *clientmessageid = NULL;
@@ -337,15 +353,11 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			} 
 			
 			purple_xmlnode_free(blob);
-		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
-			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
-			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
-			
+		} else if (g_str_equal(messagetype, "RichText/UriObject") || g_str_equal(messagetype, "RichText/Media_Video")) {
 			from = skypeweb_contact_url_to_name(from);
 			g_return_if_fail(from);
 			
-			skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp, from);
-			purple_xmlnode_free(blob);
+			skypeweb_process_uri_message(messagetype, sa, conv, content, composetimestamp, from);
 		} else {
 			purple_debug_warning("skypeweb", "Unhandled thread message resource messagetype '%s'\n", messagetype);
 		}
@@ -420,11 +432,9 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				conv = PURPLE_CONVERSATION(imconv);
 			}
 			g_free(html);
-		} else if (g_str_equal(messagetype, "RichText/UriObject")) {
-			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
-			const gchar *uri = purple_xmlnode_get_attrib(blob, "url_thumbnail");
+		} else if (g_str_equal(messagetype, "RichText/UriObject") || g_str_equal(messagetype, "RichText/Media_Video")) {
 			PurpleIMConversation *imconv;
-			
+
 			if (skypeweb_is_user_self(sa, from)) {
 				from = convbuddyname;
 			}
@@ -436,9 +446,8 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 				}
 				
 				conv = PURPLE_CONVERSATION(imconv);
-				skypeweb_download_uri_to_conv(sa, uri, conv, composetimestamp, from);
+				skypeweb_process_uri_message(messagetype, sa, conv, content, composetimestamp, from);
 			}
-			purple_xmlnode_free(blob);
 		} else if (g_str_equal(messagetype, "RichText/Media_GenericFile")) {
 			PurpleXmlNode *blob = purple_xmlnode_from_str(content, -1);
 			const gchar *uri = purple_xmlnode_get_attrib(blob, "uri");
