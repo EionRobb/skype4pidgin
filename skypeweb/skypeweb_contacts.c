@@ -180,16 +180,37 @@ skypeweb_got_imagemessage(PurpleHttpConnection *http_conn, PurpleHttpResponse *r
 	g_free(ctx_from);
 }
 
+static const char*
+skypeweb_uri_type_name(SkypeWebURIType uri_type) {
+	switch (uri_type) {
+		case SKYPEWEB_URI_TYPE_IMAGE:
+			return "image";
+		case SKYPEWEB_URI_TYPE_VIDEO:
+			return "video";
+		default:
+			return "(unknown)";
+	}
+}
 void
-skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConversation *conv, time_t ts, const gchar* from)
+skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, SkypeWebURIType uri_type, PurpleConversation *conv, time_t ts, const gchar* from)
 {
 	gchar *url, *text;
 	PurpleHttpRequest *request;
 	
+	switch (uri_type) {
+		case SKYPEWEB_URI_TYPE_IMAGE:
+			url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
+			break;
+		case SKYPEWEB_URI_TYPE_VIDEO:
+			url = purple_strreplace(uri, "thumbnail", "video");
+			break;
+		default:
+			url = g_strdup(uri);
+			break;
+	}
 	if (purple_strequal(purple_core_get_ui(), "BitlBee")) {
 		// Bitlbee doesn't support images, so just plop a url to the image instead
 		
-		url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
 		if (PURPLE_IS_IM_CONVERSATION(conv)) {
 			purple_serv_got_im(sa->pc, from, url, PURPLE_MESSAGE_RECV, ts);
 		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
@@ -212,8 +233,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, PurpleConve
 	purple_http_request(sa->pc, request, skypeweb_got_imagemessage, ctx);
 	purple_http_request_unref(request);
 
-	url = purple_strreplace(uri, "imgt1", "imgpsh_fullsize");
-	text = g_strdup_printf("<a href=\"%s\">Click here to view full version</a>", url);
+	text = g_strdup_printf("<a href=\"%s\">Click here to view full %s</a>", url, skypeweb_uri_type_name(uri_type));
 	purple_conversation_write_img_message(conv, from, text, 0, ts);
 	
 	g_free(url);

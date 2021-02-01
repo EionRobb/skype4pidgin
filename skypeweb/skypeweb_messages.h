@@ -21,6 +21,13 @@
 
 #include "libskypeweb.h"
 
+typedef enum
+{
+	SKYPEWEB_URI_TYPE_IMAGE,
+	SKYPEWEB_URI_TYPE_VIDEO,
+	SKYPEWEB_URI_TYPE_UNKNOWN
+} SkypeWebURIType;
+
 gint skypeweb_send_im(PurpleConnection *pc, 
 #if PURPLE_VERSION_CHECK(3, 0, 0)
 	PurpleMessage *msg
