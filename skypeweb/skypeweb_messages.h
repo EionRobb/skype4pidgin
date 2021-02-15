@@ -68,5 +68,6 @@ void skype_web_get_offline_history(SkypeWebAccount *sa);
 void skypeweb_mark_conv_seen(PurpleConversation *conv, PurpleConversationUpdateType type);
 
 void skypeweb_gather_self_properties(SkypeWebAccount *sa);
+gboolean skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username);
 
 #endif /* SKYPEWEB_MESSAGES_H */

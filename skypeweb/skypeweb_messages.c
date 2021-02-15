@@ -28,7 +28,7 @@ static GString* make_last_timestamp_setting(const gchar *convname) {
 	return rv;
 }
 
-static gboolean
+gboolean
 skypeweb_is_user_self(SkypeWebAccount *sa, const gchar *username) {
 	if (!username || *username == 0) {
 		return FALSE;
@@ -434,15 +434,13 @@ process_message_resource(SkypeWebAccount *sa, JsonObject *resource)
 			g_free(html);
 		} else if (g_str_equal(messagetype, "RichText/UriObject") || g_str_equal(messagetype, "RichText/Media_Video")) {
 			PurpleIMConversation *imconv;
+			const gchar* conv_buddy = skypeweb_is_user_self(sa, from) ? convbuddyname : from;
 
-			if (skypeweb_is_user_self(sa, from)) {
-				from = convbuddyname;
-			}
 			if (from != NULL) {
-				imconv = purple_conversations_find_im_with_account(from, sa->account);
+				imconv = purple_conversations_find_im_with_account(conv_buddy, sa->account);
 				if (imconv == NULL)
 				{
-					imconv = purple_im_conversation_new(sa->account, from);
+					imconv = purple_im_conversation_new(sa->account, conv_buddy);
 				}
 				
 				conv = PURPLE_CONVERSATION(imconv);
