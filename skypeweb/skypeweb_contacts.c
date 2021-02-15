@@ -208,14 +208,16 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, SkypeWebURI
 			url = g_strdup(uri);
 			break;
 	}
+
+	gboolean from_self = skypeweb_is_user_self(sa, from);
 	if (purple_strequal(purple_core_get_ui(), "BitlBee")) {
 		// Bitlbee doesn't support images, so just plop a url to the image instead
 		
 		if (PURPLE_IS_IM_CONVERSATION(conv)) {
-			purple_serv_got_im(sa->pc, from, url, PURPLE_MESSAGE_RECV, ts);
+			purple_serv_got_im(sa->pc, from, url, from_self ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, ts);
 		} else if (PURPLE_IS_CHAT_CONVERSATION(conv)) {
 			gchar *chatname = purple_conversation_get_data(conv, "chatname");
-			purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, PURPLE_MESSAGE_RECV, url, ts);
+			purple_serv_got_chat_in(sa->pc, g_str_hash(chatname), from, from_self ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, url, ts);
 		}
 		g_free(url);
 		
@@ -234,7 +236,7 @@ skypeweb_download_uri_to_conv(SkypeWebAccount *sa, const gchar *uri, SkypeWebURI
 	purple_http_request_unref(request);
 
 	text = g_strdup_printf("<a href=\"%s\">Click here to view full %s</a>", url, skypeweb_uri_type_name(uri_type));
-	purple_conversation_write_img_message(conv, from, text, 0, ts);
+	purple_conversation_write_img_message(conv, from, text, from_self ? PURPLE_MESSAGE_SEND : PURPLE_MESSAGE_RECV, ts);
 	
 	g_free(url);
 	g_free(text);
