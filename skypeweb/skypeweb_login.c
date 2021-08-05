@@ -306,9 +306,16 @@ skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	int tmplen;
 	const gchar *data;
 	gsize len;
+	int response_code;
 
+	response_code = purple_http_response_get_code(response);
 	data = purple_http_response_get_data(response, &len);
-	
+	purple_debug_misc("skypeweb", "PPFT2: %d %s\n", response_code, data);
+	if (!response_code) {
+		purple_connection_error(sa->pc, PURPLE_CONNECTION_ERROR_NETWORK_ERROR, purple_http_response_get_error(response));
+		return;
+	}
+
 	// <input type="hidden" name="PPFT" id="i0327" value="..."/>
 	ppft = skypeweb_string_get_chunk(data, len, "name=\"PPFT\" id=\"i0327\" value=\"", "\"");
 	if (!ppft) {
