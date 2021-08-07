@@ -1215,6 +1215,8 @@ skypeweb_got_registration_token(PurpleHttpConnection *http_conn, PurpleHttpRespo
 	gchar *new_messages_host = NULL;
 	const gchar *data;
 	gsize len;
+
+	g_return_if_fail(sa->pc);
 	
 	data = purple_http_response_get_data(response, &len);
 	
@@ -1282,6 +1284,8 @@ skypeweb_got_vdms_token(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 {
 	const gchar *token;
 	SkypeWebAccount *sa = user_data;
+	g_return_if_fail(sa->pc);
+
 	JsonParser *parser = json_parser_new();
 	const gchar *data;
 	gsize len;

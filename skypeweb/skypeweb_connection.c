@@ -74,6 +74,7 @@ SkypeWebConnection *skypeweb_post_or_get(SkypeWebAccount *sa, SkypeWebMethod met
 	gchar *language_names;
 	gchar *real_url;
 	
+	g_return_val_if_fail(sa->pc != NULL, NULL);
 	g_return_val_if_fail(host != NULL, NULL);
 	g_return_val_if_fail(url != NULL, NULL);
 	

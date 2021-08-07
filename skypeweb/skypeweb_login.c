@@ -27,6 +27,8 @@ skypeweb_login_did_auth(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	SkypeWebAccount *sa = user_data;
 	const gchar *data;
 	gsize len;
+
+	g_return_if_fail(sa->pc);
 	
 	data = purple_http_response_get_data(response, &len);
 	
@@ -153,6 +155,8 @@ static void
 skypeweb_login_got_t(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
+	g_return_if_fail(sa->pc);
+
 	const gchar *login_url = "https://" SKYPEWEB_LOGIN_HOST "/login/microsoft";
 	PurpleHttpRequest *request;
 	GString *postdata;
@@ -247,6 +251,8 @@ static void
 skypeweb_login_got_opid(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
+	g_return_if_fail(sa->pc);
+
 	const gchar *live_login_url = "https://login.live.com" "/ppsecure/post.srf?wa=wsignin1.0&wp=MBI_SSL&wreply=https%3A%2F%2Flw.skype.com%2Flogin%2Foauth%2Fproxy%3Fsite_name%3Dlw.skype.com";
 	gchar *ppft;
 	gchar *opid;
@@ -298,6 +304,7 @@ static void
 skypeweb_login_got_ppft(PurpleHttpConnection *http_conn, PurpleHttpResponse *response, gpointer user_data)
 {
 	SkypeWebAccount *sa = user_data;
+	g_return_if_fail(sa->pc);
 	const gchar *live_login_url = "https://login.live.com" "/ppsecure/post.srf?wa=wsignin1.0&wp=MBI_SSL&wreply=https%3A%2F%2Flw.skype.com%2Flogin%2Foauth%2Fproxy%3Fsite_name%3Dlw.skype.com";
 	gchar *cktst_cookie;
 	gchar *ppft;
@@ -410,6 +417,8 @@ skypeweb_login_did_got_api_skypetoken(PurpleHttpConnection *http_conn, PurpleHtt
 	gchar *error = NULL;
 	PurpleConnectionError error_type = PURPLE_CONNECTION_ERROR_NETWORK_ERROR;
 
+	g_return_if_fail(sa->pc);
+
 	data = purple_http_response_get_data(response, &len);
 	
 	purple_debug_misc("skypeweb", "Full skypetoken response: %s\n", data);
@@ -503,6 +512,8 @@ skypeweb_login_did_soap(PurpleHttpConnection *http_conn, PurpleHttpResponse *res
 	PurpleXmlNode *envelope, *main_node, *node, *fault;
 	gchar *token;
 	const char *error = NULL;
+
+	g_return_if_fail(sa->pc);
 
 	data = purple_http_response_get_data(response, &len);
 	envelope = purple_xmlnode_from_str(data, len);
